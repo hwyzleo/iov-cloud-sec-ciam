@@ -1,0 +1,65 @@
+package net.hwyz.iov.cloud.sec.ciam.infrastructure.repository.dao.dataobject;
+
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.Data;
+
+import java.time.LocalDateTime;
+
+/**
+ * 认证标签表数据对象。
+ */
+@Data
+@TableName("ciam_user_tag")
+public class CiamUserTagDo {
+
+    @TableId(value = "id", type = IdType.AUTO)
+    private Long id;
+
+    @TableField("tag_id")
+    private String tagId;
+
+    @TableField("user_id")
+    private String userId;
+
+    @TableField("tag_code")
+    private String tagCode;
+
+    @TableField("tag_name")
+    private String tagName;
+
+    @TableField("tag_status")
+    private Integer tagStatus;
+
+    @TableField("tag_source")
+    private String tagSource;
+
+    @TableField("effective_time")
+    private LocalDateTime effectiveTime;
+
+    @TableField("expire_time")
+    private LocalDateTime expireTime;
+
+    @TableField("description")
+    private String description;
+
+    @TableField("create_time")
+    private LocalDateTime createTime;
+
+    @TableField("create_by")
+    private String createBy;
+
+    @TableField("modify_time")
+    private LocalDateTime modifyTime;
+
+    @TableField("modify_by")
+    private String modifyBy;
+
+    @TableField("row_version")
+    private Integer rowVersion;
+
+    @TableField("row_valid")
+    private Integer rowValid;
+}

@@ -1,0 +1,77 @@
+package net.hwyz.iov.cloud.sec.ciam.infrastructure.repository.dao.dataobject;
+
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.Data;
+
+import java.time.LocalDateTime;
+
+/**
+ * 设备表数据对象。
+ */
+@Data
+@TableName("ciam_device")
+public class CiamDeviceDo {
+
+    @TableId(value = "id", type = IdType.AUTO)
+    private Long id;
+
+    @TableField("device_id")
+    private String deviceId;
+
+    @TableField("user_id")
+    private String userId;
+
+    @TableField("client_type")
+    private String clientType;
+
+    @TableField("device_type")
+    private String deviceType;
+
+    @TableField("device_name")
+    private String deviceName;
+
+    @TableField("device_os")
+    private String deviceOs;
+
+    @TableField("app_version")
+    private String appVersion;
+
+    @TableField("device_fingerprint")
+    private String deviceFingerprint;
+
+    @TableField("trusted_flag")
+    private Integer trustedFlag;
+
+    @TableField("first_login_time")
+    private LocalDateTime firstLoginTime;
+
+    @TableField("last_login_time")
+    private LocalDateTime lastLoginTime;
+
+    @TableField("device_status")
+    private Integer deviceStatus;
+
+    @TableField("description")
+    private String description;
+
+    @TableField("create_time")
+    private LocalDateTime createTime;
+
+    @TableField("create_by")
+    private String createBy;
+
+    @TableField("modify_time")
+    private LocalDateTime modifyTime;
+
+    @TableField("modify_by")
+    private String modifyBy;
+
+    @TableField("row_version")
+    private Integer rowVersion;
+
+    @TableField("row_valid")
+    private Integer rowValid;
+}

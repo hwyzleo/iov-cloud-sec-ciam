@@ -1,0 +1,18 @@
+package net.hwyz.iov.cloud.sec.ciam.controller.mobile.dto;
+
+import jakarta.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+/**
+ * 第三方登录通用请求（微信/Apple/Google）。
+ */
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class ThirdPartyLoginRequest {
+    @NotBlank private String token;
+}
