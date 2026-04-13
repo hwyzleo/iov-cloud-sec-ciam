@@ -37,7 +37,7 @@ pipeline {
                 script {
                     sh '''
                         echo '============================== 构建镜像 =============================='
-                        cp /var/jenkins_home/settings.xml ./sec-ciam-service/settings.xml
+                        cp /var/jenkins_home/settings.xml ./${DIR_SERVICE}/settings.xml
                         docker build -t ${IMAGE_NAME} -f ../Dockerfile ./${DIR_SERVICE}/
                     '''
                 }
