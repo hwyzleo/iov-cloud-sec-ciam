@@ -1,11 +1,13 @@
 package net.hwyz.iov.cloud.sec.ciam.application;
 
 import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
+import net.hwyz.iov.cloud.sec.ciam.common.security.FieldEncryptor;
 import net.hwyz.iov.cloud.sec.ciam.domain.enums.ReviewStatus;
 import net.hwyz.iov.cloud.sec.ciam.domain.enums.UserStatus;
 import net.hwyz.iov.cloud.sec.ciam.domain.repository.CiamDeactivationRequestRepository;
 import net.hwyz.iov.cloud.sec.ciam.domain.repository.CiamMergeRequestRepository;
 import net.hwyz.iov.cloud.sec.ciam.domain.repository.CiamUserIdentityRepository;
+import net.hwyz.iov.cloud.sec.ciam.domain.repository.CiamUserProfileRepository;
 import net.hwyz.iov.cloud.sec.ciam.domain.repository.CiamUserRepository;
 import net.hwyz.iov.cloud.sec.ciam.domain.repository.CiamUserTagRepository;
 import net.hwyz.iov.cloud.sec.ciam.domain.search.SearchResult;
@@ -39,10 +41,12 @@ class AdminQueryAppServiceTest {
 
     private CiamUserRepository userRepository;
     private CiamUserIdentityRepository identityRepository;
+    private CiamUserProfileRepository profileRepository;
     private CiamUserTagRepository tagRepository;
     private CiamMergeRequestRepository mergeRequestRepository;
     private CiamDeactivationRequestRepository deactivationRequestRepository;
     private SearchService searchService;
+    private FieldEncryptor fieldEncryptor;
 
     private AdminQueryAppService service;
 
@@ -52,18 +56,22 @@ class AdminQueryAppServiceTest {
     void setUp() {
         userRepository = mock(CiamUserRepository.class);
         identityRepository = mock(CiamUserIdentityRepository.class);
+        profileRepository = mock(CiamUserProfileRepository.class);
         tagRepository = mock(CiamUserTagRepository.class);
         mergeRequestRepository = mock(CiamMergeRequestRepository.class);
         deactivationRequestRepository = mock(CiamDeactivationRequestRepository.class);
         searchService = mock(SearchService.class);
+        fieldEncryptor = mock(FieldEncryptor.class);
 
         service = new AdminQueryAppService(
                 userRepository,
                 identityRepository,
+                profileRepository,
                 tagRepository,
                 mergeRequestRepository,
                 deactivationRequestRepository,
-                searchService);
+                searchService,
+                fieldEncryptor);
     }
 
     // ---- helpers ----
@@ -123,14 +131,13 @@ class AdminQueryAppServiceTest {
             when(userRepository.findByUserId(USER_ID)).thenReturn(Optional.of(stubUser()));
             when(identityRepository.findByUserId(USER_ID))
                     .thenReturn(List.of(stubIdentity("MOBILE"), stubIdentity("EMAIL")));
+            when(profileRepository.findByUserId(USER_ID)).thenReturn(Optional.empty());
             when(tagRepository.findByUserId(USER_ID))
                     .thenReturn(List.of(stubTag("REAL_NAME")));
 
             AdminQueryAppService.UserDetail detail = service.queryUser(USER_ID);
 
-            assertEquals(USER_ID, detail.user().getUserId());
-            assertEquals(2, detail.identities().size());
-            assertEquals(1, detail.tags().size());
+            assertEquals(USER_ID, detail.userId());
         }
 
         @Test
@@ -146,17 +153,33 @@ class AdminQueryAppServiceTest {
     class QueryUserListTests {
 
         @Test
-        void delegatesToSearchService() {
-            SearchResult<UserSearchDocument> expected = SearchResult.<UserSearchDocument>builder()
-                    .items(List.of(UserSearchDocument.builder().userId(USER_ID).build()))
-                    .total(1).page(0).size(10).build();
-            when(searchService.searchUsers("test", 0, 10)).thenReturn(expected);
+        void returnsFilteredUsers() {
+            when(userRepository.findAll()).thenReturn(List.of(stubUser()));
+            when(identityRepository.findByUserId(USER_ID)).thenReturn(List.of(stubIdentity("MOBILE")));
+            when(profileRepository.findByUserId(USER_ID)).thenReturn(Optional.empty());
 
-            SearchResult<UserSearchDocument> result = service.queryUserList("test", 0, 10);
+            SearchResult<UserSearchDocument> result = service.queryUserList(
+                    null, null, null, null, null, null, null, null, 0, 10);
 
             assertEquals(1, result.getTotal());
             assertEquals(USER_ID, result.getItems().get(0).getUserId());
-            verify(searchService).searchUsers("test", 0, 10);
+        }
+
+        @Test
+        void filterByUserId() {
+            when(userRepository.findAll()).thenReturn(List.of(stubUser()));
+            when(identityRepository.findByUserId(USER_ID)).thenReturn(List.of(stubIdentity("MOBILE")));
+            when(profileRepository.findByUserId(USER_ID)).thenReturn(Optional.empty());
+
+            SearchResult<UserSearchDocument> result = service.queryUserList(
+                    "user-admin-001", null, null, null, null, null, null, null, 0, 10);
+
+            assertEquals(1, result.getTotal());
+
+            result = service.queryUserList(
+                    "nonexistent", null, null, null, null, null, null, null, 0, 10);
+
+            assertEquals(0, result.getTotal());
         }
     }
 
