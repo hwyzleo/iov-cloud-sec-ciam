@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
  * 认证控制器 — 注册、登录、登出、验证码。
  */
 @RestController
-@RequestMapping("/api/mobile/v1/auth")
+@RequestMapping("/api/mobile/auth/v1")
 @RequiredArgsConstructor
 public class MobileAuthController {
 
