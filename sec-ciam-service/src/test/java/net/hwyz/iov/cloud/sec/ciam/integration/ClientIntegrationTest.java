@@ -192,7 +192,7 @@ class ClientIntegrationTest {
                 vcService, identityService, userService,
                 userRepository, auditLogger, credentialService, captchaService,
                 sessionService, wechatLoginAdapter, appleLoginAdapter,
-                googleLoginAdapter, localMobileAuthAdapter);
+                googleLoginAdapter, localMobileAuthAdapter, jwtTokenService);
         authController = new MobileAuthController(authAppService, vcService, captchaService);
         oAuthController = new OpenOAuthController(
                 oAuthAuthorizationService, deviceAuthorizationService, refreshTokenService, jwtTokenService);

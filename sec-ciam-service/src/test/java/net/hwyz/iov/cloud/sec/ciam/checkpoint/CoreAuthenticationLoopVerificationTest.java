@@ -258,12 +258,13 @@ class CoreAuthenticationLoopVerificationTest {
         // verificationCodeService, identityDomainService, userDomainService,
         // userRepository, auditLogger, credentialDomainService, captchaDomainService,
         // sessionDomainService, wechatLoginAdapter, appleLoginAdapter,
-        // googleLoginAdapter, localMobileAuthAdapter
+        // googleLoginAdapter, localMobileAuthAdapter, jwtTokenService
+        JwtTokenService jwtTokenService = new JwtTokenService();
         AuthenticationAppService authAppService = new AuthenticationAppService(
                 vcService, identityService, userService,
                 userRepository, auditLogger, credentialService, captchaService,
                 sessionService, wechatLoginAdapter, appleLoginAdapter,
-                googleLoginAdapter, localMobileAuthAdapter);
+                googleLoginAdapter, localMobileAuthAdapter, jwtTokenService);
         return new MobileAuthController(authAppService, vcService, captchaService);
     }
 

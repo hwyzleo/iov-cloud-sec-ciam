@@ -31,6 +31,7 @@ import net.hwyz.iov.cloud.sec.ciam.domain.repository.CiamDeviceRepository;
 import net.hwyz.iov.cloud.sec.ciam.domain.service.CaptchaDomainService;
 import net.hwyz.iov.cloud.sec.ciam.domain.service.CredentialDomainService;
 import net.hwyz.iov.cloud.sec.ciam.domain.service.IdentityDomainService;
+import net.hwyz.iov.cloud.sec.ciam.domain.service.JwtTokenService;
 import net.hwyz.iov.cloud.sec.ciam.domain.service.PasswordPolicyService;
 import net.hwyz.iov.cloud.sec.ciam.domain.service.SessionDomainService;
 import net.hwyz.iov.cloud.sec.ciam.domain.service.UserDomainService;
@@ -151,6 +152,7 @@ class AuthenticationAppServiceTest {
                 credentialRepository, passwordEncoder, new PasswordPolicyService());
         captchaDomainService = new CaptchaDomainService(captchaAdapter, codeStore);
         sessionDomainService = new SessionDomainService(sessionRepository, refreshTokenRepository, deviceRepository);
+        JwtTokenService jwtTokenService = new JwtTokenService();
 
         service = new AuthenticationAppService(
                 verificationCodeService, identityDomainService,
@@ -158,7 +160,7 @@ class AuthenticationAppServiceTest {
                 credentialDomainService, captchaDomainService,
                 sessionDomainService,
                 wechatLoginAdapter, appleLoginAdapter, googleLoginAdapter,
-                localMobileAuthAdapter);
+                localMobileAuthAdapter, jwtTokenService);
     }
 
     /**
