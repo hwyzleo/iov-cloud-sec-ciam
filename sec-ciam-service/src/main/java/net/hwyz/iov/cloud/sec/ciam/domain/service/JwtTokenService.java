@@ -81,6 +81,26 @@ public class JwtTokenService {
     }
 
     /**
+     * 签发 JWT Refresh Token。
+     */
+    public String generateRefreshToken(String userId, String clientId, String scope, String sessionId) {
+        Instant now = Instant.now();
+        int ttlSeconds = 7 * 24 * 60 * 60;
+        return Jwts.builder()
+                .header().keyId(KEY_ID).and()
+                .subject(userId)
+                .issuer(ISSUER)
+                .issuedAt(Date.from(now))
+                .expiration(Date.from(now.plusSeconds(ttlSeconds)))
+                .claim("client_id", clientId)
+                .claim("scope", scope)
+                .claim("session_id", sessionId)
+                .claim("type", "refresh")
+                .signWith(privateKey, Jwts.SIG.RS256)
+                .compact();
+    }
+
+    /**
      * 校验并解析 JWT Access Token。
      *
      * @param token JWT 字符串

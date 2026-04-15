@@ -23,6 +23,7 @@ import net.hwyz.iov.cloud.sec.ciam.domain.service.CaptchaDomainService;
 import net.hwyz.iov.cloud.sec.ciam.domain.service.CredentialDomainService;
 import net.hwyz.iov.cloud.sec.ciam.domain.service.IdentityDomainService;
 import net.hwyz.iov.cloud.sec.ciam.domain.service.PasswordVerifyResult;
+import net.hwyz.iov.cloud.sec.ciam.domain.service.JwtTokenService;
 import net.hwyz.iov.cloud.sec.ciam.domain.service.SessionDomainService;
 import net.hwyz.iov.cloud.sec.ciam.domain.service.UserDomainService;
 import net.hwyz.iov.cloud.sec.ciam.domain.service.VerificationCodeService;
@@ -63,6 +64,7 @@ public class AuthenticationAppService {
     private final AppleLoginAdapter appleLoginAdapter;
     private final GoogleLoginAdapter googleLoginAdapter;
     private final LocalMobileAuthAdapter localMobileAuthAdapter;
+    private final JwtTokenService jwtTokenService;
 
     /**
      * 发送手机验证码。
@@ -373,9 +375,17 @@ public class AuthenticationAppService {
 
         logAudit(userId, clientId, AuditEventType.LOGIN_SUCCESS, true);
 
+        int accessTokenTtl = 1800;
+        String accessToken = jwtTokenService.generateAccessToken(
+                userId, clientId, "default", null, accessTokenTtl);
+        String refreshToken = jwtTokenService.generateRefreshToken(userId, clientId, "default", null);
+
         return LoginResult.builder()
                 .userId(userId)
                 .newUser(false)
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .accessTokenTtl(accessTokenTtl)
                 .sessionId(null)
                 .build();
     }
@@ -393,9 +403,17 @@ public class AuthenticationAppService {
 
         logAudit(userId, clientId, AuditEventType.REGISTER_SUCCESS, true);
 
+        int accessTokenTtl = 1800;
+        String accessToken = jwtTokenService.generateAccessToken(
+                userId, clientId, "default", null, accessTokenTtl);
+        String refreshToken = jwtTokenService.generateRefreshToken(userId, clientId, "default", null);
+
         return LoginResult.builder()
                 .userId(userId)
                 .newUser(true)
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .accessTokenTtl(accessTokenTtl)
                 .sessionId(null)
                 .build();
     }

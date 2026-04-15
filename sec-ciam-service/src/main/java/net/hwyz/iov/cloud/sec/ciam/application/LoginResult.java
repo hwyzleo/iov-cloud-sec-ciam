@@ -23,6 +23,15 @@ public class LoginResult {
     /** 是否为新注册用户 */
     private boolean newUser;
 
+    /** Access Token */
+    private String accessToken;
+
+    /** Refresh Token */
+    private String refreshToken;
+
+    /** Access Token 有效期（秒） */
+    private Integer accessTokenTtl;
+
     /** 会话 ID（占位，后续由会话模块填充） */
     private String sessionId;
 
