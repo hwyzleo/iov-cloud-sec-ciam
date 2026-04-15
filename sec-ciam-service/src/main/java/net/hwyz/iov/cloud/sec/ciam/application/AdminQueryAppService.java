@@ -4,9 +4,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
 import net.hwyz.iov.cloud.sec.ciam.common.exception.CiamErrorCode;
+import net.hwyz.iov.cloud.sec.ciam.common.security.FieldEncryptor;
 import net.hwyz.iov.cloud.sec.ciam.domain.repository.CiamDeactivationRequestRepository;
 import net.hwyz.iov.cloud.sec.ciam.domain.repository.CiamMergeRequestRepository;
 import net.hwyz.iov.cloud.sec.ciam.domain.repository.CiamUserIdentityRepository;
+import net.hwyz.iov.cloud.sec.ciam.domain.repository.CiamUserProfileRepository;
 import net.hwyz.iov.cloud.sec.ciam.domain.repository.CiamUserRepository;
 import net.hwyz.iov.cloud.sec.ciam.domain.repository.CiamUserTagRepository;
 import net.hwyz.iov.cloud.sec.ciam.domain.search.SearchResult;
@@ -15,6 +17,7 @@ import net.hwyz.iov.cloud.sec.ciam.infrastructure.repository.dao.dataobject.Ciam
 import net.hwyz.iov.cloud.sec.ciam.infrastructure.repository.dao.dataobject.CiamMergeRequestDo;
 import net.hwyz.iov.cloud.sec.ciam.infrastructure.repository.dao.dataobject.CiamUserDo;
 import net.hwyz.iov.cloud.sec.ciam.infrastructure.repository.dao.dataobject.CiamUserIdentityDo;
+import net.hwyz.iov.cloud.sec.ciam.infrastructure.repository.dao.dataobject.CiamUserProfileDo;
 import net.hwyz.iov.cloud.sec.ciam.infrastructure.repository.dao.dataobject.CiamUserTagDo;
 import net.hwyz.iov.cloud.sec.ciam.infrastructure.search.document.AuditLogSearchDocument;
 import net.hwyz.iov.cloud.sec.ciam.infrastructure.search.document.RiskEventSearchDocument;
@@ -23,6 +26,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * 运营后台查询应用服务 — 提供用户、绑定关系、合并申请、注销申请、审计日志、风险事件的查询能力。
@@ -45,10 +50,12 @@ public class AdminQueryAppService {
 
     private final CiamUserRepository userRepository;
     private final CiamUserIdentityRepository identityRepository;
+    private final CiamUserProfileRepository profileRepository;
     private final CiamUserTagRepository tagRepository;
     private final CiamMergeRequestRepository mergeRequestRepository;
     private final CiamDeactivationRequestRepository deactivationRequestRepository;
     private final SearchService searchService;
+    private final FieldEncryptor fieldEncryptor;
 
     /**
      * 查询用户详情（含状态、标识列表、标签列表）。
@@ -59,23 +66,155 @@ public class AdminQueryAppService {
     public UserDetail queryUser(String userId) {
         CiamUserDo user = userRepository.findByUserId(userId)
                 .orElseThrow(() -> new BusinessException(CiamErrorCode.USER_NOT_FOUND));
+        
+        String identityType = null;
+        String identityValue = null;
+        
         List<CiamUserIdentityDo> identities = identityRepository.findByUserId(userId);
-        List<CiamUserTagDo> tags = tagRepository.findByUserId(userId);
+        for (CiamUserIdentityDo identity : identities) {
+            if ("MOBILE".equals(identity.getIdentityType()) || "EMAIL".equals(identity.getIdentityType())) {
+                identityType = identity.getIdentityType();
+                try {
+                    identityValue = fieldEncryptor.decrypt(identity.getIdentityValue());
+                } catch (Exception e) {
+                    identityValue = identity.getIdentityValue();
+                }
+                break;
+            }
+        }
+        
+        String nickname = null;
+        Integer gender = null;
+        Optional<CiamUserProfileDo> profileOpt = profileRepository.findByUserId(userId);
+        if (profileOpt.isPresent()) {
+            nickname = profileOpt.get().getNickname();
+            gender = profileOpt.get().getGender();
+        }
+        
         log.info("查询用户详情: userId={}", userId);
-        return new UserDetail(user, identities, tags);
+        return new UserDetail(
+                user.getUserId(),
+                user.getUserStatus(),
+                user.getRegisterSource(),
+                user.getRegisterChannel(),
+                user.getPrimaryIdentityType(),
+                user.getLastLoginTime(),
+                user.getCreateTime(),
+                user.getDescription(),
+                nickname,
+                gender,
+                identityType,
+                identityValue
+        );
     }
 
     /**
      * 检索用户列表。
      *
-     * @param query 关键词
+     * @param userId 账号ID（精确）
+     * @param identityType 身份类型（精确）
+     * @param identityValue 账号（模糊）
+     * @param nickname 昵称（模糊）
+     * @param registerSource 注册来源（精确）
+     * @param userStatus 状态（精确）
+     * @param startTime 创建开始时间
+     * @param endTime 创建结束时间
      * @param page  页码（从 0 开始）
      * @param size  每页大小
      * @return 用户检索结果
      */
-    public SearchResult<UserSearchDocument> queryUserList(String query, int page, int size) {
-        log.info("检索用户列表: query={}, page={}, size={}", query, page, size);
-        return searchService.searchUsers(query, page, size);
+    public SearchResult<UserSearchDocument> queryUserList(String userId, String identityType, 
+                                                            String identityValue, String nickname,
+                                                            String registerSource, Integer userStatus,
+                                                            LocalDateTime startTime, LocalDateTime endTime,
+                                                            int page, int size) {
+        log.info("检索用户列表: userId={}, identityType={}, identityValue={}, nickname={}, registerSource={}, userStatus={}, startTime={}, endTime={}",
+                userId, identityType, identityValue, nickname, registerSource, userStatus, startTime, endTime);
+        
+        List<CiamUserDo> userList = userRepository.findAll();
+        
+        List<UserSearchDocument> resultList = userList.stream()
+                .map(user -> {
+                    UserSearchDocument doc = UserSearchDocument.builder()
+                            .userId(user.getUserId())
+                            .userStatus(user.getUserStatus())
+                            .registerSource(user.getRegisterSource())
+                            .registerChannel(user.getRegisterChannel())
+                            .lastLoginTime(user.getLastLoginTime())
+                            .createTime(user.getCreateTime())
+                            .build();
+                    
+                    // 查询身份信息
+                    List<CiamUserIdentityDo> identities = identityRepository.findByUserId(user.getUserId());
+                    for (CiamUserIdentityDo identity : identities) {
+                        if ("MOBILE".equals(identity.getIdentityType()) || "EMAIL".equals(identity.getIdentityType())) {
+                            doc.setIdentityType(identity.getIdentityType());
+                            try {
+                                doc.setIdentityValue(fieldEncryptor.decrypt(identity.getIdentityValue()));
+                            } catch (Exception e) {
+                                doc.setIdentityValue(identity.getIdentityValue());
+                            }
+                            break;
+                        }
+                    }
+                    
+                    // 查询昵称和性别
+                    profileRepository.findByUserId(user.getUserId()).ifPresent(profile -> {
+                        doc.setNickname(profile.getNickname());
+                        doc.setGender(profile.getGender());
+                    });
+                    
+                    return doc;
+                })
+                .filter(doc -> {
+                    // 账号ID精确查询
+                    if (userId != null && !userId.isEmpty() && !userId.equals(doc.getUserId())) {
+                        return false;
+                    }
+                    // 身份类型精确查询
+                    if (identityType != null && !identityType.isEmpty() && !identityType.equals(doc.getIdentityType())) {
+                        return false;
+                    }
+                    // 账号模糊查询
+                    if (identityValue != null && !identityValue.isEmpty()) {
+                        String value = doc.getIdentityValue();
+                        if (value == null || !value.contains(identityValue)) {
+                            return false;
+                        }
+                    }
+                    // 昵称模糊查询
+                    if (nickname != null && !nickname.isEmpty()) {
+                        String nick = doc.getNickname();
+                        if (nick == null || !nick.contains(nickname)) {
+                            return false;
+                        }
+                    }
+                    // 注册来源精确查询
+                    if (registerSource != null && !registerSource.isEmpty() && !registerSource.equals(doc.getRegisterSource())) {
+                        return false;
+                    }
+                    // 状态精确查询
+                    if (userStatus != null && !userStatus.equals(doc.getUserStatus())) {
+                        return false;
+                    }
+                    // 创建时间范围查询
+                    if (startTime != null || endTime != null) {
+                        LocalDateTime createTime = doc.getCreateTime();
+                        if (createTime == null) {
+                            return false;
+                        }
+                        if (startTime != null && createTime.isBefore(startTime)) {
+                            return false;
+                        }
+                        if (endTime != null && createTime.isAfter(endTime)) {
+                            return false;
+                        }
+                    }
+                    return true;
+                })
+                .collect(Collectors.toList());
+        
+        return paginate(resultList, page, size);
     }
 
     /**
@@ -177,8 +316,17 @@ public class AdminQueryAppService {
      * 用户详情聚合对象。
      */
     public record UserDetail(
-            CiamUserDo user,
-            List<CiamUserIdentityDo> identities,
-            List<CiamUserTagDo> tags
+            String userId,
+            Integer userStatus,
+            String registerSource,
+            String registerChannel,
+            String primaryIdentityType,
+            LocalDateTime lastLoginTime,
+            LocalDateTime createTime,
+            String description,
+            String nickname,
+            Integer gender,
+            String identityType,
+            String identityValue
     ) {}
 }

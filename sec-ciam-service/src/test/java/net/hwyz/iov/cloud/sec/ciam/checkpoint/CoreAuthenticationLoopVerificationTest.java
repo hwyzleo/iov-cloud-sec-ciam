@@ -1,7 +1,7 @@
 package net.hwyz.iov.cloud.sec.ciam.checkpoint;
 
 import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
-import net.hwyz.iov.cloud.framework.web.domain.ApiResponse;
+import net.hwyz.iov.cloud.framework.common.bean.ApiResponse;
 import net.hwyz.iov.cloud.sec.ciam.application.AccountLifecycleAppService;
 import net.hwyz.iov.cloud.sec.ciam.application.AuthenticationAppService;
 import net.hwyz.iov.cloud.sec.ciam.application.LoginResult;

@@ -34,16 +34,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     static final String ATTR_CLIENT_ID = "ciam.clientId";
 
     private static final List<String> PUBLIC_PATTERNS = List.of(
-            "/api/v1/auth/**",
-            "/api/v1/mobile/auth/**",
-            "/api/v1/oidc/.well-known/**",
-            "/api/v1/open/oidc/.well-known/**",
-            "/api/v1/oidc/jwks",
-            "/api/v1/open/oidc/jwks",
-            "/api/v1/oauth/token",
-            "/api/v1/open/oauth/token",
-            "/api/v1/oauth/device",
-            "/api/v1/open/oauth/device",
+            "/api/mobile/v1/auth/**",
+            "/api/open/v1/oidc/.well-known/**",
+            "/api/open/v1/oauth/token",
+            "/api/open/v1/oauth/device",
+            "/api/vehicle/v1/auth/**",
+            "/api/service/v1/**",
+            "/api/mp/admin/v1/**",
             "/swagger-ui/**",
             "/swagger-ui.html",
             "/v3/api-docs/**",

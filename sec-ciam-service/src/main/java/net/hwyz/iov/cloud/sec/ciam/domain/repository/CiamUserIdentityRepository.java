@@ -13,6 +13,9 @@ public interface CiamUserIdentityRepository {
     /** 根据标识类型和哈希值查询有效记录（唯一性校验） */
     Optional<CiamUserIdentityDo> findByTypeAndHash(String identityType, String identityHash);
 
+    /** 根据标识类型和原始值查询有效记录 */
+    Optional<CiamUserIdentityDo> findByTypeAndValue(String identityType, String identityValue);
+
     /** 根据用户 ID 查询所有有效标识 */
     List<CiamUserIdentityDo> findByUserId(String userId);
 
@@ -24,6 +27,12 @@ public interface CiamUserIdentityRepository {
 
     /** 根据业务 ID 更新 */
     int updateByIdentityId(CiamUserIdentityDo entity);
+
+    /** 更新用户标识值 */
+    int updateIdentityValue(String userId, String identityType, String identityHash);
+
+    /** 更新用户标识值（哈希和加密值） */
+    int updateIdentityValue(String userId, String identityType, String identityHash, String identityValue);
 
     /** 物理删除用户所有标识记录（注销场景） */
     int physicalDeleteByUserId(String userId);

@@ -21,6 +21,9 @@ public interface CiamUserProfileRepository {
     /** 根据业务 ID 更新 */
     int updateByProfileId(CiamUserProfileDo entity);
 
+    /** 根据用户 ID 更新 */
+    int updateByUserId(CiamUserProfileDo entity);
+
     /** 物理删除用户资料记录（注销场景） */
     int physicalDeleteByUserId(String userId);
 }

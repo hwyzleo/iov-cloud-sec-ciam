@@ -2,7 +2,7 @@ package net.hwyz.iov.cloud.sec.ciam.controller.mobile;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import net.hwyz.iov.cloud.framework.web.domain.ApiResponse;
+import net.hwyz.iov.cloud.framework.common.bean.ApiResponse;
 import net.hwyz.iov.cloud.sec.ciam.application.AccountBindingAppService;
 import net.hwyz.iov.cloud.sec.ciam.application.AccountLifecycleAppService;
 import net.hwyz.iov.cloud.sec.ciam.application.ConsentAppService;

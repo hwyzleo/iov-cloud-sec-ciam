@@ -2,7 +2,7 @@ package net.hwyz.iov.cloud.sec.ciam.controller.mobile;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import net.hwyz.iov.cloud.framework.web.domain.ApiResponse;
+import net.hwyz.iov.cloud.framework.common.bean.ApiResponse;
 import net.hwyz.iov.cloud.sec.ciam.controller.mobile.dto.TriggerMfaRequest;
 import net.hwyz.iov.cloud.sec.ciam.controller.mobile.dto.VerifyMfaRequest;
 import net.hwyz.iov.cloud.sec.ciam.domain.enums.ChallengeScene;

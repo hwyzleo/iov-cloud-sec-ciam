@@ -1,7 +1,7 @@
 package net.hwyz.iov.cloud.sec.ciam.controller.open;
 
 import lombok.RequiredArgsConstructor;
-import net.hwyz.iov.cloud.framework.web.domain.ApiResponse;
+import net.hwyz.iov.cloud.framework.common.bean.ApiResponse;
 import net.hwyz.iov.cloud.sec.ciam.domain.service.JwtTokenService;
 import net.hwyz.iov.cloud.sec.ciam.domain.service.OidcDiscoveryDocument;
 import net.hwyz.iov.cloud.sec.ciam.domain.service.OidcService;

@@ -1,6 +1,6 @@
 package net.hwyz.iov.cloud.sec.ciam.common.response;
 
-import net.hwyz.iov.cloud.framework.web.domain.ApiResponse;
+import net.hwyz.iov.cloud.framework.common.bean.ApiResponse;
 import net.hwyz.iov.cloud.sec.ciam.common.exception.CiamErrorCode;
 import org.junit.jupiter.api.Test;
 

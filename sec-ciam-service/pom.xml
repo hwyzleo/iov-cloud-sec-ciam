@@ -29,6 +29,12 @@
             <version>${sec-ciam.version}</version>
         </dependency>
 
+        <!-- 框架: 安全 -->
+        <dependency>
+            <groupId>net.hwyz.iov.cloud.framework</groupId>
+            <artifactId>framework-security-starter</artifactId>
+        </dependency>
+
         <!-- 框架: MySQL -->
         <dependency>
             <groupId>net.hwyz.iov.cloud.framework</groupId>

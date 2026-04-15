@@ -2,7 +2,7 @@ package net.hwyz.iov.cloud.sec.ciam.controller.open;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import net.hwyz.iov.cloud.framework.web.domain.ApiResponse;
+import net.hwyz.iov.cloud.framework.common.bean.ApiResponse;
 import net.hwyz.iov.cloud.sec.ciam.common.exception.CiamErrorCode;
 import net.hwyz.iov.cloud.sec.ciam.controller.open.dto.*;
 import net.hwyz.iov.cloud.sec.ciam.domain.service.AuthCodeExchangeResult;

@@ -2,7 +2,7 @@ package net.hwyz.iov.cloud.sec.ciam.controller.vehicle;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import net.hwyz.iov.cloud.framework.web.domain.ApiResponse;
+import net.hwyz.iov.cloud.framework.common.bean.ApiResponse;
 import net.hwyz.iov.cloud.sec.ciam.controller.vehicle.dto.PollDeviceTokenRequest;
 import net.hwyz.iov.cloud.sec.ciam.controller.vehicle.dto.VehicleDeviceAuthorizeRequest;
 import net.hwyz.iov.cloud.sec.ciam.domain.service.DeviceAuthorizationResponse;

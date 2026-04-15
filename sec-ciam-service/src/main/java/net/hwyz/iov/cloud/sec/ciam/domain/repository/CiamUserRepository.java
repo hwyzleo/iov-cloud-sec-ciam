@@ -13,6 +13,9 @@ public interface CiamUserRepository {
     /** 根据业务 ID 查询用户 */
     Optional<CiamUserDo> findByUserId(String userId);
 
+    /** 查询所有用户 */
+    List<CiamUserDo> findAll();
+
     /** 根据用户状态查询列表 */
     List<CiamUserDo> findByUserStatus(int userStatus);
 

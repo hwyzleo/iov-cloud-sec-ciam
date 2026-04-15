@@ -3,6 +3,7 @@ package net.hwyz.iov.cloud.sec.ciam.infrastructure.repository;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import lombok.RequiredArgsConstructor;
+import net.hwyz.iov.cloud.sec.ciam.common.security.FieldEncryptor;
 import net.hwyz.iov.cloud.sec.ciam.domain.repository.CiamUserIdentityRepository;
 import net.hwyz.iov.cloud.sec.ciam.infrastructure.repository.dao.CiamUserIdentityMapper;
 import net.hwyz.iov.cloud.sec.ciam.infrastructure.repository.dao.dataobject.CiamUserIdentityDo;
@@ -19,6 +20,16 @@ public class CiamUserIdentityRepositoryImpl implements CiamUserIdentityRepositor
 
     @Override
     public Optional<CiamUserIdentityDo> findByTypeAndHash(String identityType, String identityHash) {
+        return Optional.ofNullable(mapper.selectOne(
+                new LambdaQueryWrapper<CiamUserIdentityDo>()
+                        .eq(CiamUserIdentityDo::getIdentityType, identityType)
+                        .eq(CiamUserIdentityDo::getIdentityHash, identityHash)
+                        .eq(CiamUserIdentityDo::getRowValid, 1)));
+    }
+
+    @Override
+    public Optional<CiamUserIdentityDo> findByTypeAndValue(String identityType, String identityValue) {
+        String identityHash = FieldEncryptor.hash(identityValue);
         return Optional.ofNullable(mapper.selectOne(
                 new LambdaQueryWrapper<CiamUserIdentityDo>()
                         .eq(CiamUserIdentityDo::getIdentityType, identityType)
@@ -51,6 +62,25 @@ public class CiamUserIdentityRepositoryImpl implements CiamUserIdentityRepositor
         return mapper.update(entity,
                 new LambdaUpdateWrapper<CiamUserIdentityDo>()
                         .eq(CiamUserIdentityDo::getIdentityId, entity.getIdentityId()));
+    }
+
+    @Override
+    public int updateIdentityValue(String userId, String identityType, String identityHash) {
+        return mapper.update(null,
+                new LambdaUpdateWrapper<CiamUserIdentityDo>()
+                        .eq(CiamUserIdentityDo::getUserId, userId)
+                        .eq(CiamUserIdentityDo::getIdentityType, identityType)
+                        .set(CiamUserIdentityDo::getIdentityHash, identityHash));
+    }
+
+    @Override
+    public int updateIdentityValue(String userId, String identityType, String identityHash, String identityValue) {
+        return mapper.update(null,
+                new LambdaUpdateWrapper<CiamUserIdentityDo>()
+                        .eq(CiamUserIdentityDo::getUserId, userId)
+                        .eq(CiamUserIdentityDo::getIdentityType, identityType)
+                        .set(CiamUserIdentityDo::getIdentityHash, identityHash)
+                        .set(CiamUserIdentityDo::getIdentityValue, identityValue));
     }
 
     @Override

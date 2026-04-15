@@ -44,6 +44,13 @@ public class CiamUserProfileRepositoryImpl implements CiamUserProfileRepository 
     }
 
     @Override
+    public int updateByUserId(CiamUserProfileDo entity) {
+        return mapper.update(entity,
+                new LambdaUpdateWrapper<CiamUserProfileDo>()
+                        .eq(CiamUserProfileDo::getUserId, entity.getUserId()));
+    }
+
+    @Override
     public int physicalDeleteByUserId(String userId) {
         return mapper.delete(
                 new LambdaQueryWrapper<CiamUserProfileDo>()

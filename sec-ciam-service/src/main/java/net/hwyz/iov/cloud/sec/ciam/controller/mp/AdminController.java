@@ -2,9 +2,10 @@ package net.hwyz.iov.cloud.sec.ciam.controller.mp;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import net.hwyz.iov.cloud.framework.web.domain.ApiResponse;
+import net.hwyz.iov.cloud.framework.common.bean.ApiResponse;
 import net.hwyz.iov.cloud.sec.ciam.application.AccountBindingAppService;
 import net.hwyz.iov.cloud.sec.ciam.application.AccountLifecycleAppService;
+import net.hwyz.iov.cloud.sec.ciam.application.AdminAccountAppService;
 import net.hwyz.iov.cloud.sec.ciam.application.AdminQueryAppService;
 import net.hwyz.iov.cloud.sec.ciam.application.StatisticsAppService;
 import net.hwyz.iov.cloud.sec.ciam.application.StatisticsResult;
@@ -16,9 +17,12 @@ import net.hwyz.iov.cloud.sec.ciam.infrastructure.repository.dao.dataobject.Ciam
 import net.hwyz.iov.cloud.sec.ciam.infrastructure.search.document.AuditLogSearchDocument;
 import net.hwyz.iov.cloud.sec.ciam.infrastructure.search.document.RiskEventSearchDocument;
 import net.hwyz.iov.cloud.sec.ciam.infrastructure.search.document.UserSearchDocument;
+import net.hwyz.iov.cloud.framework.security.util.SecurityUtils;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -31,7 +35,7 @@ import java.util.List;
  * 运营后台管理控制器 — 用户查询、账号状态管理、合并/注销审核、审计日志、风险事件、统计分析。
  */
 @RestController
-@RequestMapping("/api/mp/v1/admin")
+@RequestMapping("/api/mp/admin/v1")
 @RequiredArgsConstructor
 public class AdminController {
 
@@ -39,26 +43,83 @@ public class AdminController {
     private final AccountLifecycleAppService accountLifecycleAppService;
     private final AccountBindingAppService accountBindingAppService;
     private final StatisticsAppService statisticsAppService;
+    private final AdminAccountAppService adminAccountAppService;
+
+    // ---- 账号管理 ----
+
+    /** 创建账号 */
+    @PostMapping("/accounts")
+    public ApiResponse<String> createAccount(@RequestBody @Valid CreateAccountRequest request) {
+        String identityValue = request.getIdentityType().equals("MOBILE") 
+                ? request.getMobile() 
+                : request.getEmail();
+        String adminId = SecurityUtils.getUsername();
+        String userId = adminAccountAppService.createAccount(
+                request.getIdentityType(),
+                identityValue,
+                request.getPassword(),
+                request.getNickname(),
+                request.getGender(),
+                request.getRegisterSource(),
+                request.getEnabled(),
+                request.getRemark(),
+                adminId);
+        return ApiResponse.ok(userId);
+    }
+
+    /** 更新账号 */
+    @PutMapping("/accounts")
+    public ApiResponse<Void> updateAccount(@RequestBody @Valid UpdateAccountRequest request) {
+        String identityValue = request.getIdentityType() != null && request.getIdentityType().equals("MOBILE")
+                ? request.getMobile()
+                : request.getEmail();
+        String adminId = SecurityUtils.getUsername();
+        adminAccountAppService.updateAccount(
+                request.getUserId(),
+                request.getIdentityType(),
+                identityValue,
+                request.getNickname(),
+                request.getGender(),
+                request.getEnabled(),
+                request.getRemark(),
+                adminId);
+        return ApiResponse.ok();
+    }
+
+    /** 删除账号 */
+    @DeleteMapping("/accounts")
+    public ApiResponse<Void> deleteAccount(@RequestBody @Valid DeleteAccountRequest request) {
+        String adminId = SecurityUtils.getUsername();
+        adminAccountAppService.deleteAccounts(request.getUserId(), adminId);
+        return ApiResponse.ok();
+    }
 
     // ---- 用户查询 ----
 
-    /** 检索用户列表 */
-    @GetMapping("/users")
+    /** 检索账号列表 */
+    @GetMapping("/accounts")
     public ApiResponse<SearchResult<UserSearchDocument>> searchUsers(
-            @RequestParam(required = false, defaultValue = "") String query,
+            @RequestParam(required = false) String userId,
+            @RequestParam(required = false) String identityType,
+            @RequestParam(required = false) String identityValue,
+            @RequestParam(required = false) String nickname,
+            @RequestParam(required = false) String registerSource,
+            @RequestParam(required = false) Integer userStatus,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime startTime,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime endTime,
             @RequestParam(required = false, defaultValue = "0") int page,
             @RequestParam(required = false, defaultValue = "20") int size) {
-        return ApiResponse.ok(adminQueryAppService.queryUserList(query, page, size));
+        return ApiResponse.ok(adminQueryAppService.queryUserList(userId, identityType, identityValue, nickname, registerSource, userStatus, startTime, endTime, page, size));
     }
 
-    /** 查询用户详情 */
-    @GetMapping("/users/detail")
+    /** 查询账号详情 */
+    @GetMapping("/accounts/detail")
     public ApiResponse<AdminQueryAppService.UserDetail> getUserDetail(@RequestParam String userId) {
         return ApiResponse.ok(adminQueryAppService.queryUser(userId));
     }
 
-    /** 查询用户绑定关系 */
-    @GetMapping("/users/bindings")
+    /** 查询账号绑定关系 */
+    @GetMapping("/accounts/bindings")
     public ApiResponse<List<CiamUserIdentityDo>> getUserBindings(@RequestParam String userId) {
         return ApiResponse.ok(adminQueryAppService.queryBindingRelations(userId));
     }

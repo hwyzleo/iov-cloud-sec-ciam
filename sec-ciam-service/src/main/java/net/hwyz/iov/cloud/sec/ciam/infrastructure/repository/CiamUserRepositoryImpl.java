@@ -26,6 +26,13 @@ public class CiamUserRepositoryImpl implements CiamUserRepository {
     }
 
     @Override
+    public List<CiamUserDo> findAll() {
+        return mapper.selectList(
+                new LambdaQueryWrapper<CiamUserDo>()
+                        .eq(CiamUserDo::getRowValid, 1));
+    }
+
+    @Override
     public List<CiamUserDo> findByUserStatus(int userStatus) {
         return mapper.selectList(
                 new LambdaQueryWrapper<CiamUserDo>()
