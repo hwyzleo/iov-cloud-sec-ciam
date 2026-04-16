@@ -36,7 +36,7 @@ import java.util.List;
  * 账号控制器 — 资料CRUD、绑定/解绑、会话/设备管理、密码变更/重置、注销、同意管理、车主认证状态。
  */
 @RestController
-@RequestMapping("/api/mobile/v1/account")
+@RequestMapping("/api/mobile/account/v1")
 @RequiredArgsConstructor
 public class MobileAccountController {
 
