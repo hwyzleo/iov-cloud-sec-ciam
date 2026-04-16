@@ -5,20 +5,11 @@ import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
 import net.hwyz.iov.cloud.sec.ciam.common.exception.CiamErrorCode;
 import net.hwyz.iov.cloud.sec.ciam.common.security.FieldEncryptor;
-import net.hwyz.iov.cloud.sec.ciam.domain.repository.CiamDeactivationRequestRepository;
-import net.hwyz.iov.cloud.sec.ciam.domain.repository.CiamMergeRequestRepository;
-import net.hwyz.iov.cloud.sec.ciam.domain.repository.CiamUserIdentityRepository;
-import net.hwyz.iov.cloud.sec.ciam.domain.repository.CiamUserProfileRepository;
-import net.hwyz.iov.cloud.sec.ciam.domain.repository.CiamUserRepository;
-import net.hwyz.iov.cloud.sec.ciam.domain.repository.CiamUserTagRepository;
+import net.hwyz.iov.cloud.sec.ciam.domain.enums.IdentityType;
+import net.hwyz.iov.cloud.sec.ciam.domain.repository.*;
 import net.hwyz.iov.cloud.sec.ciam.domain.search.SearchResult;
 import net.hwyz.iov.cloud.sec.ciam.domain.search.SearchService;
-import net.hwyz.iov.cloud.sec.ciam.infrastructure.repository.dao.dataobject.CiamDeactivationRequestDo;
-import net.hwyz.iov.cloud.sec.ciam.infrastructure.repository.dao.dataobject.CiamMergeRequestDo;
-import net.hwyz.iov.cloud.sec.ciam.infrastructure.repository.dao.dataobject.CiamUserDo;
-import net.hwyz.iov.cloud.sec.ciam.infrastructure.repository.dao.dataobject.CiamUserIdentityDo;
-import net.hwyz.iov.cloud.sec.ciam.infrastructure.repository.dao.dataobject.CiamUserProfileDo;
-import net.hwyz.iov.cloud.sec.ciam.infrastructure.repository.dao.dataobject.CiamUserTagDo;
+import net.hwyz.iov.cloud.sec.ciam.infrastructure.repository.dao.dataobject.*;
 import net.hwyz.iov.cloud.sec.ciam.infrastructure.search.document.AuditLogSearchDocument;
 import net.hwyz.iov.cloud.sec.ciam.infrastructure.search.document.RiskEventSearchDocument;
 import net.hwyz.iov.cloud.sec.ciam.infrastructure.search.document.UserSearchDocument;
@@ -66,13 +57,14 @@ public class AdminQueryAppService {
     public UserDetail queryUser(String userId) {
         CiamUserDo user = userRepository.findByUserId(userId)
                 .orElseThrow(() -> new BusinessException(CiamErrorCode.USER_NOT_FOUND));
-        
+
         String identityType = null;
         String identityValue = null;
-        
+
         List<CiamUserIdentityDo> identities = identityRepository.findByUserId(userId);
         for (CiamUserIdentityDo identity : identities) {
-            if ("MOBILE".equals(identity.getIdentityType()) || "EMAIL".equals(identity.getIdentityType())) {
+            if (IdentityType.fromCode(identity.getIdentityType()) == IdentityType.MOBILE ||
+                    IdentityType.fromCode(identity.getIdentityType()) == IdentityType.EMAIL) {
                 identityType = identity.getIdentityType();
                 try {
                     identityValue = fieldEncryptor.decrypt(identity.getIdentityValue());
@@ -82,7 +74,7 @@ public class AdminQueryAppService {
                 break;
             }
         }
-        
+
         String nickname = null;
         Integer gender = null;
         Optional<CiamUserProfileDo> profileOpt = profileRepository.findByUserId(userId);
@@ -90,7 +82,7 @@ public class AdminQueryAppService {
             nickname = profileOpt.get().getNickname();
             gender = profileOpt.get().getGender();
         }
-        
+
         log.info("查询用户详情: userId={}", userId);
         return new UserDetail(
                 user.getUserId(),
@@ -111,28 +103,28 @@ public class AdminQueryAppService {
     /**
      * 检索用户列表。
      *
-     * @param userId 账号ID（精确）
-     * @param identityType 身份类型（精确）
-     * @param identityValue 账号（模糊）
-     * @param nickname 昵称（模糊）
+     * @param userId         账号ID（精确）
+     * @param identityType   身份类型（精确）
+     * @param identityValue  账号（模糊）
+     * @param nickname       昵称（模糊）
      * @param registerSource 注册来源（精确）
-     * @param userStatus 状态（精确）
-     * @param startTime 创建开始时间
-     * @param endTime 创建结束时间
-     * @param page  页码（从 0 开始）
-     * @param size  每页大小
+     * @param userStatus     状态（精确）
+     * @param startTime      创建开始时间
+     * @param endTime        创建结束时间
+     * @param page           页码（从 0 开始）
+     * @param size           每页大小
      * @return 用户检索结果
      */
-    public SearchResult<UserSearchDocument> queryUserList(String userId, String identityType, 
-                                                            String identityValue, String nickname,
-                                                            String registerSource, Integer userStatus,
-                                                            LocalDateTime startTime, LocalDateTime endTime,
-                                                            int page, int size) {
+    public SearchResult<UserSearchDocument> queryUserList(String userId, String identityType,
+                                                          String identityValue, String nickname,
+                                                          String registerSource, Integer userStatus,
+                                                          LocalDateTime startTime, LocalDateTime endTime,
+                                                          int page, int size) {
         log.info("检索用户列表: userId={}, identityType={}, identityValue={}, nickname={}, registerSource={}, userStatus={}, startTime={}, endTime={}",
                 userId, identityType, identityValue, nickname, registerSource, userStatus, startTime, endTime);
-        
+
         List<CiamUserDo> userList = userRepository.findAll();
-        
+
         List<UserSearchDocument> resultList = userList.stream()
                 .map(user -> {
                     UserSearchDocument doc = UserSearchDocument.builder()
@@ -143,11 +135,12 @@ public class AdminQueryAppService {
                             .lastLoginTime(user.getLastLoginTime())
                             .createTime(user.getCreateTime())
                             .build();
-                    
+
                     // 查询身份信息
                     List<CiamUserIdentityDo> identities = identityRepository.findByUserId(user.getUserId());
                     for (CiamUserIdentityDo identity : identities) {
-                        if ("MOBILE".equals(identity.getIdentityType()) || "EMAIL".equals(identity.getIdentityType())) {
+                        if (IdentityType.fromCode(identity.getIdentityType()) == IdentityType.MOBILE ||
+                                IdentityType.fromCode(identity.getIdentityType()) == IdentityType.EMAIL) {
                             doc.setIdentityType(identity.getIdentityType());
                             try {
                                 doc.setIdentityValue(fieldEncryptor.decrypt(identity.getIdentityValue()));
@@ -157,13 +150,13 @@ public class AdminQueryAppService {
                             break;
                         }
                     }
-                    
+
                     // 查询昵称和性别
                     profileRepository.findByUserId(user.getUserId()).ifPresent(profile -> {
                         doc.setNickname(profile.getNickname());
                         doc.setGender(profile.getGender());
                     });
-                    
+
                     return doc;
                 })
                 .filter(doc -> {
@@ -213,7 +206,7 @@ public class AdminQueryAppService {
                     return true;
                 })
                 .collect(Collectors.toList());
-        
+
         return paginate(resultList, page, size);
     }
 
@@ -328,5 +321,6 @@ public class AdminQueryAppService {
             Integer gender,
             String identityType,
             String identityValue
-    ) {}
+    ) {
+    }
 }
