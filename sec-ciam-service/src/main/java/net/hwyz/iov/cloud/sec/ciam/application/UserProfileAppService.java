@@ -3,6 +3,7 @@ package net.hwyz.iov.cloud.sec.ciam.application;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
+import net.hwyz.iov.cloud.framework.common.util.StrUtil;
 import net.hwyz.iov.cloud.sec.ciam.common.audit.AuditEvent;
 import net.hwyz.iov.cloud.sec.ciam.common.audit.AuditEventType;
 import net.hwyz.iov.cloud.sec.ciam.common.audit.AuditLogger;
@@ -11,6 +12,7 @@ import net.hwyz.iov.cloud.sec.ciam.common.util.DateTimeUtil;
 import net.hwyz.iov.cloud.sec.ciam.common.util.UserIdGenerator;
 import net.hwyz.iov.cloud.sec.ciam.domain.repository.CiamUserProfileRepository;
 import net.hwyz.iov.cloud.sec.ciam.infrastructure.repository.dao.dataobject.CiamUserProfileDo;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -35,7 +37,12 @@ public class UserProfileAppService {
     private final CiamUserProfileRepository profileRepository;
     private final AuditLogger auditLogger;
 
-    /** 敏感字段集合，变更时需要安全校验 */
+    @Value("${biz.default-avatar}")
+    private String defaultAvatar;
+
+    /**
+     * 敏感字段集合，变更时需要安全校验
+     */
     private static final Set<String> SENSITIVE_FIELDS = Set.of("realName");
 
     /**
@@ -45,8 +52,12 @@ public class UserProfileAppService {
      * @return 用户资料数据对象
      */
     public CiamUserProfileDo getProfile(String userId) {
-        return profileRepository.findByUserId(userId)
+        CiamUserProfileDo ciamUserProfileDo = profileRepository.findByUserId(userId)
                 .orElseThrow(() -> new BusinessException(CiamErrorCode.PROFILE_NOT_FOUND));
+        if (StrUtil.isBlank(ciamUserProfileDo.getAvatarUrl())) {
+            ciamUserProfileDo.setAvatarUrl(defaultAvatar);
+        }
+        return ciamUserProfileDo;
     }
 
     /**
