@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.hwyz.iov.cloud.framework.web.context.SecurityContextHolder;
 import net.hwyz.iov.cloud.sec.ciam.domain.service.JwtTokenService;
 import net.hwyz.iov.cloud.sec.ciam.domain.service.TokenClaims;
 import org.springframework.core.annotation.Order;
@@ -76,9 +77,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         try {
             TokenClaims claims = jwtTokenService.validateAccessToken(token);
-            request.setAttribute(ATTR_USER_ID, claims.getSub());
-            request.setAttribute(ATTR_CLIENT_ID, claims.getClientId());
-            filterChain.doFilter(request, response);
+            String userId = claims.getSub();
+            String clientId = claims.getClientId();
+
+            request.setAttribute(ATTR_USER_ID, userId);
+            request.setAttribute(ATTR_CLIENT_ID, clientId);
+
+            SecurityContextHolder.setUserId(userId);
+            SecurityContextHolder.setUserKey(clientId);
+
+            try {
+                filterChain.doFilter(request, response);
+            } finally {
+                SecurityContextHolder.remove();
+            }
         } catch (Exception e) {
             log.warn("JWT 校验失败: path={}, error={}", path, e.getMessage());
             sendUnauthorized(response, "令牌无效");

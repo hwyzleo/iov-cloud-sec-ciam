@@ -3,6 +3,7 @@ package net.hwyz.iov.cloud.sec.ciam.controller.mobile;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import net.hwyz.iov.cloud.framework.common.bean.ApiResponse;
+import net.hwyz.iov.cloud.framework.web.context.SecurityContextHolder;
 import net.hwyz.iov.cloud.sec.ciam.application.AccountBindingAppService;
 import net.hwyz.iov.cloud.sec.ciam.application.AccountLifecycleAppService;
 import net.hwyz.iov.cloud.sec.ciam.application.ConsentAppService;
@@ -53,21 +54,24 @@ public class MobileAccountController {
 
     /** 查询用户资料 */
     @GetMapping("/profile")
-    public ApiResponse<CiamUserProfileDo> getProfile(@RequestParam String userId) {
+    public ApiResponse<CiamUserProfileDo> getProfile() {
+        String userId = SecurityContextHolder.getUserId();
         return ApiResponse.ok(userProfileAppService.getProfile(userId));
     }
 
     /** 更新用户资料 */
     @PutMapping("/profile")
     public ApiResponse<Void> updateProfile(@RequestBody @Valid UpdateProfileRequest request) {
-        userProfileAppService.updateProfile(request.getUserId(), request.getNickname(), request.getAvatarUrl(), request.getGender(), request.getBirthday(), request.getRegionCode(), request.getRegionName());
+        String userId = SecurityContextHolder.getUserId();
+        userProfileAppService.updateProfile(userId, request.getNickname(), request.getAvatarUrl(), request.getGender(), request.getBirthday(), request.getRegionCode(), request.getRegionName());
         return ApiResponse.ok();
     }
 
     /** 更新敏感字段 */
     @PutMapping("/profile/sensitive")
     public ApiResponse<Void> updateSensitiveField(@RequestBody @Valid UpdateSensitiveFieldRequest request) {
-        userProfileAppService.updateSensitiveField(request.getUserId(), request.getField(), request.getValue(), request.getVerificationToken());
+        String userId = SecurityContextHolder.getUserId();
+        userProfileAppService.updateSensitiveField(userId, request.getField(), request.getValue(), request.getVerificationToken());
         return ApiResponse.ok();
     }
 
@@ -76,16 +80,17 @@ public class MobileAccountController {
     /** 绑定登录标识 */
     @PostMapping("/binding")
     public ApiResponse<CiamUserIdentityDo> bindIdentity(@RequestBody @Valid BindIdentityRequest request) {
+        String userId = SecurityContextHolder.getUserId();
         CiamUserIdentityDo result = accountBindingAppService.bindIdentity(
-                request.getUserId(), IdentityType.fromCode(request.getIdentityType()), request.getIdentityValue(), request.getCountryCode(), request.getBindSource());
+                userId, IdentityType.fromCode(request.getIdentityType()), request.getIdentityValue(), request.getCountryCode(), request.getBindSource());
         return ApiResponse.ok(result);
     }
 
     /** 解绑登录标识 */
     @DeleteMapping("/binding")
-    public ApiResponse<Void> unbindIdentity(@RequestParam String userId,
-                                            @RequestParam String identityType,
+    public ApiResponse<Void> unbindIdentity(@RequestParam String identityType,
                                             @RequestParam String identityHash) {
+        String userId = SecurityContextHolder.getUserId();
         accountBindingAppService.unbindIdentity(userId, IdentityType.fromCode(identityType), identityHash);
         return ApiResponse.ok();
     }
@@ -94,27 +99,31 @@ public class MobileAccountController {
 
     /** 查询用户活跃会话 */
     @GetMapping("/sessions")
-    public ApiResponse<List<CiamSessionDo>> listSessions(@RequestParam String userId) {
+    public ApiResponse<List<CiamSessionDo>> listSessions() {
+        String userId = SecurityContextHolder.getUserId();
         return ApiResponse.ok(sessionDomainService.findUserSessions(userId));
     }
 
     /** 查询用户活跃设备 */
     @GetMapping("/devices")
-    public ApiResponse<List<CiamDeviceDo>> listDevices(@RequestParam String userId) {
+    public ApiResponse<List<CiamDeviceDo>> listDevices() {
+        String userId = SecurityContextHolder.getUserId();
         return ApiResponse.ok(sessionDomainService.findUserDevices(userId));
     }
 
     /** 下线指定会话 */
     @PostMapping("/sessions/kick")
     public ApiResponse<Void> kickSession(@RequestBody @Valid KickSessionRequest request) {
-        sessionDomainService.kickSession(request.getSessionId(), request.getUserId());
+        String userId = SecurityContextHolder.getUserId();
+        sessionDomainService.kickSession(request.getSessionId(), userId);
         return ApiResponse.ok();
     }
 
     /** 下线指定设备 */
     @PostMapping("/devices/kick")
     public ApiResponse<Void> kickDevice(@RequestBody @Valid KickDeviceRequest request) {
-        sessionDomainService.kickDevice(request.getDeviceId(), request.getUserId());
+        String userId = SecurityContextHolder.getUserId();
+        sessionDomainService.kickDevice(request.getDeviceId(), userId);
         return ApiResponse.ok();
     }
 
@@ -123,7 +132,8 @@ public class MobileAccountController {
     /** 修改密码 */
     @PostMapping("/password/change")
     public ApiResponse<Void> changePassword(@RequestBody @Valid ChangePasswordRequest request) {
-        passwordChangeAppService.changePasswordAndInvalidateSessions(request.getUserId(), request.getOldPassword(), request.getNewPassword());
+        String userId = SecurityContextHolder.getUserId();
+        passwordChangeAppService.changePasswordAndInvalidateSessions(userId, request.getOldPassword(), request.getNewPassword());
         return ApiResponse.ok();
     }
 
@@ -166,7 +176,8 @@ public class MobileAccountController {
     /** 提交注销申请 */
     @PostMapping("/deactivation")
     public ApiResponse<String> submitDeactivation(@RequestBody @Valid SubmitDeactivationRequest request) {
-        String requestId = accountLifecycleAppService.submitDeactivationRequest(request.getUserId(), request.getRequestSource(), request.getRequestReason());
+        String userId = SecurityContextHolder.getUserId();
+        String requestId = accountLifecycleAppService.submitDeactivationRequest(userId, request.getRequestSource(), request.getRequestReason());
         return ApiResponse.ok(requestId);
     }
 
@@ -175,22 +186,24 @@ public class MobileAccountController {
     /** 授予同意 */
     @PostMapping("/consent")
     public ApiResponse<CiamUserConsentDo> grantConsent(@RequestBody @Valid GrantConsentRequest request) {
+        String userId = SecurityContextHolder.getUserId();
         CiamUserConsentDo result = consentAppService.grantConsent(
-                request.getUserId(), request.getConsentType(), request.getPolicyVersion(), request.getSourceChannel(), request.getClientType(), request.getOperateIp());
+                userId, request.getConsentType(), request.getPolicyVersion(), request.getSourceChannel(), request.getClientType(), request.getOperateIp());
         return ApiResponse.ok(result);
     }
 
     /** 撤回营销同意 */
     @PostMapping("/consent/withdraw-marketing")
     public ApiResponse<Void> withdrawMarketingConsent(@RequestBody @Valid WithdrawMarketingConsentRequest request) {
-        consentAppService.withdrawMarketingConsent(request.getUserId(), request.getOperateIp());
+        String userId = SecurityContextHolder.getUserId();
+        consentAppService.withdrawMarketingConsent(userId, request.getOperateIp());
         return ApiResponse.ok();
     }
 
     /** 查询同意记录 */
     @GetMapping("/consent")
-    public ApiResponse<List<CiamUserConsentDo>> getConsentRecords(@RequestParam String userId,
-                                                                  @RequestParam(required = false) String consentType) {
+    public ApiResponse<List<CiamUserConsentDo>> getConsentRecords(@RequestParam(required = false) String consentType) {
+        String userId = SecurityContextHolder.getUserId();
         if (consentType != null && !consentType.isBlank()) {
             return ApiResponse.ok(consentAppService.getConsentByType(userId, consentType));
         }
@@ -200,14 +213,16 @@ public class MobileAccountController {
     /** 请求数据导出 */
     @PostMapping("/data-export")
     public ApiResponse<Void> requestDataExport(@RequestBody @Valid RequestDataExportRequest request) {
-        consentAppService.requestDataExport(request.getUserId());
+        String userId = SecurityContextHolder.getUserId();
+        consentAppService.requestDataExport(userId);
         return ApiResponse.ok();
     }
 
     /** 请求数据删除 */
     @PostMapping("/data-deletion")
     public ApiResponse<Void> requestDataDeletion(@RequestBody @Valid RequestDataDeletionRequest request) {
-        consentAppService.requestDataDeletion(request.getUserId());
+        String userId = SecurityContextHolder.getUserId();
+        consentAppService.requestDataDeletion(userId);
         return ApiResponse.ok();
     }
 
@@ -215,7 +230,8 @@ public class MobileAccountController {
 
     /** 查询车主认证状态 */
     @GetMapping("/owner-certification")
-    public ApiResponse<List<CiamOwnerCertStateDo>> getOwnerCertStatus(@RequestParam String userId) {
+    public ApiResponse<List<CiamOwnerCertStateDo>> getOwnerCertStatus() {
+        String userId = SecurityContextHolder.getUserId();
         return ApiResponse.ok(ownerCertificationAppService.queryCertificationStatus(userId));
     }
 }

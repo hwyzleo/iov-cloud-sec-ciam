@@ -3,6 +3,7 @@ package net.hwyz.iov.cloud.sec.ciam.controller.mobile;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import net.hwyz.iov.cloud.framework.common.bean.ApiResponse;
+import net.hwyz.iov.cloud.framework.web.context.SecurityContextHolder;
 import net.hwyz.iov.cloud.sec.ciam.controller.mobile.dto.TriggerMfaRequest;
 import net.hwyz.iov.cloud.sec.ciam.controller.mobile.dto.VerifyMfaRequest;
 import net.hwyz.iov.cloud.sec.ciam.domain.enums.ChallengeScene;
@@ -54,9 +55,9 @@ public class MobileRiskController {
     /** 查询用户风险事件 */
     @GetMapping("/events")
     public ApiResponse<List<CiamRiskEventDo>> queryRiskEvents(
-            @RequestParam String userId,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startTime,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endTime) {
+        String userId = SecurityContextHolder.getUserId();
         List<CiamRiskEventDo> events = riskEventRepository.findByUserIdAndTimeRange(userId, startTime, endTime);
         return ApiResponse.ok(events);
     }
