@@ -73,10 +73,10 @@ public class AccountBindingAppService {
 
             // 自动创建合并申请
             createMergeRequest(userId, conflictUserId,
-                    identityType.getValue(), identityHash, bindSource);
+                    identityType.getCode(), identityHash, bindSource);
 
             log.info("绑定标识冲突，已创建合并申请: userId={}, conflictUserId={}, identityType={}",
-                    userId, conflictUserId, identityType.getValue());
+                    userId, conflictUserId, identityType.getCode());
 
             throw new BusinessException(CiamErrorCode.MERGE_REQUEST_PENDING);
         }
@@ -87,7 +87,7 @@ public class AccountBindingAppService {
 
         logAudit(userId, AuditEventType.BIND, true);
 
-        log.info("标识绑定成功: userId={}, identityType={}", userId, identityType.getValue());
+        log.info("标识绑定成功: userId={}, identityType={}", userId, identityType.getCode());
         return result;
     }
 
@@ -110,7 +110,7 @@ public class AccountBindingAppService {
 
         logAudit(userId, AuditEventType.UNBIND, true);
 
-        log.info("标识解绑成功: userId={}, identityType={}", userId, identityType.getValue());
+        log.info("标识解绑成功: userId={}, identityType={}", userId, identityType.getCode());
     }
 
     /**
@@ -227,13 +227,13 @@ public class AccountBindingAppService {
         for (CiamUserIdentityDo identity : identitiesToMigrate) {
             // 解绑旧用户的标识
             identityDomainService.unbindIdentity(nonFinalUserId,
-                    IdentityType.fromValue(identity.getIdentityType()),
+                    IdentityType.fromCode(identity.getIdentityType()),
                     identity.getIdentityHash());
 
             // 解密存储的标识值，再绑定到最终用户
             String rawIdentityValue = fieldEncryptor.decrypt(identity.getIdentityValue());
             identityDomainService.bindIdentity(finalUserId,
-                    IdentityType.fromValue(identity.getIdentityType()),
+                    IdentityType.fromCode(identity.getIdentityType()),
                     rawIdentityValue,
                     identity.getCountryCode(),
                     "merge");

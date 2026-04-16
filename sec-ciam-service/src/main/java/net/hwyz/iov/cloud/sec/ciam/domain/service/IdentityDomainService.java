@@ -49,7 +49,7 @@ public class IdentityDomainService {
 
         // 唯一性校验：检查该标识是否已被绑定
         Optional<CiamUserIdentityDo> existing = identityRepository.findByTypeAndHash(
-                identityType.getValue(), identityHash);
+                identityType.getCode(), identityHash);
         if (existing.isPresent() && existing.get().getIdentityStatus() == IdentityStatus.BOUND.getCode()) {
             if (!existing.get().getUserId().equals(userId)) {
                 throw new BusinessException(CiamErrorCode.IDENTITY_CONFLICT);
@@ -63,7 +63,7 @@ public class IdentityDomainService {
         CiamUserIdentityDo identity = new CiamUserIdentityDo();
         identity.setIdentityId(UserIdGenerator.generate());
         identity.setUserId(userId);
-        identity.setIdentityType(identityType.getValue());
+        identity.setIdentityType(identityType.getCode());
         identity.setIdentityValue(encryptedValue);
         identity.setIdentityHash(identityHash);
         identity.setCountryCode(countryCode);
@@ -89,7 +89,7 @@ public class IdentityDomainService {
      */
     public void unbindIdentity(String userId, IdentityType identityType, String identityHash) {
         CiamUserIdentityDo identity = identityRepository.findByTypeAndHash(
-                        identityType.getValue(), identityHash)
+                        identityType.getCode(), identityHash)
                 .orElseThrow(() -> new BusinessException(CiamErrorCode.USER_NOT_FOUND));
 
         if (!identity.getUserId().equals(userId)) {
@@ -110,7 +110,7 @@ public class IdentityDomainService {
      * @return 标识记录（如存在）
      */
     public Optional<CiamUserIdentityDo> findByTypeAndHash(IdentityType identityType, String identityHash) {
-        return identityRepository.findByTypeAndHash(identityType.getValue(), identityHash);
+        return identityRepository.findByTypeAndHash(identityType.getCode(), identityHash);
     }
 
     /**
@@ -134,7 +134,7 @@ public class IdentityDomainService {
      */
     public Optional<String> checkConflict(IdentityType identityType, String identityValue) {
         String identityHash = FieldEncryptor.hash(identityValue);
-        return identityRepository.findByTypeAndHash(identityType.getValue(), identityHash)
+        return identityRepository.findByTypeAndHash(identityType.getCode(), identityHash)
                 .filter(i -> i.getIdentityStatus() == IdentityStatus.BOUND.getCode())
                 .map(CiamUserIdentityDo::getUserId);
     }
@@ -148,7 +148,7 @@ public class IdentityDomainService {
      */
     public Optional<CiamUserIdentityDo> findByTypeAndValue(IdentityType identityType, String identityValue) {
         String identityHash = FieldEncryptor.hash(identityValue);
-        return identityRepository.findByTypeAndHash(identityType.getValue(), identityHash);
+        return identityRepository.findByTypeAndHash(identityType.getCode(), identityHash);
     }
 
     /**
@@ -160,7 +160,7 @@ public class IdentityDomainService {
      */
     public void markVerified(String userId, IdentityType identityType, String identityHash) {
         CiamUserIdentityDo identity = identityRepository.findByTypeAndHash(
-                        identityType.getValue(), identityHash)
+                        identityType.getCode(), identityHash)
                 .orElseThrow(() -> new BusinessException(CiamErrorCode.USER_NOT_FOUND));
 
         if (!identity.getUserId().equals(userId)) {
@@ -199,7 +199,7 @@ public class IdentityDomainService {
                                                             String identityValue,
                                                             String excludeUserId) {
         String identityHash = FieldEncryptor.hash(identityValue);
-        return identityRepository.findByTypeAndHash(identityType.getValue(), identityHash)
+        return identityRepository.findByTypeAndHash(identityType.getCode(), identityHash)
                 .filter(i -> i.getIdentityStatus() == IdentityStatus.BOUND.getCode())
                 .filter(i -> !i.getUserId().equals(excludeUserId));
     }

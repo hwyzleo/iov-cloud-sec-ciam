@@ -23,7 +23,10 @@ public enum RegisterSource {
 
     // 后台管理注册来源
     ADMIN_MOBILE("admin_mobile", "后台手机号创建"),
-    ADMIN_EMAIL("admin_email", "后台邮箱创建");
+    ADMIN_EMAIL("admin_email", "后台邮箱创建"),
+
+    // 本机手机号注册来源
+    LOCAL_MOBILE("local_mobile", "本机手机号注册");
 
     private final String code;
     private final String description;
@@ -35,5 +38,19 @@ public enum RegisterSource {
             }
         }
         return null;
+    }
+
+    public static RegisterSource fromIdentityType(IdentityType identityType) {
+        if (identityType == null) {
+            return null;
+        }
+        return switch (identityType) {
+            case MOBILE -> MOBILE;
+            case EMAIL -> EMAIL;
+            case WECHAT -> WECHAT;
+            case APPLE -> APPLE;
+            case GOOGLE -> GOOGLE;
+            case LOCAL_MOBILE -> LOCAL_MOBILE;
+        };
     }
 }

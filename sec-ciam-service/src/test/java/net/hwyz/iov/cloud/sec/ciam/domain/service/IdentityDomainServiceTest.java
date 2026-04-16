@@ -41,7 +41,7 @@ class IdentityDomainServiceTest {
         CiamUserIdentityDo identity = new CiamUserIdentityDo();
         identity.setIdentityId("id-001");
         identity.setUserId(userId);
-        identity.setIdentityType(type.getValue());
+        identity.setIdentityType(type.getCode());
         identity.setIdentityValue(fieldEncryptor.encrypt(value));
         identity.setIdentityHash(FieldEncryptor.hash(value));
         identity.setIdentityStatus(status);
@@ -131,8 +131,8 @@ class IdentityDomainServiceTest {
 
             for (IdentityType type : IdentityType.values()) {
                 CiamUserIdentityDo result = service.bindIdentity(
-                        "user-001", type, "value-" + type.getValue(), null, "test");
-                assertEquals(type.getValue(), result.getIdentityType());
+                        "user-001", type, "value-" + type.getCode(), null, "test");
+                assertEquals(type.getCode(), result.getIdentityType());
             }
         }
     }

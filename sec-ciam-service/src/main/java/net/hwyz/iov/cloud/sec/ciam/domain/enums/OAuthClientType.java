@@ -17,18 +17,18 @@ public enum OAuthClientType implements LabelEnum {
     CONFIDENTIAL("confidential", "机密客户端"),
     INTERNAL("internal", "内部客户端");
 
-    private final String value;
+    private final String code;
     private final String description;
 
-    OAuthClientType(String value, String description) {
-        this.value = value;
+    OAuthClientType(String code, String description) {
+        this.code = code;
         this.description = description;
     }
 
-    public static OAuthClientType fromValue(String value) {
+    public static OAuthClientType fromCode(String code) {
         return Arrays.stream(values())
-                .filter(e -> e.value.equals(value))
+                .filter(e -> e.code.equals(code))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("未知的OAuth客户端类型: " + value));
+                .orElseThrow(() -> new IllegalArgumentException("未知的OAuth客户端类型: " + code));
     }
 }

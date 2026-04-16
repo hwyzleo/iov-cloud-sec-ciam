@@ -113,7 +113,7 @@ public class OidcService {
     private Optional<String> findIdentityValue(List<CiamUserIdentityDo> identities,
                                                IdentityType type) {
         return identities.stream()
-                .filter(i -> type.getValue().equals(i.getIdentityType()))
+                .filter(i -> type.getCode().equals(i.getIdentityType()))
                 .findFirst()
                 .map(i -> fieldEncryptor.decrypt(i.getIdentityValue()));
     }

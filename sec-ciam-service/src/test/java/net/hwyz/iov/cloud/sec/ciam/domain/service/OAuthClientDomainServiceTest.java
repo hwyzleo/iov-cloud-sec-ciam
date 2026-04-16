@@ -37,7 +37,7 @@ class OAuthClientDomainServiceTest {
         CiamOAuthClientDo client = new CiamOAuthClientDo();
         client.setClientId(clientId);
         client.setClientName("Test App");
-        client.setClientType(type.getValue());
+        client.setClientType(type.getCode());
         client.setClientSecretHash(rawSecret != null ? passwordEncoder.encode(rawSecret) : null);
         client.setRedirectUris("https://example.com/callback,https://example.com/cb2");
         client.setGrantTypes("authorization_code,refresh_token");
@@ -67,7 +67,7 @@ class OAuthClientDomainServiceTest {
             assertNull(result.getClientSecret());
             assertEquals("Mobile App", result.getClientName());
             verify(clientRepository).insert(argThat(entity -> {
-                assertEquals(OAuthClientType.PUBLIC.getValue(), entity.getClientType());
+                assertEquals(OAuthClientType.PUBLIC.getCode(), entity.getClientType());
                 assertNull(entity.getClientSecretHash());
                 assertEquals(ClientStatus.ENABLED.getCode(), entity.getClientStatus());
                 return true;
@@ -86,7 +86,7 @@ class OAuthClientDomainServiceTest {
             assertTrue(result.getClientSecret().length() > 0);
             assertEquals("Backend Service", result.getClientName());
             verify(clientRepository).insert(argThat(entity -> {
-                assertEquals(OAuthClientType.CONFIDENTIAL.getValue(), entity.getClientType());
+                assertEquals(OAuthClientType.CONFIDENTIAL.getCode(), entity.getClientType());
                 assertNotNull(entity.getClientSecretHash());
                 // hash should be verifiable with the raw secret
                 assertTrue(passwordEncoder.matches(result.getClientSecret(), entity.getClientSecretHash()));
@@ -105,7 +105,7 @@ class OAuthClientDomainServiceTest {
             assertNotNull(result.getClientSecret());
             assertEquals("Internal System", result.getClientName());
             verify(clientRepository).insert(argThat(entity -> {
-                assertEquals(OAuthClientType.INTERNAL.getValue(), entity.getClientType());
+                assertEquals(OAuthClientType.INTERNAL.getCode(), entity.getClientType());
                 assertNotNull(entity.getClientSecretHash());
                 return true;
             }));

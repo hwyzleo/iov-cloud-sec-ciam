@@ -17,6 +17,7 @@ import net.hwyz.iov.cloud.sec.ciam.domain.adapter.ThirdPartyUserInfo;
 import net.hwyz.iov.cloud.sec.ciam.domain.adapter.WechatLoginAdapter;
 import net.hwyz.iov.cloud.sec.ciam.domain.enums.IdentityStatus;
 import net.hwyz.iov.cloud.sec.ciam.domain.enums.IdentityType;
+import net.hwyz.iov.cloud.sec.ciam.domain.enums.RegisterSource;
 import net.hwyz.iov.cloud.sec.ciam.domain.enums.UserStatus;
 import net.hwyz.iov.cloud.sec.ciam.domain.repository.CiamUserRepository;
 import net.hwyz.iov.cloud.sec.ciam.domain.service.CaptchaDomainService;
@@ -391,7 +392,7 @@ public class AuthenticationAppService {
     }
 
     private LoginResult handleNewUserRegistration(String mobile, String countryCode, String clientId) {
-        CiamUserDo user = userDomainService.createUser("mobile", null, null);
+        CiamUserDo user = userDomainService.createUser(RegisterSource.MOBILE, null, null, IdentityType.MOBILE);
         String userId = user.getUserId();
 
         CiamUserIdentityDo identity = identityDomainService.bindIdentity(
@@ -419,7 +420,7 @@ public class AuthenticationAppService {
     }
 
     private LoginResult handleNewEmailUserRegistration(String email, String clientId) {
-        CiamUserDo user = userDomainService.createUser("email", null, null);
+        CiamUserDo user = userDomainService.createUser(RegisterSource.EMAIL, null, null, IdentityType.EMAIL);
         String userId = user.getUserId();
 
         CiamUserIdentityDo identity = identityDomainService.bindIdentity(
@@ -439,7 +440,7 @@ public class AuthenticationAppService {
     }
 
     private LoginResult handleNewLocalMobileUserRegistration(String mobile, String clientId) {
-        CiamUserDo user = userDomainService.createUser("local_mobile", null, null);
+        CiamUserDo user = userDomainService.createUser(RegisterSource.LOCAL_MOBILE, null, null, IdentityType.MOBILE);
         String userId = user.getUserId();
 
         CiamUserIdentityDo identity = identityDomainService.bindIdentity(
@@ -503,7 +504,7 @@ public class AuthenticationAppService {
         }
 
         // 3. 无冲突 → 自动注册新用户
-        CiamUserDo user = userDomainService.createUser(type.getValue(), null, null);
+        CiamUserDo user = userDomainService.createUser(RegisterSource.fromIdentityType(type), null, null, type);
         String userId = user.getUserId();
 
         identityDomainService.bindIdentity(userId, type, subject, null, bindSource);

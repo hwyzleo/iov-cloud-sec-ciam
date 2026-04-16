@@ -18,18 +18,18 @@ public enum ClientType implements LabelEnum {
     VEHICLE("vehicle", "车机"),
     ADMIN("admin", "运营后台");
 
-    private final String value;
+    private final String code;
     private final String description;
 
-    ClientType(String value, String description) {
-        this.value = value;
+    ClientType(String code, String description) {
+        this.code = code;
         this.description = description;
     }
 
-    public static ClientType fromValue(String value) {
+    public static ClientType fromCode(String code) {
         return Arrays.stream(values())
-                .filter(e -> e.value.equals(value))
+                .filter(e -> e.code.equals(code))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("未知的客户端类型: " + value));
+                .orElseThrow(() -> new IllegalArgumentException("未知的客户端类型: " + code));
     }
 }

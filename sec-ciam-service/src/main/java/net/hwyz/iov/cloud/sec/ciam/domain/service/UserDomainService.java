@@ -5,6 +5,8 @@ import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
 import net.hwyz.iov.cloud.sec.ciam.common.exception.CiamErrorCode;
 import net.hwyz.iov.cloud.sec.ciam.common.util.DateTimeUtil;
 import net.hwyz.iov.cloud.sec.ciam.common.util.UserIdGenerator;
+import net.hwyz.iov.cloud.sec.ciam.domain.enums.IdentityType;
+import net.hwyz.iov.cloud.sec.ciam.domain.enums.RegisterSource;
 import net.hwyz.iov.cloud.sec.ciam.domain.enums.UserStatus;
 import net.hwyz.iov.cloud.sec.ciam.domain.repository.CiamUserProfileRepository;
 import net.hwyz.iov.cloud.sec.ciam.domain.repository.CiamUserRepository;
@@ -33,14 +35,16 @@ public class UserDomainService {
     /**
      * 创建用户主档（含资料扩展记录）。
      *
-     * @param registerSource  注册来源（如 mobile、email、wechat 等）
-     * @param registerChannel 注册渠道（可为 null）
-     * @param brandCode       品牌编码（可为 null，默认 OPENIOV）
+     * @param registerSource       注册来源
+     * @param registerChannel       注册渠道（可为 null）
+     * @param brandCode            品牌编码（可为 null，默认 OPENIOV）
+     * @param primaryIdentityType   主要身份类型（可为 null）
      * @return 新创建的用户数据对象
      */
-    public CiamUserDo createUser(String registerSource,
+    public CiamUserDo createUser(RegisterSource registerSource,
                                  String registerChannel,
-                                 String brandCode) {
+                                 String brandCode,
+                                 IdentityType primaryIdentityType) {
         String userId = UserIdGenerator.generate();
         String effectiveBrand = (brandCode == null || brandCode.isBlank())
                 ? "OPENIOV" : brandCode;
@@ -50,8 +54,9 @@ public class UserDomainService {
         user.setUserId(userId);
         user.setUserStatus(UserStatus.PENDING.getCode());
         user.setBrandCode(effectiveBrand);
-        user.setRegisterSource(registerSource);
+        user.setRegisterSource(registerSource.getCode());
         user.setRegisterChannel(registerChannel);
+        user.setPrimaryIdentityType(primaryIdentityType != null ? primaryIdentityType.getCode() : null);
         user.setRowVersion(1);
         user.setRowValid(1);
         user.setCreateTime(DateTimeUtil.now());

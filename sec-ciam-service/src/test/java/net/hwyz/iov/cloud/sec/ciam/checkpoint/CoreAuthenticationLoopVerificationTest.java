@@ -309,8 +309,8 @@ class CoreAuthenticationLoopVerificationTest {
         @Test
         @DisplayName("Controller → AppService → DomainService：手机号验证码登录（已有用户）")
         void mobileLogin_existingUser() {
-            CiamUserIdentityDo identity = stubIdentity("U001", IdentityType.MOBILE.getValue(), "13800001111");
-            when(identityRepository.findByTypeAndHash(eq(IdentityType.MOBILE.getValue()), anyString()))
+            CiamUserIdentityDo identity = stubIdentity("U001", IdentityType.MOBILE.getCode(), "13800001111");
+            when(identityRepository.findByTypeAndHash(eq(IdentityType.MOBILE.getCode()), anyString()))
                     .thenReturn(Optional.of(identity));
             when(userRepository.findByUserId("U001"))
                     .thenReturn(Optional.of(stubUser("U001", UserStatus.ACTIVE.getCode())));
@@ -354,8 +354,8 @@ class CoreAuthenticationLoopVerificationTest {
             String rawPassword = "P@ssw0rd!";
             String hashedPassword = passwordEncoder.encode(rawPassword);
 
-            CiamUserIdentityDo identity = stubIdentity("U002", IdentityType.EMAIL.getValue(), "user@example.com");
-            when(identityRepository.findByTypeAndHash(eq(IdentityType.EMAIL.getValue()), anyString()))
+            CiamUserIdentityDo identity = stubIdentity("U002", IdentityType.EMAIL.getCode(), "user@example.com");
+            when(identityRepository.findByTypeAndHash(eq(IdentityType.EMAIL.getCode()), anyString()))
                     .thenReturn(Optional.of(identity));
             when(userRepository.findByUserId("U002"))
                     .thenReturn(Optional.of(stubUser("U002", UserStatus.ACTIVE.getCode())));

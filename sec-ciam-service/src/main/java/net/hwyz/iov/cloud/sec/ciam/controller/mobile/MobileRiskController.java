@@ -38,8 +38,8 @@ public class MobileRiskController {
     public ApiResponse<Map<String, String>> triggerMfa(@RequestBody @Valid TriggerMfaRequest request) {
         String challengeId = mfaDomainService.createChallenge(
                 request.getUserId(), request.getSessionId(),
-                ChallengeType.fromValue(request.getChallengeType()),
-                ChallengeScene.fromValue(request.getChallengeScene()),
+                ChallengeType.fromCode(request.getChallengeType()),
+                ChallengeScene.fromCode(request.getChallengeScene()),
                 request.getReceiverMask(), request.getRiskEventId());
         return ApiResponse.ok(Map.of("challengeId", challengeId));
     }

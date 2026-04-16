@@ -69,7 +69,7 @@ public class OAuthClientDomainService {
         entity.setClientId(clientId);
         entity.setClientName(clientName);
         entity.setClientSecretHash(secretHash);
-        entity.setClientType(clientType.getValue());
+        entity.setClientType(clientType.getCode());
         entity.setRedirectUris(redirectUris);
         entity.setGrantTypes(grantTypes);
         entity.setScopes(scopes);

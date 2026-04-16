@@ -77,7 +77,7 @@ public class MobileAccountController {
     @PostMapping("/binding")
     public ApiResponse<CiamUserIdentityDo> bindIdentity(@RequestBody @Valid BindIdentityRequest request) {
         CiamUserIdentityDo result = accountBindingAppService.bindIdentity(
-                request.getUserId(), IdentityType.fromValue(request.getIdentityType()), request.getIdentityValue(), request.getCountryCode(), request.getBindSource());
+                request.getUserId(), IdentityType.fromCode(request.getIdentityType()), request.getIdentityValue(), request.getCountryCode(), request.getBindSource());
         return ApiResponse.ok(result);
     }
 
@@ -86,7 +86,7 @@ public class MobileAccountController {
     public ApiResponse<Void> unbindIdentity(@RequestParam String userId,
                                             @RequestParam String identityType,
                                             @RequestParam String identityHash) {
-        accountBindingAppService.unbindIdentity(userId, IdentityType.fromValue(identityType), identityHash);
+        accountBindingAppService.unbindIdentity(userId, IdentityType.fromCode(identityType), identityHash);
         return ApiResponse.ok();
     }
 

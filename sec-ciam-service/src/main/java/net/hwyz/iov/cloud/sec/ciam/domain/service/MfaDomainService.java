@@ -71,8 +71,8 @@ public class MfaDomainService {
         challenge.setChallengeId(challengeId);
         challenge.setUserId(userId);
         challenge.setSessionId(sessionId);
-        challenge.setChallengeType(challengeType.getValue());
-        challenge.setChallengeScene(challengeScene.getValue());
+        challenge.setChallengeType(challengeType.getCode());
+        challenge.setChallengeScene(challengeScene.getCode());
         challenge.setReceiverMask(receiverMask);
         challenge.setVerifyCodeHash(TokenDigest.fingerprint(code));
         challenge.setSendTime(now);

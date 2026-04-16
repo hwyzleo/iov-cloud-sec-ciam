@@ -50,7 +50,7 @@ public class CredentialDomainService {
 
         // 检查是否已存在有效凭据
         Optional<CiamUserCredentialDo> existing = credentialRepository.findByUserIdAndType(
-                userId, CredentialType.EMAIL_PASSWORD.getValue());
+                userId, CredentialType.EMAIL_PASSWORD.getCode());
         if (existing.isPresent() && existing.get().getCredentialStatus() == CredentialStatus.VALID.getCode()) {
             throw new BusinessException(CiamErrorCode.CREDENTIAL_ALREADY_EXISTS);
         }
@@ -60,7 +60,7 @@ public class CredentialDomainService {
         CiamUserCredentialDo credential = new CiamUserCredentialDo();
         credential.setCredentialId(UserIdGenerator.generate());
         credential.setUserId(userId);
-        credential.setCredentialType(CredentialType.EMAIL_PASSWORD.getValue());
+        credential.setCredentialType(CredentialType.EMAIL_PASSWORD.getCode());
         credential.setCredentialHash(hash);
         credential.setHashAlgorithm(PasswordEncoder.ALGORITHM);
         credential.setPasswordSetTime(DateTimeUtil.now());
@@ -181,7 +181,7 @@ public class CredentialDomainService {
      * @return 凭据记录（如存在）
      */
     public Optional<CiamUserCredentialDo> findActiveCredential(String userId, CredentialType type) {
-        return credentialRepository.findByUserIdAndType(userId, type.getValue())
+        return credentialRepository.findByUserIdAndType(userId, type.getCode())
                 .filter(c -> c.getCredentialStatus() == CredentialStatus.VALID.getCode());
     }
 
@@ -193,7 +193,7 @@ public class CredentialDomainService {
     }
 
     private CiamUserCredentialDo findActiveCredential(String userId) {
-        return credentialRepository.findByUserIdAndType(userId, CredentialType.EMAIL_PASSWORD.getValue())
+        return credentialRepository.findByUserIdAndType(userId, CredentialType.EMAIL_PASSWORD.getCode())
                 .filter(c -> c.getCredentialStatus() == CredentialStatus.VALID.getCode())
                 .orElseThrow(() -> new BusinessException(CiamErrorCode.CREDENTIAL_INVALID));
     }

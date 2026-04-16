@@ -75,7 +75,7 @@ class AccountBindingAppServiceTest {
         CiamUserIdentityDo identity = new CiamUserIdentityDo();
         identity.setIdentityId("identity-" + rawValue.hashCode());
         identity.setUserId(userId);
-        identity.setIdentityType(type.getValue());
+        identity.setIdentityType(type.getCode());
         identity.setIdentityValue(fieldEncryptor.encrypt(rawValue));
         identity.setIdentityHash(FieldEncryptor.hash(rawValue));
         identity.setCountryCode(COUNTRY_CODE);
@@ -89,7 +89,7 @@ class AccountBindingAppServiceTest {
         request.setMergeRequestId(mergeRequestId);
         request.setSourceUserId(USER_ID);
         request.setTargetUserId(OTHER_USER_ID);
-        request.setConflictIdentityType(IdentityType.MOBILE.getValue());
+        request.setConflictIdentityType(IdentityType.MOBILE.getCode());
         request.setConflictIdentityHash(PHONE_HASH);
         request.setReviewStatus(reviewStatus);
         request.setRowValid(1);
@@ -105,7 +105,7 @@ class AccountBindingAppServiceTest {
         @Test
         void bindsIdentitySuccessfullyWhenNoConflict() {
             // No existing identity with this hash
-            when(identityRepository.findByTypeAndHash(IdentityType.MOBILE.getValue(), PHONE_HASH))
+            when(identityRepository.findByTypeAndHash(IdentityType.MOBILE.getCode(), PHONE_HASH))
                     .thenReturn(Optional.empty());
 
             CiamUserIdentityDo result = service.bindIdentity(
@@ -113,7 +113,7 @@ class AccountBindingAppServiceTest {
 
             assertNotNull(result);
             assertEquals(USER_ID, result.getUserId());
-            assertEquals(IdentityType.MOBILE.getValue(), result.getIdentityType());
+            assertEquals(IdentityType.MOBILE.getCode(), result.getIdentityType());
             assertEquals(IdentityStatus.BOUND.getCode(), result.getIdentityStatus());
 
             // Verify audit log
@@ -127,7 +127,7 @@ class AccountBindingAppServiceTest {
         void createsmergeRequestAndThrowsWhenConflictDetected() {
             // Identity already bound to another user
             CiamUserIdentityDo conflictIdentity = stubBoundIdentity(OTHER_USER_ID, IdentityType.MOBILE, PHONE);
-            when(identityRepository.findByTypeAndHash(IdentityType.MOBILE.getValue(), PHONE_HASH))
+            when(identityRepository.findByTypeAndHash(IdentityType.MOBILE.getCode(), PHONE_HASH))
                     .thenReturn(Optional.of(conflictIdentity));
 
             BusinessException ex = assertThrows(BusinessException.class,
@@ -148,7 +148,7 @@ class AccountBindingAppServiceTest {
         void returnsSameIdentityWhenAlreadyBoundToSameUser() {
             // Identity already bound to the same user
             CiamUserIdentityDo existing = stubBoundIdentity(USER_ID, IdentityType.MOBILE, PHONE);
-            when(identityRepository.findByTypeAndHash(IdentityType.MOBILE.getValue(), PHONE_HASH))
+            when(identityRepository.findByTypeAndHash(IdentityType.MOBILE.getCode(), PHONE_HASH))
                     .thenReturn(Optional.of(existing));
 
             CiamUserIdentityDo result = service.bindIdentity(
@@ -173,7 +173,7 @@ class AccountBindingAppServiceTest {
             CiamUserIdentityDo identity2 = stubBoundIdentity(USER_ID, IdentityType.EMAIL, "test@example.com");
             when(identityRepository.findByUserId(USER_ID))
                     .thenReturn(List.of(identity1, identity2));
-            when(identityRepository.findByTypeAndHash(IdentityType.MOBILE.getValue(), PHONE_HASH))
+            when(identityRepository.findByTypeAndHash(IdentityType.MOBILE.getCode(), PHONE_HASH))
                     .thenReturn(Optional.of(identity1));
 
             service.unbindIdentity(USER_ID, IdentityType.MOBILE, PHONE_HASH);
@@ -224,13 +224,13 @@ class AccountBindingAppServiceTest {
         void createsMergeRequestWithPendingStatus() {
             CiamMergeRequestDo result = service.createMergeRequest(
                     USER_ID, OTHER_USER_ID,
-                    IdentityType.MOBILE.getValue(), PHONE_HASH, BIND_SOURCE);
+                    IdentityType.MOBILE.getCode(), PHONE_HASH, BIND_SOURCE);
 
             assertNotNull(result);
             assertNotNull(result.getMergeRequestId());
             assertEquals(USER_ID, result.getSourceUserId());
             assertEquals(OTHER_USER_ID, result.getTargetUserId());
-            assertEquals(IdentityType.MOBILE.getValue(), result.getConflictIdentityType());
+            assertEquals(IdentityType.MOBILE.getCode(), result.getConflictIdentityType());
             assertEquals(PHONE_HASH, result.getConflictIdentityHash());
             assertEquals(ReviewStatus.PENDING.getCode(), result.getReviewStatus());
             assertEquals(1, result.getRowValid());
@@ -297,7 +297,7 @@ class AccountBindingAppServiceTest {
 
             // For unbind: find the identity by type and hash
             when(identityRepository.findByTypeAndHash(
-                    IdentityType.EMAIL.getValue(), FieldEncryptor.hash(email)))
+                    IdentityType.EMAIL.getCode(), FieldEncryptor.hash(email)))
                     .thenReturn(Optional.of(otherIdentity))
                     // After unbind, next call for bind should return empty (no conflict)
                     .thenReturn(Optional.empty());

@@ -346,7 +346,7 @@ class AuthenticationAppServiceTest {
         CiamUserIdentityDo identity = new CiamUserIdentityDo();
         identity.setIdentityId("identity-001");
         identity.setUserId(userId);
-        identity.setIdentityType(IdentityType.MOBILE.getValue());
+        identity.setIdentityType(IdentityType.MOBILE.getCode());
         identity.setIdentityHash(FieldEncryptor.hash(MOBILE));
         identity.setIdentityStatus(IdentityStatus.BOUND.getCode());
         identity.setVerifiedFlag(1);
@@ -370,7 +370,7 @@ class AuthenticationAppServiceTest {
             CiamUserIdentityDo identity = new CiamUserIdentityDo();
             identity.setIdentityId("email-identity-001");
             identity.setUserId(userId);
-            identity.setIdentityType(IdentityType.EMAIL.getValue());
+            identity.setIdentityType(IdentityType.EMAIL.getCode());
             identity.setIdentityHash(FieldEncryptor.hash(EMAIL));
             identity.setIdentityStatus(IdentityStatus.BOUND.getCode());
             identity.setVerifiedFlag(1);
@@ -382,7 +382,7 @@ class AuthenticationAppServiceTest {
             CiamUserCredentialDo cred = new CiamUserCredentialDo();
             cred.setCredentialId("cred-001");
             cred.setUserId(userId);
-            cred.setCredentialType(CredentialType.EMAIL_PASSWORD.getValue());
+            cred.setCredentialType(CredentialType.EMAIL_PASSWORD.getCode());
             cred.setCredentialHash(passwordEncoder.encode(rawPassword));
             cred.setHashAlgorithm(PasswordEncoder.ALGORITHM);
             cred.setFailCount(0);
@@ -398,7 +398,7 @@ class AuthenticationAppServiceTest {
                     .thenReturn(Optional.of(stubEmailIdentity(userId)));
             when(userRepository.findByUserId(userId))
                     .thenReturn(Optional.of(stubUser(userId, UserStatus.ACTIVE)));
-            when(credentialRepository.findByUserIdAndType(userId, CredentialType.EMAIL_PASSWORD.getValue()))
+            when(credentialRepository.findByUserIdAndType(userId, CredentialType.EMAIL_PASSWORD.getCode()))
                     .thenReturn(Optional.of(stubCredential(userId, VALID_PASSWORD)));
 
             LoginResult result = service.loginByEmailPassword(EMAIL, VALID_PASSWORD, CLIENT_ID, null, null);
@@ -420,7 +420,7 @@ class AuthenticationAppServiceTest {
                     .thenReturn(Optional.of(stubEmailIdentity(userId)));
             when(userRepository.findByUserId(userId))
                     .thenReturn(Optional.of(stubUser(userId, UserStatus.ACTIVE)));
-            when(credentialRepository.findByUserIdAndType(userId, CredentialType.EMAIL_PASSWORD.getValue()))
+            when(credentialRepository.findByUserIdAndType(userId, CredentialType.EMAIL_PASSWORD.getCode()))
                     .thenReturn(Optional.of(stubCredential(userId, VALID_PASSWORD)));
 
             BusinessException ex = assertThrows(BusinessException.class,
@@ -439,7 +439,7 @@ class AuthenticationAppServiceTest {
                     .thenReturn(Optional.of(stubEmailIdentity(userId)));
             when(userRepository.findByUserId(userId))
                     .thenReturn(Optional.of(stubUser(userId, UserStatus.ACTIVE)));
-            when(credentialRepository.findByUserIdAndType(userId, CredentialType.EMAIL_PASSWORD.getValue()))
+            when(credentialRepository.findByUserIdAndType(userId, CredentialType.EMAIL_PASSWORD.getCode()))
                     .thenReturn(Optional.of(cred));
 
             LoginResult result = service.loginByEmailPassword(EMAIL, "WrongPass1!", CLIENT_ID, null, null);
@@ -456,7 +456,7 @@ class AuthenticationAppServiceTest {
                     .thenReturn(Optional.of(stubEmailIdentity(userId)));
             when(userRepository.findByUserId(userId))
                     .thenReturn(Optional.of(stubUser(userId, UserStatus.ACTIVE)));
-            when(credentialRepository.findByUserIdAndType(userId, CredentialType.EMAIL_PASSWORD.getValue()))
+            when(credentialRepository.findByUserIdAndType(userId, CredentialType.EMAIL_PASSWORD.getCode()))
                     .thenReturn(Optional.of(stubCredential(userId, VALID_PASSWORD)));
 
             // Pre-seed captcha challenge state
@@ -513,7 +513,7 @@ class AuthenticationAppServiceTest {
             CiamUserIdentityDo identity = new CiamUserIdentityDo();
             identity.setIdentityId("email-identity-001");
             identity.setUserId(userId);
-            identity.setIdentityType(IdentityType.EMAIL.getValue());
+            identity.setIdentityType(IdentityType.EMAIL.getCode());
             identity.setIdentityHash(FieldEncryptor.hash(EMAIL));
             identity.setIdentityStatus(IdentityStatus.BOUND.getCode());
             identity.setVerifiedFlag(1);
@@ -626,7 +626,7 @@ class AuthenticationAppServiceTest {
             CiamUserIdentityDo identity = new CiamUserIdentityDo();
             identity.setIdentityId("wx-identity-001");
             identity.setUserId(userId);
-            identity.setIdentityType(IdentityType.WECHAT.getValue());
+            identity.setIdentityType(IdentityType.WECHAT.getCode());
             identity.setIdentityHash(FieldEncryptor.hash("wx-openid-002"));
             identity.setIdentityStatus(IdentityStatus.BOUND.getCode());
             identity.setRowValid(1);
@@ -702,7 +702,7 @@ class AuthenticationAppServiceTest {
             CiamUserIdentityDo identity = new CiamUserIdentityDo();
             identity.setIdentityId("google-identity-001");
             identity.setUserId(userId);
-            identity.setIdentityType(IdentityType.GOOGLE.getValue());
+            identity.setIdentityType(IdentityType.GOOGLE.getCode());
             identity.setIdentityHash(FieldEncryptor.hash("google-subject-001"));
             identity.setIdentityStatus(IdentityStatus.BOUND.getCode());
             identity.setRowValid(1);
@@ -743,7 +743,7 @@ class AuthenticationAppServiceTest {
             CiamUserIdentityDo conflictIdentity = new CiamUserIdentityDo();
             conflictIdentity.setIdentityId("email-conflict-001");
             conflictIdentity.setUserId("other-user-999");
-            conflictIdentity.setIdentityType(IdentityType.EMAIL.getValue());
+            conflictIdentity.setIdentityType(IdentityType.EMAIL.getCode());
             conflictIdentity.setIdentityHash(FieldEncryptor.hash("conflict@example.com"));
             conflictIdentity.setIdentityStatus(IdentityStatus.BOUND.getCode());
             conflictIdentity.setRowValid(1);

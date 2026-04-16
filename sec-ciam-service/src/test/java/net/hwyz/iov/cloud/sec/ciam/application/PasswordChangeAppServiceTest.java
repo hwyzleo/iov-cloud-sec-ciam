@@ -68,7 +68,7 @@ class PasswordChangeAppServiceTest {
         CiamUserCredentialDo cred = new CiamUserCredentialDo();
         cred.setCredentialId("cred-001");
         cred.setUserId(USER_ID);
-        cred.setCredentialType(CredentialType.EMAIL_PASSWORD.getValue());
+        cred.setCredentialType(CredentialType.EMAIL_PASSWORD.getCode());
         cred.setCredentialHash(passwordEncoder.encode(rawPassword));
         cred.setHashAlgorithm(PasswordEncoder.ALGORITHM);
         cred.setFailCount(0);
@@ -82,7 +82,7 @@ class PasswordChangeAppServiceTest {
 
         @Test
         void changesPasswordAndInvalidatesAllSessionsAndTokens() {
-            when(credentialRepository.findByUserIdAndType(USER_ID, CredentialType.EMAIL_PASSWORD.getValue()))
+            when(credentialRepository.findByUserIdAndType(USER_ID, CredentialType.EMAIL_PASSWORD.getCode()))
                     .thenReturn(Optional.of(stubCredential(OLD_PASSWORD)));
 
             service.changePasswordAndInvalidateSessions(USER_ID, OLD_PASSWORD, NEW_PASSWORD);
@@ -105,7 +105,7 @@ class PasswordChangeAppServiceTest {
 
         @Test
         void throwsWhenOldPasswordIncorrect() {
-            when(credentialRepository.findByUserIdAndType(USER_ID, CredentialType.EMAIL_PASSWORD.getValue()))
+            when(credentialRepository.findByUserIdAndType(USER_ID, CredentialType.EMAIL_PASSWORD.getCode()))
                     .thenReturn(Optional.of(stubCredential(OLD_PASSWORD)));
 
             BusinessException ex = assertThrows(BusinessException.class,
@@ -120,7 +120,7 @@ class PasswordChangeAppServiceTest {
 
         @Test
         void throwsWhenCredentialNotFound() {
-            when(credentialRepository.findByUserIdAndType(USER_ID, CredentialType.EMAIL_PASSWORD.getValue()))
+            when(credentialRepository.findByUserIdAndType(USER_ID, CredentialType.EMAIL_PASSWORD.getCode()))
                     .thenReturn(Optional.empty());
 
             BusinessException ex = assertThrows(BusinessException.class,
@@ -137,7 +137,7 @@ class PasswordChangeAppServiceTest {
 
         @Test
         void resetsPasswordAndInvalidatesAllSessionsAndTokens() {
-            when(credentialRepository.findByUserIdAndType(USER_ID, CredentialType.EMAIL_PASSWORD.getValue()))
+            when(credentialRepository.findByUserIdAndType(USER_ID, CredentialType.EMAIL_PASSWORD.getCode()))
                     .thenReturn(Optional.of(stubCredential(OLD_PASSWORD)));
 
             service.resetPasswordAndInvalidateSessions(USER_ID, NEW_PASSWORD);
@@ -160,7 +160,7 @@ class PasswordChangeAppServiceTest {
 
         @Test
         void throwsWhenCredentialNotFoundOnReset() {
-            when(credentialRepository.findByUserIdAndType(USER_ID, CredentialType.EMAIL_PASSWORD.getValue()))
+            when(credentialRepository.findByUserIdAndType(USER_ID, CredentialType.EMAIL_PASSWORD.getCode()))
                     .thenReturn(Optional.empty());
 
             BusinessException ex = assertThrows(BusinessException.class,

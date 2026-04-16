@@ -42,7 +42,7 @@ class CredentialDomainServiceTest {
         CiamUserCredentialDo cred = new CiamUserCredentialDo();
         cred.setCredentialId("cred-001");
         cred.setUserId(userId);
-        cred.setCredentialType(CredentialType.EMAIL_PASSWORD.getValue());
+        cred.setCredentialType(CredentialType.EMAIL_PASSWORD.getCode());
         cred.setCredentialHash(passwordEncoder.encode(rawPassword));
         cred.setHashAlgorithm(PasswordEncoder.ALGORITHM);
         cred.setFailCount(0);
@@ -310,7 +310,7 @@ class CredentialDomainServiceTest {
 
             CiamUserCredentialDo result = service.setPassword("user-001", VALID_PASSWORD);
 
-            assertEquals(CredentialType.EMAIL_PASSWORD.getValue(), result.getCredentialType());
+            assertEquals(CredentialType.EMAIL_PASSWORD.getCode(), result.getCredentialType());
         }
 
         @Test

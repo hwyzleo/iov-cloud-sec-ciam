@@ -88,10 +88,10 @@ class ClientIntegrationTest {
 
     // ---- 客户端类型常量 ----
     static final String[] CLIENT_TYPES = {
-            ClientType.APP.getValue(),
-            ClientType.MINI_PROGRAM.getValue(),
-            ClientType.WEB.getValue(),
-            ClientType.VEHICLE.getValue()
+            ClientType.APP.getCode(),
+            ClientType.MINI_PROGRAM.getCode(),
+            ClientType.WEB.getCode(),
+            ClientType.VEHICLE.getCode()
     };
 
     // ---- Mock 仓储 ----

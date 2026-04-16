@@ -19,18 +19,18 @@ public enum IdentityType implements LabelEnum {
     GOOGLE("google", "Google"),
     LOCAL_MOBILE("local_mobile", "本机手机号");
 
-    private final String value;
+    private final String code;
     private final String description;
 
-    IdentityType(String value, String description) {
-        this.value = value;
+    IdentityType(String code, String description) {
+        this.code = code;
         this.description = description;
     }
 
-    public static IdentityType fromValue(String value) {
+    public static IdentityType fromCode(String code) {
         return Arrays.stream(values())
-                .filter(e -> e.value.equals(value))
+                .filter(e -> e.code.equals(code))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("未知的标识类型: " + value));
+                .orElseThrow(() -> new IllegalArgumentException("未知的标识类型: " + code));
     }
 }

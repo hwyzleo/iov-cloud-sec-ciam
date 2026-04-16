@@ -9,7 +9,7 @@ package net.hwyz.iov.cloud.sec.ciam.domain.enums;
 public interface LabelEnum {
 
     /** 数据库存储的字符串值 */
-    String getValue();
+    String getCode();
 
     /** 中文描述 */
     String getDescription();

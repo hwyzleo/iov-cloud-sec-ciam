@@ -14,18 +14,18 @@ public enum CredentialType implements LabelEnum {
 
     EMAIL_PASSWORD("email_password", "邮箱密码");
 
-    private final String value;
+    private final String code;
     private final String description;
 
-    CredentialType(String value, String description) {
-        this.value = value;
+    CredentialType(String code, String description) {
+        this.code = code;
         this.description = description;
     }
 
-    public static CredentialType fromValue(String value) {
+    public static CredentialType fromCode(String code) {
         return Arrays.stream(values())
-                .filter(e -> e.value.equals(value))
+                .filter(e -> e.code.equals(code))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("未知的凭据类型: " + value));
+                .orElseThrow(() -> new IllegalArgumentException("未知的凭据类型: " + code));
     }
 }

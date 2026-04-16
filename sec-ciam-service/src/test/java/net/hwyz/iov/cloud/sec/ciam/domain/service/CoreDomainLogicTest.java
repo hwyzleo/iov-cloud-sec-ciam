@@ -572,7 +572,7 @@ class CoreDomainLogicTest {
             assertEquals("mini_program", event.getClientType());
             assertEquals("login", event.getRiskScene());
             assertEquals(RiskLevel.MEDIUM.getCode(), event.getRiskLevel());
-            assertEquals(DecisionResult.CHALLENGE.getValue(), event.getDecisionResult());
+            assertEquals(DecisionResult.CHALLENGE.getCode(), event.getDecisionResult());
             assertNotNull(event.getHitRules());
             assertTrue(event.getHitRules().contains("new_device"));
             assertNotNull(event.getEventTime());
@@ -647,7 +647,7 @@ class CoreDomainLogicTest {
             CiamUserCredentialDo cred = new CiamUserCredentialDo();
             cred.setCredentialId("cred-edge");
             cred.setUserId(userId);
-            cred.setCredentialType(CredentialType.EMAIL_PASSWORD.getValue());
+            cred.setCredentialType(CredentialType.EMAIL_PASSWORD.getCode());
             cred.setCredentialHash(passwordEncoder.encode(rawPassword));
             cred.setHashAlgorithm(PasswordEncoder.ALGORITHM);
             cred.setFailCount(failCount);

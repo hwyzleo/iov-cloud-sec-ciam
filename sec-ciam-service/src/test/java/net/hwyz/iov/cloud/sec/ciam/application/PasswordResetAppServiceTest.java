@@ -116,7 +116,7 @@ class PasswordResetAppServiceTest {
         CiamUserIdentityDo identity = new CiamUserIdentityDo();
         identity.setIdentityId("identity-001");
         identity.setUserId(USER_ID);
-        identity.setIdentityType(IdentityType.MOBILE.getValue());
+        identity.setIdentityType(IdentityType.MOBILE.getCode());
         identity.setIdentityHash(MOBILE_HASH);
         identity.setIdentityStatus(IdentityStatus.BOUND.getCode());
         identity.setRowValid(1);
@@ -127,7 +127,7 @@ class PasswordResetAppServiceTest {
         CiamUserIdentityDo identity = new CiamUserIdentityDo();
         identity.setIdentityId("identity-002");
         identity.setUserId(USER_ID);
-        identity.setIdentityType(IdentityType.EMAIL.getValue());
+        identity.setIdentityType(IdentityType.EMAIL.getCode());
         identity.setIdentityHash(EMAIL_HASH);
         identity.setIdentityStatus(IdentityStatus.BOUND.getCode());
         identity.setRowValid(1);
@@ -138,7 +138,7 @@ class PasswordResetAppServiceTest {
         CiamUserCredentialDo cred = new CiamUserCredentialDo();
         cred.setCredentialId("cred-001");
         cred.setUserId(USER_ID);
-        cred.setCredentialType(CredentialType.EMAIL_PASSWORD.getValue());
+        cred.setCredentialType(CredentialType.EMAIL_PASSWORD.getCode());
         cred.setCredentialHash(passwordEncoder.encode("OldPass1!"));
         cred.setHashAlgorithm(PasswordEncoder.ALGORITHM);
         cred.setFailCount(0);
@@ -152,7 +152,7 @@ class PasswordResetAppServiceTest {
 
         @Test
         void sendsVerificationCodeAndReturnsUserId() {
-            when(identityRepository.findByTypeAndHash(IdentityType.MOBILE.getValue(), MOBILE_HASH))
+            when(identityRepository.findByTypeAndHash(IdentityType.MOBILE.getCode(), MOBILE_HASH))
                     .thenReturn(Optional.of(stubMobileIdentity()));
 
             String result = service.requestResetByMobile(MOBILE, COUNTRY_CODE, CLIENT_ID);
@@ -163,7 +163,7 @@ class PasswordResetAppServiceTest {
 
         @Test
         void throwsWhenMobileNotBound() {
-            when(identityRepository.findByTypeAndHash(IdentityType.MOBILE.getValue(), MOBILE_HASH))
+            when(identityRepository.findByTypeAndHash(IdentityType.MOBILE.getCode(), MOBILE_HASH))
                     .thenReturn(Optional.empty());
 
             BusinessException ex = assertThrows(BusinessException.class,
@@ -177,7 +177,7 @@ class PasswordResetAppServiceTest {
         void throwsWhenMobileUnbound() {
             CiamUserIdentityDo unbound = stubMobileIdentity();
             unbound.setIdentityStatus(IdentityStatus.UNBOUND.getCode());
-            when(identityRepository.findByTypeAndHash(IdentityType.MOBILE.getValue(), MOBILE_HASH))
+            when(identityRepository.findByTypeAndHash(IdentityType.MOBILE.getCode(), MOBILE_HASH))
                     .thenReturn(Optional.of(unbound));
 
             BusinessException ex = assertThrows(BusinessException.class,
@@ -192,7 +192,7 @@ class PasswordResetAppServiceTest {
 
         @Test
         void sendsVerificationCodeAndReturnsUserId() {
-            when(identityRepository.findByTypeAndHash(IdentityType.EMAIL.getValue(), EMAIL_HASH))
+            when(identityRepository.findByTypeAndHash(IdentityType.EMAIL.getCode(), EMAIL_HASH))
                     .thenReturn(Optional.of(stubEmailIdentity()));
 
             String result = service.requestResetByEmail(EMAIL, CLIENT_ID);
@@ -203,7 +203,7 @@ class PasswordResetAppServiceTest {
 
         @Test
         void throwsWhenEmailNotBound() {
-            when(identityRepository.findByTypeAndHash(IdentityType.EMAIL.getValue(), EMAIL_HASH))
+            when(identityRepository.findByTypeAndHash(IdentityType.EMAIL.getCode(), EMAIL_HASH))
                     .thenReturn(Optional.empty());
 
             BusinessException ex = assertThrows(BusinessException.class,
@@ -252,7 +252,7 @@ class PasswordResetAppServiceTest {
 
         @Test
         void resetsPasswordAndInvalidatesAllSessionsAndTokens() {
-            when(credentialRepository.findByUserIdAndType(USER_ID, CredentialType.EMAIL_PASSWORD.getValue()))
+            when(credentialRepository.findByUserIdAndType(USER_ID, CredentialType.EMAIL_PASSWORD.getCode()))
                     .thenReturn(Optional.of(stubCredential()));
 
             service.resetPassword(USER_ID, NEW_PASSWORD);
@@ -272,7 +272,7 @@ class PasswordResetAppServiceTest {
 
         @Test
         void throwsWhenCredentialNotFound() {
-            when(credentialRepository.findByUserIdAndType(USER_ID, CredentialType.EMAIL_PASSWORD.getValue()))
+            when(credentialRepository.findByUserIdAndType(USER_ID, CredentialType.EMAIL_PASSWORD.getCode()))
                     .thenReturn(Optional.empty());
 
             BusinessException ex = assertThrows(BusinessException.class,
@@ -286,7 +286,7 @@ class PasswordResetAppServiceTest {
 
         @Test
         void throwsWhenNewPasswordTooWeak() {
-            when(credentialRepository.findByUserIdAndType(USER_ID, CredentialType.EMAIL_PASSWORD.getValue()))
+            when(credentialRepository.findByUserIdAndType(USER_ID, CredentialType.EMAIL_PASSWORD.getCode()))
                     .thenReturn(Optional.of(stubCredential()));
 
             BusinessException ex = assertThrows(BusinessException.class,

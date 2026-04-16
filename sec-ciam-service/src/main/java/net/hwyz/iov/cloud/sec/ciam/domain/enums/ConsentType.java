@@ -16,18 +16,18 @@ public enum ConsentType implements LabelEnum {
     PRIVACY_POLICY("privacy_policy", "隐私政策"),
     MARKETING("marketing", "营销同意");
 
-    private final String value;
+    private final String code;
     private final String description;
 
-    ConsentType(String value, String description) {
-        this.value = value;
+    ConsentType(String code, String description) {
+        this.code = code;
         this.description = description;
     }
 
-    public static ConsentType fromValue(String value) {
+    public static ConsentType fromCode(String code) {
         return Arrays.stream(values())
-                .filter(e -> e.value.equals(value))
+                .filter(e -> e.code.equals(code))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("未知的同意类型: " + value));
+                .orElseThrow(() -> new IllegalArgumentException("未知的同意类型: " + code));
     }
 }

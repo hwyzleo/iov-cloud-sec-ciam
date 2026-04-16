@@ -73,7 +73,7 @@ public class RiskAssessmentService {
         event.setClientType(clientType);
         event.setIpAddress(ipAddress);
         event.setRegionCode(regionCode);
-        event.setDecisionResult(decision.getValue());
+        event.setDecisionResult(decision.getCode());
         event.setHitRules(hitRules.isEmpty() ? null : String.join(",", hitRules));
         event.setEventTime(now);
         event.setHandledFlag(0);

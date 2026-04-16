@@ -182,23 +182,23 @@ class AccountLifecycleAppServiceTest {
             // Stub identity lookup
             CiamUserIdentityDo identity = new CiamUserIdentityDo();
             identity.setUserId(USER_ID);
-            identity.setIdentityType(IdentityType.EMAIL.getValue());
+            identity.setIdentityType(IdentityType.EMAIL.getCode());
             identity.setIdentityHash(emailHash);
             identity.setIdentityStatus(IdentityStatus.BOUND.getCode());
-            when(identityRepository.findByTypeAndHash(IdentityType.EMAIL.getValue(), emailHash))
+            when(identityRepository.findByTypeAndHash(IdentityType.EMAIL.getCode(), emailHash))
                     .thenReturn(Optional.of(identity));
 
             // Stub credential for password reset
             CiamUserCredentialDo cred = new CiamUserCredentialDo();
             cred.setCredentialId("cred-001");
             cred.setUserId(USER_ID);
-            cred.setCredentialType(CredentialType.EMAIL_PASSWORD.getValue());
+            cred.setCredentialType(CredentialType.EMAIL_PASSWORD.getCode());
             cred.setCredentialHash(passwordEncoder.encode("OldPass1!"));
             cred.setHashAlgorithm(PasswordEncoder.ALGORITHM);
             cred.setFailCount(0);
             cred.setCredentialStatus(CredentialStatus.VALID.getCode());
             cred.setRowValid(1);
-            when(credentialRepository.findByUserIdAndType(USER_ID, CredentialType.EMAIL_PASSWORD.getValue()))
+            when(credentialRepository.findByUserIdAndType(USER_ID, CredentialType.EMAIL_PASSWORD.getCode()))
                     .thenReturn(Optional.of(cred));
             when(credentialRepository.updateByCredentialId(any())).thenReturn(1);
 
@@ -221,7 +221,7 @@ class AccountLifecycleAppServiceTest {
             String codeKey = "vc:email:" + userKey + ":" + clientId;
             String storedCode = codeStore.getCode(codeKey).orElseThrow();
 
-            when(identityRepository.findByTypeAndHash(IdentityType.EMAIL.getValue(), emailHash))
+            when(identityRepository.findByTypeAndHash(IdentityType.EMAIL.getCode(), emailHash))
                     .thenReturn(Optional.empty());
 
             assertThrows(BusinessException.class,

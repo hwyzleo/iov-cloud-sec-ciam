@@ -733,7 +733,7 @@ class OAuthOidcProtocolComplianceTest {
         void idToken_emailScope_shouldIncludeEmailClaim() {
             CiamUserIdentityDo emailIdentity = new CiamUserIdentityDo();
             emailIdentity.setUserId(USER_ID);
-            emailIdentity.setIdentityType(IdentityType.EMAIL.getValue());
+            emailIdentity.setIdentityType(IdentityType.EMAIL.getCode());
             emailIdentity.setIdentityValue(fieldEncryptor.encrypt("user@example.com"));
             emailIdentity.setIdentityStatus(IdentityStatus.BOUND.getCode());
 
@@ -750,7 +750,7 @@ class OAuthOidcProtocolComplianceTest {
         void idToken_phoneScope_shouldIncludePhoneClaim() {
             CiamUserIdentityDo mobileIdentity = new CiamUserIdentityDo();
             mobileIdentity.setUserId(USER_ID);
-            mobileIdentity.setIdentityType(IdentityType.MOBILE.getValue());
+            mobileIdentity.setIdentityType(IdentityType.MOBILE.getCode());
             mobileIdentity.setIdentityValue(fieldEncryptor.encrypt("+8613800138000"));
             mobileIdentity.setIdentityStatus(IdentityStatus.BOUND.getCode());
 

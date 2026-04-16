@@ -2,6 +2,8 @@ package net.hwyz.iov.cloud.sec.ciam.domain.service;
 
 import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
 import net.hwyz.iov.cloud.sec.ciam.common.exception.CiamErrorCode;
+import net.hwyz.iov.cloud.sec.ciam.domain.enums.IdentityType;
+import net.hwyz.iov.cloud.sec.ciam.domain.enums.RegisterSource;
 import net.hwyz.iov.cloud.sec.ciam.domain.enums.UserStatus;
 import net.hwyz.iov.cloud.sec.ciam.domain.repository.CiamUserProfileRepository;
 import net.hwyz.iov.cloud.sec.ciam.domain.repository.CiamUserRepository;
@@ -35,7 +37,7 @@ class UserDomainServiceTest {
 
     @Test
     void createUser_generatesGloballyUniqueUserId() {
-        CiamUserDo user = service.createUser("mobile", "app", null);
+        CiamUserDo user = service.createUser(RegisterSource.MOBILE, "app", null, null);
 
         assertNotNull(user.getUserId());
         assertEquals(32, user.getUserId().length());
@@ -44,14 +46,14 @@ class UserDomainServiceTest {
 
     @Test
     void createUser_setsInitialStatusToPending() {
-        CiamUserDo user = service.createUser("email", null, null);
+        CiamUserDo user = service.createUser(RegisterSource.EMAIL, null, null, null);
 
         assertEquals(UserStatus.PENDING.getCode(), user.getUserStatus());
     }
 
     @Test
     void createUser_setsRegisterSourceAndChannel() {
-        CiamUserDo user = service.createUser("wechat", "mini_program", null);
+        CiamUserDo user = service.createUser(RegisterSource.WECHAT, "mini_program", null, null);
 
         assertEquals("wechat", user.getRegisterSource());
         assertEquals("mini_program", user.getRegisterChannel());
@@ -59,35 +61,35 @@ class UserDomainServiceTest {
 
     @Test
     void createUser_defaultsBrandCodeToOpenIOV() {
-        CiamUserDo user = service.createUser("mobile", null, null);
+        CiamUserDo user = service.createUser(RegisterSource.MOBILE, null, null, null);
 
         assertEquals("OPENIOV", user.getBrandCode());
     }
 
     @Test
     void createUser_usesProvidedBrandCode() {
-        CiamUserDo user = service.createUser("mobile", null, "CUSTOM_BRAND");
+        CiamUserDo user = service.createUser(RegisterSource.MOBILE, null, "CUSTOM_BRAND", null);
 
         assertEquals("CUSTOM_BRAND", user.getBrandCode());
     }
 
     @Test
     void createUser_defaultsBrandCodeWhenBlank() {
-        CiamUserDo user = service.createUser("mobile", null, "  ");
+        CiamUserDo user = service.createUser(RegisterSource.MOBILE, null, "  ", null);
 
         assertEquals("OPENIOV", user.getBrandCode());
     }
 
     @Test
     void createUser_insertsUserRecord() {
-        service.createUser("mobile", null, null);
+        service.createUser(RegisterSource.MOBILE, null, null, null);
 
         verify(userRepository, times(1)).insert(any(CiamUserDo.class));
     }
 
     @Test
     void createUser_insertsProfileRecord() {
-        service.createUser("mobile", null, null);
+        service.createUser(RegisterSource.MOBILE, null, null, null);
 
         ArgumentCaptor<CiamUserProfileDo> captor =
                 ArgumentCaptor.forClass(CiamUserProfileDo.class);
@@ -102,7 +104,7 @@ class UserDomainServiceTest {
 
     @Test
     void createUser_profileUserIdMatchesUserUserId() {
-        CiamUserDo user = service.createUser("mobile", null, null);
+        CiamUserDo user = service.createUser(RegisterSource.MOBILE, null, null, null);
 
         ArgumentCaptor<CiamUserProfileDo> captor =
                 ArgumentCaptor.forClass(CiamUserProfileDo.class);
@@ -113,7 +115,7 @@ class UserDomainServiceTest {
 
     @Test
     void createUser_setsRowVersionAndRowValid() {
-        CiamUserDo user = service.createUser("mobile", null, null);
+        CiamUserDo user = service.createUser(RegisterSource.MOBILE, null, null, null);
 
         assertEquals(1, user.getRowVersion());
         assertEquals(1, user.getRowValid());
@@ -121,7 +123,7 @@ class UserDomainServiceTest {
 
     @Test
     void createUser_setsTimestamps() {
-        CiamUserDo user = service.createUser("mobile", null, null);
+        CiamUserDo user = service.createUser(RegisterSource.MOBILE, null, null, null);
 
         assertNotNull(user.getCreateTime());
         assertNotNull(user.getModifyTime());
@@ -129,8 +131,8 @@ class UserDomainServiceTest {
 
     @Test
     void createUser_twoCalls_produceDifferentUserIds() {
-        CiamUserDo user1 = service.createUser("mobile", null, null);
-        CiamUserDo user2 = service.createUser("mobile", null, null);
+        CiamUserDo user1 = service.createUser(RegisterSource.MOBILE, null, null, null);
+        CiamUserDo user2 = service.createUser(RegisterSource.MOBILE, null, null, null);
 
         assertNotEquals(user1.getUserId(), user2.getUserId());
     }

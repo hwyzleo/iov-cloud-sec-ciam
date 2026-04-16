@@ -67,8 +67,8 @@ class MfaDomainServiceTest {
 
             assertEquals("user-001", saved.getUserId());
             assertEquals("session-001", saved.getSessionId());
-            assertEquals(ChallengeType.SMS.getValue(), saved.getChallengeType());
-            assertEquals(ChallengeScene.NEW_DEVICE.getValue(), saved.getChallengeScene());
+            assertEquals(ChallengeType.SMS.getCode(), saved.getChallengeType());
+            assertEquals(ChallengeScene.NEW_DEVICE.getCode(), saved.getChallengeScene());
             assertEquals("138****1234", saved.getReceiverMask());
             assertEquals(ChallengeStatus.PENDING.getCode(), saved.getChallengeStatus());
             assertEquals("risk-001", saved.getRiskEventId());
@@ -97,8 +97,8 @@ class MfaDomainServiceTest {
             verify(challengeRepository).insert(captor.capture());
             CiamMfaChallengeDo saved = captor.getValue();
 
-            assertEquals(ChallengeType.EMAIL.getValue(), saved.getChallengeType());
-            assertEquals(ChallengeScene.GEO_CHANGE.getValue(), saved.getChallengeScene());
+            assertEquals(ChallengeType.EMAIL.getCode(), saved.getChallengeType());
+            assertEquals(ChallengeScene.GEO_CHANGE.getCode(), saved.getChallengeScene());
             assertNull(saved.getSessionId());
             assertNull(saved.getRiskEventId());
 
@@ -117,7 +117,7 @@ class MfaDomainServiceTest {
 
             ArgumentCaptor<CiamMfaChallengeDo> captor = ArgumentCaptor.forClass(CiamMfaChallengeDo.class);
             verify(challengeRepository).insert(captor.capture());
-            assertEquals(ChallengeScene.HIGH_RISK.getValue(), captor.getValue().getChallengeScene());
+            assertEquals(ChallengeScene.HIGH_RISK.getCode(), captor.getValue().getChallengeScene());
         }
 
         @Test
@@ -184,8 +184,8 @@ class MfaDomainServiceTest {
             CiamMfaChallengeDo c = new CiamMfaChallengeDo();
             c.setChallengeId("ch-001");
             c.setUserId("user-001");
-            c.setChallengeType(ChallengeType.SMS.getValue());
-            c.setChallengeScene(ChallengeScene.NEW_DEVICE.getValue());
+            c.setChallengeType(ChallengeType.SMS.getCode());
+            c.setChallengeScene(ChallengeScene.NEW_DEVICE.getCode());
             c.setVerifyCodeHash(TokenDigest.fingerprint(code));
             c.setSendTime(LocalDateTime.now().minusMinutes(1));
             c.setExpireTime(LocalDateTime.now().plusMinutes(4));

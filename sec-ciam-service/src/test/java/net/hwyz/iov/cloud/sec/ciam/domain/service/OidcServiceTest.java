@@ -56,7 +56,7 @@ class OidcServiceTest {
     private CiamUserIdentityDo stubEmailIdentity() {
         CiamUserIdentityDo identity = new CiamUserIdentityDo();
         identity.setUserId(USER_ID);
-        identity.setIdentityType(IdentityType.EMAIL.getValue());
+        identity.setIdentityType(IdentityType.EMAIL.getCode());
         identity.setIdentityValue(fieldEncryptor.encrypt("zhangsan@example.com"));
         identity.setIdentityStatus(IdentityStatus.BOUND.getCode());
         return identity;
@@ -65,7 +65,7 @@ class OidcServiceTest {
     private CiamUserIdentityDo stubMobileIdentity() {
         CiamUserIdentityDo identity = new CiamUserIdentityDo();
         identity.setUserId(USER_ID);
-        identity.setIdentityType(IdentityType.MOBILE.getValue());
+        identity.setIdentityType(IdentityType.MOBILE.getCode());
         identity.setIdentityValue(fieldEncryptor.encrypt("+8613800138000"));
         identity.setIdentityStatus(IdentityStatus.BOUND.getCode());
         return identity;

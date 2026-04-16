@@ -81,7 +81,7 @@ class RiskAssessmentServiceTest {
         assertEquals("web", saved.getClientType());
         assertEquals("login", saved.getRiskScene());
         assertEquals(RiskLevel.MEDIUM.getCode(), saved.getRiskLevel());
-        assertEquals(DecisionResult.CHALLENGE.getValue(), saved.getDecisionResult());
+        assertEquals(DecisionResult.CHALLENGE.getCode(), saved.getDecisionResult());
         assertNotNull(saved.getEventTime());
         assertEquals(0, saved.getHandledFlag());
     }

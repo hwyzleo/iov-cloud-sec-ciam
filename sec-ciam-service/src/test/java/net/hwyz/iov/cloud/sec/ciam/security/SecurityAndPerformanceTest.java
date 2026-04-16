@@ -129,7 +129,7 @@ class SecurityAndPerformanceTest {
         private CiamUserCredentialDo cred(String userId, int failCount, LocalDateTime lockedUntil) {
             CiamUserCredentialDo c = new CiamUserCredentialDo();
             c.setCredentialId("cred-001"); c.setUserId(userId);
-            c.setCredentialType(CredentialType.EMAIL_PASSWORD.getValue());
+            c.setCredentialType(CredentialType.EMAIL_PASSWORD.getCode());
             c.setCredentialHash("hashed"); c.setHashAlgorithm("BCrypt");
             c.setFailCount(failCount); c.setLockedUntil(lockedUntil);
             c.setCredentialStatus(CredentialStatus.VALID.getCode()); c.setRowValid(1);
@@ -140,7 +140,7 @@ class SecurityAndPerformanceTest {
         @DisplayName("连续错误1-2次：普通失败，不触发挑战")
         void belowChallengeThreshold() {
             String uid = "u-bf1";
-            when(credentialRepository.findByUserIdAndType(uid, CredentialType.EMAIL_PASSWORD.getValue()))
+            when(credentialRepository.findByUserIdAndType(uid, CredentialType.EMAIL_PASSWORD.getCode()))
                     .thenReturn(Optional.of(cred(uid, 1, null)));
             when(passwordEncoder.matches(anyString(), anyString())).thenReturn(false);
             PasswordVerifyResult r = credentialDomainService.verifyPassword(uid, "wrong");
@@ -152,7 +152,7 @@ class SecurityAndPerformanceTest {
         @DisplayName("连续错误3次：触发图形验证码挑战")
         void challengeThresholdReached() {
             String uid = "u-bf2";
-            when(credentialRepository.findByUserIdAndType(uid, CredentialType.EMAIL_PASSWORD.getValue()))
+            when(credentialRepository.findByUserIdAndType(uid, CredentialType.EMAIL_PASSWORD.getCode()))
                     .thenReturn(Optional.of(cred(uid, 2, null)));
             when(passwordEncoder.matches(anyString(), anyString())).thenReturn(false);
             PasswordVerifyResult r = credentialDomainService.verifyPassword(uid, "wrong");
@@ -164,7 +164,7 @@ class SecurityAndPerformanceTest {
         @DisplayName("连续错误5次：锁定账号30分钟")
         void lockThresholdReached() {
             String uid = "u-bf3";
-            when(credentialRepository.findByUserIdAndType(uid, CredentialType.EMAIL_PASSWORD.getValue()))
+            when(credentialRepository.findByUserIdAndType(uid, CredentialType.EMAIL_PASSWORD.getCode()))
                     .thenReturn(Optional.of(cred(uid, 4, null)));
             when(passwordEncoder.matches(anyString(), anyString())).thenReturn(false);
             PasswordVerifyResult r = credentialDomainService.verifyPassword(uid, "wrong");
@@ -177,7 +177,7 @@ class SecurityAndPerformanceTest {
         @DisplayName("锁定期间尝试登录抛出ACCOUNT_LOCKED")
         void lockedAccountRejects() {
             String uid = "u-bf4";
-            when(credentialRepository.findByUserIdAndType(uid, CredentialType.EMAIL_PASSWORD.getValue()))
+            when(credentialRepository.findByUserIdAndType(uid, CredentialType.EMAIL_PASSWORD.getCode()))
                     .thenReturn(Optional.of(cred(uid, 5, LocalDateTime.now().plusMinutes(25))));
             BusinessException ex = assertThrows(BusinessException.class, () -> credentialDomainService.verifyPassword(uid, "any"));
             assertEquals(CiamErrorCode.ACCOUNT_LOCKED, ex.getErrorCode());
@@ -188,7 +188,7 @@ class SecurityAndPerformanceTest {
         @DisplayName("密码正确后重置失败计数")
         void correctPasswordResets() {
             String uid = "u-bf5";
-            when(credentialRepository.findByUserIdAndType(uid, CredentialType.EMAIL_PASSWORD.getValue()))
+            when(credentialRepository.findByUserIdAndType(uid, CredentialType.EMAIL_PASSWORD.getCode()))
                     .thenReturn(Optional.of(cred(uid, 3, null)));
             when(passwordEncoder.matches("ok", "hashed")).thenReturn(true);
             PasswordVerifyResult r = credentialDomainService.verifyPassword(uid, "ok");
@@ -270,7 +270,7 @@ class SecurityAndPerformanceTest {
         private CiamUserCredentialDo cred(String userId, int failCount, LocalDateTime lockedUntil) {
             CiamUserCredentialDo c = new CiamUserCredentialDo();
             c.setCredentialId("cred-l1"); c.setUserId(userId);
-            c.setCredentialType(CredentialType.EMAIL_PASSWORD.getValue());
+            c.setCredentialType(CredentialType.EMAIL_PASSWORD.getCode());
             c.setCredentialHash("hpw"); c.setHashAlgorithm("BCrypt");
             c.setFailCount(failCount); c.setLockedUntil(lockedUntil);
             c.setCredentialStatus(CredentialStatus.VALID.getCode()); c.setRowValid(1);
@@ -290,7 +290,7 @@ class SecurityAndPerformanceTest {
         @DisplayName("锁定期间即使密码正确也拒绝登录")
         void lockedRejectsCorrectPw() {
             String uid = "u-l1";
-            when(credentialRepository.findByUserIdAndType(uid, CredentialType.EMAIL_PASSWORD.getValue()))
+            when(credentialRepository.findByUserIdAndType(uid, CredentialType.EMAIL_PASSWORD.getCode()))
                     .thenReturn(Optional.of(cred(uid, 5, LocalDateTime.now().plusMinutes(20))));
             BusinessException ex = assertThrows(BusinessException.class, () -> credentialDomainService.verifyPassword(uid, "correct"));
             assertEquals(CiamErrorCode.ACCOUNT_LOCKED, ex.getErrorCode());
@@ -300,7 +300,7 @@ class SecurityAndPerformanceTest {
         @DisplayName("锁定过期后允许重新尝试登录")
         void lockExpiredAllowsRetry() {
             String uid = "u-l2";
-            when(credentialRepository.findByUserIdAndType(uid, CredentialType.EMAIL_PASSWORD.getValue()))
+            when(credentialRepository.findByUserIdAndType(uid, CredentialType.EMAIL_PASSWORD.getCode()))
                     .thenReturn(Optional.of(cred(uid, 5, LocalDateTime.now().minusMinutes(1))));
             when(passwordEncoder.matches("ok", "hpw")).thenReturn(true);
             PasswordVerifyResult r = credentialDomainService.verifyPassword(uid, "ok");
@@ -311,7 +311,7 @@ class SecurityAndPerformanceTest {
         @DisplayName("第4次失败触发挑战但不锁定")
         void fourthFailure_challengeNoLock() {
             String uid = "u-l3";
-            when(credentialRepository.findByUserIdAndType(uid, CredentialType.EMAIL_PASSWORD.getValue()))
+            when(credentialRepository.findByUserIdAndType(uid, CredentialType.EMAIL_PASSWORD.getCode()))
                     .thenReturn(Optional.of(cred(uid, 3, null)));
             when(passwordEncoder.matches(anyString(), anyString())).thenReturn(false);
             PasswordVerifyResult r = credentialDomainService.verifyPassword(uid, "wrong");

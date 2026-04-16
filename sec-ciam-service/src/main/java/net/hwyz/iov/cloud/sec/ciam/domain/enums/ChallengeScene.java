@@ -16,18 +16,18 @@ public enum ChallengeScene implements LabelEnum {
     GEO_CHANGE("geo_change", "异地登录"),
     HIGH_RISK("high_risk", "高风险操作");
 
-    private final String value;
+    private final String code;
     private final String description;
 
-    ChallengeScene(String value, String description) {
-        this.value = value;
+    ChallengeScene(String code, String description) {
+        this.code = code;
         this.description = description;
     }
 
-    public static ChallengeScene fromValue(String value) {
+    public static ChallengeScene fromCode(String code) {
         return Arrays.stream(values())
-                .filter(e -> e.value.equals(value))
+                .filter(e -> e.code.equals(code))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("未知的挑战场景: " + value));
+                .orElseThrow(() -> new IllegalArgumentException("未知的挑战场景: " + code));
     }
 }

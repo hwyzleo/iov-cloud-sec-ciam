@@ -17,18 +17,18 @@ public enum DecisionResult implements LabelEnum {
     BLOCK("block", "阻断"),
     KICKOUT("kickout", "强制下线");
 
-    private final String value;
+    private final String code;
     private final String description;
 
-    DecisionResult(String value, String description) {
-        this.value = value;
+    DecisionResult(String code, String description) {
+        this.code = code;
         this.description = description;
     }
 
-    public static DecisionResult fromValue(String value) {
+    public static DecisionResult fromCode(String code) {
         return Arrays.stream(values())
-                .filter(e -> e.value.equals(value))
+                .filter(e -> e.code.equals(code))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("未知的处置结果: " + value));
+                .orElseThrow(() -> new IllegalArgumentException("未知的处置结果: " + code));
     }
 }
