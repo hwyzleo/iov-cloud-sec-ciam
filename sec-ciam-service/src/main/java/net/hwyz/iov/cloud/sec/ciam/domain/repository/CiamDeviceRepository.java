@@ -16,8 +16,14 @@ public interface CiamDeviceRepository {
     /** 根据用户 ID 和设备状态查询 */
     List<CiamDeviceDo> findByUserIdAndStatus(String userId, int deviceStatus);
 
+    /** 根据用户 ID 查询 */
+    List<CiamDeviceDo> findByUserId(String userId);
+
     /** 根据设备指纹查询 */
     Optional<CiamDeviceDo> findByDeviceFingerprint(String deviceFingerprint);
+
+    /** 查询所有设备 */
+    List<CiamDeviceDo> findAll();
 
     /** 插入设备记录 */
     int insert(CiamDeviceDo entity);

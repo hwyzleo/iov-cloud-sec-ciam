@@ -24,10 +24,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -40,7 +37,7 @@ import static org.mockito.Mockito.*;
  * <p>
  * 仅 mock 底层仓储与检索服务，与项目现有测试风格一致。
  */
-class AdminQueryAppServiceTest {
+class AccountQueryAppServiceTest {
 
     private CiamUserRepository userRepository;
     private CiamUserIdentityRepository identityRepository;
@@ -51,7 +48,7 @@ class AdminQueryAppServiceTest {
     private SearchService searchService;
     private FieldEncryptor fieldEncryptor;
 
-    private AdminQueryAppService service;
+    private AccountQueryAppService service;
 
     private static final String USER_ID = "user-admin-001";
 
@@ -66,7 +63,7 @@ class AdminQueryAppServiceTest {
         searchService = mock(SearchService.class);
         fieldEncryptor = mock(FieldEncryptor.class);
 
-        service = new AdminQueryAppService(
+        service = new AccountQueryAppService(
                 userRepository,
                 identityRepository,
                 profileRepository,
@@ -138,7 +135,7 @@ class AdminQueryAppServiceTest {
             when(tagRepository.findByUserId(USER_ID))
                     .thenReturn(List.of(stubTag("REAL_NAME")));
 
-            AdminQueryAppService.UserDetail detail = service.queryUser(USER_ID);
+            AccountQueryAppService.UserDetail detail = service.queryUser(USER_ID);
 
             assertEquals(USER_ID, detail.userId());
         }

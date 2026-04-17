@@ -6,7 +6,7 @@ import net.hwyz.iov.cloud.framework.common.bean.ApiResponse;
 import net.hwyz.iov.cloud.sec.ciam.application.AccountBindingAppService;
 import net.hwyz.iov.cloud.sec.ciam.application.AccountLifecycleAppService;
 import net.hwyz.iov.cloud.sec.ciam.application.AdminAccountAppService;
-import net.hwyz.iov.cloud.sec.ciam.application.AdminQueryAppService;
+import net.hwyz.iov.cloud.sec.ciam.application.AccountQueryAppService;
 import net.hwyz.iov.cloud.sec.ciam.application.StatisticsAppService;
 import net.hwyz.iov.cloud.sec.ciam.application.StatisticsResult;
 import net.hwyz.iov.cloud.sec.ciam.controller.mp.dto.*;
@@ -36,11 +36,11 @@ import java.util.List;
  * 运营后台管理控制器 — 用户查询、账号状态管理、合并/注销审核、审计日志、风险事件、统计分析。
  */
 @RestController
-@RequestMapping("/api/mp/admin/v1")
+@RequestMapping("/api/mp/account/v1")
 @RequiredArgsConstructor
-public class AdminController {
+public class AccountController {
 
-    private final AdminQueryAppService adminQueryAppService;
+    private final AccountQueryAppService adminQueryAppService;
     private final AccountLifecycleAppService accountLifecycleAppService;
     private final AccountBindingAppService accountBindingAppService;
     private final StatisticsAppService statisticsAppService;
@@ -115,7 +115,7 @@ public class AdminController {
 
     /** 查询账号详情 */
     @GetMapping("/accounts/detail")
-    public ApiResponse<AdminQueryAppService.UserDetail> getUserDetail(@RequestParam String userId) {
+    public ApiResponse<AccountQueryAppService.UserDetail> getUserDetail(@RequestParam String userId) {
         return ApiResponse.ok(adminQueryAppService.queryUser(userId));
     }
 

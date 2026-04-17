@@ -39,7 +39,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class AdminQueryAppService {
+public class AccountQueryAppService {
 
     private final CiamUserRepository userRepository;
     private final CiamUserIdentityRepository identityRepository;

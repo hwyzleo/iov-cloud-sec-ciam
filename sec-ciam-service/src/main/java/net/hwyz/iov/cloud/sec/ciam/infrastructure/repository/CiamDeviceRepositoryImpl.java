@@ -35,6 +35,21 @@ public class CiamDeviceRepositoryImpl implements CiamDeviceRepository {
     }
 
     @Override
+    public List<CiamDeviceDo> findByUserId(String userId) {
+        return mapper.selectList(
+                new LambdaQueryWrapper<CiamDeviceDo>()
+                        .eq(CiamDeviceDo::getUserId, userId)
+                        .eq(CiamDeviceDo::getRowValid, 1));
+    }
+
+    @Override
+    public List<CiamDeviceDo> findAll() {
+        return mapper.selectList(
+                new LambdaQueryWrapper<CiamDeviceDo>()
+                        .eq(CiamDeviceDo::getRowValid, 1));
+    }
+
+    @Override
     public Optional<CiamDeviceDo> findByDeviceFingerprint(String deviceFingerprint) {
         return Optional.ofNullable(mapper.selectOne(
                 new LambdaQueryWrapper<CiamDeviceDo>()
