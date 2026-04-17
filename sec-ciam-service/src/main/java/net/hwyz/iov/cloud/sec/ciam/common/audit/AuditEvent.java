@@ -26,6 +26,9 @@ public class AuditEvent {
     /** 会话 ID */
     private String sessionId;
 
+    /** 设备标识 */
+    private String deviceId;
+
     /** 客户端标识 */
     private String clientId;
 

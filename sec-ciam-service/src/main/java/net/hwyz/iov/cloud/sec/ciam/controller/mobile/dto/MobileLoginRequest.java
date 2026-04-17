@@ -14,5 +14,5 @@ public class MobileLoginRequest {
     @NotBlank private String mobile;
     private String countryCode;
     @NotBlank private String code;
-    private String deviceInfo;
+    private DeviceInfo deviceInfo;
 }

@@ -31,11 +31,17 @@ import java.time.temporal.ChronoUnit;
 @RequiredArgsConstructor
 public class VerificationCodeService {
 
-    /** 验证码长度 */
+    /**
+     * 验证码长度
+     */
     public static final int CODE_LENGTH = 6;
-    /** 每分钟频控 TTL（秒） */
+    /**
+     * 每分钟频控 TTL（秒）
+     */
     public static final int RATE_LIMIT_TTL_SECONDS = 60;
-    /** 单日发送上限 */
+    /**
+     * 单日发送上限
+     */
     public static final int DAILY_LIMIT = 30;
 
     private static final SecureRandom RANDOM = new SecureRandom();
@@ -71,12 +77,12 @@ public class VerificationCodeService {
      *
      * @param email    邮箱地址
      * @param userId   用户标识（可为邮箱哈希，用于频控）
-     * @param clientId 客户端标识
+     * @param deviceId 设备标识
      */
-    public void sendEmailCode(String email, String userId, String clientId) {
-        checkRateLimit(userId, clientId, VerificationCodeType.EMAIL);
+    public void sendEmailCode(String email, String userId, String deviceId) {
+        checkRateLimit(userId, deviceId, VerificationCodeType.EMAIL);
         String code = generateCode();
-        String codeKey = buildCodeKey(userId, clientId, VerificationCodeType.EMAIL);
+        String codeKey = buildCodeKey(userId, deviceId, VerificationCodeType.EMAIL);
         codeStore.saveCode(codeKey, code, VerificationCodeType.EMAIL.getTtlSeconds());
 
         AdapterResult result = emailAdapter.sendVerificationCode(email, code);
@@ -90,13 +96,13 @@ public class VerificationCodeService {
      * 校验验证码。
      *
      * @param userId   用户标识
-     * @param clientId 客户端标识
+     * @param deviceId 设备标识
      * @param type     验证码类型
      * @param code     用户输入的验证码
      * @throws BusinessException 验证码无效或已过期时抛出 VERIFICATION_CODE_INVALID
      */
-    public void verifyCode(String userId, String clientId, VerificationCodeType type, String code) {
-        String codeKey = buildCodeKey(userId, clientId, type);
+    public void verifyCode(String userId, String deviceId, VerificationCodeType type, String code) {
+        String codeKey = buildCodeKey(userId, deviceId, type);
         String stored = codeStore.getCode(codeKey)
                 .orElseThrow(() -> new BusinessException(CiamErrorCode.VERIFICATION_CODE_INVALID));
 
@@ -112,9 +118,9 @@ public class VerificationCodeService {
     /**
      * 频控检查：1 分钟 1 次 + 单日 30 次。
      */
-    void checkRateLimit(String userId, String clientId, VerificationCodeType type) {
+    void checkRateLimit(String userId, String deviceId, VerificationCodeType type) {
         // 1) 单用户单客户端 1 分钟 1 次
-        String minuteKey = buildMinuteRateKey(userId, clientId, type);
+        String minuteKey = buildMinuteRateKey(userId, deviceId, type);
         boolean allowed = codeStore.setIfAbsent(minuteKey, RATE_LIMIT_TTL_SECONDS);
         if (!allowed) {
             throw new BusinessException(CiamErrorCode.VERIFICATION_CODE_RATE_LIMITED);
@@ -137,12 +143,12 @@ public class VerificationCodeService {
         return String.format("%0" + CODE_LENGTH + "d", num);
     }
 
-    static String buildCodeKey(String userId, String clientId, VerificationCodeType type) {
-        return "vc:" + type.name().toLowerCase() + ":" + userId + ":" + clientId;
+    static String buildCodeKey(String userId, String deviceId, VerificationCodeType type) {
+        return "vc:" + type.name().toLowerCase() + ":" + userId + ":" + deviceId;
     }
 
-    static String buildMinuteRateKey(String userId, String clientId, VerificationCodeType type) {
-        return "vc:rate:" + type.name().toLowerCase() + ":" + userId + ":" + clientId;
+    static String buildMinuteRateKey(String userId, String deviceId, VerificationCodeType type) {
+        return "vc:rate:" + type.name().toLowerCase() + ":" + userId + ":" + deviceId;
     }
 
     static String buildDailyCountKey(String userId, VerificationCodeType type) {

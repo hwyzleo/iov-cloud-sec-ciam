@@ -3,6 +3,7 @@ package net.hwyz.iov.cloud.sec.ciam.controller.mobile;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import net.hwyz.iov.cloud.framework.common.bean.ApiResponse;
+import net.hwyz.iov.cloud.framework.common.constant.CustomHeaders;
 import net.hwyz.iov.cloud.sec.ciam.application.AuthenticationAppService;
 import net.hwyz.iov.cloud.sec.ciam.application.LoginResult;
 import net.hwyz.iov.cloud.sec.ciam.controller.mobile.dto.*;
@@ -33,18 +34,28 @@ public class MobileAuthController {
 
     @PostMapping("/email/send")
     public ApiResponse<Void> sendEmailCode(
-            @RequestHeader("X-Client-Id") String clientId,
+            @RequestHeader(CustomHeaders.DEVICE_ID) String deviceId,
             @RequestBody @Valid SendEmailCodeRequest req) {
-        authenticationAppService.sendEmailVerificationCode(req.getEmail(), clientId);
+        authenticationAppService.sendEmailVerificationCode(req.getEmail(), deviceId);
         return ApiResponse.ok();
     }
 
     @PostMapping("/login/mobile")
     public ApiResponse<LoginResult> loginByMobile(
-            @RequestHeader("X-Client-Id") String clientId,
+            @RequestHeader(CustomHeaders.CLIENT_ID) String clientId,
+            @RequestHeader(CustomHeaders.CLIENT_TYPE) String clientType,
+            @RequestHeader(CustomHeaders.DEVICE_ID) String deviceId,
+            @RequestHeader(CustomHeaders.PLATFORM) String platform,
+            @RequestHeader(CustomHeaders.APP_VERSION) String appVersion,
             @RequestBody @Valid MobileLoginRequest req) {
+        DeviceInfo deviceInfo = req.getDeviceInfo();
+        deviceInfo.setDeviceId(deviceId);
+        deviceInfo.setClientId(clientId);
+        deviceInfo.setClientType(clientType);
+        deviceInfo.setDeviceOs(platform);
+        deviceInfo.setAppVersion(appVersion);
         LoginResult result = authenticationAppService.loginByMobileCode(
-                req.getMobile(), req.getCountryCode(), req.getCode(), clientId, req.getDeviceInfo());
+                req.getMobile(), req.getCountryCode(), req.getCode(), clientId, deviceInfo);
         return ApiResponse.ok(result);
     }
 

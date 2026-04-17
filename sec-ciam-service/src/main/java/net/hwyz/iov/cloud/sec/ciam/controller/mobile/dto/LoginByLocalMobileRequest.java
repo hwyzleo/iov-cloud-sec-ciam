@@ -15,5 +15,5 @@ public class LoginByLocalMobileRequest {
     private String token;
     @NotBlank
     private String clientId;
-    private String deviceInfo;
+    private DeviceInfo deviceInfo;
 }

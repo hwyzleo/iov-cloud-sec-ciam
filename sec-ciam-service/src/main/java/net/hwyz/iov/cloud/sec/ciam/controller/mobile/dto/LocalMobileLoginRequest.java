@@ -12,5 +12,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class LocalMobileLoginRequest {
     @NotBlank private String token;
-    private String deviceInfo;
+    private DeviceInfo deviceInfo;
 }

@@ -33,19 +33,7 @@ import net.hwyz.iov.cloud.sec.ciam.domain.repository.CiamUserCredentialRepositor
 import net.hwyz.iov.cloud.sec.ciam.domain.repository.CiamUserIdentityRepository;
 import net.hwyz.iov.cloud.sec.ciam.domain.repository.CiamUserProfileRepository;
 import net.hwyz.iov.cloud.sec.ciam.domain.repository.CiamUserRepository;
-import net.hwyz.iov.cloud.sec.ciam.domain.service.CaptchaDomainService;
-import net.hwyz.iov.cloud.sec.ciam.domain.service.CredentialDomainService;
-import net.hwyz.iov.cloud.sec.ciam.domain.service.DeviceAuthorizationResponse;
-import net.hwyz.iov.cloud.sec.ciam.domain.service.DeviceAuthorizationService;
-import net.hwyz.iov.cloud.sec.ciam.domain.service.IdentityDomainService;
-import net.hwyz.iov.cloud.sec.ciam.domain.service.JwtTokenService;
-import net.hwyz.iov.cloud.sec.ciam.domain.service.OAuthAuthorizationService;
-import net.hwyz.iov.cloud.sec.ciam.domain.service.PasswordPolicyService;
-import net.hwyz.iov.cloud.sec.ciam.domain.service.RefreshTokenDomainService;
-import net.hwyz.iov.cloud.sec.ciam.domain.service.SessionDomainService;
-import net.hwyz.iov.cloud.sec.ciam.domain.service.TokenClaims;
-import net.hwyz.iov.cloud.sec.ciam.domain.service.UserDomainService;
-import net.hwyz.iov.cloud.sec.ciam.domain.service.VerificationCodeService;
+import net.hwyz.iov.cloud.sec.ciam.domain.service.*;
 import net.hwyz.iov.cloud.sec.ciam.infrastructure.repository.dao.dataobject.CiamDeviceDo;
 import net.hwyz.iov.cloud.sec.ciam.infrastructure.repository.dao.dataobject.CiamOAuthClientDo;
 import net.hwyz.iov.cloud.sec.ciam.infrastructure.repository.dao.dataobject.CiamSessionDo;
@@ -184,6 +172,7 @@ class ClientIntegrationTest {
         userService = new UserDomainService(userRepository, profileRepository);
         credentialService = new CredentialDomainService(credentialRepository, passwordEncoder, passwordPolicyService);
         sessionService = new SessionDomainService(sessionRepository, refreshTokenRepository, deviceRepository);
+        DeviceDomainService deviceService = new DeviceDomainService(deviceRepository);
         captchaService = new CaptchaDomainService(captchaAdapter, verificationCodeStore);
         jwtTokenService = new JwtTokenService();
         refreshTokenService = new RefreshTokenDomainService(refreshTokenRepository);
@@ -195,7 +184,7 @@ class ClientIntegrationTest {
                 vcService, identityService, userService,
                 userRepository, auditLogger, credentialService, captchaService,
                 sessionService, wechatLoginAdapter, appleLoginAdapter,
-                googleLoginAdapter, localMobileAuthAdapter, jwtTokenService);
+                googleLoginAdapter, localMobileAuthAdapter, jwtTokenService, deviceService);
         authController = new MobileAuthController(authAppService, vcService, captchaService);
         oAuthController = new OpenOAuthController(
                 oAuthAuthorizationService, deviceAuthorizationService, refreshTokenService, jwtTokenService);
@@ -369,7 +358,7 @@ class ClientIntegrationTest {
             // 获取验证码
             String code = verificationCodeStore.getCode("sms:" + mobile).orElseThrow();
 
-            ApiResponse<LoginResult> response = authController.loginByMobile("client-app", MobileLoginRequest.builder().mobile(mobile).countryCode("86").code(code).build());
+            ApiResponse<LoginResult> response = authController.loginByMobile("client-app", "device-001", "iOS", "iOS", "1.0.0", MobileLoginRequest.builder().mobile(mobile).countryCode("86").code(code).build());
 
             assertEquals("000000", response.getCode());
             assertNotNull(response.getData());
@@ -386,7 +375,7 @@ class ClientIntegrationTest {
             authController.sendMobileCode("client-mini", SendMobileCodeRequest.builder().mobile(mobile).countryCode("86").build());
             String code = verificationCodeStore.getCode("sms:" + mobile).orElseThrow();
 
-            ApiResponse<LoginResult> response = authController.loginByMobile("client-mini", MobileLoginRequest.builder().mobile(mobile).countryCode("86").code(code).build());
+            ApiResponse<LoginResult> response = authController.loginByMobile("client-mini", "device-002", "mini_program", "WeChat", "1.0.0", MobileLoginRequest.builder().mobile(mobile).countryCode("86").code(code).build());
 
             assertEquals("000000", response.getCode());
             assertEquals(userId, response.getData().getUserId());
@@ -402,7 +391,7 @@ class ClientIntegrationTest {
             authController.sendMobileCode("client-web", SendMobileCodeRequest.builder().mobile(mobile).countryCode("86").build());
             String code = verificationCodeStore.getCode("sms:" + mobile).orElseThrow();
 
-            ApiResponse<LoginResult> response = authController.loginByMobile("client-web", MobileLoginRequest.builder().mobile(mobile).countryCode("86").code(code).build());
+            ApiResponse<LoginResult> response = authController.loginByMobile("client-web", "device-003", "web", "Chrome", "1.0.0", MobileLoginRequest.builder().mobile(mobile).countryCode("86").code(code).build());
 
             assertEquals("000000", response.getCode());
             assertEquals(userId, response.getData().getUserId());
@@ -420,7 +409,7 @@ class ClientIntegrationTest {
                 authController.sendMobileCode(clientId, SendMobileCodeRequest.builder().mobile(mobile).countryCode("86").build());
                 String code = verificationCodeStore.getCode("sms:" + mobile).orElseThrow();
                 ApiResponse<LoginResult> response = authController.loginByMobile(
-                        clientId, MobileLoginRequest.builder().mobile(mobile).countryCode("86").code(code).build());
+                        clientId, "device-004", "multi", "multi", "1.0.0", MobileLoginRequest.builder().mobile(mobile).countryCode("86").code(code).build());
 
                 assertEquals("000000", response.getCode(), "登录失败: clientId=" + clientId);
                 assertEquals(userId, response.getData().getUserId(),

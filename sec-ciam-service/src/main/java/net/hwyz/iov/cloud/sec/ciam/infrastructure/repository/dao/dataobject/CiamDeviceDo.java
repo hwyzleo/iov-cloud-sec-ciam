@@ -27,8 +27,8 @@ public class CiamDeviceDo {
     @TableField("client_type")
     private String clientType;
 
-    @TableField("device_type")
-    private String deviceType;
+    @TableField("client_id")
+    private String clientId;
 
     @TableField("device_name")
     private String deviceName;

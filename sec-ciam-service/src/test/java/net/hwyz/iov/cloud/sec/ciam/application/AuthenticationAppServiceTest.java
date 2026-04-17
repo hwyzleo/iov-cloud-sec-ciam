@@ -7,6 +7,7 @@ import net.hwyz.iov.cloud.sec.ciam.common.exception.CiamErrorCode;
 import net.hwyz.iov.cloud.sec.ciam.common.security.FieldEncryptor;
 import net.hwyz.iov.cloud.sec.ciam.common.security.PasswordEncoder;
 import net.hwyz.iov.cloud.sec.ciam.domain.adapter.AdapterResult;
+import net.hwyz.iov.cloud.sec.ciam.controller.mobile.dto.DeviceInfo;
 import net.hwyz.iov.cloud.sec.ciam.domain.adapter.AppleLoginAdapter;
 import net.hwyz.iov.cloud.sec.ciam.domain.adapter.CaptchaAdapter;
 import net.hwyz.iov.cloud.sec.ciam.domain.adapter.CaptchaChallenge;
@@ -28,14 +29,7 @@ import net.hwyz.iov.cloud.sec.ciam.domain.repository.CiamUserRepository;
 import net.hwyz.iov.cloud.sec.ciam.domain.repository.CiamRefreshTokenRepository;
 import net.hwyz.iov.cloud.sec.ciam.domain.repository.CiamSessionRepository;
 import net.hwyz.iov.cloud.sec.ciam.domain.repository.CiamDeviceRepository;
-import net.hwyz.iov.cloud.sec.ciam.domain.service.CaptchaDomainService;
-import net.hwyz.iov.cloud.sec.ciam.domain.service.CredentialDomainService;
-import net.hwyz.iov.cloud.sec.ciam.domain.service.IdentityDomainService;
-import net.hwyz.iov.cloud.sec.ciam.domain.service.JwtTokenService;
-import net.hwyz.iov.cloud.sec.ciam.domain.service.PasswordPolicyService;
-import net.hwyz.iov.cloud.sec.ciam.domain.service.SessionDomainService;
-import net.hwyz.iov.cloud.sec.ciam.domain.service.UserDomainService;
-import net.hwyz.iov.cloud.sec.ciam.domain.service.VerificationCodeService;
+import net.hwyz.iov.cloud.sec.ciam.domain.service.*;
 import net.hwyz.iov.cloud.sec.ciam.infrastructure.repository.dao.dataobject.CiamUserCredentialDo;
 import net.hwyz.iov.cloud.sec.ciam.infrastructure.repository.dao.dataobject.CiamUserDo;
 import net.hwyz.iov.cloud.sec.ciam.infrastructure.repository.dao.dataobject.CiamUserIdentityDo;
@@ -84,6 +78,7 @@ class AuthenticationAppServiceTest {
     private CredentialDomainService credentialDomainService;
     private CaptchaDomainService captchaDomainService;
     private SessionDomainService sessionDomainService;
+    private DeviceDomainService deviceDomainService;
     private PasswordEncoder passwordEncoder;
 
     // 被测对象
@@ -93,7 +88,11 @@ class AuthenticationAppServiceTest {
     private static final String MOBILE = "13800138000";
     private static final String COUNTRY_CODE = "+86";
     private static final String CLIENT_ID = "app-client";
-    private static final String DEVICE_INFO = "iPhone 15";
+    private static final DeviceInfo DEVICE_INFO = DeviceInfo.builder()
+            .deviceId("dev-001")
+            .deviceName("iPhone 15")
+            .deviceOs("iOS 17.0")
+            .build();
     private static final String EMAIL = "test@example.com";
     private static final String VALID_PASSWORD = "Abcd1234!";
 
@@ -152,6 +151,7 @@ class AuthenticationAppServiceTest {
                 credentialRepository, passwordEncoder, new PasswordPolicyService());
         captchaDomainService = new CaptchaDomainService(captchaAdapter, codeStore);
         sessionDomainService = new SessionDomainService(sessionRepository, refreshTokenRepository, deviceRepository);
+        deviceDomainService = new DeviceDomainService(deviceRepository);
         JwtTokenService jwtTokenService = new JwtTokenService();
 
         service = new AuthenticationAppService(
@@ -160,7 +160,7 @@ class AuthenticationAppServiceTest {
                 credentialDomainService, captchaDomainService,
                 sessionDomainService,
                 wechatLoginAdapter, appleLoginAdapter, googleLoginAdapter,
-                localMobileAuthAdapter, jwtTokenService);
+                localMobileAuthAdapter, jwtTokenService, deviceDomainService);
     }
 
     /**

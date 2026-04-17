@@ -55,14 +55,14 @@ public class JwtTokenService {
      * 签发 JWT Access Token。
      *
      * @param userId     用户业务唯一标识
-     * @param clientId   OAuth 客户端标识
+     * @param deviceId   设备标识
      * @param scope      授权范围
      * @param sessionId  会话业务唯一标识
      * @param ttlSeconds 令牌有效期（秒）
      * @return JWT 字符串
      */
     public String generateAccessToken(String userId,
-                                      String clientId,
+                                      String deviceId,
                                       String scope,
                                       String sessionId,
                                       int ttlSeconds) {
@@ -73,7 +73,7 @@ public class JwtTokenService {
                 .issuer(ISSUER)
                 .issuedAt(Date.from(now))
                 .expiration(Date.from(now.plusSeconds(ttlSeconds)))
-                .claim("client_id", clientId)
+                .claim("device_id", deviceId)
                 .claim("scope", scope)
                 .claim("session_id", sessionId)
                 .signWith(privateKey, Jwts.SIG.RS256)
@@ -83,7 +83,7 @@ public class JwtTokenService {
     /**
      * 签发 JWT Refresh Token。
      */
-    public String generateRefreshToken(String userId, String clientId, String scope, String sessionId) {
+    public String generateRefreshToken(String userId, String deviceId, String scope, String sessionId) {
         Instant now = Instant.now();
         int ttlSeconds = 7 * 24 * 60 * 60;
         return Jwts.builder()
@@ -92,7 +92,7 @@ public class JwtTokenService {
                 .issuer(ISSUER)
                 .issuedAt(Date.from(now))
                 .expiration(Date.from(now.plusSeconds(ttlSeconds)))
-                .claim("client_id", clientId)
+                .claim("device_id", deviceId)
                 .claim("scope", scope)
                 .claim("session_id", sessionId)
                 .claim("type", "refresh")

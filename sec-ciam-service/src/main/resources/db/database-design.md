@@ -452,7 +452,7 @@
 | 2 | `device_id` | `VARCHAR(64)` | NO | — | 设备业务唯一标识 |
 | 3 | `user_id` | `VARCHAR(64)` | NO | — | 用户业务唯一标识 |
 | 4 | `client_type` | `VARCHAR(32)` | NO | — | 客户端类型 |
-| 5 | `device_type` | `VARCHAR(32)` | YES | `NULL` | 设备类型 |
+| 5 | `client_id` | `VARCHAR(64)` | YES | `NULL` | 设备 ID |
 | 6 | `device_name` | `VARCHAR(64)` | YES | `NULL` | 设备名称 |
 | 7 | `device_os` | `VARCHAR(64)` | YES | `NULL` | 设备操作系统 |
 | 8 | `app_version` | `VARCHAR(32)` | YES | `NULL` | 应用版本 |

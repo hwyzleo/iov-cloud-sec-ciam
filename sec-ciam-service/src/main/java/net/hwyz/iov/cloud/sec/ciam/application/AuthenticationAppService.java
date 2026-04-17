@@ -9,6 +9,7 @@ import net.hwyz.iov.cloud.sec.ciam.common.audit.AuditLogger;
 import net.hwyz.iov.cloud.sec.ciam.common.exception.CiamErrorCode;
 import net.hwyz.iov.cloud.sec.ciam.common.security.FieldEncryptor;
 import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
+import net.hwyz.iov.cloud.sec.ciam.controller.mobile.dto.DeviceInfo;
 import net.hwyz.iov.cloud.sec.ciam.domain.adapter.AppleLoginAdapter;
 import net.hwyz.iov.cloud.sec.ciam.domain.adapter.CaptchaChallenge;
 import net.hwyz.iov.cloud.sec.ciam.domain.adapter.GoogleLoginAdapter;
@@ -22,6 +23,7 @@ import net.hwyz.iov.cloud.sec.ciam.domain.enums.UserStatus;
 import net.hwyz.iov.cloud.sec.ciam.domain.repository.CiamUserRepository;
 import net.hwyz.iov.cloud.sec.ciam.domain.service.CaptchaDomainService;
 import net.hwyz.iov.cloud.sec.ciam.domain.service.CredentialDomainService;
+import net.hwyz.iov.cloud.sec.ciam.domain.service.DeviceDomainService;
 import net.hwyz.iov.cloud.sec.ciam.domain.service.IdentityDomainService;
 import net.hwyz.iov.cloud.sec.ciam.domain.service.PasswordVerifyResult;
 import net.hwyz.iov.cloud.sec.ciam.domain.service.JwtTokenService;
@@ -66,6 +68,7 @@ public class AuthenticationAppService {
     private final GoogleLoginAdapter googleLoginAdapter;
     private final LocalMobileAuthAdapter localMobileAuthAdapter;
     private final JwtTokenService jwtTokenService;
+    private final DeviceDomainService deviceDomainService;
 
     /**
      * 发送手机验证码。
@@ -85,20 +88,20 @@ public class AuthenticationAppService {
      * @param mobile      手机号
      * @param countryCode 国家区号
      * @param code        验证码
-     * @param clientId    客户端标识
-     * @param deviceInfo  设备信息（预留）
+     * @param deviceId    设备标识
+     * @param deviceInfo  设备信息
      * @return 登录结果
      */
     public LoginResult loginByMobileCode(String mobile, String countryCode,
-                                         String code, String clientId,
-                                         String deviceInfo) {
+                                         String code, String deviceId,
+                                         DeviceInfo deviceInfo) {
         String userKey = FieldEncryptor.hash(mobile);
 
         // 1. 校验验证码
         try {
-            verificationCodeService.verifyCode(userKey, clientId, VerificationCodeType.SMS, code);
+            verificationCodeService.verifyCode(userKey, deviceId, VerificationCodeType.SMS, code);
         } catch (BusinessException e) {
-            logAudit(null, clientId, AuditEventType.LOGIN_FAIL, false);
+            logAudit(null, deviceId, AuditEventType.LOGIN_FAIL, false);
             throw e;
         }
 
@@ -109,13 +112,15 @@ public class AuthenticationAppService {
         try {
             if (identityOpt.isPresent()
                     && identityOpt.get().getIdentityStatus() == IdentityStatus.BOUND.getCode()) {
-                return handleExistingUserLogin(identityOpt.get(), clientId);
+                String userId = identityOpt.get().getUserId();
+                deviceDomainService.recordDevice(userId, deviceId, deviceInfo);
+                return handleExistingUserLogin(identityOpt.get(), deviceId);
             } else {
-                return handleNewUserRegistration(mobile, countryCode, clientId);
+                return handleNewUserRegistration(mobile, countryCode, deviceId, deviceInfo);
             }
         } catch (BusinessException e) {
             logAudit(identityOpt.map(CiamUserIdentityDo::getUserId).orElse(null),
-                    clientId, AuditEventType.LOGIN_FAIL, false);
+                    deviceId, AuditEventType.LOGIN_FAIL, false);
             throw e;
         }
     }
@@ -124,11 +129,11 @@ public class AuthenticationAppService {
      * 发送邮箱验证码。
      *
      * @param email    邮箱地址
-     * @param clientId 客户端标识
+     * @param deviceId 设备标识
      */
-    public void sendEmailVerificationCode(String email, String clientId) {
+    public void sendEmailVerificationCode(String email, String deviceId) {
         String userKey = FieldEncryptor.hash(email);
-        verificationCodeService.sendEmailCode(email, userKey, clientId);
+        verificationCodeService.sendEmailCode(email, userKey, deviceId);
     }
 
     /**
@@ -308,10 +313,10 @@ public class AuthenticationAppService {
      *
      * @param token      运营商认证 token
      * @param clientId   客户端标识
-     * @param deviceInfo 设备信息（预留）
+     * @param deviceInfo 设备信息
      * @return 登录结果
      */
-    public LoginResult loginByLocalMobile(String token, String clientId, String deviceInfo) {
+    public LoginResult loginByLocalMobile(String token, String clientId, DeviceInfo deviceInfo) {
         // 1. 调用本机号码认证适配器
         String mobile = localMobileAuthAdapter.verifyToken(token);
 
@@ -331,9 +336,11 @@ public class AuthenticationAppService {
         try {
             if (identityOpt.isPresent()
                     && identityOpt.get().getIdentityStatus() == IdentityStatus.BOUND.getCode()) {
+                String userId = identityOpt.get().getUserId();
+                deviceDomainService.recordDevice(userId, clientId, deviceInfo);
                 return handleExistingUserLogin(identityOpt.get(), clientId);
             } else {
-                return handleNewLocalMobileUserRegistration(mobile, clientId);
+                return handleNewLocalMobileUserRegistration(mobile, clientId, deviceInfo);
             }
         } catch (BusinessException e) {
             logAudit(identityOpt.map(CiamUserIdentityDo::getUserId).orElse(null),
@@ -360,7 +367,7 @@ public class AuthenticationAppService {
 
     // ---- 内部方法 ----
 
-    private LoginResult handleExistingUserLogin(CiamUserIdentityDo identity, String clientId) {
+    private LoginResult handleExistingUserLogin(CiamUserIdentityDo identity, String deviceId) {
         String userId = identity.getUserId();
 
         CiamUserDo user = userRepository.findByUserId(userId)
@@ -374,12 +381,12 @@ public class AuthenticationAppService {
             throw new BusinessException(CiamErrorCode.ACCOUNT_DISABLED);
         }
 
-        logAudit(userId, clientId, AuditEventType.LOGIN_SUCCESS, true);
+        logAudit(userId, deviceId, AuditEventType.LOGIN_SUCCESS, true);
 
         int accessTokenTtl = 1800;
         String accessToken = jwtTokenService.generateAccessToken(
-                userId, clientId, "default", null, accessTokenTtl);
-        String refreshToken = jwtTokenService.generateRefreshToken(userId, clientId, "default", null);
+                userId, deviceId, "default", null, accessTokenTtl);
+        String refreshToken = jwtTokenService.generateRefreshToken(userId, deviceId, "default", null);
 
         return LoginResult.builder()
                 .userId(userId)
@@ -391,7 +398,7 @@ public class AuthenticationAppService {
                 .build();
     }
 
-    private LoginResult handleNewUserRegistration(String mobile, String countryCode, String clientId) {
+    private LoginResult handleNewUserRegistration(String mobile, String countryCode, String deviceId, DeviceInfo deviceInfo) {
         CiamUserDo user = userDomainService.createUser(RegisterSource.MOBILE, null, null, IdentityType.MOBILE);
         String userId = user.getUserId();
 
@@ -402,12 +409,14 @@ public class AuthenticationAppService {
 
         userDomainService.activate(userId);
 
-        logAudit(userId, clientId, AuditEventType.REGISTER_SUCCESS, true);
+        deviceDomainService.recordDevice(userId, deviceId, deviceInfo);
+
+        logAudit(userId, deviceId, AuditEventType.REGISTER_SUCCESS, true);
 
         int accessTokenTtl = 1800;
         String accessToken = jwtTokenService.generateAccessToken(
-                userId, clientId, "default", null, accessTokenTtl);
-        String refreshToken = jwtTokenService.generateRefreshToken(userId, clientId, "default", null);
+                userId, deviceId, "default", null, accessTokenTtl);
+        String refreshToken = jwtTokenService.generateRefreshToken(userId, deviceId, "default", null);
 
         return LoginResult.builder()
                 .userId(userId)
@@ -439,7 +448,7 @@ public class AuthenticationAppService {
                 .build();
     }
 
-    private LoginResult handleNewLocalMobileUserRegistration(String mobile, String clientId) {
+    private LoginResult handleNewLocalMobileUserRegistration(String mobile, String clientId, DeviceInfo deviceInfo) {
         CiamUserDo user = userDomainService.createUser(RegisterSource.LOCAL_MOBILE, null, null, IdentityType.MOBILE);
         String userId = user.getUserId();
 
@@ -449,6 +458,8 @@ public class AuthenticationAppService {
         identityDomainService.markVerified(userId, IdentityType.MOBILE, identity.getIdentityHash());
 
         userDomainService.activate(userId);
+
+        deviceDomainService.recordDevice(userId, clientId, deviceInfo);
 
         logAudit(userId, clientId, AuditEventType.REGISTER_SUCCESS, true);
 
@@ -519,10 +530,10 @@ public class AuthenticationAppService {
                 .build();
     }
 
-    private void logAudit(String userId, String clientId, AuditEventType eventType, boolean success) {
+    private void logAudit(String userId, String deviceId, AuditEventType eventType, boolean success) {
         auditLogger.log(AuditEvent.builder()
                 .userId(userId)
-                .clientId(clientId)
+                .deviceId(deviceId)
                 .eventType(eventType.getCategory())
                 .eventName(eventType.getDescription())
                 .success(success)

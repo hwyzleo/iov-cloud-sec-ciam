@@ -42,22 +42,7 @@ import net.hwyz.iov.cloud.sec.ciam.domain.repository.CiamUserCredentialRepositor
 import net.hwyz.iov.cloud.sec.ciam.domain.repository.CiamUserIdentityRepository;
 import net.hwyz.iov.cloud.sec.ciam.domain.repository.CiamUserProfileRepository;
 import net.hwyz.iov.cloud.sec.ciam.domain.repository.CiamUserRepository;
-import net.hwyz.iov.cloud.sec.ciam.domain.service.CaptchaDomainService;
-import net.hwyz.iov.cloud.sec.ciam.domain.service.CredentialDomainService;
-import net.hwyz.iov.cloud.sec.ciam.domain.service.DeviceAuthorizationResponse;
-import net.hwyz.iov.cloud.sec.ciam.domain.service.DeviceAuthorizationService;
-import net.hwyz.iov.cloud.sec.ciam.domain.service.IdentityDomainService;
-import net.hwyz.iov.cloud.sec.ciam.domain.service.JwtTokenService;
-import net.hwyz.iov.cloud.sec.ciam.domain.service.MfaDomainService;
-import net.hwyz.iov.cloud.sec.ciam.domain.service.OAuthAuthorizationService;
-import net.hwyz.iov.cloud.sec.ciam.domain.service.OidcDiscoveryDocument;
-import net.hwyz.iov.cloud.sec.ciam.domain.service.OidcService;
-import net.hwyz.iov.cloud.sec.ciam.domain.service.OidcUserInfo;
-import net.hwyz.iov.cloud.sec.ciam.domain.service.PasswordPolicyService;
-import net.hwyz.iov.cloud.sec.ciam.domain.service.RefreshTokenDomainService;
-import net.hwyz.iov.cloud.sec.ciam.domain.service.SessionDomainService;
-import net.hwyz.iov.cloud.sec.ciam.domain.service.UserDomainService;
-import net.hwyz.iov.cloud.sec.ciam.domain.service.VerificationCodeService;
+import net.hwyz.iov.cloud.sec.ciam.domain.service.*;
 import net.hwyz.iov.cloud.sec.ciam.infrastructure.repository.dao.dataobject.CiamDeactivationRequestDo;
 import net.hwyz.iov.cloud.sec.ciam.infrastructure.repository.dao.dataobject.CiamMfaChallengeDo;
 import net.hwyz.iov.cloud.sec.ciam.infrastructure.repository.dao.dataobject.CiamOAuthClientDo;
@@ -140,6 +125,7 @@ class CoreAuthenticationLoopVerificationTest {
     SessionDomainService sessionService;
     PasswordPolicyService passwordPolicyService;
     CaptchaDomainService captchaService;
+    DeviceDomainService deviceService;
 
     @BeforeEach
     void setUp() {
@@ -182,9 +168,10 @@ class CoreAuthenticationLoopVerificationTest {
         vcService = new VerificationCodeService(verificationCodeStore, smsAdapter, emailAdapter);
         identityService = new IdentityDomainService(identityRepository, fieldEncryptor);
         userService = new UserDomainService(userRepository, profileRepository);
+        passwordPolicyService = new PasswordPolicyService();
         credentialService = new CredentialDomainService(credentialRepository, passwordEncoder, passwordPolicyService);
         sessionService = new SessionDomainService(sessionRepository, refreshTokenRepository, deviceRepository);
-        passwordPolicyService = new PasswordPolicyService();
+        deviceService = new DeviceDomainService(deviceRepository);
         captchaService = new CaptchaDomainService(captchaAdapter, verificationCodeStore);
     }
 
@@ -261,13 +248,13 @@ class CoreAuthenticationLoopVerificationTest {
         // verificationCodeService, identityDomainService, userDomainService,
         // userRepository, auditLogger, credentialDomainService, captchaDomainService,
         // sessionDomainService, wechatLoginAdapter, appleLoginAdapter,
-        // googleLoginAdapter, localMobileAuthAdapter, jwtTokenService
+        // googleLoginAdapter, localMobileAuthAdapter, jwtTokenService, deviceDomainService
         JwtTokenService jwtTokenService = new JwtTokenService();
         AuthenticationAppService authAppService = new AuthenticationAppService(
                 vcService, identityService, userService,
                 userRepository, auditLogger, credentialService, captchaService,
                 sessionService, wechatLoginAdapter, appleLoginAdapter,
-                googleLoginAdapter, localMobileAuthAdapter, jwtTokenService);
+                googleLoginAdapter, localMobileAuthAdapter, jwtTokenService, deviceService);
         return new MobileAuthController(authAppService, vcService, captchaService);
     }
 
@@ -302,7 +289,7 @@ class CoreAuthenticationLoopVerificationTest {
                     .mobile("13800001111").countryCode("+86").build());
             assertNotNull(capturedCode.get(), "验证码应已发送");
 
-            LoginResult result = authController.loginByMobile("app-client", MobileLoginRequest.builder()
+            LoginResult result = authController.loginByMobile("app-client", "device-001", "iOS", "iOS", "1.0.0", MobileLoginRequest.builder()
                     .mobile("13800001111").countryCode("+86").code(capturedCode.get())
                     .build()).getData();
             assertNotNull(result.getUserId(), "应返回用户 ID");
@@ -329,7 +316,7 @@ class CoreAuthenticationLoopVerificationTest {
                     .mobile("13800001111").countryCode("+86").build());
             assertNotNull(capturedCode.get());
 
-            LoginResult result = authController.loginByMobile("app-client", MobileLoginRequest.builder()
+            LoginResult result = authController.loginByMobile("app-client", "device-002", "iOS", "iOS", "1.0.0", MobileLoginRequest.builder()
                     .mobile("13800001111").countryCode("+86").code(capturedCode.get())
                     .build()).getData();
             assertEquals("U001", result.getUserId());
