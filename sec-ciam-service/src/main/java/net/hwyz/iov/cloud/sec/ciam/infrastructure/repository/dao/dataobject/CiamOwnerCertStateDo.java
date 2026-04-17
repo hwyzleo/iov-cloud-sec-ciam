@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 /**
  * 车主认证状态表数据对象。
@@ -37,16 +37,16 @@ public class CiamOwnerCertStateDo {
     private String certSource;
 
     @TableField("callback_time")
-    private LocalDateTime callbackTime;
+    private Instant callbackTime;
 
     @TableField("last_query_time")
-    private LocalDateTime lastQueryTime;
+    private Instant lastQueryTime;
 
     @TableField("effective_time")
-    private LocalDateTime effectiveTime;
+    private Instant effectiveTime;
 
     @TableField("expire_time")
-    private LocalDateTime expireTime;
+    private Instant expireTime;
 
     @TableField("result_message")
     private String resultMessage;
@@ -55,13 +55,13 @@ public class CiamOwnerCertStateDo {
     private String description;
 
     @TableField("create_time")
-    private LocalDateTime createTime;
+    private Instant createTime;
 
     @TableField("create_by")
     private String createBy;
 
     @TableField("modify_time")
-    private LocalDateTime modifyTime;
+    private Instant modifyTime;
 
     @TableField("modify_by")
     private String modifyBy;

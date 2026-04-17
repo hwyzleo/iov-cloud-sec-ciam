@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 /**
  * MFA 挑战表数据对象。
@@ -40,13 +40,13 @@ public class CiamMfaChallengeDo {
     private String verifyCodeHash;
 
     @TableField("send_time")
-    private LocalDateTime sendTime;
+    private Instant sendTime;
 
     @TableField("expire_time")
-    private LocalDateTime expireTime;
+    private Instant expireTime;
 
     @TableField("verify_time")
-    private LocalDateTime verifyTime;
+    private Instant verifyTime;
 
     @TableField("challenge_status")
     private Integer challengeStatus;
@@ -58,13 +58,13 @@ public class CiamMfaChallengeDo {
     private String description;
 
     @TableField("create_time")
-    private LocalDateTime createTime;
+    private Instant createTime;
 
     @TableField("create_by")
     private String createBy;
 
     @TableField("modify_time")
-    private LocalDateTime modifyTime;
+    private Instant modifyTime;
 
     @TableField("modify_by")
     private String modifyBy;

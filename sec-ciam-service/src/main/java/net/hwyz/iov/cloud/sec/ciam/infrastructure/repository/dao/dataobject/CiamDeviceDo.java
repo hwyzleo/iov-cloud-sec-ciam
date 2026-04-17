@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 /**
  * 设备表数据对象。
@@ -46,10 +46,10 @@ public class CiamDeviceDo {
     private Integer trustedFlag;
 
     @TableField("first_login_time")
-    private LocalDateTime firstLoginTime;
+    private Instant firstLoginTime;
 
     @TableField("last_login_time")
-    private LocalDateTime lastLoginTime;
+    private Instant lastLoginTime;
 
     @TableField("device_status")
     private Integer deviceStatus;
@@ -58,13 +58,13 @@ public class CiamDeviceDo {
     private String description;
 
     @TableField("create_time")
-    private LocalDateTime createTime;
+    private Instant createTime;
 
     @TableField("create_by")
     private String createBy;
 
     @TableField("modify_time")
-    private LocalDateTime modifyTime;
+    private Instant modifyTime;
 
     @TableField("modify_by")
     private String modifyBy;

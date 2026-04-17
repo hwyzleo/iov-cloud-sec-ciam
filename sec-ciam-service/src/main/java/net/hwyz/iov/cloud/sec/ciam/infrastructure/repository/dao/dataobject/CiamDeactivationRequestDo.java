@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 /**
  * 注销申请表数据对象。
@@ -40,16 +40,16 @@ public class CiamDeactivationRequestDo {
     private Integer executeStatus;
 
     @TableField("requested_time")
-    private LocalDateTime requestedTime;
+    private Instant requestedTime;
 
     @TableField("reviewer")
     private String reviewer;
 
     @TableField("review_time")
-    private LocalDateTime reviewTime;
+    private Instant reviewTime;
 
     @TableField("execute_time")
-    private LocalDateTime executeTime;
+    private Instant executeTime;
 
     @TableField("retain_audit_only")
     private Integer retainAuditOnly;
@@ -58,13 +58,13 @@ public class CiamDeactivationRequestDo {
     private String description;
 
     @TableField("create_time")
-    private LocalDateTime createTime;
+    private Instant createTime;
 
     @TableField("create_by")
     private String createBy;
 
     @TableField("modify_time")
-    private LocalDateTime modifyTime;
+    private Instant modifyTime;
 
     @TableField("modify_by")
     private String modifyBy;

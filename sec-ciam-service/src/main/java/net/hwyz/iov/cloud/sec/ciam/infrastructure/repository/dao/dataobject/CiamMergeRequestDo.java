@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 /**
  * 账号合并申请表数据对象。
@@ -43,25 +43,25 @@ public class CiamMergeRequestDo {
     private String reviewer;
 
     @TableField("review_time")
-    private LocalDateTime reviewTime;
+    private Instant reviewTime;
 
     @TableField("final_user_id")
     private String finalUserId;
 
     @TableField("finish_time")
-    private LocalDateTime finishTime;
+    private Instant finishTime;
 
     @TableField("description")
     private String description;
 
     @TableField("create_time")
-    private LocalDateTime createTime;
+    private Instant createTime;
 
     @TableField("create_by")
     private String createBy;
 
     @TableField("modify_time")
-    private LocalDateTime modifyTime;
+    private Instant modifyTime;
 
     @TableField("modify_by")
     private String modifyBy;

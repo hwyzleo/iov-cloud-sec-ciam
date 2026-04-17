@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 /**
  * 会话表数据对象。
@@ -46,28 +46,28 @@ public class CiamSessionDo {
     private Integer sessionStatus;
 
     @TableField("login_time")
-    private LocalDateTime loginTime;
+    private Instant loginTime;
 
     @TableField("last_active_time")
-    private LocalDateTime lastActiveTime;
+    private Instant lastActiveTime;
 
     @TableField("logout_time")
-    private LocalDateTime logoutTime;
+    private Instant logoutTime;
 
     @TableField("expire_time")
-    private LocalDateTime expireTime;
+    private Instant expireTime;
 
     @TableField("description")
     private String description;
 
     @TableField("create_time")
-    private LocalDateTime createTime;
+    private Instant createTime;
 
     @TableField("create_by")
     private String createBy;
 
     @TableField("modify_time")
-    private LocalDateTime modifyTime;
+    private Instant modifyTime;
 
     @TableField("modify_by")
     private String modifyBy;

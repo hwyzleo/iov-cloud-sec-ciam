@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 /**
  * 登录标识表数据对象。
@@ -46,10 +46,10 @@ public class CiamUserIdentityDo {
     private String bindSource;
 
     @TableField("bind_time")
-    private LocalDateTime bindTime;
+    private Instant bindTime;
 
     @TableField("unbind_time")
-    private LocalDateTime unbindTime;
+    private Instant unbindTime;
 
     @TableField("identity_status")
     private Integer identityStatus;
@@ -58,13 +58,13 @@ public class CiamUserIdentityDo {
     private String description;
 
     @TableField("create_time")
-    private LocalDateTime createTime;
+    private Instant createTime;
 
     @TableField("create_by")
     private String createBy;
 
     @TableField("modify_time")
-    private LocalDateTime modifyTime;
+    private Instant modifyTime;
 
     @TableField("modify_by")
     private String modifyBy;

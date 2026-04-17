@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 /**
  * 刷新令牌表数据对象。
@@ -40,28 +40,28 @@ public class CiamRefreshTokenDo {
     private Integer tokenStatus;
 
     @TableField("issue_time")
-    private LocalDateTime issueTime;
+    private Instant issueTime;
 
     @TableField("used_time")
-    private LocalDateTime usedTime;
+    private Instant usedTime;
 
     @TableField("revoke_time")
-    private LocalDateTime revokeTime;
+    private Instant revokeTime;
 
     @TableField("expire_time")
-    private LocalDateTime expireTime;
+    private Instant expireTime;
 
     @TableField("description")
     private String description;
 
     @TableField("create_time")
-    private LocalDateTime createTime;
+    private Instant createTime;
 
     @TableField("create_by")
     private String createBy;
 
     @TableField("modify_time")
-    private LocalDateTime modifyTime;
+    private Instant modifyTime;
 
     @TableField("modify_by")
     private String modifyBy;

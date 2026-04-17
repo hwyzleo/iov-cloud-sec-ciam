@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 /**
  * 凭据表数据对象。
@@ -37,16 +37,16 @@ public class CiamUserCredentialDo {
     private String hashAlgorithm;
 
     @TableField("password_set_time")
-    private LocalDateTime passwordSetTime;
+    private Instant passwordSetTime;
 
     @TableField("last_verify_time")
-    private LocalDateTime lastVerifyTime;
+    private Instant lastVerifyTime;
 
     @TableField("fail_count")
     private Integer failCount;
 
     @TableField("locked_until")
-    private LocalDateTime lockedUntil;
+    private Instant lockedUntil;
 
     @TableField("credential_status")
     private Integer credentialStatus;
@@ -55,13 +55,13 @@ public class CiamUserCredentialDo {
     private String description;
 
     @TableField("create_time")
-    private LocalDateTime createTime;
+    private Instant createTime;
 
     @TableField("create_by")
     private String createBy;
 
     @TableField("modify_time")
-    private LocalDateTime modifyTime;
+    private Instant modifyTime;
 
     @TableField("modify_by")
     private String modifyBy;
