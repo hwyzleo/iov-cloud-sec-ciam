@@ -58,9 +58,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
         String path = request.getRequestURI();
-        log.info("JWT Filter - path={}, requestURI={}, servletPath={}, contextPath={}", 
-                path, request.getRequestURI(), request.getServletPath(), request.getContextPath());
-        log.info("JWT Filter - isPublicEndpoint={}", isPublicEndpoint(path));
 
         if (isPublicEndpoint(path)) {
             filterChain.doFilter(request, response);
