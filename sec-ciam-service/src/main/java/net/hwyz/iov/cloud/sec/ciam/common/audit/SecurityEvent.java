@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 
 /**
@@ -53,7 +54,7 @@ public class SecurityEvent {
     private String hitRules;
 
     /** 事件时间 */
-    private LocalDateTime eventTime;
+    private Instant eventTime;
 
     /** 链路追踪 ID */
     private String traceId;

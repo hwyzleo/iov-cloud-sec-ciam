@@ -3,6 +3,7 @@ package net.hwyz.iov.cloud.sec.ciam.infrastructure.repository;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import lombok.RequiredArgsConstructor;
+import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
 import net.hwyz.iov.cloud.sec.ciam.domain.enums.SessionStatus;
 import net.hwyz.iov.cloud.sec.ciam.domain.repository.CiamSessionRepository;
 import net.hwyz.iov.cloud.sec.ciam.infrastructure.repository.dao.CiamSessionMapper;
@@ -68,7 +69,7 @@ public class CiamSessionRepositoryImpl implements CiamSessionRepository {
     public int invalidateAllByUserId(String userId) {
         CiamSessionDo update = new CiamSessionDo();
         update.setSessionStatus(SessionStatus.INVALID.getCode());
-        update.setLogoutTime(LocalDateTime.now());
+        update.setLogoutTime(DateTimeUtil.getNowInstant());
         return mapper.update(update,
                 new LambdaUpdateWrapper<CiamSessionDo>()
                         .eq(CiamSessionDo::getUserId, userId)

@@ -7,7 +7,7 @@ import net.hwyz.iov.cloud.sec.ciam.common.audit.AuditEvent;
 import net.hwyz.iov.cloud.sec.ciam.common.audit.AuditEventType;
 import net.hwyz.iov.cloud.sec.ciam.common.audit.AuditLogger;
 import net.hwyz.iov.cloud.sec.ciam.common.exception.CiamErrorCode;
-import net.hwyz.iov.cloud.sec.ciam.common.util.DateTimeUtil;
+import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
 import net.hwyz.iov.cloud.sec.ciam.domain.enums.DecisionResult;
 import net.hwyz.iov.cloud.sec.ciam.domain.repository.CiamRiskEventRepository;
 import net.hwyz.iov.cloud.sec.ciam.infrastructure.repository.dao.dataobject.CiamRiskEventDo;
@@ -81,7 +81,7 @@ public class RiskDispositionService {
                 .eventType(AuditEventType.FORCE_RE_AUTH.getCategory())
                 .eventName(AuditEventType.FORCE_RE_AUTH.getDescription())
                 .success(true)
-                .eventTime(DateTimeUtil.now())
+                .eventTime(DateTimeUtil.getNowInstant())
                 .build());
     }
 
@@ -95,7 +95,7 @@ public class RiskDispositionService {
                 .orElseThrow(() -> new BusinessException(CiamErrorCode.RISK_EVENT_NOT_FOUND));
 
         event.setHandledFlag(1);
-        event.setModifyTime(DateTimeUtil.now());
+        event.setModifyTime(DateTimeUtil.getNowInstant());
         riskEventRepository.updateByRiskEventId(event);
 
         log.info("风险事件标记为已处理: riskEventId={}", riskEventId);
@@ -116,7 +116,7 @@ public class RiskDispositionService {
                 .eventType(AuditEventType.MFA_TRIGGER.getCategory())
                 .eventName(AuditEventType.MFA_TRIGGER.getDescription())
                 .success(true)
-                .eventTime(DateTimeUtil.now())
+                .eventTime(DateTimeUtil.getNowInstant())
                 .build());
     }
 
@@ -130,7 +130,7 @@ public class RiskDispositionService {
                 .eventName(AuditEventType.FORCE_RE_AUTH.getDescription())
                 .success(true)
                 .requestSnapshot("riskEventId=" + result.getRiskEventId())
-                .eventTime(DateTimeUtil.now())
+                .eventTime(DateTimeUtil.getNowInstant())
                 .build());
 
         log.info("阻断处置完成: userId={}, sessionId={}, riskEventId={}",
@@ -150,7 +150,7 @@ public class RiskDispositionService {
                 .success(true)
                 .requestSnapshot("riskEventId=" + result.getRiskEventId()
                         + ",invalidatedSessions=" + activeSessions.size())
-                .eventTime(DateTimeUtil.now())
+                .eventTime(DateTimeUtil.getNowInstant())
                 .build());
 
         log.info("强制下线所有会话完成: userId={}, riskEventId={}, invalidatedSessions={}",

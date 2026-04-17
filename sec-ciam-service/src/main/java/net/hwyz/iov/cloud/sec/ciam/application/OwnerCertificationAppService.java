@@ -7,7 +7,7 @@ import net.hwyz.iov.cloud.sec.ciam.common.audit.AuditEvent;
 import net.hwyz.iov.cloud.sec.ciam.common.audit.AuditEventType;
 import net.hwyz.iov.cloud.sec.ciam.common.audit.AuditLogger;
 import net.hwyz.iov.cloud.sec.ciam.common.exception.CiamErrorCode;
-import net.hwyz.iov.cloud.sec.ciam.common.util.DateTimeUtil;
+import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
 import net.hwyz.iov.cloud.sec.ciam.common.util.UserIdGenerator;
 import net.hwyz.iov.cloud.sec.ciam.domain.enums.CertStatus;
 import net.hwyz.iov.cloud.sec.ciam.domain.repository.CiamOwnerCertStateRepository;
@@ -65,10 +65,10 @@ public class OwnerCertificationAppService {
             CiamOwnerCertStateDo record = existing.get();
             record.setCertStatus(certResult);
             record.setCertSource(certSource);
-            record.setCallbackTime(DateTimeUtil.now());
-            record.setModifyTime(DateTimeUtil.now());
+            record.setCallbackTime(DateTimeUtil.getNowInstant());
+            record.setModifyTime(DateTimeUtil.getNowInstant());
             if (certStatus == CertStatus.CERTIFIED) {
-                record.setEffectiveTime(DateTimeUtil.now());
+                record.setEffectiveTime(DateTimeUtil.getNowInstant());
             }
             certStateRepository.updateByOwnerCertId(record);
             log.info("车主认证回调更新: userId={}, vin={}, certStatus={}", userId, vin, certStatus);
@@ -79,13 +79,13 @@ public class OwnerCertificationAppService {
             record.setVin(vin);
             record.setCertStatus(certResult);
             record.setCertSource(certSource);
-            record.setCallbackTime(DateTimeUtil.now());
+            record.setCallbackTime(DateTimeUtil.getNowInstant());
             record.setRowVersion(1);
             record.setRowValid(1);
-            record.setCreateTime(DateTimeUtil.now());
-            record.setModifyTime(DateTimeUtil.now());
+            record.setCreateTime(DateTimeUtil.getNowInstant());
+            record.setModifyTime(DateTimeUtil.getNowInstant());
             if (certStatus == CertStatus.CERTIFIED) {
-                record.setEffectiveTime(DateTimeUtil.now());
+                record.setEffectiveTime(DateTimeUtil.getNowInstant());
             }
             certStateRepository.insert(record);
             log.info("车主认证回调新建: userId={}, vin={}, certStatus={}", userId, vin, certStatus);
@@ -129,8 +129,8 @@ public class OwnerCertificationAppService {
                 certStateRepository.findByUserIdAndCertStatus(userId, CertStatus.CERTIFYING.getCode());
 
         for (CiamOwnerCertStateDo record : pendingRecords) {
-            record.setLastQueryTime(DateTimeUtil.now());
-            record.setModifyTime(DateTimeUtil.now());
+            record.setLastQueryTime(DateTimeUtil.getNowInstant());
+            record.setModifyTime(DateTimeUtil.getNowInstant());
             certStateRepository.updateByOwnerCertId(record);
         }
 
@@ -173,7 +173,7 @@ public class OwnerCertificationAppService {
                 .eventType(eventType.getCategory())
                 .eventName(eventType.getDescription())
                 .success(success)
-                .eventTime(DateTimeUtil.now())
+                .eventTime(DateTimeUtil.getNowInstant())
                 .build());
     }
 }

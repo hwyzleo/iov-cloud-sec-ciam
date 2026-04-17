@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 /**
  * 用户检索索引文档。
@@ -31,10 +32,10 @@ public class UserSearchDocument {
     private String registerChannel;
 
     /** 最后登录时间 */
-    private LocalDateTime lastLoginTime;
+    private OffsetDateTime lastLoginTime;
 
     /** 创建时间 */
-    private LocalDateTime createTime;
+    private OffsetDateTime createTime;
 
     /** 注册类型：MOBILE, EMAIL 等 */
     private String identityType;

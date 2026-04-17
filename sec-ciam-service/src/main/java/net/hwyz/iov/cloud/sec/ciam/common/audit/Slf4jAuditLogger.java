@@ -1,7 +1,7 @@
 package net.hwyz.iov.cloud.sec.ciam.common.audit;
 
 import lombok.extern.slf4j.Slf4j;
-import net.hwyz.iov.cloud.sec.ciam.common.util.DateTimeUtil;
+import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
 import org.springframework.stereotype.Component;
 
 /**

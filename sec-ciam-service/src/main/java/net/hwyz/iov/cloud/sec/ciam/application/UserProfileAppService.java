@@ -8,7 +8,7 @@ import net.hwyz.iov.cloud.sec.ciam.common.audit.AuditEvent;
 import net.hwyz.iov.cloud.sec.ciam.common.audit.AuditEventType;
 import net.hwyz.iov.cloud.sec.ciam.common.audit.AuditLogger;
 import net.hwyz.iov.cloud.sec.ciam.common.exception.CiamErrorCode;
-import net.hwyz.iov.cloud.sec.ciam.common.util.DateTimeUtil;
+import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
 import net.hwyz.iov.cloud.sec.ciam.common.util.UserIdGenerator;
 import net.hwyz.iov.cloud.sec.ciam.domain.repository.CiamUserProfileRepository;
 import net.hwyz.iov.cloud.sec.ciam.infrastructure.repository.dao.dataobject.CiamUserProfileDo;
@@ -99,7 +99,7 @@ public class UserProfileAppService {
             profile.setRegionName(regionName);
         }
 
-        profile.setModifyTime(DateTimeUtil.now());
+        profile.setModifyTime(DateTimeUtil.getNowInstant());
         profileRepository.updateByProfileId(profile);
 
         logAudit(userId, AuditEventType.PROFILE_UPDATE, true);
@@ -133,7 +133,7 @@ public class UserProfileAppService {
             profile.setRealName(value);
         }
 
-        profile.setModifyTime(DateTimeUtil.now());
+        profile.setModifyTime(DateTimeUtil.getNowInstant());
         profileRepository.updateByProfileId(profile);
 
         logAudit(userId, AuditEventType.PROFILE_SENSITIVE_UPDATE, true);
@@ -157,8 +157,8 @@ public class UserProfileAppService {
         profile.setGender(0);
         profile.setRowVersion(1);
         profile.setRowValid(1);
-        profile.setCreateTime(DateTimeUtil.now());
-        profile.setModifyTime(DateTimeUtil.now());
+        profile.setCreateTime(DateTimeUtil.getNowInstant());
+        profile.setModifyTime(DateTimeUtil.getNowInstant());
         profileRepository.insert(profile);
 
         log.info("创建默认用户资料: userId={}", userId);
@@ -170,7 +170,7 @@ public class UserProfileAppService {
                 .eventType(eventType.getCategory())
                 .eventName(eventType.getDescription())
                 .success(success)
-                .eventTime(DateTimeUtil.now())
+                .eventTime(DateTimeUtil.getNowInstant())
                 .build());
     }
 }

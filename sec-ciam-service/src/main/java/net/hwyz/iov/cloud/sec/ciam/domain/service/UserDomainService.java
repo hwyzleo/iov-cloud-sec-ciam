@@ -3,7 +3,7 @@ package net.hwyz.iov.cloud.sec.ciam.domain.service;
 import lombok.RequiredArgsConstructor;
 import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
 import net.hwyz.iov.cloud.sec.ciam.common.exception.CiamErrorCode;
-import net.hwyz.iov.cloud.sec.ciam.common.util.DateTimeUtil;
+import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
 import net.hwyz.iov.cloud.sec.ciam.common.util.UserIdGenerator;
 import net.hwyz.iov.cloud.sec.ciam.domain.enums.IdentityType;
 import net.hwyz.iov.cloud.sec.ciam.domain.enums.RegisterSource;
@@ -59,8 +59,8 @@ public class UserDomainService {
         user.setPrimaryIdentityType(primaryIdentityType != null ? primaryIdentityType.getCode() : null);
         user.setRowVersion(1);
         user.setRowValid(1);
-        user.setCreateTime(DateTimeUtil.now());
-        user.setModifyTime(DateTimeUtil.now());
+        user.setCreateTime(DateTimeUtil.getNowInstant());
+        user.setModifyTime(DateTimeUtil.getNowInstant());
         userRepository.insert(user);
 
         // 同步创建用户资料扩展记录
@@ -70,8 +70,8 @@ public class UserDomainService {
         profile.setGender(0); // 未知
         profile.setRowVersion(1);
         profile.setRowValid(1);
-        profile.setCreateTime(DateTimeUtil.now());
-        profile.setModifyTime(DateTimeUtil.now());
+        profile.setCreateTime(DateTimeUtil.getNowInstant());
+        profile.setModifyTime(DateTimeUtil.getNowInstant());
         userProfileRepository.insert(profile);
 
         return user;
@@ -158,7 +158,7 @@ public class UserDomainService {
         UserStatus current = UserStatus.fromCode(user.getUserStatus());
         UserStatusMachine.validateTransition(current, target);
         user.setUserStatus(target.getCode());
-        user.setModifyTime(DateTimeUtil.now());
+        user.setModifyTime(DateTimeUtil.getNowInstant());
         userRepository.updateByUserId(user);
     }
 }

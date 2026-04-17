@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.sec.ciam.common.audit.AuditEvent;
 import net.hwyz.iov.cloud.sec.ciam.common.audit.AuditEventType;
 import net.hwyz.iov.cloud.sec.ciam.common.audit.AuditLogger;
-import net.hwyz.iov.cloud.sec.ciam.common.util.DateTimeUtil;
+import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
 import net.hwyz.iov.cloud.sec.ciam.domain.repository.CiamRefreshTokenRepository;
 import net.hwyz.iov.cloud.sec.ciam.domain.repository.CiamSessionRepository;
 import net.hwyz.iov.cloud.sec.ciam.domain.service.CredentialDomainService;
@@ -94,7 +94,7 @@ public class PasswordChangeAppService {
                 .eventType(eventType.getCategory())
                 .eventName(eventType.getDescription())
                 .success(success)
-                .eventTime(DateTimeUtil.now())
+                .eventTime(DateTimeUtil.getNowInstant())
                 .build());
     }
 }

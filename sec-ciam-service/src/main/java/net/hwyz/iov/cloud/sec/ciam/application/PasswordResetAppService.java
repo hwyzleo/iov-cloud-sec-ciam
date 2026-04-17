@@ -8,7 +8,7 @@ import net.hwyz.iov.cloud.sec.ciam.common.audit.AuditEventType;
 import net.hwyz.iov.cloud.sec.ciam.common.audit.AuditLogger;
 import net.hwyz.iov.cloud.sec.ciam.common.audit.SecurityEventLogger;
 import net.hwyz.iov.cloud.sec.ciam.common.exception.CiamErrorCode;
-import net.hwyz.iov.cloud.sec.ciam.common.util.DateTimeUtil;
+import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
 import net.hwyz.iov.cloud.sec.ciam.domain.enums.IdentityStatus;
 import net.hwyz.iov.cloud.sec.ciam.domain.enums.IdentityType;
 import net.hwyz.iov.cloud.sec.ciam.domain.repository.CiamRefreshTokenRepository;
@@ -146,7 +146,7 @@ public class PasswordResetAppService {
                 .eventType(eventType.getCategory())
                 .eventName(eventType.getDescription())
                 .success(success)
-                .eventTime(DateTimeUtil.now())
+                .eventTime(DateTimeUtil.getNowInstant())
                 .build());
     }
 }

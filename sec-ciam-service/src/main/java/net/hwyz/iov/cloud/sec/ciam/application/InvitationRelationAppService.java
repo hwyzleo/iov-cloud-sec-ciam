@@ -7,7 +7,7 @@ import net.hwyz.iov.cloud.sec.ciam.common.audit.AuditEvent;
 import net.hwyz.iov.cloud.sec.ciam.common.audit.AuditEventType;
 import net.hwyz.iov.cloud.sec.ciam.common.audit.AuditLogger;
 import net.hwyz.iov.cloud.sec.ciam.common.exception.CiamErrorCode;
-import net.hwyz.iov.cloud.sec.ciam.common.util.DateTimeUtil;
+import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
 import net.hwyz.iov.cloud.sec.ciam.common.util.UserIdGenerator;
 import net.hwyz.iov.cloud.sec.ciam.domain.repository.CiamInvitationRelationRepository;
 import net.hwyz.iov.cloud.sec.ciam.infrastructure.repository.dao.dataobject.CiamInvitationRelationDo;
@@ -78,11 +78,11 @@ public class InvitationRelationAppService {
         record.setInviteChannelCode(channelCode);
         record.setInviteActivityCode(channelName);
         record.setRelationLockFlag(1);
-        record.setRegisterTime(DateTimeUtil.now());
+        record.setRegisterTime(DateTimeUtil.getNowInstant());
         record.setRowVersion(1);
         record.setRowValid(1);
-        record.setCreateTime(DateTimeUtil.now());
-        record.setModifyTime(DateTimeUtil.now());
+        record.setCreateTime(DateTimeUtil.getNowInstant());
+        record.setModifyTime(DateTimeUtil.getNowInstant());
 
         invitationRelationRepository.insert(record);
 
@@ -121,7 +121,7 @@ public class InvitationRelationAppService {
                 .eventType(eventType.getCategory())
                 .eventName(eventType.getDescription())
                 .success(success)
-                .eventTime(DateTimeUtil.now())
+                .eventTime(DateTimeUtil.getNowInstant())
                 .build());
     }
 }

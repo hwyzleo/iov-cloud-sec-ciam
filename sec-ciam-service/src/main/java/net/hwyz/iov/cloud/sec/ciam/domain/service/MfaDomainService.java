@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
 import net.hwyz.iov.cloud.sec.ciam.common.exception.CiamErrorCode;
 import net.hwyz.iov.cloud.sec.ciam.common.security.TokenDigest;
-import net.hwyz.iov.cloud.sec.ciam.common.util.DateTimeUtil;
+import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
 import net.hwyz.iov.cloud.sec.ciam.common.util.UserIdGenerator;
 import net.hwyz.iov.cloud.sec.ciam.domain.adapter.AdapterResult;
 import net.hwyz.iov.cloud.sec.ciam.domain.adapter.EmailAdapter;
@@ -17,7 +17,7 @@ import net.hwyz.iov.cloud.sec.ciam.infrastructure.repository.dao.dataobject.Ciam
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 /**
  * MFA 挑战与校验领域服务。
@@ -63,9 +63,9 @@ public class MfaDomainService {
                                   String receiverMask, String riskEventId) {
         String challengeId = UserIdGenerator.generate();
         String code = generateCode();
-        LocalDateTime now = DateTimeUtil.now();
+        Instant now = DateTimeUtil.getNowInstant();
         int ttlMinutes = challengeType == ChallengeType.SMS ? SMS_TTL_MINUTES : EMAIL_TTL_MINUTES;
-        LocalDateTime expireTime = now.plusMinutes(ttlMinutes);
+        Instant expireTime = now.plusSeconds(ttlMinutes * 60L);
 
         CiamMfaChallengeDo challenge = new CiamMfaChallengeDo();
         challenge.setChallengeId(challengeId);
@@ -106,7 +106,7 @@ public class MfaDomainService {
             throw new BusinessException(CiamErrorCode.MFA_CHALLENGE_ALREADY_RESOLVED);
         }
 
-        LocalDateTime now = DateTimeUtil.now();
+        Instant now = DateTimeUtil.getNowInstant();
         if (now.isAfter(challenge.getExpireTime())) {
             challenge.setChallengeStatus(ChallengeStatus.EXPIRED.getCode());
             challenge.setModifyTime(now);
@@ -140,7 +140,7 @@ public class MfaDomainService {
         }
 
         challenge.setChallengeStatus(ChallengeStatus.CANCELLED.getCode());
-        challenge.setModifyTime(DateTimeUtil.now());
+        challenge.setModifyTime(DateTimeUtil.getNowInstant());
         challengeRepository.updateByChallengeId(challenge);
     }
 

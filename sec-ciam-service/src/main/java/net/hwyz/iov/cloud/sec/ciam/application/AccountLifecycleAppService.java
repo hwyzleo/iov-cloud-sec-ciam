@@ -9,7 +9,7 @@ import net.hwyz.iov.cloud.sec.ciam.common.audit.AuditLogger;
 import net.hwyz.iov.cloud.sec.ciam.common.audit.SecurityEventLogger;
 import net.hwyz.iov.cloud.sec.ciam.common.exception.CiamErrorCode;
 import net.hwyz.iov.cloud.sec.ciam.common.security.FieldEncryptor;
-import net.hwyz.iov.cloud.sec.ciam.common.util.DateTimeUtil;
+import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
 import net.hwyz.iov.cloud.sec.ciam.common.util.UserIdGenerator;
 import net.hwyz.iov.cloud.sec.ciam.domain.enums.CheckStatus;
 import net.hwyz.iov.cloud.sec.ciam.domain.enums.ExecuteStatus;
@@ -214,12 +214,12 @@ public class AccountLifecycleAppService {
         request.setCheckStatus(CheckStatus.PENDING.getCode());
         request.setReviewStatus(ReviewStatus.PENDING.getCode());
         request.setExecuteStatus(ExecuteStatus.PENDING.getCode());
-        request.setRequestedTime(DateTimeUtil.now());
+        request.setRequestedTime(DateTimeUtil.getNowInstant());
         request.setRetainAuditOnly(1);
         request.setRowVersion(1);
         request.setRowValid(1);
-        request.setCreateTime(DateTimeUtil.now());
-        request.setModifyTime(DateTimeUtil.now());
+        request.setCreateTime(DateTimeUtil.getNowInstant());
+        request.setModifyTime(DateTimeUtil.getNowInstant());
         deactivationRequestRepository.insert(request);
 
         logAudit(userId, AuditEventType.DEACTIVATION_APPLY, true, null);
@@ -234,8 +234,8 @@ public class AccountLifecycleAppService {
         CiamDeactivationRequestDo request = findDeactivationRequest(deactivationRequestId);
         request.setReviewStatus(ReviewStatus.APPROVED.getCode());
         request.setReviewer(reviewer);
-        request.setReviewTime(DateTimeUtil.now());
-        request.setModifyTime(DateTimeUtil.now());
+        request.setReviewTime(DateTimeUtil.getNowInstant());
+        request.setModifyTime(DateTimeUtil.getNowInstant());
         deactivationRequestRepository.updateByDeactivationRequestId(request);
 
         logAudit(request.getUserId(), AuditEventType.DEACTIVATION_REVIEW, true, reviewer);
@@ -249,8 +249,8 @@ public class AccountLifecycleAppService {
         CiamDeactivationRequestDo request = findDeactivationRequest(deactivationRequestId);
         request.setReviewStatus(ReviewStatus.REJECTED.getCode());
         request.setReviewer(reviewer);
-        request.setReviewTime(DateTimeUtil.now());
-        request.setModifyTime(DateTimeUtil.now());
+        request.setReviewTime(DateTimeUtil.getNowInstant());
+        request.setModifyTime(DateTimeUtil.getNowInstant());
         deactivationRequestRepository.updateByDeactivationRequestId(request);
 
         // 恢复用户状态（从注销处理中恢复为正常）
@@ -274,7 +274,7 @@ public class AccountLifecycleAppService {
         boolean passed = true;
 
         request.setCheckStatus(passed ? CheckStatus.PASSED.getCode() : CheckStatus.FAILED.getCode());
-        request.setModifyTime(DateTimeUtil.now());
+        request.setModifyTime(DateTimeUtil.getNowInstant());
         deactivationRequestRepository.updateByDeactivationRequestId(request);
 
         if (!passed) {
@@ -304,9 +304,9 @@ public class AccountLifecycleAppService {
 
         // 完成注销状态流转（先于物理删除记录状态，此处仅更新注销申请记录）
         request.setExecuteStatus(ExecuteStatus.EXECUTED.getCode());
-        request.setExecuteTime(DateTimeUtil.now());
+        request.setExecuteTime(DateTimeUtil.getNowInstant());
         request.setRetainAuditOnly(1);
-        request.setModifyTime(DateTimeUtil.now());
+        request.setModifyTime(DateTimeUtil.getNowInstant());
         deactivationRequestRepository.updateByDeactivationRequestId(request);
 
         logAudit(userId, AuditEventType.DEACTIVATION_COMPLETE, true, null);
@@ -326,7 +326,7 @@ public class AccountLifecycleAppService {
                 .eventType(eventType.getCategory())
                 .eventName(eventType.getDescription())
                 .success(success)
-                .eventTime(DateTimeUtil.now())
+                .eventTime(DateTimeUtil.getNowInstant())
                 .requestSnapshot(operator != null ? "operator=" + operator : null)
                 .build());
     }

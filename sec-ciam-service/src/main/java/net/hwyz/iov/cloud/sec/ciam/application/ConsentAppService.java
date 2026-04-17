@@ -7,7 +7,7 @@ import net.hwyz.iov.cloud.sec.ciam.common.audit.AuditEvent;
 import net.hwyz.iov.cloud.sec.ciam.common.audit.AuditEventType;
 import net.hwyz.iov.cloud.sec.ciam.common.audit.AuditLogger;
 import net.hwyz.iov.cloud.sec.ciam.common.exception.CiamErrorCode;
-import net.hwyz.iov.cloud.sec.ciam.common.util.DateTimeUtil;
+import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
 import net.hwyz.iov.cloud.sec.ciam.common.util.UserIdGenerator;
 import net.hwyz.iov.cloud.sec.ciam.domain.repository.CiamUserConsentRepository;
 import net.hwyz.iov.cloud.sec.ciam.infrastructure.repository.dao.dataobject.CiamUserConsentDo;
@@ -72,11 +72,11 @@ public class ConsentAppService {
         record.setSourceChannel(sourceChannel);
         record.setClientType(clientType);
         record.setOperateIp(operateIp);
-        record.setOperateTime(DateTimeUtil.now());
+        record.setOperateTime(DateTimeUtil.getNowInstant());
         record.setRowVersion(1);
         record.setRowValid(1);
-        record.setCreateTime(DateTimeUtil.now());
-        record.setModifyTime(DateTimeUtil.now());
+        record.setCreateTime(DateTimeUtil.getNowInstant());
+        record.setModifyTime(DateTimeUtil.getNowInstant());
 
         consentRepository.insert(record);
 
@@ -114,8 +114,8 @@ public class ConsentAppService {
         CiamUserConsentDo consent = activeConsent.get();
         consent.setConsentStatus(CONSENT_STATUS_WITHDRAWN);
         consent.setOperateIp(operateIp);
-        consent.setOperateTime(DateTimeUtil.now());
-        consent.setModifyTime(DateTimeUtil.now());
+        consent.setOperateTime(DateTimeUtil.getNowInstant());
+        consent.setModifyTime(DateTimeUtil.getNowInstant());
 
         consentRepository.updateByConsentId(consent);
 
@@ -200,7 +200,7 @@ public class ConsentAppService {
                 .eventType(eventType.getCategory())
                 .eventName(eventType.getDescription())
                 .success(success)
-                .eventTime(DateTimeUtil.now())
+                .eventTime(DateTimeUtil.getNowInstant())
                 .requestSnapshot(snapshot)
                 .build());
     }

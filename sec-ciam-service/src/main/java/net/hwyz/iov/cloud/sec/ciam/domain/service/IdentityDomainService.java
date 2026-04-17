@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
 import net.hwyz.iov.cloud.sec.ciam.common.exception.CiamErrorCode;
 import net.hwyz.iov.cloud.sec.ciam.common.security.FieldEncryptor;
-import net.hwyz.iov.cloud.sec.ciam.common.util.DateTimeUtil;
+import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
 import net.hwyz.iov.cloud.sec.ciam.common.util.UserIdGenerator;
 import net.hwyz.iov.cloud.sec.ciam.domain.enums.IdentityStatus;
 import net.hwyz.iov.cloud.sec.ciam.domain.enums.IdentityType;
@@ -70,12 +70,12 @@ public class IdentityDomainService {
         identity.setVerifiedFlag(0);
         identity.setPrimaryFlag(0);
         identity.setBindSource(bindSource);
-        identity.setBindTime(DateTimeUtil.now());
+        identity.setBindTime(DateTimeUtil.getNowInstant());
         identity.setIdentityStatus(IdentityStatus.BOUND.getCode());
         identity.setRowVersion(1);
         identity.setRowValid(1);
-        identity.setCreateTime(DateTimeUtil.now());
-        identity.setModifyTime(DateTimeUtil.now());
+        identity.setCreateTime(DateTimeUtil.getNowInstant());
+        identity.setModifyTime(DateTimeUtil.getNowInstant());
         identityRepository.insert(identity);
         return identity;
     }
@@ -97,8 +97,8 @@ public class IdentityDomainService {
         }
 
         identity.setIdentityStatus(IdentityStatus.UNBOUND.getCode());
-        identity.setUnbindTime(DateTimeUtil.now());
-        identity.setModifyTime(DateTimeUtil.now());
+        identity.setUnbindTime(DateTimeUtil.getNowInstant());
+        identity.setModifyTime(DateTimeUtil.getNowInstant());
         identityRepository.updateByIdentityId(identity);
     }
 
@@ -168,7 +168,7 @@ public class IdentityDomainService {
         }
 
         identity.setVerifiedFlag(1);
-        identity.setModifyTime(DateTimeUtil.now());
+        identity.setModifyTime(DateTimeUtil.getNowInstant());
         identityRepository.updateByIdentityId(identity);
     }
 

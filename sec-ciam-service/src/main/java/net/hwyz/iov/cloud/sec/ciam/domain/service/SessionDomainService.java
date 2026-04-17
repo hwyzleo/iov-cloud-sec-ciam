@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
 import net.hwyz.iov.cloud.sec.ciam.common.exception.CiamErrorCode;
-import net.hwyz.iov.cloud.sec.ciam.common.util.DateTimeUtil;
+import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
 import net.hwyz.iov.cloud.sec.ciam.domain.enums.DeviceStatus;
 import net.hwyz.iov.cloud.sec.ciam.domain.enums.SessionStatus;
 import net.hwyz.iov.cloud.sec.ciam.domain.repository.CiamDeviceRepository;
@@ -61,8 +61,8 @@ public class SessionDomainService {
         }
 
         session.setSessionStatus(SessionStatus.KICKED.getCode());
-        session.setLogoutTime(DateTimeUtil.now());
-        session.setModifyTime(DateTimeUtil.now());
+        session.setLogoutTime(DateTimeUtil.getNowInstant());
+        session.setModifyTime(DateTimeUtil.getNowInstant());
         sessionRepository.updateBySessionId(session);
 
         int revokedCount = refreshTokenRepository.revokeAllBySessionId(sessionId);
@@ -90,8 +90,8 @@ public class SessionDomainService {
         }
 
         session.setSessionStatus(SessionStatus.INVALID.getCode());
-        session.setLogoutTime(DateTimeUtil.now());
-        session.setModifyTime(DateTimeUtil.now());
+        session.setLogoutTime(DateTimeUtil.getNowInstant());
+        session.setModifyTime(DateTimeUtil.getNowInstant());
         sessionRepository.updateBySessionId(session);
 
         int revokedCount = refreshTokenRepository.revokeAllBySessionId(sessionId);
@@ -163,15 +163,15 @@ public class SessionDomainService {
                 deviceId, SessionStatus.ACTIVE.getCode());
         for (CiamSessionDo session : activeSessions) {
             session.setSessionStatus(SessionStatus.KICKED.getCode());
-            session.setLogoutTime(DateTimeUtil.now());
-            session.setModifyTime(DateTimeUtil.now());
+            session.setLogoutTime(DateTimeUtil.getNowInstant());
+            session.setModifyTime(DateTimeUtil.getNowInstant());
             sessionRepository.updateBySessionId(session);
             refreshTokenRepository.revokeAllBySessionId(session.getSessionId());
         }
 
         // 将设备状态设为失效
         device.setDeviceStatus(DeviceStatus.INVALID.getCode());
-        device.setModifyTime(DateTimeUtil.now());
+        device.setModifyTime(DateTimeUtil.getNowInstant());
         deviceRepository.updateByDeviceId(device);
 
         log.info("强制下线设备完成: deviceId={}, userId={}, offlineSessions={}",

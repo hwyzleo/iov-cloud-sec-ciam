@@ -1,13 +1,13 @@
 package net.hwyz.iov.cloud.sec.ciam.common.audit;
 
 import lombok.extern.slf4j.Slf4j;
-import net.hwyz.iov.cloud.sec.ciam.common.util.DateTimeUtil;
+import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
 import net.hwyz.iov.cloud.sec.ciam.domain.repository.CiamRiskEventRepository;
 import net.hwyz.iov.cloud.sec.ciam.infrastructure.repository.dao.dataobject.CiamRiskEventDo;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 /**
@@ -87,7 +87,7 @@ public class SecurityEventLogger {
      * 将 SecurityEvent 映射为 CiamRiskEventDo。
      */
     CiamRiskEventDo mapToDataObject(SecurityEvent event) {
-        LocalDateTime now = DateTimeUtil.now();
+        Instant now = DateTimeUtil.getNowInstant();
         CiamRiskEventDo riskEventDo = new CiamRiskEventDo();
         riskEventDo.setRiskEventId(generateRiskEventId());
         riskEventDo.setUserId(event.getUserId());

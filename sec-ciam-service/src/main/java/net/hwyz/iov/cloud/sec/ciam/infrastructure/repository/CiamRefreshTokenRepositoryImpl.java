@@ -3,6 +3,7 @@ package net.hwyz.iov.cloud.sec.ciam.infrastructure.repository;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import lombok.RequiredArgsConstructor;
+import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
 import net.hwyz.iov.cloud.sec.ciam.domain.enums.TokenStatus;
 import net.hwyz.iov.cloud.sec.ciam.domain.repository.CiamRefreshTokenRepository;
 import net.hwyz.iov.cloud.sec.ciam.infrastructure.repository.dao.CiamRefreshTokenMapper;
@@ -65,7 +66,7 @@ public class CiamRefreshTokenRepositoryImpl implements CiamRefreshTokenRepositor
     public int revokeAllByUserId(String userId) {
         CiamRefreshTokenDo update = new CiamRefreshTokenDo();
         update.setTokenStatus(TokenStatus.REVOKED.getCode());
-        update.setRevokeTime(LocalDateTime.now());
+        update.setRevokeTime(DateTimeUtil.getNowInstant());
         return mapper.update(update,
                 new LambdaUpdateWrapper<CiamRefreshTokenDo>()
                         .eq(CiamRefreshTokenDo::getUserId, userId)
@@ -76,7 +77,7 @@ public class CiamRefreshTokenRepositoryImpl implements CiamRefreshTokenRepositor
     public int revokeAllBySessionId(String sessionId) {
         CiamRefreshTokenDo update = new CiamRefreshTokenDo();
         update.setTokenStatus(TokenStatus.REVOKED.getCode());
-        update.setRevokeTime(LocalDateTime.now());
+        update.setRevokeTime(DateTimeUtil.getNowInstant());
         return mapper.update(update,
                 new LambdaUpdateWrapper<CiamRefreshTokenDo>()
                         .eq(CiamRefreshTokenDo::getSessionId, sessionId)

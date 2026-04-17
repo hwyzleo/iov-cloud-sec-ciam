@@ -8,7 +8,7 @@ import net.hwyz.iov.cloud.sec.ciam.common.audit.AuditEventType;
 import net.hwyz.iov.cloud.sec.ciam.common.audit.AuditLogger;
 import net.hwyz.iov.cloud.sec.ciam.common.exception.CiamErrorCode;
 import net.hwyz.iov.cloud.sec.ciam.common.security.FieldEncryptor;
-import net.hwyz.iov.cloud.sec.ciam.common.util.DateTimeUtil;
+import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
 import net.hwyz.iov.cloud.sec.ciam.common.util.UserIdGenerator;
 import net.hwyz.iov.cloud.sec.ciam.domain.enums.IdentityType;
 import net.hwyz.iov.cloud.sec.ciam.domain.enums.RegisterSource;
@@ -78,9 +78,9 @@ public class AdminAccountAppService {
         user.setRegisterSource(registerSource);
         user.setPrimaryIdentityType(identityType);
         user.setDescription(remark);
-        user.setCreateTime(DateTimeUtil.now());
+        user.setCreateTime(DateTimeUtil.getNowInstant());
         user.setCreateBy(adminId);
-        user.setModifyTime(DateTimeUtil.now());
+        user.setModifyTime(DateTimeUtil.getNowInstant());
         user.setModifyBy(adminId);
         user.setRowVersion(1);
         user.setRowValid(1);
@@ -93,9 +93,9 @@ public class AdminAccountAppService {
         identity.setIdentityValue(fieldEncryptor.encrypt(identityValue));
         identity.setIdentityHash(FieldEncryptor.hash(identityValue));
         identity.setVerifiedFlag(0);
-        identity.setCreateTime(DateTimeUtil.now());
+        identity.setCreateTime(DateTimeUtil.getNowInstant());
         identity.setCreateBy(adminId);
-        identity.setModifyTime(DateTimeUtil.now());
+        identity.setModifyTime(DateTimeUtil.getNowInstant());
         identity.setModifyBy(adminId);
         identity.setRowVersion(1);
         identity.setRowValid(1);
@@ -106,9 +106,9 @@ public class AdminAccountAppService {
         profile.setUserId(userId);
         profile.setNickname(nickname);
         profile.setGender(gender);
-        profile.setCreateTime(DateTimeUtil.now());
+        profile.setCreateTime(DateTimeUtil.getNowInstant());
         profile.setCreateBy(adminId);
-        profile.setModifyTime(DateTimeUtil.now());
+        profile.setModifyTime(DateTimeUtil.getNowInstant());
         profile.setModifyBy(adminId);
         profile.setRowVersion(1);
         profile.setRowValid(1);
@@ -135,7 +135,7 @@ public class AdminAccountAppService {
         if (remark != null) {
             user.setDescription(remark);
         }
-        user.setModifyTime(DateTimeUtil.now());
+        user.setModifyTime(DateTimeUtil.getNowInstant());
         user.setModifyBy(adminId);
         userRepository.updateByUserId(user);
 
@@ -159,7 +159,7 @@ public class AdminAccountAppService {
             if (gender != null) {
                 profile.setGender(gender);
             }
-            profile.setModifyTime(DateTimeUtil.now());
+            profile.setModifyTime(DateTimeUtil.getNowInstant());
             profile.setModifyBy(adminId);
             profileRepository.updateByUserId(profile);
         }
@@ -209,7 +209,7 @@ public class AdminAccountAppService {
                 .eventType(eventType.getCategory())
                 .eventName(eventType.getDescription())
                 .success(success)
-                .eventTime(DateTimeUtil.now())
+                .eventTime(DateTimeUtil.getNowInstant())
                 .requestSnapshot(operator != null ? "operator=" + operator : null)
                 .build());
     }

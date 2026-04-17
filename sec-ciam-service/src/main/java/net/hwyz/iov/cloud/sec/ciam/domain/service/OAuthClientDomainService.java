@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
 import net.hwyz.iov.cloud.sec.ciam.common.exception.CiamErrorCode;
 import net.hwyz.iov.cloud.sec.ciam.common.security.PasswordEncoder;
-import net.hwyz.iov.cloud.sec.ciam.common.util.DateTimeUtil;
+import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
 import net.hwyz.iov.cloud.sec.ciam.domain.enums.ClientStatus;
 import net.hwyz.iov.cloud.sec.ciam.domain.enums.OAuthClientType;
 import net.hwyz.iov.cloud.sec.ciam.domain.repository.CiamOAuthClientRepository;
@@ -79,8 +79,8 @@ public class OAuthClientDomainService {
         entity.setClientStatus(ClientStatus.ENABLED.getCode());
         entity.setRowVersion(1);
         entity.setRowValid(1);
-        entity.setCreateTime(DateTimeUtil.now());
-        entity.setModifyTime(DateTimeUtil.now());
+        entity.setCreateTime(DateTimeUtil.getNowInstant());
+        entity.setModifyTime(DateTimeUtil.getNowInstant());
         clientRepository.insert(entity);
 
         return new ClientRegistrationResult(clientId, rawSecret, clientName);
@@ -186,7 +186,7 @@ public class OAuthClientDomainService {
         if (refreshTokenTtl != null) {
             client.setRefreshTokenTtl(refreshTokenTtl);
         }
-        client.setModifyTime(DateTimeUtil.now());
+        client.setModifyTime(DateTimeUtil.getNowInstant());
         clientRepository.updateByClientId(client);
     }
 
@@ -201,7 +201,7 @@ public class OAuthClientDomainService {
                 .orElseThrow(() -> new BusinessException(CiamErrorCode.CLIENT_NOT_FOUND));
 
         client.setClientStatus(ClientStatus.DISABLED.getCode());
-        client.setModifyTime(DateTimeUtil.now());
+        client.setModifyTime(DateTimeUtil.getNowInstant());
         clientRepository.updateByClientId(client);
     }
 
@@ -216,7 +216,7 @@ public class OAuthClientDomainService {
                 .orElseThrow(() -> new BusinessException(CiamErrorCode.CLIENT_NOT_FOUND));
 
         client.setClientStatus(ClientStatus.ENABLED.getCode());
-        client.setModifyTime(DateTimeUtil.now());
+        client.setModifyTime(DateTimeUtil.getNowInstant());
         clientRepository.updateByClientId(client);
     }
 

@@ -3,6 +3,7 @@ package net.hwyz.iov.cloud.sec.ciam.application;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
+import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
 import net.hwyz.iov.cloud.sec.ciam.common.exception.CiamErrorCode;
 import net.hwyz.iov.cloud.sec.ciam.common.security.FieldEncryptor;
 import net.hwyz.iov.cloud.sec.ciam.domain.enums.IdentityType;
@@ -16,6 +17,7 @@ import net.hwyz.iov.cloud.sec.ciam.infrastructure.search.document.UserSearchDocu
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -90,8 +92,8 @@ public class AdminQueryAppService {
                 user.getRegisterSource(),
                 user.getRegisterChannel(),
                 user.getPrimaryIdentityType(),
-                user.getLastLoginTime(),
-                user.getCreateTime(),
+                DateTimeUtil.instantToOffsetDateTime(user.getLastLoginTime()),
+                DateTimeUtil.instantToOffsetDateTime(user.getCreateTime()),
                 user.getDescription(),
                 nickname,
                 gender,
@@ -118,7 +120,7 @@ public class AdminQueryAppService {
     public SearchResult<UserSearchDocument> queryUserList(String userId, String identityType,
                                                           String identityValue, String nickname,
                                                           String registerSource, Integer userStatus,
-                                                          LocalDateTime startTime, LocalDateTime endTime,
+                                                          OffsetDateTime startTime, OffsetDateTime endTime,
                                                           int page, int size) {
         log.info("检索用户列表: userId={}, identityType={}, identityValue={}, nickname={}, registerSource={}, userStatus={}, startTime={}, endTime={}",
                 userId, identityType, identityValue, nickname, registerSource, userStatus, startTime, endTime);
@@ -132,8 +134,8 @@ public class AdminQueryAppService {
                             .userStatus(user.getUserStatus())
                             .registerSource(user.getRegisterSource())
                             .registerChannel(user.getRegisterChannel())
-                            .lastLoginTime(user.getLastLoginTime())
-                            .createTime(user.getCreateTime())
+                            .lastLoginTime(DateTimeUtil.instantToOffsetDateTime(user.getLastLoginTime()))
+                            .createTime(DateTimeUtil.instantToOffsetDateTime(user.getCreateTime()))
                             .build();
 
                     // 查询身份信息
@@ -192,7 +194,7 @@ public class AdminQueryAppService {
                     }
                     // 创建时间范围查询
                     if (startTime != null || endTime != null) {
-                        LocalDateTime createTime = doc.getCreateTime();
+                        OffsetDateTime createTime = doc.getCreateTime();
                         if (createTime == null) {
                             return false;
                         }
@@ -314,8 +316,8 @@ public class AdminQueryAppService {
             String registerSource,
             String registerChannel,
             String primaryIdentityType,
-            LocalDateTime lastLoginTime,
-            LocalDateTime createTime,
+            OffsetDateTime lastLoginTime,
+            OffsetDateTime createTime,
             String description,
             String nickname,
             Integer gender,

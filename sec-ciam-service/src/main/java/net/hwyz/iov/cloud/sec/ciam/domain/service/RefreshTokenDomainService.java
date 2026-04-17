@@ -5,14 +5,14 @@ import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
 import net.hwyz.iov.cloud.sec.ciam.common.exception.CiamErrorCode;
 import net.hwyz.iov.cloud.sec.ciam.common.security.TokenDigest;
-import net.hwyz.iov.cloud.sec.ciam.common.util.DateTimeUtil;
+import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
 import net.hwyz.iov.cloud.sec.ciam.domain.enums.TokenStatus;
 import net.hwyz.iov.cloud.sec.ciam.domain.repository.CiamRefreshTokenRepository;
 import net.hwyz.iov.cloud.sec.ciam.infrastructure.repository.dao.dataobject.CiamRefreshTokenDo;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.Base64;
 import java.util.UUID;
 
@@ -51,7 +51,7 @@ public class RefreshTokenDomainService {
                                     int ttlSeconds) {
         String rawToken = generateRawToken();
         String fingerprint = TokenDigest.fingerprint(rawToken);
-        LocalDateTime now = DateTimeUtil.now();
+        Instant now = DateTimeUtil.getNowInstant();
 
         CiamRefreshTokenDo entity = new CiamRefreshTokenDo();
         entity.setRefreshTokenId(UUID.randomUUID().toString());
@@ -110,7 +110,7 @@ public class RefreshTokenDomainService {
         }
 
         // 过期校验
-        if (existing.getExpireTime().isBefore(DateTimeUtil.now())) {
+        if (existing.getExpireTime().isBefore(DateTimeUtil.getNowInstant())) {
             throw new BusinessException(CiamErrorCode.TOKEN_INVALID, "令牌已过期");
         }
 
@@ -120,7 +120,7 @@ public class RefreshTokenDomainService {
         }
 
         // 标记旧令牌为已轮换
-        LocalDateTime now = DateTimeUtil.now();
+        Instant now = DateTimeUtil.getNowInstant();
         existing.setTokenStatus(TokenStatus.ROTATED.getCode());
         existing.setUsedTime(now);
         existing.setModifyTime(now);
@@ -180,7 +180,7 @@ public class RefreshTokenDomainService {
             return;
         }
 
-        LocalDateTime now = DateTimeUtil.now();
+        Instant now = DateTimeUtil.getNowInstant();
         existing.setTokenStatus(TokenStatus.REVOKED.getCode());
         existing.setRevokeTime(now);
         existing.setModifyTime(now);

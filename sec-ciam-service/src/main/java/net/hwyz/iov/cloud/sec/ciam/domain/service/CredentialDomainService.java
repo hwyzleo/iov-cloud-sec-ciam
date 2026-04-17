@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
 import net.hwyz.iov.cloud.sec.ciam.common.exception.CiamErrorCode;
 import net.hwyz.iov.cloud.sec.ciam.common.security.PasswordEncoder;
-import net.hwyz.iov.cloud.sec.ciam.common.util.DateTimeUtil;
+import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
 import net.hwyz.iov.cloud.sec.ciam.common.util.UserIdGenerator;
 import net.hwyz.iov.cloud.sec.ciam.domain.enums.CredentialStatus;
 import net.hwyz.iov.cloud.sec.ciam.domain.enums.CredentialType;
@@ -12,7 +12,7 @@ import net.hwyz.iov.cloud.sec.ciam.domain.repository.CiamUserCredentialRepositor
 import net.hwyz.iov.cloud.sec.ciam.infrastructure.repository.dao.dataobject.CiamUserCredentialDo;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.Optional;
 
 /**
@@ -63,13 +63,13 @@ public class CredentialDomainService {
         credential.setCredentialType(CredentialType.EMAIL_PASSWORD.getCode());
         credential.setCredentialHash(hash);
         credential.setHashAlgorithm(PasswordEncoder.ALGORITHM);
-        credential.setPasswordSetTime(DateTimeUtil.now());
+        credential.setPasswordSetTime(DateTimeUtil.getNowInstant());
         credential.setFailCount(0);
         credential.setCredentialStatus(CredentialStatus.VALID.getCode());
         credential.setRowVersion(1);
         credential.setRowValid(1);
-        credential.setCreateTime(DateTimeUtil.now());
-        credential.setModifyTime(DateTimeUtil.now());
+        credential.setCreateTime(DateTimeUtil.getNowInstant());
+        credential.setModifyTime(DateTimeUtil.getNowInstant());
         credentialRepository.insert(credential);
         return credential;
     }
@@ -99,10 +99,10 @@ public class CredentialDomainService {
 
         boolean matched = passwordEncoder.matches(rawPassword, credential.getCredentialHash());
         if (matched) {
-            credential.setLastVerifyTime(DateTimeUtil.now());
+            credential.setLastVerifyTime(DateTimeUtil.getNowInstant());
             credential.setFailCount(0);
             credential.setLockedUntil(null);
-            credential.setModifyTime(DateTimeUtil.now());
+            credential.setModifyTime(DateTimeUtil.getNowInstant());
             credentialRepository.updateByCredentialId(credential);
             return PasswordVerifyResult.success();
         }
@@ -110,10 +110,10 @@ public class CredentialDomainService {
         // 失败：递增计数
         int newFailCount = (credential.getFailCount() == null ? 0 : credential.getFailCount()) + 1;
         credential.setFailCount(newFailCount);
-        credential.setModifyTime(DateTimeUtil.now());
+        credential.setModifyTime(DateTimeUtil.getNowInstant());
 
         if (newFailCount >= LOCK_THRESHOLD) {
-            credential.setLockedUntil(DateTimeUtil.now().plusMinutes(LOCK_DURATION_MINUTES));
+            credential.setLockedUntil(DateTimeUtil.getNowInstant().plusSeconds(LOCK_DURATION_MINUTES * 60L));
             credentialRepository.updateByCredentialId(credential);
             return PasswordVerifyResult.failWithLock(newFailCount);
         }
@@ -146,9 +146,9 @@ public class CredentialDomainService {
         String newHash = passwordEncoder.encode(newRawPassword);
         credential.setCredentialHash(newHash);
         credential.setHashAlgorithm(PasswordEncoder.ALGORITHM);
-        credential.setPasswordSetTime(DateTimeUtil.now());
+        credential.setPasswordSetTime(DateTimeUtil.getNowInstant());
         credential.setFailCount(0);
-        credential.setModifyTime(DateTimeUtil.now());
+        credential.setModifyTime(DateTimeUtil.getNowInstant());
         credentialRepository.updateByCredentialId(credential);
     }
 
@@ -167,10 +167,10 @@ public class CredentialDomainService {
         String newHash = passwordEncoder.encode(newRawPassword);
         credential.setCredentialHash(newHash);
         credential.setHashAlgorithm(PasswordEncoder.ALGORITHM);
-        credential.setPasswordSetTime(DateTimeUtil.now());
+        credential.setPasswordSetTime(DateTimeUtil.getNowInstant());
         credential.setFailCount(0);
         credential.setLockedUntil(null);
-        credential.setModifyTime(DateTimeUtil.now());
+        credential.setModifyTime(DateTimeUtil.getNowInstant());
         credentialRepository.updateByCredentialId(credential);
     }
 
@@ -188,8 +188,8 @@ public class CredentialDomainService {
     // ---- 内部方法 ----
 
     private boolean isLocked(CiamUserCredentialDo credential) {
-        LocalDateTime lockedUntil = credential.getLockedUntil();
-        return lockedUntil != null && DateTimeUtil.now().isBefore(lockedUntil);
+        Instant lockedUntil = credential.getLockedUntil();
+        return lockedUntil != null && DateTimeUtil.getNowInstant().isBefore(lockedUntil);
     }
 
     private CiamUserCredentialDo findActiveCredential(String userId) {

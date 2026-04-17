@@ -3,7 +3,7 @@ package net.hwyz.iov.cloud.sec.ciam.domain.service;
 import lombok.RequiredArgsConstructor;
 import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
 import net.hwyz.iov.cloud.sec.ciam.common.exception.CiamErrorCode;
-import net.hwyz.iov.cloud.sec.ciam.common.util.DateTimeUtil;
+import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
 import net.hwyz.iov.cloud.sec.ciam.common.util.UserIdGenerator;
 import net.hwyz.iov.cloud.sec.ciam.domain.enums.TagStatus;
 import net.hwyz.iov.cloud.sec.ciam.domain.repository.CiamUserTagRepository;
@@ -53,11 +53,11 @@ public class TagDomainService {
         tag.setTagName(tagName);
         tag.setTagStatus(TagStatus.VALID.getCode());
         tag.setTagSource(tagSource);
-        tag.setEffectiveTime(DateTimeUtil.now());
+        tag.setEffectiveTime(DateTimeUtil.getNowInstant());
         tag.setRowVersion(1);
         tag.setRowValid(1);
-        tag.setCreateTime(DateTimeUtil.now());
-        tag.setModifyTime(DateTimeUtil.now());
+        tag.setCreateTime(DateTimeUtil.getNowInstant());
+        tag.setModifyTime(DateTimeUtil.getNowInstant());
         tagRepository.insert(tag);
         return tag;
     }
@@ -72,8 +72,8 @@ public class TagDomainService {
         CiamUserTagDo tag = tagRepository.findByUserIdAndTagCode(userId, tagCode)
                 .orElseThrow(() -> new BusinessException(CiamErrorCode.TAG_NOT_FOUND));
         tag.setTagStatus(TagStatus.INVALID.getCode());
-        tag.setExpireTime(DateTimeUtil.now());
-        tag.setModifyTime(DateTimeUtil.now());
+        tag.setExpireTime(DateTimeUtil.getNowInstant());
+        tag.setModifyTime(DateTimeUtil.getNowInstant());
         tagRepository.updateByTagId(tag);
     }
 
@@ -116,9 +116,9 @@ public class TagDomainService {
         CiamUserTagDo tag = tagRepository.findByUserIdAndTagCode(userId, tagCode)
                 .orElseThrow(() -> new BusinessException(CiamErrorCode.TAG_NOT_FOUND));
         tag.setTagStatus(newStatus);
-        tag.setModifyTime(DateTimeUtil.now());
+        tag.setModifyTime(DateTimeUtil.getNowInstant());
         if (newStatus == TagStatus.INVALID.getCode()) {
-            tag.setExpireTime(DateTimeUtil.now());
+            tag.setExpireTime(DateTimeUtil.getNowInstant());
         }
         tagRepository.updateByTagId(tag);
     }

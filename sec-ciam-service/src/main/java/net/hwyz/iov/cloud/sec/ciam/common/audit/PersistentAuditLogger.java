@@ -1,6 +1,7 @@
 package net.hwyz.iov.cloud.sec.ciam.common.audit;
 
 import lombok.extern.slf4j.Slf4j;
+import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
 import net.hwyz.iov.cloud.sec.ciam.domain.repository.CiamAuditLogRepository;
 import net.hwyz.iov.cloud.sec.ciam.infrastructure.repository.dao.dataobject.CiamAuditLogDo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,8 +75,8 @@ public class PersistentAuditLogger implements AuditLogger {
         logDo.setIpAddress(event.getIp());
         logDo.setTraceId(event.getTraceId());
         logDo.setRequestSnapshot(event.getRequestSnapshot());
-        logDo.setEventTime(event.getEventTime() != null ? event.getEventTime() : LocalDateTime.now());
-        logDo.setCreateTime(LocalDateTime.now());
+        logDo.setEventTime(event.getEventTime() != null ? event.getEventTime() : DateTimeUtil.getNowInstant());
+        logDo.setCreateTime(DateTimeUtil.getNowInstant());
         logDo.setRowVersion(1);
         logDo.setRowValid(1);
         return logDo;

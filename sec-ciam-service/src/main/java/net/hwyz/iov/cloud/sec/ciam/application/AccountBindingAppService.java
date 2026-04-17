@@ -8,7 +8,7 @@ import net.hwyz.iov.cloud.sec.ciam.common.audit.AuditEventType;
 import net.hwyz.iov.cloud.sec.ciam.common.audit.AuditLogger;
 import net.hwyz.iov.cloud.sec.ciam.common.exception.CiamErrorCode;
 import net.hwyz.iov.cloud.sec.ciam.common.security.FieldEncryptor;
-import net.hwyz.iov.cloud.sec.ciam.common.util.DateTimeUtil;
+import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
 import net.hwyz.iov.cloud.sec.ciam.common.util.UserIdGenerator;
 import net.hwyz.iov.cloud.sec.ciam.domain.enums.IdentityType;
 import net.hwyz.iov.cloud.sec.ciam.domain.enums.ReviewStatus;
@@ -137,8 +137,8 @@ public class AccountBindingAppService {
         request.setReviewStatus(ReviewStatus.PENDING.getCode());
         request.setRowVersion(1);
         request.setRowValid(1);
-        request.setCreateTime(DateTimeUtil.now());
-        request.setModifyTime(DateTimeUtil.now());
+        request.setCreateTime(DateTimeUtil.getNowInstant());
+        request.setModifyTime(DateTimeUtil.getNowInstant());
 
         mergeRequestRepository.insert(request);
 
@@ -161,8 +161,8 @@ public class AccountBindingAppService {
 
         request.setReviewStatus(ReviewStatus.APPROVED.getCode());
         request.setReviewer(reviewer);
-        request.setReviewTime(DateTimeUtil.now());
-        request.setModifyTime(DateTimeUtil.now());
+        request.setReviewTime(DateTimeUtil.getNowInstant());
+        request.setModifyTime(DateTimeUtil.getNowInstant());
 
         mergeRequestRepository.updateByMergeRequestId(request);
 
@@ -183,8 +183,8 @@ public class AccountBindingAppService {
 
         request.setReviewStatus(ReviewStatus.REJECTED.getCode());
         request.setReviewer(reviewer);
-        request.setReviewTime(DateTimeUtil.now());
-        request.setModifyTime(DateTimeUtil.now());
+        request.setReviewTime(DateTimeUtil.getNowInstant());
+        request.setModifyTime(DateTimeUtil.getNowInstant());
 
         mergeRequestRepository.updateByMergeRequestId(request);
 
@@ -241,8 +241,8 @@ public class AccountBindingAppService {
 
         // 标记合并完成
         request.setFinalUserId(finalUserId);
-        request.setFinishTime(DateTimeUtil.now());
-        request.setModifyTime(DateTimeUtil.now());
+        request.setFinishTime(DateTimeUtil.getNowInstant());
+        request.setModifyTime(DateTimeUtil.getNowInstant());
         mergeRequestRepository.updateByMergeRequestId(request);
 
         logAudit(finalUserId, AuditEventType.MERGE_COMPLETE, true);
@@ -257,7 +257,7 @@ public class AccountBindingAppService {
                 .eventType(eventType.getCategory())
                 .eventName(eventType.getDescription())
                 .success(success)
-                .eventTime(DateTimeUtil.now())
+                .eventTime(DateTimeUtil.getNowInstant())
                 .build());
     }
 }

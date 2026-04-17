@@ -2,14 +2,14 @@ package net.hwyz.iov.cloud.sec.ciam.domain.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.hwyz.iov.cloud.sec.ciam.common.util.DateTimeUtil;
+import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
 import net.hwyz.iov.cloud.sec.ciam.domain.enums.DecisionResult;
 import net.hwyz.iov.cloud.sec.ciam.domain.enums.RiskLevel;
 import net.hwyz.iov.cloud.sec.ciam.domain.repository.CiamRiskEventRepository;
 import net.hwyz.iov.cloud.sec.ciam.infrastructure.repository.dao.dataobject.CiamRiskEventDo;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -61,7 +61,7 @@ public class RiskAssessmentService {
         }
 
         String riskEventId = UUID.randomUUID().toString();
-        LocalDateTime now = DateTimeUtil.now();
+        Instant now = DateTimeUtil.getNowInstant();
 
         CiamRiskEventDo event = new CiamRiskEventDo();
         event.setRiskEventId(riskEventId);

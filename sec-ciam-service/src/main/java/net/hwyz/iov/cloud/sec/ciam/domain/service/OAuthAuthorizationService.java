@@ -5,7 +5,7 @@ import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
 import net.hwyz.iov.cloud.sec.ciam.common.exception.CiamErrorCode;
 import net.hwyz.iov.cloud.sec.ciam.common.security.PasswordEncoder;
 import net.hwyz.iov.cloud.sec.ciam.common.security.TokenDigest;
-import net.hwyz.iov.cloud.sec.ciam.common.util.DateTimeUtil;
+import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
 import net.hwyz.iov.cloud.sec.ciam.domain.repository.CiamAuthCodeRepository;
 import net.hwyz.iov.cloud.sec.ciam.domain.repository.CiamOAuthClientRepository;
 import net.hwyz.iov.cloud.sec.ciam.infrastructure.repository.dao.dataobject.CiamAuthCodeDo;
@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.Base64;
 import java.util.UUID;
 
@@ -77,7 +77,7 @@ public class OAuthAuthorizationService {
         String rawCode = generateCode();
         String codeHash = TokenDigest.fingerprint(rawCode);
 
-        LocalDateTime now = DateTimeUtil.now();
+        Instant now = DateTimeUtil.getNowInstant();
         CiamAuthCodeDo entity = new CiamAuthCodeDo();
         entity.setAuthCodeId(UUID.randomUUID().toString());
         entity.setClientId(clientId);
@@ -88,7 +88,7 @@ public class OAuthAuthorizationService {
         entity.setScope(scope);
         entity.setCodeChallenge(codeChallenge);
         entity.setChallengeMethod(challengeMethod);
-        entity.setExpireTime(now.plusMinutes(CODE_TTL_MINUTES));
+        entity.setExpireTime(now.plusSeconds(CODE_TTL_MINUTES * 60L));
         entity.setUsedFlag(0);
         entity.setRowVersion(1);
         entity.setRowValid(1);
@@ -120,7 +120,7 @@ public class OAuthAuthorizationService {
                 .orElseThrow(() -> new BusinessException(CiamErrorCode.AUTH_CODE_INVALID));
 
         // 校验未过期
-        if (authCode.getExpireTime().isBefore(DateTimeUtil.now())) {
+        if (authCode.getExpireTime().isBefore(DateTimeUtil.getNowInstant())) {
             throw new BusinessException(CiamErrorCode.AUTH_CODE_EXPIRED);
         }
 
@@ -247,8 +247,8 @@ public class OAuthAuthorizationService {
 
     private void markCodeAsUsed(CiamAuthCodeDo authCode) {
         authCode.setUsedFlag(1);
-        authCode.setUsedTime(DateTimeUtil.now());
-        authCode.setModifyTime(DateTimeUtil.now());
+        authCode.setUsedTime(DateTimeUtil.getNowInstant());
+        authCode.setModifyTime(DateTimeUtil.getNowInstant());
         authCodeRepository.updateByAuthCodeId(authCode);
     }
 
