@@ -75,11 +75,11 @@ public class AuthenticationAppService {
      *
      * @param mobile      手机号
      * @param countryCode 国家区号
-     * @param clientId    客户端标识
+     * @param deviceId    设备标识
      */
-    public void sendMobileVerificationCode(String mobile, String countryCode, String clientId) {
+    public void sendMobileVerificationCode(String mobile, String countryCode, String deviceId) {
         String userKey = FieldEncryptor.hash(mobile);
-        verificationCodeService.sendSmsCode(mobile, countryCode, userKey, clientId);
+        verificationCodeService.sendSmsCode(mobile, countryCode, userKey, deviceId);
     }
 
     /**

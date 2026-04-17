@@ -57,12 +57,12 @@ public class VerificationCodeService {
      * @param mobile      手机号
      * @param countryCode 国家区号
      * @param userId      用户标识（可为手机号哈希，用于频控）
-     * @param clientId    客户端标识
+     * @param deviceId    设备标识
      */
-    public void sendSmsCode(String mobile, String countryCode, String userId, String clientId) {
-        checkRateLimit(userId, clientId, VerificationCodeType.SMS);
+    public void sendSmsCode(String mobile, String countryCode, String userId, String deviceId) {
+        checkRateLimit(userId, deviceId, VerificationCodeType.SMS);
         String code = generateCode();
-        String codeKey = buildCodeKey(userId, clientId, VerificationCodeType.SMS);
+        String codeKey = buildCodeKey(userId, deviceId, VerificationCodeType.SMS);
         codeStore.saveCode(codeKey, code, VerificationCodeType.SMS.getTtlSeconds());
 
         AdapterResult result = smsAdapter.sendVerificationCode(mobile, countryCode, code);

@@ -26,9 +26,9 @@ public class MobileAuthController {
 
     @PostMapping("/sms/send")
     public ApiResponse<Void> sendMobileCode(
-            @RequestHeader("X-Client-Id") String clientId,
+            @RequestHeader(CustomHeaders.DEVICE_ID) String deviceId,
             @RequestBody @Valid SendMobileCodeRequest req) {
-        authenticationAppService.sendMobileVerificationCode(req.getMobile(), req.getCountryCode(), clientId);
+        authenticationAppService.sendMobileVerificationCode(req.getMobile(), req.getCountryCode(), deviceId);
         return ApiResponse.ok();
     }
 
