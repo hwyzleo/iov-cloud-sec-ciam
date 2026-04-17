@@ -2,7 +2,10 @@ package net.hwyz.iov.cloud.sec.ciam.common.audit;
 
 import org.junit.jupiter.api.Test;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -10,7 +13,7 @@ class AuditEventTest {
 
     @Test
     void builder_setsAllFields() {
-        LocalDateTime now = LocalDateTime.of(2024, 6, 1, 12, 0, 0);
+        Instant now = ZonedDateTime.of(2024, 6, 1, 12, 0, 0, 0, ZoneId.systemDefault()).toInstant();
         AuditEvent event = AuditEvent.builder()
                 .userId("user-001")
                 .sessionId("session-001")

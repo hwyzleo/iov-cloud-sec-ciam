@@ -26,7 +26,10 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -108,7 +111,7 @@ class OAuthOidcProtocolComplianceTest {
             a.setCodeChallenge(codeChallenge);
             a.setChallengeMethod(codeChallenge != null ? "S256" : null);
             a.setCodeHash(codeHash);
-            a.setExpireTime(LocalDateTime.now().plusMinutes(10));
+            a.setExpireTime(Instant.now().plusSeconds(10 * 60));
             a.setUsedFlag(0);
             return a;
         }

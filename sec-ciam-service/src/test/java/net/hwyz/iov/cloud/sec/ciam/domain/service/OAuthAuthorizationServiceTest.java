@@ -14,7 +14,10 @@ import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Base64;
 import java.util.Optional;
 
@@ -73,7 +76,7 @@ class OAuthAuthorizationServiceTest {
 
     private CiamAuthCodeDo stubAuthCode(String rawCode, String clientId, String redirectUri,
                                         String codeChallenge, String challengeMethod,
-                                        LocalDateTime expireTime, int usedFlag) {
+                                        Instant expireTime, int usedFlag) {
         CiamAuthCodeDo authCode = new CiamAuthCodeDo();
         authCode.setAuthCodeId("ac-001");
         authCode.setClientId(clientId);
@@ -204,7 +207,7 @@ class OAuthAuthorizationServiceTest {
         @Test
         void exchangeCode_successfully() {
             CiamAuthCodeDo authCode = stubAuthCode(RAW_CODE, CLIENT_ID, REDIRECT_URI,
-                    null, null, LocalDateTime.now().plusMinutes(5), 0);
+                    null, null, Instant.now().plusSeconds(5 * 60), 0);
             when(authCodeRepository.findByCodeHash(TokenDigest.fingerprint(RAW_CODE)))
                     .thenReturn(Optional.of(authCode));
             when(clientRepository.findByClientId(CLIENT_ID))
@@ -230,7 +233,7 @@ class OAuthAuthorizationServiceTest {
             String codeChallenge = computeS256Challenge(codeVerifier);
 
             CiamAuthCodeDo authCode = stubAuthCode(RAW_CODE, CLIENT_ID, REDIRECT_URI,
-                    codeChallenge, "S256", LocalDateTime.now().plusMinutes(5), 0);
+                    codeChallenge, "S256", Instant.now().plusSeconds(5 * 60), 0);
             when(authCodeRepository.findByCodeHash(TokenDigest.fingerprint(RAW_CODE)))
                     .thenReturn(Optional.of(authCode));
             when(clientRepository.findByClientId(CLIENT_ID))
@@ -246,7 +249,7 @@ class OAuthAuthorizationServiceTest {
         @Test
         void exchangeCode_failsWhenExpired() {
             CiamAuthCodeDo authCode = stubAuthCode(RAW_CODE, CLIENT_ID, REDIRECT_URI,
-                    null, null, LocalDateTime.now().minusMinutes(1), 0);
+                    null, null, Instant.now().minusSeconds(1 * 60), 0);
             when(authCodeRepository.findByCodeHash(TokenDigest.fingerprint(RAW_CODE)))
                     .thenReturn(Optional.of(authCode));
 
@@ -258,7 +261,7 @@ class OAuthAuthorizationServiceTest {
         @Test
         void exchangeCode_failsWhenAlreadyUsed() {
             CiamAuthCodeDo authCode = stubAuthCode(RAW_CODE, CLIENT_ID, REDIRECT_URI,
-                    null, null, LocalDateTime.now().plusMinutes(5), 1);
+                    null, null, Instant.now().plusSeconds(5 * 60), 1);
             when(authCodeRepository.findByCodeHash(TokenDigest.fingerprint(RAW_CODE)))
                     .thenReturn(Optional.of(authCode));
 
@@ -270,7 +273,7 @@ class OAuthAuthorizationServiceTest {
         @Test
         void exchangeCode_failsWhenWrongRedirectUri() {
             CiamAuthCodeDo authCode = stubAuthCode(RAW_CODE, CLIENT_ID, REDIRECT_URI,
-                    null, null, LocalDateTime.now().plusMinutes(5), 0);
+                    null, null, Instant.now().plusSeconds(5 * 60), 0);
             when(authCodeRepository.findByCodeHash(TokenDigest.fingerprint(RAW_CODE)))
                     .thenReturn(Optional.of(authCode));
 
@@ -282,7 +285,7 @@ class OAuthAuthorizationServiceTest {
         @Test
         void exchangeCode_failsWhenWrongClientId() {
             CiamAuthCodeDo authCode = stubAuthCode(RAW_CODE, CLIENT_ID, REDIRECT_URI,
-                    null, null, LocalDateTime.now().plusMinutes(5), 0);
+                    null, null, Instant.now().plusSeconds(5 * 60), 0);
             when(authCodeRepository.findByCodeHash(TokenDigest.fingerprint(RAW_CODE)))
                     .thenReturn(Optional.of(authCode));
 
@@ -297,7 +300,7 @@ class OAuthAuthorizationServiceTest {
             String codeChallenge = computeS256Challenge(codeVerifier);
 
             CiamAuthCodeDo authCode = stubAuthCode(RAW_CODE, CLIENT_ID, REDIRECT_URI,
-                    codeChallenge, "S256", LocalDateTime.now().plusMinutes(5), 0);
+                    codeChallenge, "S256", Instant.now().plusSeconds(5 * 60), 0);
             when(authCodeRepository.findByCodeHash(TokenDigest.fingerprint(RAW_CODE)))
                     .thenReturn(Optional.of(authCode));
 
@@ -318,7 +321,7 @@ class OAuthAuthorizationServiceTest {
         @Test
         void exchangeCode_confidentialClient_failsWithWrongSecret() {
             CiamAuthCodeDo authCode = stubAuthCode(RAW_CODE, CLIENT_ID, REDIRECT_URI,
-                    null, null, LocalDateTime.now().plusMinutes(5), 0);
+                    null, null, Instant.now().plusSeconds(5 * 60), 0);
             when(authCodeRepository.findByCodeHash(TokenDigest.fingerprint(RAW_CODE)))
                     .thenReturn(Optional.of(authCode));
             when(clientRepository.findByClientId(CLIENT_ID))

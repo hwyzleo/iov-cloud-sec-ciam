@@ -2,7 +2,10 @@ package net.hwyz.iov.cloud.sec.ciam.common.audit;
 
 import org.junit.jupiter.api.Test;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -25,7 +28,7 @@ class Slf4jAuditLoggerTest {
                 .requestUri("/api/v1/auth/login")
                 .requestMethod("POST")
                 .responseCode("000000")
-                .eventTime(LocalDateTime.of(2024, 6, 1, 12, 0, 0))
+                .eventTime(ZonedDateTime.of(2024, 6, 1, 12, 0, 0, 0, ZoneId.systemDefault()).toInstant())
                 .build();
 
         assertDoesNotThrow(() -> auditLogger.log(event));

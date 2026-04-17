@@ -7,7 +7,10 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -253,7 +256,7 @@ class SecurityEventLoggerTest {
 
         @Test
         void mapsAllFieldsCorrectly() {
-            LocalDateTime eventTime = LocalDateTime.of(2024, 6, 1, 12, 0, 0);
+            Instant eventTime = ZonedDateTime.of(2024, 6, 1, 12, 0, 0, 0, ZoneId.systemDefault()).toInstant();
             SecurityEvent event = SecurityEvent.builder()
                     .eventType("MFA_TRIGGER")
                     .userId("user-100")
@@ -329,7 +332,7 @@ class SecurityEventLoggerTest {
                 .regionCode("CN")
                 .decisionResult("challenge")
                 .hitRules("new_device")
-                .eventTime(LocalDateTime.of(2024, 6, 1, 12, 0, 0))
+                .eventTime(ZonedDateTime.of(2024, 6, 1, 12, 0, 0, 0, ZoneId.systemDefault()).toInstant())
                 .traceId("trace-001")
                 .detail("新设备登录触发MFA")
                 .build();

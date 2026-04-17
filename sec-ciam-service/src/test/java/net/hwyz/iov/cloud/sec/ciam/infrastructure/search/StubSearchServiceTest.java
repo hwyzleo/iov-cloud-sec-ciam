@@ -7,7 +7,10 @@ import net.hwyz.iov.cloud.sec.ciam.infrastructure.search.document.UserSearchDocu
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -33,8 +36,8 @@ class StubSearchServiceTest {
 
     @Test
     void searchAuditLogs_returnsEmptyResult() {
-        LocalDateTime start = LocalDateTime.of(2026, 1, 1, 0, 0);
-        LocalDateTime end = LocalDateTime.of(2026, 12, 31, 23, 59);
+        LocalDateTime start = LocalDateTime.of(2026, 1, 1, 0, 0, 0);
+        LocalDateTime end = LocalDateTime.of(2026, 12, 31, 23, 59, 0);
 
         SearchResult<AuditLogSearchDocument> result =
                 searchService.searchAuditLogs("U001", "LOGIN", start, end, 1, 20);
@@ -58,8 +61,8 @@ class StubSearchServiceTest {
 
     @Test
     void searchRiskEvents_returnsEmptyResult() {
-        LocalDateTime start = LocalDateTime.of(2026, 3, 1, 0, 0);
-        LocalDateTime end = LocalDateTime.of(2026, 3, 31, 23, 59);
+        LocalDateTime start = LocalDateTime.of(2026, 3, 1, 0, 0, 0);
+        LocalDateTime end = LocalDateTime.of(2026, 3, 31, 23, 59, 0);
 
         SearchResult<RiskEventSearchDocument> result =
                 searchService.searchRiskEvents("U001", 2, start, end, 0, 50);

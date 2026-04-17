@@ -2,7 +2,11 @@ package net.hwyz.iov.cloud.sec.ciam.infrastructure.search.document;
 
 import org.junit.jupiter.api.Test;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -10,7 +14,7 @@ class SearchDocumentTest {
 
     @Test
     void userSearchDocument_builderSetsAllFields() {
-        LocalDateTime now = LocalDateTime.of(2026, 3, 30, 12, 0);
+        OffsetDateTime now = ZonedDateTime.of(2026, 3, 30, 12, 0, 0, 0, ZoneId.systemDefault()).toOffsetDateTime();
         UserSearchDocument doc = UserSearchDocument.builder()
                 .userId("U001")
                 .userStatus(1)
@@ -30,7 +34,7 @@ class SearchDocumentTest {
 
     @Test
     void auditLogSearchDocument_builderSetsAllFields() {
-        LocalDateTime eventTime = LocalDateTime.of(2026, 3, 30, 14, 30);
+        OffsetDateTime eventTime = ZonedDateTime.of(2026, 3, 30, 14, 30, 0, 0, ZoneId.systemDefault()).toOffsetDateTime();
         AuditLogSearchDocument doc = AuditLogSearchDocument.builder()
                 .auditId("AUD001")
                 .userId("U001")
@@ -52,7 +56,7 @@ class SearchDocumentTest {
 
     @Test
     void riskEventSearchDocument_builderSetsAllFields() {
-        LocalDateTime eventTime = LocalDateTime.of(2026, 3, 30, 15, 0);
+        OffsetDateTime eventTime = ZonedDateTime.of(2026, 3, 30, 15, 0, 0, 0, ZoneId.systemDefault()).toOffsetDateTime();
         RiskEventSearchDocument doc = RiskEventSearchDocument.builder()
                 .riskEventId("RISK001")
                 .userId("U001")

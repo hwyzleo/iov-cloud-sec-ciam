@@ -70,7 +70,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -691,7 +694,7 @@ class CoreAuthenticationLoopVerificationTest {
             challenge.setChallengeId("ch-001");
             challenge.setUserId("U005");
             challenge.setChallengeStatus(ChallengeStatus.PENDING.getCode());
-            challenge.setExpireTime(LocalDateTime.now().plusMinutes(5));
+            challenge.setExpireTime(Instant.now().plusSeconds(5 * 60));
             challenge.setVerifyCodeHash(
                     net.hwyz.iov.cloud.sec.ciam.common.security.TokenDigest.fingerprint(correctCode));
             when(mfaChallengeRepository.findByChallengeId("ch-001")).thenReturn(Optional.of(challenge));
@@ -711,7 +714,7 @@ class CoreAuthenticationLoopVerificationTest {
             challenge.setChallengeId("ch-002");
             challenge.setUserId("U005");
             challenge.setChallengeStatus(ChallengeStatus.PENDING.getCode());
-            challenge.setExpireTime(LocalDateTime.now().plusMinutes(5));
+            challenge.setExpireTime(Instant.now().plusSeconds(5 * 60));
             challenge.setVerifyCodeHash(
                     net.hwyz.iov.cloud.sec.ciam.common.security.TokenDigest.fingerprint("654321"));
             when(mfaChallengeRepository.findByChallengeId("ch-002")).thenReturn(Optional.of(challenge));

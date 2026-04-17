@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 /**
  * 审计日志检索索引文档。
@@ -37,5 +38,5 @@ public class AuditLogSearchDocument {
     private String ipAddress;
 
     /** 事件时间 */
-    private LocalDateTime eventTime;
+    private OffsetDateTime eventTime;
 }

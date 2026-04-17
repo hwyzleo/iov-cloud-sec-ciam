@@ -11,7 +11,10 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -37,7 +40,7 @@ class RefreshTokenDomainServiceTest {
         service = new RefreshTokenDomainService(refreshTokenRepository);
     }
 
-    private CiamRefreshTokenDo stubToken(String rawToken, TokenStatus status, LocalDateTime expireTime) {
+    private CiamRefreshTokenDo stubToken(String rawToken, TokenStatus status, Instant expireTime) {
         CiamRefreshTokenDo token = new CiamRefreshTokenDo();
         token.setRefreshTokenId("rt-" + System.nanoTime());
         token.setUserId(USER_ID);
@@ -45,7 +48,7 @@ class RefreshTokenDomainServiceTest {
         token.setClientId(CLIENT_ID);
         token.setTokenFingerprint(TokenDigest.fingerprint(rawToken));
         token.setTokenStatus(status.getCode());
-        token.setIssueTime(LocalDateTime.now().minusDays(1));
+        token.setIssueTime(Instant.now().minusSeconds(1L * 86400));
         token.setExpireTime(expireTime);
         token.setRowValid(1);
         token.setRowVersion(1);
@@ -103,7 +106,7 @@ class RefreshTokenDomainServiceTest {
         void rotate_returnsNewTokenAndUserInfo() {
             String oldRawToken = "old-raw-token-value";
             CiamRefreshTokenDo existing = stubToken(oldRawToken, TokenStatus.ACTIVE,
-                    LocalDateTime.now().plusDays(29));
+                    Instant.now().plusSeconds(29L * 86400));
             when(refreshTokenRepository.findByTokenFingerprint(TokenDigest.fingerprint(oldRawToken)))
                     .thenReturn(Optional.of(existing));
 
@@ -119,7 +122,7 @@ class RefreshTokenDomainServiceTest {
         void rotate_marksOldTokenAsRotated() {
             String oldRawToken = "old-raw-token-value";
             CiamRefreshTokenDo existing = stubToken(oldRawToken, TokenStatus.ACTIVE,
-                    LocalDateTime.now().plusDays(29));
+                    Instant.now().plusSeconds(29L * 86400));
             when(refreshTokenRepository.findByTokenFingerprint(TokenDigest.fingerprint(oldRawToken)))
                     .thenReturn(Optional.of(existing));
 
@@ -134,7 +137,7 @@ class RefreshTokenDomainServiceTest {
         void rotate_insertsNewTokenWithParentLink() {
             String oldRawToken = "old-raw-token-value";
             CiamRefreshTokenDo existing = stubToken(oldRawToken, TokenStatus.ACTIVE,
-                    LocalDateTime.now().plusDays(29));
+                    Instant.now().plusSeconds(29L * 86400));
             String oldTokenId = existing.getRefreshTokenId();
             when(refreshTokenRepository.findByTokenFingerprint(TokenDigest.fingerprint(oldRawToken)))
                     .thenReturn(Optional.of(existing));
@@ -167,7 +170,7 @@ class RefreshTokenDomainServiceTest {
         void rotate_throwsWhenTokenExpired() {
             String oldRawToken = "expired-token";
             CiamRefreshTokenDo existing = stubToken(oldRawToken, TokenStatus.ACTIVE,
-                    LocalDateTime.now().minusHours(1));
+                    Instant.now().minusSeconds(1 * 3600));
             when(refreshTokenRepository.findByTokenFingerprint(TokenDigest.fingerprint(oldRawToken)))
                     .thenReturn(Optional.of(existing));
 
@@ -181,7 +184,7 @@ class RefreshTokenDomainServiceTest {
         void rotate_throwsAndRevokesSessionOnReplay() {
             String oldRawToken = "already-rotated-token";
             CiamRefreshTokenDo existing = stubToken(oldRawToken, TokenStatus.ROTATED,
-                    LocalDateTime.now().plusDays(29));
+                    Instant.now().plusSeconds(29L * 86400));
             when(refreshTokenRepository.findByTokenFingerprint(TokenDigest.fingerprint(oldRawToken)))
                     .thenReturn(Optional.of(existing));
             when(refreshTokenRepository.revokeAllBySessionId(SESSION_ID)).thenReturn(3);
@@ -199,7 +202,7 @@ class RefreshTokenDomainServiceTest {
         void rotate_throwsWhenTokenRevoked() {
             String oldRawToken = "revoked-token";
             CiamRefreshTokenDo existing = stubToken(oldRawToken, TokenStatus.REVOKED,
-                    LocalDateTime.now().plusDays(29));
+                    Instant.now().plusSeconds(29L * 86400));
             when(refreshTokenRepository.findByTokenFingerprint(TokenDigest.fingerprint(oldRawToken)))
                     .thenReturn(Optional.of(existing));
 
@@ -218,7 +221,7 @@ class RefreshTokenDomainServiceTest {
         void revoke_setsTokenToRevokedStatus() {
             String rawToken = "active-token";
             CiamRefreshTokenDo existing = stubToken(rawToken, TokenStatus.ACTIVE,
-                    LocalDateTime.now().plusDays(29));
+                    Instant.now().plusSeconds(29L * 86400));
             when(refreshTokenRepository.findByTokenFingerprint(TokenDigest.fingerprint(rawToken)))
                     .thenReturn(Optional.of(existing));
 
@@ -243,7 +246,7 @@ class RefreshTokenDomainServiceTest {
         void revoke_skipsWhenAlreadyRevoked() {
             String rawToken = "already-revoked";
             CiamRefreshTokenDo existing = stubToken(rawToken, TokenStatus.REVOKED,
-                    LocalDateTime.now().plusDays(29));
+                    Instant.now().plusSeconds(29L * 86400));
             when(refreshTokenRepository.findByTokenFingerprint(TokenDigest.fingerprint(rawToken)))
                     .thenReturn(Optional.of(existing));
 

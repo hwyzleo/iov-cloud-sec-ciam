@@ -7,7 +7,10 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -119,7 +122,7 @@ class PersistentAuditLoggerTest {
 
         @Test
         void mapsAllFieldsCorrectly() {
-            LocalDateTime eventTime = LocalDateTime.of(2024, 6, 1, 12, 0, 0);
+            Instant eventTime = ZonedDateTime.of(2024, 6, 1, 12, 0, 0, 0, ZoneId.systemDefault()).toInstant();
             AuditEvent event = AuditEvent.builder()
                     .userId("user-002")
                     .sessionId("session-002")
@@ -195,7 +198,7 @@ class PersistentAuditLoggerTest {
                 .ip("10.0.0.1")
                 .traceId("trace-abc")
                 .requestSnapshot("{\"phone\":\"138****1234\"}")
-                .eventTime(LocalDateTime.of(2024, 6, 1, 12, 0, 0))
+                .eventTime(ZonedDateTime.of(2024, 6, 1, 12, 0, 0, 0, ZoneId.systemDefault()).toInstant())
                 .build();
     }
 }

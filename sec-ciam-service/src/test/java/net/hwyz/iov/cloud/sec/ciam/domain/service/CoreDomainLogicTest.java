@@ -26,7 +26,10 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -408,7 +411,7 @@ class CoreDomainLogicTest {
         }
 
         private CiamRefreshTokenDo stubToken(String rawToken, TokenStatus status,
-                                              LocalDateTime expireTime, String clientId) {
+                                              Instant expireTime, String clientId) {
             CiamRefreshTokenDo token = new CiamRefreshTokenDo();
             token.setRefreshTokenId("rt-" + System.nanoTime());
             token.setUserId("user-001");
@@ -416,7 +419,7 @@ class CoreDomainLogicTest {
             token.setClientId(clientId);
             token.setTokenFingerprint(TokenDigest.fingerprint(rawToken));
             token.setTokenStatus(status.getCode());
-            token.setIssueTime(LocalDateTime.now().minusDays(1));
+            token.setIssueTime(Instant.now().minusSeconds(1L * 86400));
             token.setExpireTime(expireTime);
             token.setRowValid(1);
             token.setRowVersion(1);
@@ -428,7 +431,7 @@ class CoreDomainLogicTest {
         void rotate_rejectsClientMismatch() {
             String rawToken = "client-mismatch-token";
             CiamRefreshTokenDo existing = stubToken(rawToken, TokenStatus.ACTIVE,
-                    LocalDateTime.now().plusDays(29), "client-A");
+                    Instant.now().plusSeconds(29L * 86400), "client-A");
             when(refreshTokenRepository.findByTokenFingerprint(TokenDigest.fingerprint(rawToken)))
                     .thenReturn(Optional.of(existing));
 
@@ -442,7 +445,7 @@ class CoreDomainLogicTest {
         void rotate_newTokenLinksToOldToken() {
             String rawToken = "linkage-test-token";
             CiamRefreshTokenDo existing = stubToken(rawToken, TokenStatus.ACTIVE,
-                    LocalDateTime.now().plusDays(29), "client-app");
+                    Instant.now().plusSeconds(29L * 86400), "client-app");
             String oldTokenId = existing.getRefreshTokenId();
             when(refreshTokenRepository.findByTokenFingerprint(TokenDigest.fingerprint(rawToken)))
                     .thenReturn(Optional.of(existing));
@@ -472,7 +475,7 @@ class CoreDomainLogicTest {
         void rotate_expiredToken_noNewTokenIssued() {
             String rawToken = "expired-no-issue";
             CiamRefreshTokenDo existing = stubToken(rawToken, TokenStatus.ACTIVE,
-                    LocalDateTime.now().minusHours(1), "client-app");
+                    Instant.now().minusSeconds(1 * 3600), "client-app");
             when(refreshTokenRepository.findByTokenFingerprint(TokenDigest.fingerprint(rawToken)))
                     .thenReturn(Optional.of(existing));
 
@@ -487,7 +490,7 @@ class CoreDomainLogicTest {
         void revoke_alreadyRevoked_isIdempotent() {
             String rawToken = "already-revoked-token";
             CiamRefreshTokenDo existing = stubToken(rawToken, TokenStatus.REVOKED,
-                    LocalDateTime.now().plusDays(29), "client-app");
+                    Instant.now().plusSeconds(29L * 86400), "client-app");
             when(refreshTokenRepository.findByTokenFingerprint(TokenDigest.fingerprint(rawToken)))
                     .thenReturn(Optional.of(existing));
 
@@ -501,7 +504,7 @@ class CoreDomainLogicTest {
         void rotate_nullClientIdOnToken_skipsClientCheck() {
             String rawToken = "null-client-token";
             CiamRefreshTokenDo existing = stubToken(rawToken, TokenStatus.ACTIVE,
-                    LocalDateTime.now().plusDays(29), null);
+                    Instant.now().plusSeconds(29L * 86400), null);
             when(refreshTokenRepository.findByTokenFingerprint(TokenDigest.fingerprint(rawToken)))
                     .thenReturn(Optional.of(existing));
 
@@ -718,7 +721,7 @@ class CoreDomainLogicTest {
         @DisplayName("锁定期间即使密码正确也拒绝登录")
         void verifyPassword_lockedPeriod_rejectsCorrectPassword() {
             CiamUserCredentialDo cred = stubCred("user-001", "Correct1!", 5);
-            cred.setLockedUntil(LocalDateTime.now().plusMinutes(29));
+            cred.setLockedUntil(Instant.now().plusSeconds(29 * 60));
             when(credentialRepository.findByUserIdAndType(eq("user-001"), eq("email_password")))
                     .thenReturn(Optional.of(cred));
 
@@ -731,7 +734,7 @@ class CoreDomainLogicTest {
         @DisplayName("锁定过期后可以正常登录并重置计数")
         void verifyPassword_lockExpired_allowsLogin() {
             CiamUserCredentialDo cred = stubCred("user-001", "Correct1!", 5);
-            cred.setLockedUntil(LocalDateTime.now().minusMinutes(1));
+            cred.setLockedUntil(Instant.now().minusSeconds(1 * 60));
             when(credentialRepository.findByUserIdAndType(eq("user-001"), eq("email_password")))
                     .thenReturn(Optional.of(cred));
 
@@ -746,7 +749,7 @@ class CoreDomainLogicTest {
         @DisplayName("重置密码清除锁定状态和失败计数")
         void resetPassword_clearsLockAndFailCount() {
             CiamUserCredentialDo cred = stubCred("user-001", "OldPass1!", 5);
-            cred.setLockedUntil(LocalDateTime.now().plusMinutes(30));
+            cred.setLockedUntil(Instant.now().plusSeconds(30 * 60));
             when(credentialRepository.findByUserIdAndType(eq("user-001"), eq("email_password")))
                     .thenReturn(Optional.of(cred));
 

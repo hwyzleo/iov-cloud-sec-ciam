@@ -4,7 +4,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -18,8 +21,8 @@ class StatisticsAppServiceTest {
 
     private StatisticsAppService service;
 
-    private static final LocalDateTime START = LocalDateTime.of(2026, 1, 1, 0, 0);
-    private static final LocalDateTime END = LocalDateTime.of(2026, 12, 31, 23, 59);
+    private static final LocalDateTime START = LocalDateTime.of(2026, 1, 1, 0, 0, 0);
+    private static final LocalDateTime END = LocalDateTime.of(2026, 12, 31, 23, 59, 0);
 
     @BeforeEach
     void setUp() {

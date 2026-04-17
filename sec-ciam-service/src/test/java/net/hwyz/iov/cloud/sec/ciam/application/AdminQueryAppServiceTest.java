@@ -24,7 +24,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -268,8 +271,8 @@ class AdminQueryAppServiceTest {
 
         @Test
         void delegatesToSearchService() {
-            LocalDateTime start = LocalDateTime.of(2026, 1, 1, 0, 0);
-            LocalDateTime end = LocalDateTime.of(2026, 12, 31, 23, 59);
+            LocalDateTime start = LocalDateTime.of(2026, 1, 1, 0, 0, 0);
+            LocalDateTime end = LocalDateTime.of(2026, 12, 31, 23, 59, 0);
             SearchResult<AuditLogSearchDocument> expected = SearchResult.<AuditLogSearchDocument>builder()
                     .items(List.of(AuditLogSearchDocument.builder().auditId("a-001").userId(USER_ID).build()))
                     .total(1).page(0).size(20).build();
@@ -303,8 +306,8 @@ class AdminQueryAppServiceTest {
 
         @Test
         void delegatesToSearchService() {
-            LocalDateTime start = LocalDateTime.of(2026, 3, 1, 0, 0);
-            LocalDateTime end = LocalDateTime.of(2026, 3, 31, 23, 59);
+            LocalDateTime start = LocalDateTime.of(2026, 3, 1, 0, 0, 0);
+            LocalDateTime end = LocalDateTime.of(2026, 3, 31, 23, 59, 0);
             SearchResult<RiskEventSearchDocument> expected = SearchResult.<RiskEventSearchDocument>builder()
                     .items(List.of(RiskEventSearchDocument.builder().riskEventId("r-001").userId(USER_ID).build()))
                     .total(1).page(0).size(20).build();

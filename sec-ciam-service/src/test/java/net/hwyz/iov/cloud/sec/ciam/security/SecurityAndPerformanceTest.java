@@ -33,7 +33,10 @@ import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -55,9 +58,12 @@ class SecurityAndPerformanceTest {
     @Nested
     @DisplayName("验证码防刷")
     class VerificationCodeAntiAbuseTests {
-        @Mock private VerificationCodeStore codeStore;
-        @Mock private SmsAdapter smsAdapter;
-        @Mock private EmailAdapter emailAdapter;
+        @Mock
+        private VerificationCodeStore codeStore;
+        @Mock
+        private SmsAdapter smsAdapter;
+        @Mock
+        private EmailAdapter emailAdapter;
         private VerificationCodeService verificationCodeService;
 
         @BeforeEach
@@ -116,9 +122,12 @@ class SecurityAndPerformanceTest {
     @Nested
     @DisplayName("密码暴力尝试防护")
     class PasswordBruteForceTests {
-        @Mock private CiamUserCredentialRepository credentialRepository;
-        @Mock private PasswordEncoder passwordEncoder;
-        @Mock private PasswordPolicyService passwordPolicyService;
+        @Mock
+        private CiamUserCredentialRepository credentialRepository;
+        @Mock
+        private PasswordEncoder passwordEncoder;
+        @Mock
+        private PasswordPolicyService passwordPolicyService;
         private CredentialDomainService credentialDomainService;
 
         @BeforeEach
@@ -126,13 +135,17 @@ class SecurityAndPerformanceTest {
             credentialDomainService = new CredentialDomainService(credentialRepository, passwordEncoder, passwordPolicyService);
         }
 
-        private CiamUserCredentialDo cred(String userId, int failCount, LocalDateTime lockedUntil) {
+        private CiamUserCredentialDo cred(String userId, int failCount, Instant lockedUntil) {
             CiamUserCredentialDo c = new CiamUserCredentialDo();
-            c.setCredentialId("cred-001"); c.setUserId(userId);
+            c.setCredentialId("cred-001");
+            c.setUserId(userId);
             c.setCredentialType(CredentialType.EMAIL_PASSWORD.getCode());
-            c.setCredentialHash("hashed"); c.setHashAlgorithm("BCrypt");
-            c.setFailCount(failCount); c.setLockedUntil(lockedUntil);
-            c.setCredentialStatus(CredentialStatus.VALID.getCode()); c.setRowValid(1);
+            c.setCredentialHash("hashed");
+            c.setHashAlgorithm("BCrypt");
+            c.setFailCount(failCount);
+            c.setLockedUntil(lockedUntil);
+            c.setCredentialStatus(CredentialStatus.VALID.getCode());
+            c.setRowValid(1);
             return c;
         }
 
@@ -144,7 +157,9 @@ class SecurityAndPerformanceTest {
                     .thenReturn(Optional.of(cred(uid, 1, null)));
             when(passwordEncoder.matches(anyString(), anyString())).thenReturn(false);
             PasswordVerifyResult r = credentialDomainService.verifyPassword(uid, "wrong");
-            assertFalse(r.isMatched()); assertFalse(r.isChallengeRequired()); assertFalse(r.isLocked());
+            assertFalse(r.isMatched());
+            assertFalse(r.isChallengeRequired());
+            assertFalse(r.isLocked());
             assertEquals(2, r.getFailCount());
         }
 
@@ -156,7 +171,9 @@ class SecurityAndPerformanceTest {
                     .thenReturn(Optional.of(cred(uid, 2, null)));
             when(passwordEncoder.matches(anyString(), anyString())).thenReturn(false);
             PasswordVerifyResult r = credentialDomainService.verifyPassword(uid, "wrong");
-            assertFalse(r.isMatched()); assertTrue(r.isChallengeRequired()); assertFalse(r.isLocked());
+            assertFalse(r.isMatched());
+            assertTrue(r.isChallengeRequired());
+            assertFalse(r.isLocked());
             assertEquals(CredentialDomainService.CHALLENGE_THRESHOLD, r.getFailCount());
         }
 
@@ -168,7 +185,8 @@ class SecurityAndPerformanceTest {
                     .thenReturn(Optional.of(cred(uid, 4, null)));
             when(passwordEncoder.matches(anyString(), anyString())).thenReturn(false);
             PasswordVerifyResult r = credentialDomainService.verifyPassword(uid, "wrong");
-            assertFalse(r.isMatched()); assertTrue(r.isLocked());
+            assertFalse(r.isMatched());
+            assertTrue(r.isLocked());
             assertEquals(CredentialDomainService.LOCK_THRESHOLD, r.getFailCount());
             verify(credentialRepository).updateByCredentialId(argThat(c -> c.getLockedUntil() != null));
         }
@@ -178,7 +196,7 @@ class SecurityAndPerformanceTest {
         void lockedAccountRejects() {
             String uid = "u-bf4";
             when(credentialRepository.findByUserIdAndType(uid, CredentialType.EMAIL_PASSWORD.getCode()))
-                    .thenReturn(Optional.of(cred(uid, 5, LocalDateTime.now().plusMinutes(25))));
+                    .thenReturn(Optional.of(cred(uid, 5, Instant.now().plusSeconds(25 * 60))));
             BusinessException ex = assertThrows(BusinessException.class, () -> credentialDomainService.verifyPassword(uid, "any"));
             assertEquals(CiamErrorCode.ACCOUNT_LOCKED, ex.getErrorCode());
             verify(passwordEncoder, never()).matches(anyString(), anyString());
@@ -192,7 +210,8 @@ class SecurityAndPerformanceTest {
                     .thenReturn(Optional.of(cred(uid, 3, null)));
             when(passwordEncoder.matches("ok", "hashed")).thenReturn(true);
             PasswordVerifyResult r = credentialDomainService.verifyPassword(uid, "ok");
-            assertTrue(r.isMatched()); assertEquals(0, r.getFailCount());
+            assertTrue(r.isMatched());
+            assertEquals(0, r.getFailCount());
             verify(credentialRepository).updateByCredentialId(argThat(c -> c.getFailCount() == 0 && c.getLockedUntil() == null));
         }
     }
@@ -207,7 +226,10 @@ class SecurityAndPerformanceTest {
         private RateLimitFilter filter;
 
         @BeforeEach
-        void setUp() { filter = new RateLimitFilter(); filter.clearCounters(); }
+        void setUp() {
+            filter = new RateLimitFilter();
+            filter.clearCounters();
+        }
 
         @Test
         @DisplayName("认证端点限流：同一IP超过10次/分钟被拒绝")
@@ -229,7 +251,8 @@ class SecurityAndPerformanceTest {
         @DisplayName("普通端点限流：同一IP超过60次/分钟被拒绝")
         void generalEndpoint_limit() {
             String key = "10.0.0.1:general";
-            for (int i = 0; i < RateLimitFilter.DEFAULT_LIMIT; i++) assertTrue(filter.tryAcquire(key, RateLimitFilter.DEFAULT_LIMIT));
+            for (int i = 0; i < RateLimitFilter.DEFAULT_LIMIT; i++)
+                assertTrue(filter.tryAcquire(key, RateLimitFilter.DEFAULT_LIMIT));
             assertFalse(filter.tryAcquire(key, RateLimitFilter.DEFAULT_LIMIT));
         }
 
@@ -237,7 +260,8 @@ class SecurityAndPerformanceTest {
         @DisplayName("不同IP不受彼此限流影响")
         void differentIPs_independent() {
             String k1 = "10.0.0.1:auth", k2 = "10.0.0.2:auth";
-            for (int i = 0; i < RateLimitFilter.AUTH_LIMIT; i++) assertTrue(filter.tryAcquire(k1, RateLimitFilter.AUTH_LIMIT));
+            for (int i = 0; i < RateLimitFilter.AUTH_LIMIT; i++)
+                assertTrue(filter.tryAcquire(k1, RateLimitFilter.AUTH_LIMIT));
             assertFalse(filter.tryAcquire(k1, RateLimitFilter.AUTH_LIMIT));
             assertTrue(filter.tryAcquire(k2, RateLimitFilter.AUTH_LIMIT));
         }
@@ -257,9 +281,12 @@ class SecurityAndPerformanceTest {
     @Nested
     @DisplayName("生效中的锁定策略")
     class ActiveLockoutPolicyTests {
-        @Mock private CiamUserCredentialRepository credentialRepository;
-        @Mock private PasswordEncoder passwordEncoder;
-        @Mock private PasswordPolicyService passwordPolicyService;
+        @Mock
+        private CiamUserCredentialRepository credentialRepository;
+        @Mock
+        private PasswordEncoder passwordEncoder;
+        @Mock
+        private PasswordPolicyService passwordPolicyService;
         private CredentialDomainService credentialDomainService;
 
         @BeforeEach
@@ -267,31 +294,44 @@ class SecurityAndPerformanceTest {
             credentialDomainService = new CredentialDomainService(credentialRepository, passwordEncoder, passwordPolicyService);
         }
 
-        private CiamUserCredentialDo cred(String userId, int failCount, LocalDateTime lockedUntil) {
+        private CiamUserCredentialDo cred(String userId, int failCount, Instant lockedUntil) {
             CiamUserCredentialDo c = new CiamUserCredentialDo();
-            c.setCredentialId("cred-l1"); c.setUserId(userId);
+            c.setCredentialId("cred-l1");
+            c.setUserId(userId);
             c.setCredentialType(CredentialType.EMAIL_PASSWORD.getCode());
-            c.setCredentialHash("hpw"); c.setHashAlgorithm("BCrypt");
-            c.setFailCount(failCount); c.setLockedUntil(lockedUntil);
-            c.setCredentialStatus(CredentialStatus.VALID.getCode()); c.setRowValid(1);
+            c.setCredentialHash("hpw");
+            c.setHashAlgorithm("BCrypt");
+            c.setFailCount(failCount);
+            c.setLockedUntil(lockedUntil);
+            c.setCredentialStatus(CredentialStatus.VALID.getCode());
+            c.setRowValid(1);
             return c;
         }
 
-        @Test @DisplayName("锁定时长为30分钟")
-        void lockDuration() { assertEquals(30, CredentialDomainService.LOCK_DURATION_MINUTES); }
+        @Test
+        @DisplayName("锁定时长为30分钟")
+        void lockDuration() {
+            assertEquals(30, CredentialDomainService.LOCK_DURATION_MINUTES);
+        }
 
-        @Test @DisplayName("锁定阈值为5次连续失败")
-        void lockThreshold() { assertEquals(5, CredentialDomainService.LOCK_THRESHOLD); }
+        @Test
+        @DisplayName("锁定阈值为5次连续失败")
+        void lockThreshold() {
+            assertEquals(5, CredentialDomainService.LOCK_THRESHOLD);
+        }
 
-        @Test @DisplayName("挑战阈值为3次连续失败")
-        void challengeThreshold() { assertEquals(3, CredentialDomainService.CHALLENGE_THRESHOLD); }
+        @Test
+        @DisplayName("挑战阈值为3次连续失败")
+        void challengeThreshold() {
+            assertEquals(3, CredentialDomainService.CHALLENGE_THRESHOLD);
+        }
 
         @Test
         @DisplayName("锁定期间即使密码正确也拒绝登录")
         void lockedRejectsCorrectPw() {
             String uid = "u-l1";
             when(credentialRepository.findByUserIdAndType(uid, CredentialType.EMAIL_PASSWORD.getCode()))
-                    .thenReturn(Optional.of(cred(uid, 5, LocalDateTime.now().plusMinutes(20))));
+                    .thenReturn(Optional.of(cred(uid, 5, Instant.now().plusSeconds(20 * 60))));
             BusinessException ex = assertThrows(BusinessException.class, () -> credentialDomainService.verifyPassword(uid, "correct"));
             assertEquals(CiamErrorCode.ACCOUNT_LOCKED, ex.getErrorCode());
         }
@@ -301,10 +341,11 @@ class SecurityAndPerformanceTest {
         void lockExpiredAllowsRetry() {
             String uid = "u-l2";
             when(credentialRepository.findByUserIdAndType(uid, CredentialType.EMAIL_PASSWORD.getCode()))
-                    .thenReturn(Optional.of(cred(uid, 5, LocalDateTime.now().minusMinutes(1))));
+                    .thenReturn(Optional.of(cred(uid, 5, Instant.now().minusSeconds(1 * 60))));
             when(passwordEncoder.matches("ok", "hpw")).thenReturn(true);
             PasswordVerifyResult r = credentialDomainService.verifyPassword(uid, "ok");
-            assertTrue(r.isMatched()); assertEquals(0, r.getFailCount());
+            assertTrue(r.isMatched());
+            assertEquals(0, r.getFailCount());
         }
 
         @Test
@@ -315,22 +356,27 @@ class SecurityAndPerformanceTest {
                     .thenReturn(Optional.of(cred(uid, 3, null)));
             when(passwordEncoder.matches(anyString(), anyString())).thenReturn(false);
             PasswordVerifyResult r = credentialDomainService.verifyPassword(uid, "wrong");
-            assertTrue(r.isChallengeRequired()); assertFalse(r.isLocked()); assertEquals(4, r.getFailCount());
+            assertTrue(r.isChallengeRequired());
+            assertFalse(r.isLocked());
+            assertEquals(4, r.getFailCount());
         }
 
         @Test
         @DisplayName("密码策略：最小长度8位")
         void pwPolicy_minLen() {
             PasswordPolicyService ps = new PasswordPolicyService();
-            assertFalse(ps.isValid("Ab1!xyz")); assertTrue(ps.isValid("Ab1!xyzw"));
+            assertFalse(ps.isValid("Ab1!xyz"));
+            assertTrue(ps.isValid("Ab1!xyzw"));
         }
 
         @Test
         @DisplayName("密码策略：必须包含大写、小写、数字、特殊字符")
         void pwPolicy_complexity() {
             PasswordPolicyService ps = new PasswordPolicyService();
-            assertFalse(ps.isValid("abcd1234!")); assertFalse(ps.isValid("ABCD1234!"));
-            assertFalse(ps.isValid("Abcdefgh!")); assertFalse(ps.isValid("Abcdefg1"));
+            assertFalse(ps.isValid("abcd1234!"));
+            assertFalse(ps.isValid("ABCD1234!"));
+            assertFalse(ps.isValid("Abcdefgh!"));
+            assertFalse(ps.isValid("Abcdefg1"));
             assertTrue(ps.isValid("Abcdefg1!"));
         }
     }
@@ -374,7 +420,8 @@ class SecurityAndPerformanceTest {
                 boolean nd = (i % 3 == 0), gc = (i % 5 == 0);
                 RiskLevel l = (nd && gc) ? RiskLevel.HIGH : (nd || gc) ? RiskLevel.MEDIUM : RiskLevel.LOW;
                 DecisionResult d = (nd && gc) ? DecisionResult.BLOCK : (nd || gc) ? DecisionResult.CHALLENGE : DecisionResult.ALLOW;
-                assertNotNull(l); assertNotNull(d);
+                assertNotNull(l);
+                assertNotNull(d);
             }
             double avgUs = ((System.nanoTime() - start) / 1_000.0) / 10_000;
             assertTrue(avgUs < 50, "风险规则判断平均 " + String.format("%.2f", avgUs) + " μs > 50μs");
@@ -388,7 +435,8 @@ class SecurityAndPerformanceTest {
             EmailAdapter mEmail = mock(EmailAdapter.class);
             VerificationCodeService svc = new VerificationCodeService(ms, mSms, mEmail);
             long start = System.nanoTime();
-            for (int i = 0; i < 10_000; i++) assertEquals(VerificationCodeService.CODE_LENGTH, svc.generateCode().length());
+            for (int i = 0; i < 10_000; i++)
+                assertEquals(VerificationCodeService.CODE_LENGTH, svc.generateCode().length());
             double avgUs = ((System.nanoTime() - start) / 1_000.0) / 10_000;
             assertTrue(avgUs < 100, "验证码生成平均 " + String.format("%.2f", avgUs) + " μs > 100μs");
         }
@@ -401,7 +449,8 @@ class SecurityAndPerformanceTest {
     @Nested
     @DisplayName("会话规模基线")
     class SessionScaleBaselineTests {
-        @Mock private CiamSessionRepository sessionRepository;
+        @Mock
+        private CiamSessionRepository sessionRepository;
 
         @Test
         @DisplayName("单用户多会话查询应能处理大量会话记录")
@@ -410,11 +459,13 @@ class SecurityAndPerformanceTest {
             List<CiamSessionDo> sessions = new ArrayList<>();
             for (int i = 0; i < 100; i++) {
                 CiamSessionDo s = new CiamSessionDo();
-                s.setSessionId("s-" + i); s.setUserId(uid); s.setClientType("app");
+                s.setSessionId("s-" + i);
+                s.setUserId(uid);
+                s.setClientType("app");
                 s.setSessionStatus(SessionStatus.ACTIVE.getCode());
-                s.setLoginTime(LocalDateTime.now().minusHours(i));
-                s.setLastActiveTime(LocalDateTime.now().minusMinutes(i));
-                s.setExpireTime(LocalDateTime.now().plusDays(30));
+                s.setLoginTime(Instant.now().minusSeconds(i * 3600));
+                s.setLastActiveTime(Instant.now().minusSeconds(i * 60));
+                s.setExpireTime(Instant.now().plusSeconds(30L * 86400));
                 sessions.add(s);
             }
             when(sessionRepository.findByUserIdAndStatus(uid, SessionStatus.ACTIVE.getCode())).thenReturn(sessions);
@@ -432,11 +483,15 @@ class SecurityAndPerformanceTest {
             List<CiamSessionDo> list = new ArrayList<>(n);
             for (int i = 0; i < n; i++) {
                 CiamSessionDo s = new CiamSessionDo();
-                s.setSessionId("s-" + i); s.setUserId("u-" + (i % 1000)); s.setClientType("app");
+                s.setSessionId("s-" + i);
+                s.setUserId("u-" + (i % 1000));
+                s.setClientType("app");
                 s.setSessionStatus(SessionStatus.ACTIVE.getCode());
-                s.setLoginTime(LocalDateTime.now()); s.setLastActiveTime(LocalDateTime.now());
-                s.setExpireTime(LocalDateTime.now().plusDays(30));
-                s.setLoginIp("192.168.1." + (i % 256)); s.setRiskLevel(RiskLevel.LOW.getCode());
+                s.setLoginTime(Instant.now());
+                s.setLastActiveTime(Instant.now());
+                s.setExpireTime(Instant.now().plusSeconds(30L * 86400));
+                s.setLoginIp("192.168.1." + (i % 256));
+                s.setRiskLevel(RiskLevel.LOW.getCode());
                 list.add(s);
             }
             double ms = (System.nanoTime() - start) / 1_000_000.0;

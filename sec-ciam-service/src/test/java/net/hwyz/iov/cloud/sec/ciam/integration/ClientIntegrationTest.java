@@ -57,7 +57,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -324,9 +327,9 @@ class ClientIntegrationTest {
         session.setClientType(clientType);
         session.setDeviceId(deviceId);
         session.setSessionStatus(SessionStatus.ACTIVE.getCode());
-        session.setLoginTime(LocalDateTime.now());
-        session.setLastActiveTime(LocalDateTime.now());
-        session.setExpireTime(LocalDateTime.now().plusHours(24));
+        session.setLoginTime(Instant.now());
+        session.setLastActiveTime(Instant.now());
+        session.setExpireTime(Instant.now().plusSeconds(24 * 3600));
         session.setRowValid(1);
         sessionStore.put(sessionId, session);
         return session;
@@ -339,8 +342,8 @@ class ClientIntegrationTest {
         device.setClientType(clientType);
         device.setDeviceName(clientType + " device");
         device.setDeviceStatus(DeviceStatus.ACTIVE.getCode());
-        device.setFirstLoginTime(LocalDateTime.now());
-        device.setLastLoginTime(LocalDateTime.now());
+        device.setFirstLoginTime(Instant.now());
+        device.setLastLoginTime(Instant.now());
         device.setRowValid(1);
         deviceStore.put(deviceId, device);
         return device;

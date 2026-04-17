@@ -249,7 +249,7 @@ class CredentialDomainServiceTest {
         @Test
         void resetPassword_clearsLockedUntil() {
             CiamUserCredentialDo cred = stubCredential("user-001", "OldPass1!", CredentialStatus.VALID.getCode());
-            cred.setLockedUntil(java.time.LocalDateTime.now().plusMinutes(30));
+            cred.setLockedUntil(java.time.Instant.now().plusSeconds(30 * 60));
             when(credentialRepository.findByUserIdAndType(eq("user-001"), eq("email_password")))
                     .thenReturn(Optional.of(cred));
 
@@ -435,7 +435,7 @@ class CredentialDomainServiceTest {
         void verifyPassword_throwsAccountLockedWhenStillLocked() {
             CiamUserCredentialDo cred = stubCredential("user-001", "Correct1!", CredentialStatus.VALID.getCode());
             cred.setFailCount(5);
-            cred.setLockedUntil(java.time.LocalDateTime.now().plusMinutes(29));
+            cred.setLockedUntil(java.time.Instant.now().plusSeconds(29 * 60));
             when(credentialRepository.findByUserIdAndType(eq("user-001"), eq("email_password")))
                     .thenReturn(Optional.of(cred));
 
@@ -448,7 +448,7 @@ class CredentialDomainServiceTest {
         void verifyPassword_allowsLoginAfterLockExpires() {
             CiamUserCredentialDo cred = stubCredential("user-001", "Correct1!", CredentialStatus.VALID.getCode());
             cred.setFailCount(5);
-            cred.setLockedUntil(java.time.LocalDateTime.now().minusMinutes(1)); // lock expired
+            cred.setLockedUntil(java.time.Instant.now().minusSeconds(1 * 60)); // lock expired
             when(credentialRepository.findByUserIdAndType(eq("user-001"), eq("email_password")))
                     .thenReturn(Optional.of(cred));
 

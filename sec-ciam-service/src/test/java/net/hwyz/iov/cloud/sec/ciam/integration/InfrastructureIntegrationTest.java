@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
 import net.hwyz.iov.cloud.sec.ciam.domain.enums.SessionStatus;
 import net.hwyz.iov.cloud.sec.ciam.domain.event.DomainEvent;
 import net.hwyz.iov.cloud.sec.ciam.domain.event.DomainEventType;
@@ -33,7 +34,10 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.kafka.core.KafkaOperations;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -132,8 +136,8 @@ class InfrastructureIntegrationTest {
             user.setRegisterSource(source);
             user.setRowValid(1);
             user.setRowVersion(1);
-            user.setCreateTime(LocalDateTime.now());
-            user.setModifyTime(LocalDateTime.now());
+            user.setCreateTime(Instant.now());
+            user.setModifyTime(Instant.now());
             return user;
         }
     }
@@ -205,9 +209,9 @@ class InfrastructureIntegrationTest {
             identity.setIdentityStatus(1);
             identity.setRowValid(1);
             identity.setRowVersion(1);
-            identity.setBindTime(LocalDateTime.now());
-            identity.setCreateTime(LocalDateTime.now());
-            identity.setModifyTime(LocalDateTime.now());
+            identity.setBindTime(Instant.now());
+            identity.setCreateTime(Instant.now());
+            identity.setModifyTime(Instant.now());
             return identity;
         }
     }
@@ -284,13 +288,13 @@ class InfrastructureIntegrationTest {
             session.setClientType("app");
             session.setSessionStatus(SessionStatus.ACTIVE.getCode());
             session.setRiskLevel(0);
-            session.setLoginTime(LocalDateTime.now());
-            session.setLastActiveTime(LocalDateTime.now());
-            session.setExpireTime(LocalDateTime.now().plusHours(24));
+            session.setLoginTime(Instant.now());
+            session.setLastActiveTime(Instant.now());
+            session.setExpireTime(Instant.now().plusSeconds(24 * 3600));
             session.setRowValid(1);
             session.setRowVersion(1);
-            session.setCreateTime(LocalDateTime.now());
-            session.setModifyTime(LocalDateTime.now());
+            session.setCreateTime(Instant.now());
+            session.setModifyTime(Instant.now());
             return session;
         }
     }
@@ -329,8 +333,8 @@ class InfrastructureIntegrationTest {
             CiamAuditLogDo log2 = buildAuditLog("A002", "U001", "LOGOUT", "退出登录");
             when(mapper.selectList(any(LambdaQueryWrapper.class))).thenReturn(List.of(log1, log2));
 
-            LocalDateTime start = LocalDateTime.of(2026, 1, 1, 0, 0);
-            LocalDateTime end = LocalDateTime.of(2026, 12, 31, 23, 59);
+            LocalDateTime start = LocalDateTime.of(2026, 1, 1, 0, 0, 0);
+            LocalDateTime end = LocalDateTime.of(2026, 12, 31, 23, 59, 0);
             List<CiamAuditLogDo> logs = repository.findByUserIdAndTimeRange("U001", start, end);
 
             assertEquals(2, logs.size());
@@ -356,11 +360,11 @@ class InfrastructureIntegrationTest {
             log.setEventType(eventType);
             log.setEventName(eventName);
             log.setOperationResult(1);
-            log.setEventTime(LocalDateTime.now());
+            log.setEventTime(Instant.now());
             log.setRowValid(1);
             log.setRowVersion(1);
-            log.setCreateTime(LocalDateTime.now());
-            log.setModifyTime(LocalDateTime.now());
+            log.setCreateTime(Instant.now());
+            log.setModifyTime(Instant.now());
             return log;
         }
     }
@@ -603,8 +607,8 @@ class InfrastructureIntegrationTest {
         @Test
         @DisplayName("SearchService 接口契约 - 审计日志检索支持全参数")
         void searchAuditLogs_fullParams() {
-            LocalDateTime start = LocalDateTime.of(2026, 1, 1, 0, 0);
-            LocalDateTime end = LocalDateTime.of(2026, 12, 31, 23, 59);
+            LocalDateTime start = LocalDateTime.of(2026, 1, 1, 0, 0, 0);
+            LocalDateTime end = LocalDateTime.of(2026, 12, 31, 23, 59, 0);
 
             SearchResult<AuditLogSearchDocument> result =
                     searchService.searchAuditLogs("U001", "LOGIN", start, end, 0, 50);
@@ -618,8 +622,8 @@ class InfrastructureIntegrationTest {
         @Test
         @DisplayName("SearchService 接口契约 - 风险事件检索支持全参数")
         void searchRiskEvents_fullParams() {
-            LocalDateTime start = LocalDateTime.of(2026, 3, 1, 0, 0);
-            LocalDateTime end = LocalDateTime.of(2026, 3, 31, 23, 59);
+            LocalDateTime start = LocalDateTime.of(2026, 3, 1, 0, 0, 0);
+            LocalDateTime end = LocalDateTime.of(2026, 3, 31, 23, 59, 0);
 
             SearchResult<RiskEventSearchDocument> result =
                     searchService.searchRiskEvents("U001", 2, start, end, 0, 10);
@@ -644,8 +648,8 @@ class InfrastructureIntegrationTest {
                     .userStatus(1)
                     .registerSource("mobile")
                     .registerChannel("app_store")
-                    .lastLoginTime(LocalDateTime.now())
-                    .createTime(LocalDateTime.now())
+                    .lastLoginTime(DateTimeUtil.getNowOffsetDateTime())
+                    .createTime(DateTimeUtil.getNowOffsetDateTime())
                     .build();
 
             assertEquals("U001", doc.getUserId());

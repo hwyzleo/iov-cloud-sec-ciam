@@ -16,7 +16,10 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -187,8 +190,8 @@ class MfaDomainServiceTest {
             c.setChallengeType(ChallengeType.SMS.getCode());
             c.setChallengeScene(ChallengeScene.NEW_DEVICE.getCode());
             c.setVerifyCodeHash(TokenDigest.fingerprint(code));
-            c.setSendTime(LocalDateTime.now().minusMinutes(1));
-            c.setExpireTime(LocalDateTime.now().plusMinutes(4));
+            c.setSendTime(Instant.now().minusSeconds(1 * 60));
+            c.setExpireTime(Instant.now().plusSeconds(4 * 60));
             c.setChallengeStatus(ChallengeStatus.PENDING.getCode());
             return c;
         }
@@ -231,7 +234,7 @@ class MfaDomainServiceTest {
         @Test
         void verifyChallenge_throwsWhenExpired() {
             CiamMfaChallengeDo challenge = pendingChallenge("123456");
-            challenge.setExpireTime(LocalDateTime.now().minusMinutes(1)); // already expired
+            challenge.setExpireTime(Instant.now().minusSeconds(1 * 60)); // already expired
             when(challengeRepository.findByChallengeId("ch-001")).thenReturn(Optional.of(challenge));
 
             BusinessException ex = assertThrows(BusinessException.class,
