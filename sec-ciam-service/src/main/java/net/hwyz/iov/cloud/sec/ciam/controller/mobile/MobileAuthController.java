@@ -55,7 +55,7 @@ public class MobileAuthController {
         deviceInfo.setDeviceOs(platform);
         deviceInfo.setAppVersion(appVersion);
         LoginResult result = authenticationAppService.loginByMobileCode(
-                req.getMobile(), req.getCountryCode(), req.getCode(), clientId, deviceInfo);
+                req.getMobile(), req.getCountryCode(), req.getCode(), deviceId, deviceInfo);
         return ApiResponse.ok(result);
     }
 
