@@ -117,7 +117,7 @@ public class AuthenticationAppService {
                     && identityOpt.get().getIdentityStatus() == IdentityStatus.BOUND.getCode()) {
                 String userId = identityOpt.get().getUserId();
                 deviceDomainService.recordDevice(userId, deviceId, deviceInfo);
-                return handleExistingUserLogin(identityOpt.get(), deviceId);
+                return handleExistingUserLogin(identityOpt.get(), deviceId, deviceInfo.getClientId());
             } else {
                 return handleNewUserRegistration(mobile, countryCode, deviceId, deviceInfo);
             }
@@ -249,7 +249,7 @@ public class AuthenticationAppService {
         try {
             if (identityOpt.isPresent()
                     && identityOpt.get().getIdentityStatus() == IdentityStatus.BOUND.getCode()) {
-                return handleExistingUserLogin(identityOpt.get(), clientId);
+                return handleExistingUserLogin(identityOpt.get(), clientId, null);
             } else {
                 return handleNewEmailUserRegistration(email, clientId);
             }
@@ -341,7 +341,7 @@ public class AuthenticationAppService {
                     && identityOpt.get().getIdentityStatus() == IdentityStatus.BOUND.getCode()) {
                 String userId = identityOpt.get().getUserId();
                 deviceDomainService.recordDevice(userId, clientId, deviceInfo);
-                return handleExistingUserLogin(identityOpt.get(), clientId);
+                return handleExistingUserLogin(identityOpt.get(), clientId, deviceInfo.getClientId());
             } else {
                 return handleNewLocalMobileUserRegistration(mobile, clientId, deviceInfo);
             }
@@ -370,7 +370,7 @@ public class AuthenticationAppService {
 
     // ---- 内部方法 ----
 
-    private LoginResult handleExistingUserLogin(CiamUserIdentityDo identity, String deviceId) {
+    private LoginResult handleExistingUserLogin(CiamUserIdentityDo identity, String deviceId, String clientId) {
         String userId = identity.getUserId();
 
         CiamUserDo user = userRepository.findByUserId(userId)
@@ -391,7 +391,7 @@ public class AuthenticationAppService {
         String accessToken = jwtTokenService.generateAccessToken(
                 userId, deviceId, "default", sessionId, accessTokenTtl);
         String refreshToken = refreshTokenDomainService.issueRefreshToken(
-                userId, sessionId, "ciam-app", 7 * 24 * 60 * 60);
+                userId, sessionId, clientId, 7 * 24 * 60 * 60);
 
         return LoginResult.builder()
                 .userId(userId)
@@ -423,7 +423,7 @@ public class AuthenticationAppService {
         String accessToken = jwtTokenService.generateAccessToken(
                 userId, deviceId, "default", sessionId, accessTokenTtl);
         String refreshToken = refreshTokenDomainService.issueRefreshToken(
-                userId, sessionId, "ciam-app", 7 * 24 * 60 * 60);
+                userId, sessionId, deviceInfo.getClientId(), 7 * 24 * 60 * 60);
 
         return LoginResult.builder()
                 .userId(userId)
@@ -506,7 +506,7 @@ public class AuthenticationAppService {
         if (identityOpt.isPresent()
                 && identityOpt.get().getIdentityStatus() == IdentityStatus.BOUND.getCode()) {
             // 已绑定 → 直接登录
-            return handleExistingUserLogin(identityOpt.get(), clientId);
+            return handleExistingUserLogin(identityOpt.get(), clientId, null);
         }
 
         // 2. 未绑定 → 检查关联邮箱是否冲突
