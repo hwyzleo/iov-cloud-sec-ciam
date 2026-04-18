@@ -115,4 +115,12 @@ public class MobileAuthController {
         authenticationAppService.logout(req.getSessionId(), req.getUserId(), clientId);
         return ApiResponse.ok();
     }
+
+    @PostMapping("/token/refresh")
+    public ApiResponse<LoginResult> refreshToken(
+            @RequestHeader(CustomHeaders.CLIENT_ID) String clientId,
+            @RequestBody @Valid RefreshTokenRequest req) {
+        LoginResult result = authenticationAppService.refreshToken(req.getRefreshToken(), clientId);
+        return ApiResponse.ok(result);
+    }
 }

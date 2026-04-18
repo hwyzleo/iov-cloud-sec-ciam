@@ -21,17 +21,7 @@ import net.hwyz.iov.cloud.sec.ciam.domain.enums.IdentityType;
 import net.hwyz.iov.cloud.sec.ciam.domain.enums.RegisterSource;
 import net.hwyz.iov.cloud.sec.ciam.domain.enums.UserStatus;
 import net.hwyz.iov.cloud.sec.ciam.domain.repository.CiamUserRepository;
-import net.hwyz.iov.cloud.sec.ciam.domain.service.CaptchaDomainService;
-import net.hwyz.iov.cloud.sec.ciam.domain.service.CredentialDomainService;
-import net.hwyz.iov.cloud.sec.ciam.domain.service.DeviceDomainService;
-import net.hwyz.iov.cloud.sec.ciam.domain.service.IdentityDomainService;
-import net.hwyz.iov.cloud.sec.ciam.domain.service.PasswordVerifyResult;
-import net.hwyz.iov.cloud.sec.ciam.domain.service.JwtTokenService;
-import net.hwyz.iov.cloud.sec.ciam.domain.service.RefreshTokenDomainService;
-import net.hwyz.iov.cloud.sec.ciam.domain.service.SessionDomainService;
-import net.hwyz.iov.cloud.sec.ciam.domain.service.UserDomainService;
-import net.hwyz.iov.cloud.sec.ciam.domain.service.VerificationCodeService;
-import net.hwyz.iov.cloud.sec.ciam.domain.service.VerificationCodeType;
+import net.hwyz.iov.cloud.sec.ciam.domain.service.*;
 import net.hwyz.iov.cloud.sec.ciam.infrastructure.repository.dao.dataobject.CiamUserDo;
 import net.hwyz.iov.cloud.sec.ciam.infrastructure.repository.dao.dataobject.CiamUserIdentityDo;
 import org.springframework.stereotype.Service;
@@ -534,6 +524,30 @@ public class AuthenticationAppService {
                 .userId(userId)
                 .newUser(true)
                 .sessionId(null)
+                .build();
+    }
+
+    /**
+     * 刷新 Token。
+     *
+     * @param refreshToken 用户的 Refresh Token
+     * @param clientId     客户端标识
+     * @return 登录结果（包含新的 access_token 和 refresh_token）
+     */
+    public LoginResult refreshToken(String refreshToken, String clientId) {
+        RefreshTokenRotationResult rotationResult = refreshTokenDomainService.rotateRefreshToken(refreshToken, clientId);
+
+        int accessTokenTtl = 1800;
+        String accessToken = jwtTokenService.generateAccessToken(
+                rotationResult.getUserId(), clientId, rotationResult.getScope(),
+                rotationResult.getSessionId(), accessTokenTtl);
+
+        return LoginResult.builder()
+                .userId(rotationResult.getUserId())
+                .accessToken(accessToken)
+                .refreshToken(rotationResult.getNewRefreshToken())
+                .accessTokenTtl(accessTokenTtl)
+                .sessionId(rotationResult.getSessionId())
                 .build();
     }
 
