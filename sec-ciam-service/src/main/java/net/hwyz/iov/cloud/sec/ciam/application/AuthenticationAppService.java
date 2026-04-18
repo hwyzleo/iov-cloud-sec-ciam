@@ -27,6 +27,7 @@ import net.hwyz.iov.cloud.sec.ciam.domain.service.DeviceDomainService;
 import net.hwyz.iov.cloud.sec.ciam.domain.service.IdentityDomainService;
 import net.hwyz.iov.cloud.sec.ciam.domain.service.PasswordVerifyResult;
 import net.hwyz.iov.cloud.sec.ciam.domain.service.JwtTokenService;
+import net.hwyz.iov.cloud.sec.ciam.domain.service.RefreshTokenDomainService;
 import net.hwyz.iov.cloud.sec.ciam.domain.service.SessionDomainService;
 import net.hwyz.iov.cloud.sec.ciam.domain.service.UserDomainService;
 import net.hwyz.iov.cloud.sec.ciam.domain.service.VerificationCodeService;
@@ -36,6 +37,7 @@ import net.hwyz.iov.cloud.sec.ciam.infrastructure.repository.dao.dataobject.Ciam
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * 认证应用服务 — 编排注册/登录主链路。
@@ -68,6 +70,7 @@ public class AuthenticationAppService {
     private final GoogleLoginAdapter googleLoginAdapter;
     private final LocalMobileAuthAdapter localMobileAuthAdapter;
     private final JwtTokenService jwtTokenService;
+    private final RefreshTokenDomainService refreshTokenDomainService;
     private final DeviceDomainService deviceDomainService;
 
     /**
@@ -384,9 +387,11 @@ public class AuthenticationAppService {
         logAudit(userId, deviceId, AuditEventType.LOGIN_SUCCESS, true);
 
         int accessTokenTtl = 1800;
+        String sessionId = UUID.randomUUID().toString();
         String accessToken = jwtTokenService.generateAccessToken(
-                userId, deviceId, "default", null, accessTokenTtl);
-        String refreshToken = jwtTokenService.generateRefreshToken(userId, deviceId, "default", null);
+                userId, deviceId, "default", sessionId, accessTokenTtl);
+        String refreshToken = refreshTokenDomainService.issueRefreshToken(
+                userId, sessionId, "ciam-app", 7 * 24 * 60 * 60);
 
         return LoginResult.builder()
                 .userId(userId)
@@ -394,7 +399,7 @@ public class AuthenticationAppService {
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .accessTokenTtl(accessTokenTtl)
-                .sessionId(null)
+                .sessionId(sessionId)
                 .build();
     }
 
@@ -414,9 +419,11 @@ public class AuthenticationAppService {
         logAudit(userId, deviceId, AuditEventType.REGISTER_SUCCESS, true);
 
         int accessTokenTtl = 1800;
+        String sessionId = UUID.randomUUID().toString();
         String accessToken = jwtTokenService.generateAccessToken(
-                userId, deviceId, "default", null, accessTokenTtl);
-        String refreshToken = jwtTokenService.generateRefreshToken(userId, deviceId, "default", null);
+                userId, deviceId, "default", sessionId, accessTokenTtl);
+        String refreshToken = refreshTokenDomainService.issueRefreshToken(
+                userId, sessionId, "ciam-app", 7 * 24 * 60 * 60);
 
         return LoginResult.builder()
                 .userId(userId)
@@ -424,7 +431,7 @@ public class AuthenticationAppService {
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .accessTokenTtl(accessTokenTtl)
-                .sessionId(null)
+                .sessionId(sessionId)
                 .build();
     }
 
