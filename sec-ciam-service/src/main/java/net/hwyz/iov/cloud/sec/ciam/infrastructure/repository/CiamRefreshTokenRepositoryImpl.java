@@ -83,4 +83,23 @@ public class CiamRefreshTokenRepositoryImpl implements CiamRefreshTokenRepositor
                         .eq(CiamRefreshTokenDo::getSessionId, sessionId)
                         .eq(CiamRefreshTokenDo::getTokenStatus, TokenStatus.ACTIVE.getCode()));
     }
+
+    @Override
+    public List<CiamRefreshTokenDo> findAll() {
+        return mapper.selectList(null);
+    }
+
+    @Override
+    public List<CiamRefreshTokenDo> findByUserId(String userId) {
+        return mapper.selectList(
+                new LambdaQueryWrapper<CiamRefreshTokenDo>()
+                        .eq(CiamRefreshTokenDo::getUserId, userId));
+    }
+
+    @Override
+    public List<CiamRefreshTokenDo> findBySessionId(String sessionId) {
+        return mapper.selectList(
+                new LambdaQueryWrapper<CiamRefreshTokenDo>()
+                        .eq(CiamRefreshTokenDo::getSessionId, sessionId));
+    }
 }

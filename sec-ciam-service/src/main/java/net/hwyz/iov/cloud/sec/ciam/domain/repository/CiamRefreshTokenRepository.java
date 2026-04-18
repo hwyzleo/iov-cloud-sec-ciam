@@ -33,4 +33,13 @@ public interface CiamRefreshTokenRepository {
 
     /** 批量撤销指定会话的所有有效令牌 */
     int revokeAllBySessionId(String sessionId);
+
+    /** 查询所有令牌 */
+    List<CiamRefreshTokenDo> findAll();
+
+    /** 根据用户 ID 查询 */
+    List<CiamRefreshTokenDo> findByUserId(String userId);
+
+    /** 根据会话 ID 查询 */
+    List<CiamRefreshTokenDo> findBySessionId(String sessionId);
 }
