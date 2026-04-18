@@ -2,7 +2,8 @@ package net.hwyz.iov.cloud.sec.ciam.application;
 
 import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
 import net.hwyz.iov.cloud.sec.ciam.common.audit.AuditEvent;
-import net.hwyz.iov.cloud.sec.ciam.common.audit.AuditLogger;
+import static org.mockito.Mockito.*;
+import org.mockito.Mockito;import net.hwyz.iov.cloud.sec.ciam.common.audit.AuditLogger;
 import net.hwyz.iov.cloud.sec.ciam.common.exception.CiamErrorCode;
 import net.hwyz.iov.cloud.sec.ciam.common.security.FieldEncryptor;
 import net.hwyz.iov.cloud.sec.ciam.common.security.PasswordEncoder;
@@ -17,7 +18,7 @@ import net.hwyz.iov.cloud.sec.ciam.domain.adapter.LocalMobileAuthAdapter;
 import net.hwyz.iov.cloud.sec.ciam.domain.adapter.SmsAdapter;
 import net.hwyz.iov.cloud.sec.ciam.domain.adapter.ThirdPartyUserInfo;
 import net.hwyz.iov.cloud.sec.ciam.domain.adapter.WechatLoginAdapter;
-import net.hwyz.iov.cloud.sec.ciam.domain.enums.CredentialStatus;
+import static org.mockito.Mockito.*;import net.hwyz.iov.cloud.sec.ciam.domain.enums.CredentialStatus;
 import net.hwyz.iov.cloud.sec.ciam.domain.enums.CredentialType;
 import net.hwyz.iov.cloud.sec.ciam.domain.enums.IdentityStatus;
 import net.hwyz.iov.cloud.sec.ciam.domain.enums.IdentityType;
@@ -152,7 +153,7 @@ class AuthenticationAppServiceTest {
         captchaDomainService = new CaptchaDomainService(captchaAdapter, codeStore);
         sessionDomainService = new SessionDomainService(sessionRepository, refreshTokenRepository, deviceRepository);
         deviceDomainService = new DeviceDomainService(deviceRepository);
-        JwtTokenService jwtTokenService = new JwtTokenService();
+        JwtTokenService jwtTokenService = Mockito.mock(JwtTokenService.class);
 
         service = new AuthenticationAppService(
                 verificationCodeService, identityDomainService,
@@ -160,7 +161,7 @@ class AuthenticationAppServiceTest {
                 credentialDomainService, captchaDomainService,
                 sessionDomainService,
                 wechatLoginAdapter, appleLoginAdapter, googleLoginAdapter,
-                localMobileAuthAdapter, jwtTokenService, deviceDomainService);
+                localMobileAuthAdapter, jwtTokenService, Mockito.mock(RefreshTokenDomainService.class), deviceDomainService);
     }
 
     /**

@@ -1,10 +1,13 @@
 package net.hwyz.iov.cloud.sec.ciam.common.security;
 
+import net.hwyz.iov.cloud.sec.ciam.domain.service.JwkDomainService;
 import net.hwyz.iov.cloud.sec.ciam.domain.service.JwtTokenService;
 import net.hwyz.iov.cloud.sec.ciam.domain.service.TokenClaims;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -12,15 +15,20 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import java.time.Instant;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 class JwtAuthenticationFilterTest {
 
     private JwtTokenService jwtTokenService;
     private JwtAuthenticationFilter filter;
 
+    @Mock
+    private JwkDomainService jwkDomainService;
+
     @BeforeEach
     void setUp() {
-        jwtTokenService = new JwtTokenService();
+        MockitoAnnotations.openMocks(this);
+        jwtTokenService = new JwtTokenService(jwkDomainService);
         filter = new JwtAuthenticationFilter(jwtTokenService);
     }
 

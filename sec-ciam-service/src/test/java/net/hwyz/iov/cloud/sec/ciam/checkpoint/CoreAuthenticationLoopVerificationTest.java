@@ -1,10 +1,10 @@
 package net.hwyz.iov.cloud.sec.ciam.checkpoint;
 
-import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
 import net.hwyz.iov.cloud.framework.common.bean.ApiResponse;
 import net.hwyz.iov.cloud.sec.ciam.application.AccountLifecycleAppService;
 import net.hwyz.iov.cloud.sec.ciam.application.AuthenticationAppService;
-import net.hwyz.iov.cloud.sec.ciam.application.LoginResult;
+import net.hwyz.iov.cloud.framework.common.exception.BusinessException;import static org.mockito.Mockito.*;
+import org.mockito.Mockito;import net.hwyz.iov.cloud.sec.ciam.application.LoginResult;
 import net.hwyz.iov.cloud.sec.ciam.application.PasswordChangeAppService;
 import net.hwyz.iov.cloud.sec.ciam.common.audit.AuditLogger;
 import net.hwyz.iov.cloud.sec.ciam.common.audit.SecurityEventLogger;
@@ -66,8 +66,6 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.doAnswer;
 
 /**
  * 检查点 17：核心认证闭环验证。
@@ -249,12 +247,12 @@ class CoreAuthenticationLoopVerificationTest {
         // userRepository, auditLogger, credentialDomainService, captchaDomainService,
         // sessionDomainService, wechatLoginAdapter, appleLoginAdapter,
         // googleLoginAdapter, localMobileAuthAdapter, jwtTokenService, deviceDomainService
-        JwtTokenService jwtTokenService = new JwtTokenService();
+        JwtTokenService jwtTokenService = Mockito.mock(JwtTokenService.class);
         AuthenticationAppService authAppService = new AuthenticationAppService(
                 vcService, identityService, userService,
                 userRepository, auditLogger, credentialService, captchaService,
                 sessionService, wechatLoginAdapter, appleLoginAdapter,
-                googleLoginAdapter, localMobileAuthAdapter, jwtTokenService, deviceService);
+                googleLoginAdapter, localMobileAuthAdapter, jwtTokenService, Mockito.mock(RefreshTokenDomainService.class), deviceService);
         return new MobileAuthController(authAppService, vcService, captchaService);
     }
 
@@ -456,7 +454,7 @@ class CoreAuthenticationLoopVerificationTest {
         void init() {
             DeviceAuthorizationService deviceAuthService = new DeviceAuthorizationService(
                     clientRepository, verificationCodeStore);
-            JwtTokenService jwtTokenService = new JwtTokenService();
+            JwtTokenService jwtTokenService = Mockito.mock(JwtTokenService.class);
 
             OAuthAuthorizationService oAuthAuthService = new OAuthAuthorizationService(
                     authCodeRepository, clientRepository, passwordEncoder);
@@ -518,7 +516,7 @@ class CoreAuthenticationLoopVerificationTest {
                     clientRepository, verificationCodeStore);
             RefreshTokenDomainService refreshTokenService = new RefreshTokenDomainService(
                     refreshTokenRepository);
-            JwtTokenService jwtTokenService = new JwtTokenService();
+            JwtTokenService jwtTokenService = Mockito.mock(JwtTokenService.class);
 
             oAuthController = new OpenOAuthController(oAuthAuthService, deviceAuthService,
                     refreshTokenService, jwtTokenService);

@@ -1,9 +1,11 @@
 package net.hwyz.iov.cloud.sec.ciam.integration;
 
-import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
 import net.hwyz.iov.cloud.framework.common.bean.ApiResponse;
 import net.hwyz.iov.cloud.sec.ciam.application.AuthenticationAppService;
 import net.hwyz.iov.cloud.sec.ciam.application.LoginResult;
+import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
+import static org.mockito.Mockito.*;
+import org.mockito.Mockito;
 import net.hwyz.iov.cloud.sec.ciam.common.audit.AuditLogger;
 import net.hwyz.iov.cloud.sec.ciam.common.security.FieldEncryptor;
 import net.hwyz.iov.cloud.sec.ciam.common.security.PasswordEncoder;
@@ -57,7 +59,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
 
 /**
  * 任务 18.1：与手机 App、小程序、官网、车机完成接入联调。
@@ -174,7 +175,7 @@ class ClientIntegrationTest {
         sessionService = new SessionDomainService(sessionRepository, refreshTokenRepository, deviceRepository);
         DeviceDomainService deviceService = new DeviceDomainService(deviceRepository);
         captchaService = new CaptchaDomainService(captchaAdapter, verificationCodeStore);
-        jwtTokenService = new JwtTokenService();
+        jwtTokenService = Mockito.mock(JwtTokenService.class);
         refreshTokenService = new RefreshTokenDomainService(refreshTokenRepository);
         oAuthAuthorizationService = new OAuthAuthorizationService(authCodeRepository, clientRepository, passwordEncoder);
         deviceAuthorizationService = new DeviceAuthorizationService(clientRepository, verificationCodeStore);
@@ -184,7 +185,7 @@ class ClientIntegrationTest {
                 vcService, identityService, userService,
                 userRepository, auditLogger, credentialService, captchaService,
                 sessionService, wechatLoginAdapter, appleLoginAdapter,
-                googleLoginAdapter, localMobileAuthAdapter, jwtTokenService, deviceService);
+                googleLoginAdapter, localMobileAuthAdapter, jwtTokenService, Mockito.mock(RefreshTokenDomainService.class), deviceService);
         authController = new MobileAuthController(authAppService, vcService, captchaService);
         oAuthController = new OpenOAuthController(
                 oAuthAuthorizationService, deviceAuthorizationService, refreshTokenService, jwtTokenService);

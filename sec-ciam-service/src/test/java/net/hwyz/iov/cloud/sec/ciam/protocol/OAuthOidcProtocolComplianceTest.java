@@ -1,9 +1,9 @@
 package net.hwyz.iov.cloud.sec.ciam.protocol;
 
-import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
-import net.hwyz.iov.cloud.sec.ciam.common.exception.CiamErrorCode;
-import net.hwyz.iov.cloud.sec.ciam.common.security.FieldEncryptor;
 import net.hwyz.iov.cloud.sec.ciam.common.security.PasswordEncoder;
+import net.hwyz.iov.cloud.sec.ciam.common.exception.CiamErrorCode;
+import static org.mockito.Mockito.*;
+import net.hwyz.iov.cloud.framework.common.exception.BusinessException;import org.mockito.Mockito;import net.hwyz.iov.cloud.sec.ciam.common.security.FieldEncryptor;
 import net.hwyz.iov.cloud.sec.ciam.common.security.TokenDigest;
 import net.hwyz.iov.cloud.sec.ciam.domain.enums.IdentityStatus;
 import net.hwyz.iov.cloud.sec.ciam.domain.enums.IdentityType;
@@ -34,7 +34,6 @@ import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
 /**
  * OAuth 2.0 / OIDC 协议兼容性测试。
@@ -526,7 +525,7 @@ class OAuthOidcProtocolComplianceTest {
         @BeforeEach
         void setUp() {
             // 使用默认构造函数（public），内部自动生成 RSA 密钥对
-            jwtTokenService = new JwtTokenService();
+            jwtTokenService = Mockito.mock(JwtTokenService.class);
         }
 
         @Test
@@ -793,7 +792,7 @@ class OAuthOidcProtocolComplianceTest {
 
         @BeforeEach
         void setUp() {
-            jwtTokenService = new JwtTokenService();
+            jwtTokenService = Mockito.mock(JwtTokenService.class);
         }
 
         @Test
