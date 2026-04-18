@@ -1,5 +1,6 @@
 package net.hwyz.iov.cloud.sec.ciam.domain.service;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -10,20 +11,21 @@ import java.time.Instant;
  */
 @Getter
 @Builder
+@AllArgsConstructor
 public class TokenClaims {
 
     /** 用户业务唯一标识 */
-    private final String sub;
+    private String sub;
     /** OAuth 客户端标识 */
-    private final String clientId;
+    private String clientId;
     /** 授权范围 */
-    private final String scope;
+    private String scope;
     /** 会话业务唯一标识 */
-    private final String sessionId;
+    private String sessionId;
     /** 签发者 */
-    private final String iss;
+    private String iss;
     /** 签发时间 */
-    private final Instant iat;
+    private Instant iat;
     /** 过期时间 */
-    private final Instant exp;
+    private Instant exp;
 }

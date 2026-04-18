@@ -3,14 +3,13 @@ package net.hwyz.iov.cloud.sec.ciam.domain.service;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
 import net.hwyz.iov.cloud.sec.ciam.common.exception.CiamErrorCode;
+import net.hwyz.iov.cloud.sec.ciam.infrastructure.repository.dao.dataobject.CiamJwkDo;
 import org.springframework.stereotype.Service;
 
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.time.Instant;
@@ -19,37 +18,23 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 /**
  * JWT Access Token 签发与校验领域服务。
  * <p>
- * 使用 RS256 签名算法，启动时生成内存 RSA 密钥对（开发/测试环境）。
+ * 使用 RS256 签名算法，密钥持久化至数据库。
+ * 启动时从数据库加载主密钥，如无则生成新密钥并存储。
  * 提供 Access Token 签发、校验与 JWKS 公钥输出能力。
  */
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class JwtTokenService {
 
     static final String ISSUER = "https://account.openiov.com";
-    static final String KEY_ID = "ciam-rsa-key-1";
 
-    private final RSAPublicKey publicKey;
-    private final RSAPrivateKey privateKey;
-
-    public JwtTokenService() {
-        KeyPair keyPair = generateRsaKeyPair();
-        this.publicKey = (RSAPublicKey) keyPair.getPublic();
-        this.privateKey = (RSAPrivateKey) keyPair.getPrivate();
-        log.info("JwtTokenService 初始化完成，已生成内存 RSA 密钥对 (kid={})", KEY_ID);
-    }
-
-    /**
-     * 供测试使用的构造函数，允许注入自定义密钥对。
-     */
-    JwtTokenService(RSAPublicKey publicKey, RSAPrivateKey privateKey) {
-        this.publicKey = publicKey;
-        this.privateKey = privateKey;
-    }
+    private final JwkDomainService jwkDomainService;
 
     /**
      * 签发 JWT Access Token。
@@ -67,8 +52,11 @@ public class JwtTokenService {
                                       String sessionId,
                                       int ttlSeconds) {
         Instant now = Instant.now();
+        RSAPrivateKey privateKey = jwkDomainService.getPrimaryPrivateKey();
+        String keyId = jwkDomainService.getKeyId();
+
         return Jwts.builder()
-                .header().keyId(KEY_ID).and()
+                .header().keyId(keyId).and()
                 .subject(userId)
                 .issuer(ISSUER)
                 .issuedAt(Date.from(now))
@@ -86,8 +74,11 @@ public class JwtTokenService {
     public String generateRefreshToken(String userId, String deviceId, String scope, String sessionId) {
         Instant now = Instant.now();
         int ttlSeconds = 7 * 24 * 60 * 60;
+        RSAPrivateKey privateKey = jwkDomainService.getPrimaryPrivateKey();
+        String keyId = jwkDomainService.getKeyId();
+
         return Jwts.builder()
-                .header().keyId(KEY_ID).and()
+                .header().keyId(keyId).and()
                 .subject(userId)
                 .issuer(ISSUER)
                 .issuedAt(Date.from(now))
@@ -110,7 +101,7 @@ public class JwtTokenService {
     public TokenClaims validateAccessToken(String token) {
         try {
             Claims claims = Jwts.parser()
-                    .verifyWith(publicKey)
+                    .verifyWith(getPublicKeyForVerification(token))
                     .requireIssuer(ISSUER)
                     .build()
                     .parseSignedClaims(token)
@@ -127,6 +118,8 @@ public class JwtTokenService {
                     .build();
         } catch (JwtException | IllegalArgumentException e) {
             throw new BusinessException(CiamErrorCode.TOKEN_INVALID, e);
+        } catch (NoSuchElementException e) {
+            throw new BusinessException(CiamErrorCode.TOKEN_INVALID, "密钥不存在：" + e.getMessage());
         }
     }
 
@@ -136,33 +129,78 @@ public class JwtTokenService {
      * @return JWKS 结构的 Map
      */
     public Map<String, Object> getJwks() {
-        Map<String, Object> jwk = new LinkedHashMap<>();
-        jwk.put("kty", "RSA");
-        jwk.put("use", "sig");
-        jwk.put("alg", "RS256");
-        jwk.put("kid", KEY_ID);
-        jwk.put("n", base64UrlEncode(publicKey.getModulus().toByteArray()));
-        jwk.put("e", base64UrlEncode(publicKey.getPublicExponent().toByteArray()));
+        List<CiamJwkDo> activeKeys = jwkDomainService.getAllActiveKeys();
+        List<Map<String, Object>> keys = activeKeys.stream()
+                .map(this::convertToJwk)
+                .toList();
 
         Map<String, Object> jwks = new LinkedHashMap<>();
-        jwks.put("keys", List.of(jwk));
+        jwks.put("keys", keys);
         return jwks;
     }
 
     // ---- 内部方法 ----
 
-    private static KeyPair generateRsaKeyPair() {
+    /**
+     * 根据 token header 中的 kid 获取对应的公钥。
+     */
+    private RSAPublicKey getPublicKeyForVerification(String token) {
         try {
-            KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
-            generator.initialize(2048);
-            return generator.generateKeyPair();
-        } catch (NoSuchAlgorithmException e) {
-            throw new IllegalStateException("RSA 密钥对生成失败", e);
+            String keyId = extractKeyId(token);
+            if (keyId != null) {
+                return jwkDomainService.getPublicKeyByKeyId(keyId);
+            }
+            return jwkDomainService.getPrimaryPublicKey();
+        } catch (Exception e) {
+            throw new JwtException("无法提取密钥 ID", e);
         }
     }
 
+    /**
+     * 从 token 中提取密钥 ID (kid)。
+     */
+    private String extractKeyId(String token) {
+        String[] parts = token.split("\\.");
+        if (parts.length < 1) {
+            return null;
+        }
+        try {
+            String headerJson = new String(java.util.Base64.getUrlDecoder().decode(parts[0]));
+            com.fasterxml.jackson.databind.JsonNode header = 
+                new com.fasterxml.jackson.databind.ObjectMapper().readTree(headerJson);
+            return header.has("kid") ? header.get("kid").asText() : null;
+        } catch (Exception e) {
+            throw new JwtException("无法解析 token header", e);
+        }
+    }
+
+    /**
+     * 将 CiamJwkDo 转换为 JWK 格式。
+     */
+    private Map<String, Object> convertToJwk(CiamJwkDo entity) {
+        Map<String, Object> jwk = new LinkedHashMap<>();
+        jwk.put("kty", "RSA");
+        jwk.put("use", "sig");
+        jwk.put("alg", "RS256");
+        jwk.put("kid", entity.getKeyId());
+
+        byte[] modulusBytes = Base64.getMimeDecoder().decode(entity.getPublicKeyPem());
+        try {
+            java.security.KeyFactory keyFactory = java.security.KeyFactory.getInstance("RSA");
+            java.security.spec.X509EncodedKeySpec keySpec =
+                    new java.security.spec.X509EncodedKeySpec(modulusBytes);
+            RSAPublicKey publicKey = (RSAPublicKey) keyFactory.generatePublic(keySpec);
+
+            jwk.put("n", base64UrlEncode(publicKey.getModulus().toByteArray()));
+            jwk.put("e", base64UrlEncode(publicKey.getPublicExponent().toByteArray()));
+        } catch (Exception e) {
+            throw new IllegalStateException("JWK 转换失败：keyId=" + entity.getKeyId(), e);
+        }
+
+        return jwk;
+    }
+
     private static String base64UrlEncode(byte[] bytes) {
-        // 去除 BigInteger 前导零字节
         if (bytes.length > 0 && bytes[0] == 0) {
             byte[] trimmed = new byte[bytes.length - 1];
             System.arraycopy(bytes, 1, trimmed, 0, trimmed.length);
