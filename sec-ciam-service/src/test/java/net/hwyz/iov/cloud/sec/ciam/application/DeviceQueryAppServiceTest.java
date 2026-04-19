@@ -51,6 +51,7 @@ class DeviceQueryAppServiceTest {
         device.setDeviceFingerprint("fp-001");
         device.setTrustedFlag(1);
         device.setDeviceStatus(DeviceStatus.ACTIVE.getCode());
+        device.setLanguage("zh-CN");
         device.setFirstLoginTime(Instant.now());
         device.setLastLoginTime(Instant.now());
         device.setCreateTime(Instant.now());
@@ -96,7 +97,7 @@ class DeviceQueryAppServiceTest {
                     stubDevice("DEV-003")));
 
             SearchResult<DeviceQueryAppService.DeviceSearchResult> result = service.queryDeviceList(
-                    null, null, null, null, null, null, null, null, null, null, 0, 10);
+                    null, null, null, null, null, null, null, null, null, null, null, 0, 10);
 
             assertEquals(3, result.getTotal());
             assertEquals(3, result.getItems().size());
@@ -109,7 +110,7 @@ class DeviceQueryAppServiceTest {
                     stubDevice("DEV-002")));
 
             SearchResult<DeviceQueryAppService.DeviceSearchResult> result = service.queryDeviceList(
-                    "DEV-001", null, null, null, null, null, null, null, null, null, 0, 10);
+                    "DEV-001", null, null, null, null, null, null, null, null, null, null, 0, 10);
 
             assertEquals(1, result.getTotal());
             assertEquals("DEV-001", result.getItems().get(0).deviceId());
@@ -122,7 +123,7 @@ class DeviceQueryAppServiceTest {
                     stubDevice("DEV-002")));
 
             SearchResult<DeviceQueryAppService.DeviceSearchResult> result = service.queryDeviceList(
-                    null, "user-device-001", null, null, null, null, null, null, null, null, 0, 10);
+                    null, "user-device-001", null, null, null, null, null, null, null, null, null, 0, 10);
 
             assertEquals(2, result.getTotal());
         }
@@ -136,7 +137,7 @@ class DeviceQueryAppServiceTest {
             when(deviceRepository.findAll()).thenReturn(List.of(device1, device2));
 
             SearchResult<DeviceQueryAppService.DeviceSearchResult> result = service.queryDeviceList(
-                    null, null, "MOBILE", null, null, null, null, null, null, null, 0, 10);
+                    null, null, "MOBILE", null, null, null, null, null, null, null, null, 0, 10);
 
             assertEquals(1, result.getTotal());
             assertEquals("MOBILE", result.getItems().get(0).clientType());
@@ -151,7 +152,7 @@ class DeviceQueryAppServiceTest {
             when(deviceRepository.findAll()).thenReturn(List.of(device1, device2));
 
             SearchResult<DeviceQueryAppService.DeviceSearchResult> result = service.queryDeviceList(
-                    null, null, null, null, null, null, DeviceStatus.ACTIVE.getCode(), null, null, null, 0, 10);
+                    null, null, null, null, null, null, DeviceStatus.ACTIVE.getCode(), null, null, null, null, 0, 10);
 
             assertEquals(1, result.getTotal());
             assertEquals(DeviceStatus.ACTIVE.getCode(), result.getItems().get(0).deviceStatus());
@@ -166,7 +167,7 @@ class DeviceQueryAppServiceTest {
             when(deviceRepository.findAll()).thenReturn(List.of(device1, device2));
 
             SearchResult<DeviceQueryAppService.DeviceSearchResult> result = service.queryDeviceList(
-                    null, null, null, null, null, null, null, true, null, null, 0, 10);
+                    null, null, null, null, null, null, null, true, null, null, null, 0, 10);
 
             assertEquals(1, result.getTotal());
             assertEquals(1, result.getItems().get(0).trustedFlag());
@@ -181,7 +182,7 @@ class DeviceQueryAppServiceTest {
             when(deviceRepository.findAll()).thenReturn(List.of(device1, device2));
 
             SearchResult<DeviceQueryAppService.DeviceSearchResult> result = service.queryDeviceList(
-                    null, null, null, null, "iPhone", null, null, null, null, null, 0, 10);
+                    null, null, null, null, "iPhone", null, null, null, null, null, null, 0, 10);
 
             assertEquals(1, result.getTotal());
             assertTrue(result.getItems().get(0).deviceName().contains("iPhone"));
@@ -196,10 +197,25 @@ class DeviceQueryAppServiceTest {
             when(deviceRepository.findAll()).thenReturn(List.of(device1, device2));
 
             SearchResult<DeviceQueryAppService.DeviceSearchResult> result = service.queryDeviceList(
-                    null, null, null, null, null, "iOS", null, null, null, null, 0, 10);
+                    null, null, null, null, null, "iOS", null, null, null, null, null, 0, 10);
 
             assertEquals(1, result.getTotal());
             assertTrue(result.getItems().get(0).deviceOs().contains("iOS"));
+        }
+
+        @Test
+        void filtersByLanguage() {
+            CiamDeviceDo device1 = stubDevice("DEV-001");
+            device1.setLanguage("zh-CN");
+            CiamDeviceDo device2 = stubDevice("DEV-002");
+            device2.setLanguage("en-US");
+            when(deviceRepository.findAll()).thenReturn(List.of(device1, device2));
+
+            SearchResult<DeviceQueryAppService.DeviceSearchResult> result = service.queryDeviceList(
+                    null, null, null, null, null, null, null, null, "zh-CN", null, null, 0, 10);
+
+            assertEquals(1, result.getTotal());
+            assertEquals("zh-CN", result.getItems().get(0).language());
         }
 
         @Test
@@ -212,7 +228,7 @@ class DeviceQueryAppServiceTest {
                     stubDevice("DEV-005")));
 
             SearchResult<DeviceQueryAppService.DeviceSearchResult> result = service.queryDeviceList(
-                    null, null, null, null, null, null, null, null, null, null, 1, 2);
+                    null, null, null, null, null, null, null, null, null, null, null, 1, 2);
 
             assertEquals(5, result.getTotal());
             assertEquals(2, result.getItems().size());
@@ -225,7 +241,7 @@ class DeviceQueryAppServiceTest {
             when(deviceRepository.findAll()).thenReturn(Collections.emptyList());
 
             SearchResult<DeviceQueryAppService.DeviceSearchResult> result = service.queryDeviceList(
-                    null, null, null, null, null, null, null, null, null, null, 0, 10);
+                    null, null, null, null, null, null, null, null, null, null, null, 0, 10);
 
             assertEquals(0, result.getTotal());
             assertTrue(result.getItems().isEmpty());

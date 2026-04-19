@@ -20,7 +20,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/mp/device/v1")
 @RequiredArgsConstructor
-public class DeviceController {
+public class MpDeviceController {
 
     private final DeviceQueryAppService deviceQueryAppService;
 
@@ -37,13 +37,14 @@ public class DeviceController {
             @RequestParam(required = false) String deviceOs,
             @RequestParam(required = false) Integer deviceStatus,
             @RequestParam(required = false) Boolean trustedFlag,
+            @RequestParam(required = false) String language,
             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") OffsetDateTime startTime,
             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") OffsetDateTime endTime,
             @RequestParam(required = false, defaultValue = "0") int page,
             @RequestParam(required = false, defaultValue = "20") int size) {
         return ApiResponse.ok(deviceQueryAppService.queryDeviceList(
                 deviceId, userId, clientType, clientId, deviceName, deviceOs,
-                deviceStatus, trustedFlag, startTime, endTime, page, size));
+                deviceStatus, trustedFlag, language, startTime, endTime, page, size));
     }
 
     /**

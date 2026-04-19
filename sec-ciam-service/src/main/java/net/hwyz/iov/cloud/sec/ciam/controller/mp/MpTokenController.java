@@ -20,7 +20,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/mp/token/v1")
 @RequiredArgsConstructor
-public class TokenController {
+public class MpTokenController {
 
     private final TokenQueryAppService tokenQueryAppService;
 

@@ -42,6 +42,7 @@ public class DeviceQueryAppService {
      * @param deviceOs     设备系统（模糊）
      * @param deviceStatus 设备状态（精确）
      * @param trustedFlag  是否可信设备（精确）
+     * @param language     语言（精确）
      * @param startTime    创建开始时间
      * @param endTime      创建结束时间
      * @param page         页码（从 0 开始）
@@ -56,12 +57,13 @@ public class DeviceQueryAppService {
                                                             String deviceOs,
                                                             Integer deviceStatus,
                                                             Boolean trustedFlag,
+                                                            String language,
                                                             OffsetDateTime startTime,
                                                             OffsetDateTime endTime,
                                                             int page,
                                                             int size) {
-        log.info("检索设备列表：deviceId={}, userId={}, clientType={}, clientId={}, deviceName={}, deviceOs={}, deviceStatus={}, trustedFlag={}, startTime={}, endTime={}",
-                deviceId, userId, clientType, clientId, deviceName, deviceOs, deviceStatus, trustedFlag, startTime, endTime);
+        log.info("检索设备列表：deviceId={}, userId={}, clientType={}, clientId={}, deviceName={}, deviceOs={}, deviceStatus={}, trustedFlag={}, language={}, startTime={}, endTime={}",
+                deviceId, userId, clientType, clientId, deviceName, deviceOs, deviceStatus, trustedFlag, language, startTime, endTime);
 
         List<CiamDeviceDo> allDevices = deviceRepository.findAll();
 
@@ -100,6 +102,9 @@ public class DeviceQueryAppService {
                         if (!trustedFlag.equals(docTrustedFlag)) {
                             return false;
                         }
+                    }
+                    if (language != null && !language.isEmpty() && !language.equals(doc.language())) {
+                        return false;
                     }
                     if (startTime != null || endTime != null) {
                         OffsetDateTime createTime = doc.createTime();
@@ -161,6 +166,7 @@ public class DeviceQueryAppService {
                 device.getDeviceFingerprint(),
                 device.getTrustedFlag(),
                 device.getDeviceStatus(),
+                device.getLanguage(),
                 DateTimeUtil.instantToOffsetDateTime(device.getFirstLoginTime()),
                 DateTimeUtil.instantToOffsetDateTime(device.getLastLoginTime()),
                 DateTimeUtil.instantToOffsetDateTime(device.getCreateTime()),
@@ -198,6 +204,7 @@ public class DeviceQueryAppService {
             String deviceFingerprint,
             Integer trustedFlag,
             Integer deviceStatus,
+            String language,
             OffsetDateTime firstLoginTime,
             OffsetDateTime lastLoginTime,
             OffsetDateTime createTime,

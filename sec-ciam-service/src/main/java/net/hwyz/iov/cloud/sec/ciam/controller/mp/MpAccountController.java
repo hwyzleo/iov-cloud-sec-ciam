@@ -38,7 +38,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/mp/account/v1")
 @RequiredArgsConstructor
-public class AccountController {
+public class MpAccountController {
 
     private final AccountQueryAppService adminQueryAppService;
     private final AccountLifecycleAppService accountLifecycleAppService;
