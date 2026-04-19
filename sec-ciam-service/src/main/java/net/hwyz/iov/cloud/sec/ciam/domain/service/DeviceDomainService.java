@@ -37,10 +37,10 @@ public class DeviceDomainService {
 
         if (deviceId == null || deviceId.isBlank()) {
             // 如果没传 deviceId，根据指纹或其它信息生成
-            deviceId = "DEV_" + Math.abs((deviceInfo.getDeviceFingerprint() != null ? 
-                deviceInfo.getDeviceFingerprint() : deviceInfo.toString()).hashCode());
+            deviceId = "DEV_" + Math.abs((deviceInfo.getDeviceFingerprint() != null ?
+                    deviceInfo.getDeviceFingerprint() : deviceInfo.toString()).hashCode());
         }
-        
+
         Optional<CiamDeviceDo> deviceOpt = deviceRepository.findByDeviceId(deviceId);
         if (deviceOpt.isPresent()) {
             CiamDeviceDo device = deviceOpt.get();
@@ -64,6 +64,7 @@ public class DeviceDomainService {
             device.setDeviceName(deviceInfo.getDeviceName());
             device.setDeviceOs(deviceInfo.getDeviceOs());
             device.setAppVersion(deviceInfo.getAppVersion());
+            device.setLanguage(deviceInfo.getLanguage());
             device.setDeviceFingerprint(deviceInfo.getDeviceFingerprint());
             device.setDeviceStatus(DeviceStatus.ACTIVE.getCode());
             device.setFirstLoginTime(DateTimeUtil.getNowInstant());
