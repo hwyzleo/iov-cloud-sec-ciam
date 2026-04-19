@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import net.hwyz.iov.cloud.framework.common.bean.ApiResponse;
 import net.hwyz.iov.cloud.framework.common.constant.CustomHeaders;
+import net.hwyz.iov.cloud.framework.web.context.SecurityContextHolder;
 import net.hwyz.iov.cloud.sec.ciam.application.AuthenticationAppService;
 import net.hwyz.iov.cloud.sec.ciam.application.LoginResult;
 import net.hwyz.iov.cloud.sec.ciam.controller.mobile.dto.*;
@@ -122,5 +123,14 @@ public class MobileAuthController {
             @RequestBody @Valid RefreshTokenRequest req) {
         LoginResult result = authenticationAppService.refreshToken(req.getRefreshToken(), clientId);
         return ApiResponse.ok(result);
+    }
+
+    @PostMapping("/device/language")
+    public ApiResponse<Void> changeLanguage(
+            @RequestHeader(CustomHeaders.DEVICE_ID) String deviceId,
+            @RequestBody @Valid ChangeLanguageRequest req) {
+        String userId = SecurityContextHolder.getUserId();
+        authenticationAppService.changeLanguage(userId, deviceId, req.getLanguage());
+        return ApiResponse.ok();
     }
 }

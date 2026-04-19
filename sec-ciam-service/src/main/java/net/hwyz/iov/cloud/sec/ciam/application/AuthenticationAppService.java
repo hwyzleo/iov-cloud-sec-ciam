@@ -561,4 +561,15 @@ public class AuthenticationAppService {
                 .eventTime(DateTimeUtil.getNowInstant())
                 .build());
     }
+
+    /**
+     * 切换设备语言。
+     *
+     * @param userId   用户 ID
+     * @param deviceId 设备 ID
+     * @param language 语言代码，如 zh-CN, en-US
+     */
+    public void changeLanguage(String userId, String deviceId, String language) {
+        deviceDomainService.changeLanguage(userId, deviceId, language);
+    }
 }

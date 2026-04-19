@@ -50,6 +50,9 @@ public class DeviceDomainService {
             if (deviceInfo.getAppVersion() != null) {
                 device.setAppVersion(deviceInfo.getAppVersion());
             }
+            if (deviceInfo.getLanguage() != null) {
+                device.setLanguage(deviceInfo.getLanguage());
+            }
             deviceRepository.updateByDeviceId(device);
             log.info("更新设备登录信息: deviceId={}, userId={}", deviceId, userId);
         } else {
@@ -74,5 +77,25 @@ public class DeviceDomainService {
         }
 
         return deviceId;
+    }
+
+    /**
+     * 切换设备语言。
+     *
+     * @param userId   用户业务唯一标识
+     * @param deviceId 设备标识
+     * @param language 语言代码，如 zh-CN, en-US
+     */
+    public void changeLanguage(String userId, String deviceId, String language) {
+        Optional<CiamDeviceDo> deviceOpt = deviceRepository.findByDeviceId(deviceId);
+        if (deviceOpt.isPresent()) {
+            CiamDeviceDo device = deviceOpt.get();
+            device.setLanguage(language);
+            device.setModifyTime(DateTimeUtil.getNowInstant());
+            deviceRepository.updateByDeviceId(device);
+            log.info("切换设备语言：deviceId={}, userId={}, language={}", deviceId, userId, language);
+        } else {
+            log.warn("设备不存在，无法切换语言：deviceId={}, userId={}", deviceId, userId);
+        }
     }
 }

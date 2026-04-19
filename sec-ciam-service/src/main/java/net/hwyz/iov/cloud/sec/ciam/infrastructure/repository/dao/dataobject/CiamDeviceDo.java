@@ -42,6 +42,9 @@ public class CiamDeviceDo {
     @TableField("device_fingerprint")
     private String deviceFingerprint;
 
+    @TableField("language")
+    private String language;
+
     @TableField("trusted_flag")
     private Integer trustedFlag;
 

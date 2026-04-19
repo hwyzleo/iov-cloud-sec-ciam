@@ -27,4 +27,6 @@ public class DeviceInfo {
     private String deviceOs;
     /** 设备指纹 */
     private String deviceFingerprint;
+    /** 语言 */
+    private String language;
 }
