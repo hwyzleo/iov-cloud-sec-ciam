@@ -12,5 +12,4 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class RefreshTokenRequest {
     @NotBlank private String refreshToken;
-    @NotBlank private String deviceId;
 }
