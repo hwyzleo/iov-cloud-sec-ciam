@@ -3,7 +3,7 @@ package net.hwyz.iov.cloud.sec.ciam.service.domain.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
-import net.hwyz.iov.cloud.sec.ciam.service.controller.mobile.dto.DeviceInfo;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.DeviceInfo;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.DeviceStatus;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamDeviceRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamDeviceDo;

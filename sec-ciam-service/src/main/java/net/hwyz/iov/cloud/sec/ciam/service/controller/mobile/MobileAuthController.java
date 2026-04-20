@@ -7,6 +7,7 @@ import net.hwyz.iov.cloud.framework.common.constant.CustomHeaders;
 import net.hwyz.iov.cloud.framework.web.context.SecurityContextHolder;
 import net.hwyz.iov.cloud.sec.ciam.service.application.AuthenticationAppService;
 import net.hwyz.iov.cloud.sec.ciam.service.application.LoginResult;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.DeviceInfo;
 import net.hwyz.iov.cloud.sec.ciam.service.controller.mobile.dto.*;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.service.CaptchaDomainService;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.service.VerificationCodeService;

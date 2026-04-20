@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.DeviceInfo;
 
 @Data
 @Builder

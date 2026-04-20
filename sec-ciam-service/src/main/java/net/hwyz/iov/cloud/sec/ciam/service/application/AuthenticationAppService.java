@@ -9,7 +9,7 @@ import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditLogger;
 import net.hwyz.iov.cloud.sec.ciam.service.common.exception.CiamErrorCode;
 import net.hwyz.iov.cloud.sec.ciam.service.common.security.FieldEncryptor;
 import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
-import net.hwyz.iov.cloud.sec.ciam.service.controller.mobile.dto.DeviceInfo;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.DeviceInfo;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.adapter.AppleLoginAdapter;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.adapter.CaptchaChallenge;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.adapter.GoogleLoginAdapter;
