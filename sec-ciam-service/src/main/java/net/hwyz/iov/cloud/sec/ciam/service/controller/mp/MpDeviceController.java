@@ -2,9 +2,10 @@ package net.hwyz.iov.cloud.sec.ciam.service.controller.mp;
 
 import lombok.RequiredArgsConstructor;
 import net.hwyz.iov.cloud.framework.common.bean.ApiResponse;
+import net.hwyz.iov.cloud.sec.ciam.api.vo.DeviceVO;
 import net.hwyz.iov.cloud.sec.ciam.service.application.DeviceQueryAppService;
+import net.hwyz.iov.cloud.sec.ciam.service.application.mapper.DeviceMapper;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.search.SearchResult;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamDeviceDo;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 运营后台管理控制器 — 设备查询。
@@ -23,6 +25,8 @@ import java.util.List;
 public class MpDeviceController {
 
     private final DeviceQueryAppService deviceQueryAppService;
+    
+    private final DeviceMapper deviceMapper = DeviceMapper.INSTANCE;
 
     /**
      * 检索设备列表
@@ -51,15 +55,25 @@ public class MpDeviceController {
      * 查询设备详情
      */
     @GetMapping("/devices/detail")
-    public ApiResponse<CiamDeviceDo> getDeviceDetail(@RequestParam String deviceId) {
-        return ApiResponse.ok(deviceQueryAppService.queryDevice(deviceId));
+    public ApiResponse<DeviceVO> getDeviceDetail(@RequestParam String deviceId) {
+        var device = deviceQueryAppService.queryDevice(deviceId);
+        var domainModel = deviceMapper.toDomain(device);
+        DeviceVO vo = deviceMapper.toVo(domainModel);
+        return ApiResponse.ok(vo);
     }
 
     /**
      * 查询用户的设备列表
      */
     @GetMapping("/devices/user")
-    public ApiResponse<List<CiamDeviceDo>> getUserDevices(@RequestParam String userId) {
-        return ApiResponse.ok(deviceQueryAppService.queryUserDevices(userId));
+    public ApiResponse<List<DeviceVO>> getUserDevices(@RequestParam String userId) {
+        var devices = deviceQueryAppService.queryUserDevices(userId);
+        List<DeviceVO> voList = devices.stream()
+            .map(d -> {
+                var domainModel = deviceMapper.toDomain(d);
+                return deviceMapper.toVo(domainModel);
+            })
+            .collect(Collectors.toList());
+        return ApiResponse.ok(voList);
     }
 }

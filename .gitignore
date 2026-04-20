@@ -70,3 +70,11 @@ target/
 MybatisPlusGenerator.java
 
 .kiro/
+
++ ### Environment variables ###
++ .env
++ .env.*
++ *.env
+
+spec/
+AGENTS.md

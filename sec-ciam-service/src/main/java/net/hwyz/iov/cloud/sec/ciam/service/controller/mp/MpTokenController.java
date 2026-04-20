@@ -2,9 +2,10 @@ package net.hwyz.iov.cloud.sec.ciam.service.controller.mp;
 
 import lombok.RequiredArgsConstructor;
 import net.hwyz.iov.cloud.framework.common.bean.ApiResponse;
+import net.hwyz.iov.cloud.sec.ciam.api.vo.RefreshTokenVO;
 import net.hwyz.iov.cloud.sec.ciam.service.application.TokenQueryAppService;
+import net.hwyz.iov.cloud.sec.ciam.service.application.mapper.RefreshTokenMapper;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.search.SearchResult;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamRefreshTokenDo;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 运营后台管理控制器 — 令牌查询。
@@ -23,6 +25,8 @@ import java.util.List;
 public class MpTokenController {
 
     private final TokenQueryAppService tokenQueryAppService;
+    
+    private final RefreshTokenMapper refreshTokenMapper = RefreshTokenMapper.INSTANCE;
 
     /**
      * 检索令牌列表
@@ -46,23 +50,40 @@ public class MpTokenController {
      * 查询令牌详情
      */
     @GetMapping("/tokens/detail")
-    public ApiResponse<CiamRefreshTokenDo> getTokenDetail(@RequestParam String refreshTokenId) {
-        return ApiResponse.ok(tokenQueryAppService.queryToken(refreshTokenId));
+    public ApiResponse<RefreshTokenVO> getTokenDetail(@RequestParam String refreshTokenId) {
+        var token = tokenQueryAppService.queryToken(refreshTokenId);
+        var domainModel = refreshTokenMapper.toDomain(token);
+        RefreshTokenVO vo = refreshTokenMapper.toVo(domainModel);
+        return ApiResponse.ok(vo);
     }
 
     /**
      * 查询用户的令牌列表
      */
     @GetMapping("/tokens/user")
-    public ApiResponse<List<CiamRefreshTokenDo>> getUserTokens(@RequestParam String userId) {
-        return ApiResponse.ok(tokenQueryAppService.queryUserTokens(userId));
+    public ApiResponse<List<RefreshTokenVO>> getUserTokens(@RequestParam String userId) {
+        var tokens = tokenQueryAppService.queryUserTokens(userId);
+        List<RefreshTokenVO> voList = tokens.stream()
+            .map(t -> {
+                var domainModel = refreshTokenMapper.toDomain(t);
+                return refreshTokenMapper.toVo(domainModel);
+            })
+            .collect(Collectors.toList());
+        return ApiResponse.ok(voList);
     }
 
     /**
      * 查询会话的令牌列表
      */
     @GetMapping("/tokens/session")
-    public ApiResponse<List<CiamRefreshTokenDo>> getSessionTokens(@RequestParam String sessionId) {
-        return ApiResponse.ok(tokenQueryAppService.querySessionTokens(sessionId));
+    public ApiResponse<List<RefreshTokenVO>> getSessionTokens(@RequestParam String sessionId) {
+        var tokens = tokenQueryAppService.querySessionTokens(sessionId);
+        List<RefreshTokenVO> voList = tokens.stream()
+            .map(t -> {
+                var domainModel = refreshTokenMapper.toDomain(t);
+                return refreshTokenMapper.toVo(domainModel);
+            })
+            .collect(Collectors.toList());
+        return ApiResponse.ok(voList);
     }
 }

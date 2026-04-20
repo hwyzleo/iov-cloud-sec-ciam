@@ -4,6 +4,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import net.hwyz.iov.cloud.framework.common.bean.ApiResponse;
 import net.hwyz.iov.cloud.framework.web.context.SecurityContextHolder;
+import net.hwyz.iov.cloud.sec.ciam.api.vo.RiskEventVO;
+import net.hwyz.iov.cloud.sec.ciam.service.application.mapper.RiskEventMapper;
 import net.hwyz.iov.cloud.sec.ciam.service.controller.mobile.dto.TriggerMfaRequest;
 import net.hwyz.iov.cloud.sec.ciam.service.controller.mobile.dto.VerifyMfaRequest;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.ChallengeScene;
@@ -22,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 风控控制器 — MFA 挑战触发/校验、风险事件查询。
@@ -33,6 +36,8 @@ public class MobileRiskController {
 
     private final MfaDomainService mfaDomainService;
     private final CiamRiskEventRepository riskEventRepository;
+    
+    private final RiskEventMapper riskEventMapper = RiskEventMapper.INSTANCE;
 
     /** 触发 MFA 挑战 */
     @PostMapping("/mfa/trigger")
@@ -54,11 +59,17 @@ public class MobileRiskController {
 
     /** 查询用户风险事件 */
     @GetMapping("/events")
-    public ApiResponse<List<CiamRiskEventDo>> queryRiskEvents(
+    public ApiResponse<List<RiskEventVO>> queryRiskEvents(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startTime,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endTime) {
         String userId = SecurityContextHolder.getUserId();
         List<CiamRiskEventDo> events = riskEventRepository.findByUserIdAndTimeRange(userId, startTime, endTime);
-        return ApiResponse.ok(events);
+        List<RiskEventVO> voList = events.stream()
+            .map(e -> {
+                var domainModel = riskEventMapper.toDomain(e);
+                return riskEventMapper.toVo(domainModel);
+            })
+            .collect(Collectors.toList());
+        return ApiResponse.ok(voList);
     }
 }

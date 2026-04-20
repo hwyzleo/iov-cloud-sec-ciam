@@ -4,6 +4,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import net.hwyz.iov.cloud.framework.common.bean.ApiResponse;
 import net.hwyz.iov.cloud.framework.web.context.SecurityContextHolder;
+import net.hwyz.iov.cloud.sec.ciam.api.vo.DeviceVO;
+import net.hwyz.iov.cloud.sec.ciam.api.vo.SessionVO;
+import net.hwyz.iov.cloud.sec.ciam.api.vo.UserProfileVO;
 import net.hwyz.iov.cloud.sec.ciam.service.application.AccountBindingAppService;
 import net.hwyz.iov.cloud.sec.ciam.service.application.AccountLifecycleAppService;
 import net.hwyz.iov.cloud.sec.ciam.service.application.ConsentAppService;
@@ -11,16 +14,16 @@ import net.hwyz.iov.cloud.sec.ciam.service.application.OwnerCertificationAppServ
 import net.hwyz.iov.cloud.sec.ciam.service.application.PasswordChangeAppService;
 import net.hwyz.iov.cloud.sec.ciam.service.application.PasswordResetAppService;
 import net.hwyz.iov.cloud.sec.ciam.service.application.UserProfileAppService;
+import net.hwyz.iov.cloud.sec.ciam.service.application.mapper.DeviceMapper;
+import net.hwyz.iov.cloud.sec.ciam.service.application.mapper.SessionMapper;
+import net.hwyz.iov.cloud.sec.ciam.service.application.mapper.UserProfileMapper;
 import net.hwyz.iov.cloud.sec.ciam.service.controller.mobile.dto.*;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.IdentityType;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.service.SessionDomainService;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.service.VerificationCodeType;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamDeviceDo;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamOwnerCertStateDo;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamSessionDo;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamUserConsentDo;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamUserIdentityDo;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamUserProfileDo;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -32,6 +35,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 账号控制器 — 资料CRUD、绑定/解绑、会话/设备管理、密码变更/重置、注销、同意管理、车主认证状态。
@@ -50,13 +54,20 @@ public class MobileAccountController {
     private final ConsentAppService consentAppService;
     private final OwnerCertificationAppService ownerCertificationAppService;
 
+    private final UserProfileMapper userProfileMapper = UserProfileMapper.INSTANCE;
+    private final SessionMapper sessionMapper = SessionMapper.INSTANCE;
+    private final DeviceMapper deviceMapper = DeviceMapper.INSTANCE;
+
     // ---- 用户资料 ----
 
     /** 查询用户资料 */
     @GetMapping("/profile")
-    public ApiResponse<CiamUserProfileDo> getProfile() {
+    public ApiResponse<UserProfileVO> getProfile() {
         String userId = SecurityContextHolder.getUserId();
-        return ApiResponse.ok(userProfileAppService.getProfile(userId));
+        var profile = userProfileAppService.getProfile(userId);
+        var domainModel = userProfileMapper.toDomain(profile);
+        UserProfileVO vo = userProfileMapper.toVo(domainModel);
+        return ApiResponse.ok(vo);
     }
 
     /** 更新用户资料 */
@@ -99,16 +110,30 @@ public class MobileAccountController {
 
     /** 查询用户活跃会话 */
     @GetMapping("/sessions")
-    public ApiResponse<List<CiamSessionDo>> listSessions() {
+    public ApiResponse<List<SessionVO>> listSessions() {
         String userId = SecurityContextHolder.getUserId();
-        return ApiResponse.ok(sessionDomainService.findUserSessions(userId));
+        var sessions = sessionDomainService.findUserSessions(userId);
+        List<SessionVO> voList = sessions.stream()
+            .map(s -> {
+                var domainModel = sessionMapper.toDomain(s);
+                return sessionMapper.toVo(domainModel);
+            })
+            .collect(Collectors.toList());
+        return ApiResponse.ok(voList);
     }
 
     /** 查询用户活跃设备 */
     @GetMapping("/devices")
-    public ApiResponse<List<CiamDeviceDo>> listDevices() {
+    public ApiResponse<List<DeviceVO>> listDevices() {
         String userId = SecurityContextHolder.getUserId();
-        return ApiResponse.ok(sessionDomainService.findUserDevices(userId));
+        var devices = sessionDomainService.findUserDevices(userId);
+        List<DeviceVO> voList = devices.stream()
+            .map(d -> {
+                var domainModel = deviceMapper.toDomain(d);
+                return deviceMapper.toVo(domainModel);
+            })
+            .collect(Collectors.toList());
+        return ApiResponse.ok(voList);
     }
 
     /** 下线指定会话 */
