@@ -6,9 +6,9 @@ import net.hwyz.iov.cloud.framework.common.bean.ApiResponse;
 import net.hwyz.iov.cloud.framework.common.constant.CustomHeaders;
 import net.hwyz.iov.cloud.framework.web.context.SecurityContextHolder;
 import net.hwyz.iov.cloud.sec.ciam.service.application.AuthenticationAppService;
-import net.hwyz.iov.cloud.sec.ciam.service.application.LoginResult;
-import net.hwyz.iov.cloud.sec.ciam.service.application.dto.DeviceInfo;
-import net.hwyz.iov.cloud.sec.ciam.service.controller.mobile.dto.*;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.LoginResultDTO;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.DeviceInfoDTO;
+import net.hwyz.iov.cloud.sec.ciam.service.controller.mobile.vo.*;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.service.CaptchaDomainService;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.service.VerificationCodeService;
 import org.springframework.web.bind.annotation.*;
@@ -43,70 +43,70 @@ public class MobileAuthController {
     }
 
     @PostMapping("/login/mobile")
-    public ApiResponse<LoginResult> loginByMobile(
+    public ApiResponse<LoginResultDTO> loginByMobile(
             @RequestHeader(CustomHeaders.CLIENT_ID) String clientId,
             @RequestHeader(CustomHeaders.CLIENT_TYPE) String clientType,
             @RequestHeader(CustomHeaders.DEVICE_ID) String deviceId,
             @RequestHeader(CustomHeaders.PLATFORM) String platform,
             @RequestHeader(CustomHeaders.APP_VERSION) String appVersion,
             @RequestBody @Valid MobileLoginRequest req) {
-        DeviceInfo deviceInfo = req.getDeviceInfo();
+        DeviceInfoDTO deviceInfo = req.getDeviceInfo();
         deviceInfo.setDeviceId(deviceId);
         deviceInfo.setClientId(clientId);
         deviceInfo.setClientType(clientType);
         deviceInfo.setDeviceOs(platform);
         deviceInfo.setAppVersion(appVersion);
-        LoginResult result = authenticationAppService.loginByMobileCode(
+        LoginResultDTO result = authenticationAppService.loginByMobileCode(
                 req.getMobile(), req.getCountryCode(), req.getCode(), deviceId, deviceInfo);
         return ApiResponse.ok(result);
     }
 
     @PostMapping("/login/email-password")
-    public ApiResponse<LoginResult> loginByEmailPassword(
+    public ApiResponse<LoginResultDTO> loginByEmailPassword(
             @RequestHeader("X-Client-Id") String clientId,
             @RequestBody @Valid EmailPasswordLoginRequest req) {
-        LoginResult result = authenticationAppService.loginByEmailPassword(
+        LoginResultDTO result = authenticationAppService.loginByEmailPassword(
                 req.getEmail(), req.getPassword(), clientId, req.getCaptchaId(), req.getCaptchaAnswer());
         return ApiResponse.ok(result);
     }
 
     @PostMapping("/login/email-code")
-    public ApiResponse<LoginResult> loginByEmailCode(
+    public ApiResponse<LoginResultDTO> loginByEmailCode(
             @RequestHeader("X-Client-Id") String clientId,
             @RequestBody @Valid EmailCodeLoginRequest req) {
-        LoginResult result = authenticationAppService.loginByEmailCode(req.getEmail(), req.getCode(), clientId);
+        LoginResultDTO result = authenticationAppService.loginByEmailCode(req.getEmail(), req.getCode(), clientId);
         return ApiResponse.ok(result);
     }
 
     @PostMapping("/login/wechat")
-    public ApiResponse<LoginResult> loginByWechat(
+    public ApiResponse<LoginResultDTO> loginByWechat(
             @RequestHeader("X-Client-Id") String clientId,
             @RequestBody @Valid ThirdPartyLoginRequest req) {
-        LoginResult result = authenticationAppService.loginByWechat(req.getToken(), clientId);
+        LoginResultDTO result = authenticationAppService.loginByWechat(req.getToken(), clientId);
         return ApiResponse.ok(result);
     }
 
     @PostMapping("/login/apple")
-    public ApiResponse<LoginResult> loginByApple(
+    public ApiResponse<LoginResultDTO> loginByApple(
             @RequestHeader("X-Client-Id") String clientId,
             @RequestBody @Valid ThirdPartyLoginRequest req) {
-        LoginResult result = authenticationAppService.loginByApple(req.getToken(), clientId);
+        LoginResultDTO result = authenticationAppService.loginByApple(req.getToken(), clientId);
         return ApiResponse.ok(result);
     }
 
     @PostMapping("/login/google")
-    public ApiResponse<LoginResult> loginByGoogle(
+    public ApiResponse<LoginResultDTO> loginByGoogle(
             @RequestHeader("X-Client-Id") String clientId,
             @RequestBody @Valid ThirdPartyLoginRequest req) {
-        LoginResult result = authenticationAppService.loginByGoogle(req.getToken(), clientId);
+        LoginResultDTO result = authenticationAppService.loginByGoogle(req.getToken(), clientId);
         return ApiResponse.ok(result);
     }
 
     @PostMapping("/login/local-mobile")
-    public ApiResponse<LoginResult> loginByLocalMobile(
+    public ApiResponse<LoginResultDTO> loginByLocalMobile(
             @RequestHeader("X-Client-Id") String clientId,
             @RequestBody @Valid LocalMobileLoginRequest req) {
-        LoginResult result = authenticationAppService.loginByLocalMobile(req.getToken(), clientId, req.getDeviceInfo());
+        LoginResultDTO result = authenticationAppService.loginByLocalMobile(req.getToken(), clientId, req.getDeviceInfo());
         return ApiResponse.ok(result);
     }
 
@@ -119,10 +119,10 @@ public class MobileAuthController {
     }
 
     @PostMapping("/token/refresh")
-    public ApiResponse<LoginResult> refreshToken(
+    public ApiResponse<LoginResultDTO> refreshToken(
             @RequestHeader(CustomHeaders.CLIENT_ID) String clientId,
             @RequestBody @Valid RefreshTokenRequest req) {
-        LoginResult result = authenticationAppService.refreshToken(req.getRefreshToken(), clientId);
+        LoginResultDTO result = authenticationAppService.refreshToken(req.getRefreshToken(), clientId);
         return ApiResponse.ok(result);
     }
 

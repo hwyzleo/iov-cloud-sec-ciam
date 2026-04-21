@@ -3,6 +3,8 @@ package net.hwyz.iov.cloud.sec.ciam.service.application;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.OwnerCertificationDTO;
+import net.hwyz.iov.cloud.sec.ciam.service.application.mapper.OwnerCertificationMapper;
 import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditEvent;
 import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditEventType;
 import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditLogger;
@@ -17,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * 车主认证状态应用服务 — 编排认证回调处理、状态查询与补偿机制。
@@ -103,13 +106,15 @@ public class OwnerCertificationAppService {
      * @param userId 用户业务唯一标识
      * @return 该用户所有认证状态记录
      */
-    public List<CiamOwnerCertStateDo> queryCertificationStatus(String userId) {
+    public List<OwnerCertificationDTO> queryCertificationStatus(String userId) {
         if (userId == null || userId.isBlank()) {
             throw new BusinessException(CiamErrorCode.INVALID_PARAM, "userId 不能为空");
         }
         List<CiamOwnerCertStateDo> records = certStateRepository.findByUserId(userId);
         logAudit(userId, AuditEventType.OWNER_CERT_QUERY, true);
-        return records;
+        return records.stream()
+                .map(doObj -> OwnerCertificationMapper.INSTANCE.toDto(OwnerCertificationMapper.INSTANCE.toDomain(doObj)))
+                .collect(Collectors.toList());
     }
 
     /**
@@ -121,7 +126,7 @@ public class OwnerCertificationAppService {
      * @param userId 用户业务唯一标识
      * @return 需要补偿的认证中记录列表
      */
-    public List<CiamOwnerCertStateDo> compensateCertificationStatus(String userId) {
+    public List<OwnerCertificationDTO> compensateCertificationStatus(String userId) {
         if (userId == null || userId.isBlank()) {
             throw new BusinessException(CiamErrorCode.INVALID_PARAM, "userId 不能为空");
         }
@@ -139,7 +144,9 @@ public class OwnerCertificationAppService {
         }
 
         logAudit(userId, AuditEventType.OWNER_CERT_COMPENSATE, true);
-        return pendingRecords;
+        return pendingRecords.stream()
+                .map(doObj -> OwnerCertificationMapper.INSTANCE.toDto(OwnerCertificationMapper.INSTANCE.toDomain(doObj)))
+                .collect(Collectors.toList());
     }
 
     /**

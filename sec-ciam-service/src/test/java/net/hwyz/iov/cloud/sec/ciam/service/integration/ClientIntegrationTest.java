@@ -2,7 +2,7 @@ package net.hwyz.iov.cloud.sec.ciam.service.integration;
 
 import net.hwyz.iov.cloud.framework.common.bean.ApiResponse;
 import net.hwyz.iov.cloud.sec.ciam.service.application.AuthenticationAppService;
-import net.hwyz.iov.cloud.sec.ciam.service.application.LoginResult;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.LoginResultDTO;
 import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
 import static org.mockito.Mockito.*;
 import org.mockito.Mockito;
@@ -10,9 +10,9 @@ import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditLogger;
 import net.hwyz.iov.cloud.sec.ciam.service.common.security.FieldEncryptor;
 import net.hwyz.iov.cloud.sec.ciam.service.common.security.PasswordEncoder;
 import net.hwyz.iov.cloud.sec.ciam.service.controller.mobile.MobileAuthController;
-import net.hwyz.iov.cloud.sec.ciam.service.controller.mobile.dto.*;
+import net.hwyz.iov.cloud.sec.ciam.service.controller.mobile.vo.*;
 import net.hwyz.iov.cloud.sec.ciam.service.controller.open.OpenOAuthController;
-import net.hwyz.iov.cloud.sec.ciam.service.controller.open.dto.*;
+import net.hwyz.iov.cloud.sec.ciam.service.controller.open.vo.*;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.adapter.AdapterResult;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.adapter.AppleLoginAdapter;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.adapter.CaptchaAdapter;
@@ -26,6 +26,7 @@ import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.DeviceStatus;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.IdentityStatus;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.SessionStatus;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.UserStatus;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.model.Device;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamAuthCodeRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamDeviceRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamOAuthClientRepository;
@@ -36,7 +37,6 @@ import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserIdentityRep
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserProfileRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.service.*;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamDeviceDo;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamOAuthClientDo;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamSessionDo;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamUserDo;
@@ -48,9 +48,6 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -58,22 +55,9 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
 
 /**
  * 任务 18.1：与手机 App、小程序、官网、车机完成接入联调。
- * <p>
- * 由于无法连接真实终端，本测试类模拟四种客户端类型（app、mini_program、web、vehicle）
- * 与 CIAM 系统的交互行为，覆盖以下场景：
- * <ol>
- *   <li>统一登录 — 各客户端类型通过同一 API 认证并获取有效令牌</li>
- *   <li>Token 使用 — Access Token 与 Refresh Token 对各客户端类型正确工作</li>
- *   <li>登出 — 各客户端类型可正确登出并使会话失效</li>
- *   <li>设备管理 — 同一用户可注册和管理多个设备</li>
- *   <li>多端并发 — 同一用户从多个客户端类型同时登录，会话相互隔离</li>
- * </ol>
- *
- * @see net.hwyz.iov.cloud.sec.ciam.service.domain.enums.ClientType
  */
 @DisplayName("任务 18.1：多端接入联调验证")
 class ClientIntegrationTest {
@@ -131,7 +115,7 @@ class ClientIntegrationTest {
 
     // ---- 模拟会话存储 ----
     final Map<String, CiamSessionDo> sessionStore = new ConcurrentHashMap<>();
-    final Map<String, CiamDeviceDo> deviceStore = new ConcurrentHashMap<>();
+    final Map<String, Device> deviceStore = new ConcurrentHashMap<>();
 
     @BeforeEach
     void setUp() {
@@ -236,10 +220,10 @@ class ClientIntegrationTest {
 
     private void setupDeviceRepositoryMocks() {
         doAnswer(inv -> {
-            CiamDeviceDo d = inv.getArgument(0);
+            Device d = inv.getArgument(0);
             deviceStore.put(d.getDeviceId(), d);
             return 1;
-        }).when(deviceRepository).insert(any(CiamDeviceDo.class));
+        }).when(deviceRepository).insert(any(Device.class));
 
         when(deviceRepository.findByDeviceId(anyString())).thenAnswer(inv -> {
             String did = inv.getArgument(0);
@@ -247,10 +231,10 @@ class ClientIntegrationTest {
         });
 
         doAnswer(inv -> {
-            CiamDeviceDo d = inv.getArgument(0);
+            Device d = inv.getArgument(0);
             deviceStore.put(d.getDeviceId(), d);
             return 1;
-        }).when(deviceRepository).updateByDeviceId(any(CiamDeviceDo.class));
+        }).when(deviceRepository).updateByDeviceId(any(Device.class));
 
         when(deviceRepository.findByUserIdAndStatus(anyString(), anyInt())).thenAnswer(inv -> {
             String userId = inv.getArgument(0);
@@ -325,8 +309,8 @@ class ClientIntegrationTest {
         return session;
     }
 
-    private CiamDeviceDo createActiveDevice(String userId, String deviceId, String clientType) {
-        CiamDeviceDo device = new CiamDeviceDo();
+    private Device createActiveDevice(String userId, String deviceId, String clientType) {
+        Device device = new Device();
         device.setDeviceId(deviceId);
         device.setUserId(userId);
         device.setClientType(clientType);
@@ -334,7 +318,6 @@ class ClientIntegrationTest {
         device.setDeviceStatus(DeviceStatus.ACTIVE.getCode());
         device.setFirstLoginTime(Instant.now());
         device.setLastLoginTime(Instant.now());
-        device.setRowValid(1);
         deviceStore.put(deviceId, device);
         return device;
     }
@@ -359,7 +342,7 @@ class ClientIntegrationTest {
             // 获取验证码
             String code = verificationCodeStore.getCode("sms:" + mobile).orElseThrow();
 
-            ApiResponse<LoginResult> response = authController.loginByMobile("client-app", "device-001", "iOS", "iOS", "1.0.0", MobileLoginRequest.builder().mobile(mobile).countryCode("86").code(code).build());
+            ApiResponse<LoginResultDTO> response = authController.loginByMobile("client-app", "device-001", "iOS", "iOS", "1.0.0", MobileLoginRequest.builder().mobile(mobile).countryCode("86").code(code).build());
 
             assertEquals("000000", response.getCode());
             assertNotNull(response.getData());
@@ -376,7 +359,7 @@ class ClientIntegrationTest {
             authController.sendMobileCode("client-mini", SendMobileCodeRequest.builder().mobile(mobile).countryCode("86").build());
             String code = verificationCodeStore.getCode("sms:" + mobile).orElseThrow();
 
-            ApiResponse<LoginResult> response = authController.loginByMobile("client-mini", "device-002", "mini_program", "WeChat", "1.0.0", MobileLoginRequest.builder().mobile(mobile).countryCode("86").code(code).build());
+            ApiResponse<LoginResultDTO> response = authController.loginByMobile("client-mini", "device-002", "mini_program", "WeChat", "1.0.0", MobileLoginRequest.builder().mobile(mobile).countryCode("86").code(code).build());
 
             assertEquals("000000", response.getCode());
             assertEquals(userId, response.getData().getUserId());
@@ -392,7 +375,7 @@ class ClientIntegrationTest {
             authController.sendMobileCode("client-web", SendMobileCodeRequest.builder().mobile(mobile).countryCode("86").build());
             String code = verificationCodeStore.getCode("sms:" + mobile).orElseThrow();
 
-            ApiResponse<LoginResult> response = authController.loginByMobile("client-web", "device-003", "web", "Chrome", "1.0.0", MobileLoginRequest.builder().mobile(mobile).countryCode("86").code(code).build());
+            ApiResponse<LoginResultDTO> response = authController.loginByMobile("client-web", "device-003", "web", "Chrome", "1.0.0", MobileLoginRequest.builder().mobile(mobile).countryCode("86").code(code).build());
 
             assertEquals("000000", response.getCode());
             assertEquals(userId, response.getData().getUserId());
@@ -409,7 +392,7 @@ class ClientIntegrationTest {
             for (String clientId : clientIds) {
                 authController.sendMobileCode(clientId, SendMobileCodeRequest.builder().mobile(mobile).countryCode("86").build());
                 String code = verificationCodeStore.getCode("sms:" + mobile).orElseThrow();
-                ApiResponse<LoginResult> response = authController.loginByMobile(
+                ApiResponse<LoginResultDTO> response = authController.loginByMobile(
                         clientId, "device-004", "multi", "multi", "1.0.0", MobileLoginRequest.builder().mobile(mobile).countryCode("86").code(code).build());
 
                 assertEquals("000000", response.getCode(), "登录失败: clientId=" + clientId);
@@ -579,7 +562,7 @@ class ClientIntegrationTest {
                 createActiveDevice(userId, "device-" + clientType, clientType);
             }
 
-            List<CiamDeviceDo> devices = sessionService.findUserDevices(userId);
+            List<Device> devices = sessionService.findUserDevices(userId);
             assertEquals(CLIENT_TYPES.length, devices.size(),
                     "用户应拥有 " + CLIENT_TYPES.length + " 个设备");
         }
@@ -633,10 +616,10 @@ class ClientIntegrationTest {
             createActiveDevice(userId, "device-active-2", "web");
 
             // 创建一个失效设备
-            CiamDeviceDo invalidDevice = createActiveDevice(userId, "device-invalid", "mini_program");
+            Device invalidDevice = createActiveDevice(userId, "device-invalid", "mini_program");
             invalidDevice.setDeviceStatus(DeviceStatus.INVALID.getCode());
 
-            List<CiamDeviceDo> devices = sessionService.findUserDevices(userId);
+            List<Device> devices = sessionService.findUserDevices(userId);
             assertEquals(2, devices.size(), "应仅返回活跃设备");
         }
     }

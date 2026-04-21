@@ -1,6 +1,8 @@
 package net.hwyz.iov.cloud.sec.ciam.service.application;
 
 import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.DeviceInfoDTO;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.LoginResultDTO;
 import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditEvent;
 import static org.mockito.Mockito.*;
 import org.mockito.Mockito;import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditLogger;
@@ -8,7 +10,6 @@ import net.hwyz.iov.cloud.sec.ciam.service.common.exception.CiamErrorCode;
 import net.hwyz.iov.cloud.sec.ciam.service.common.security.FieldEncryptor;
 import net.hwyz.iov.cloud.sec.ciam.service.common.security.PasswordEncoder;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.adapter.AdapterResult;
-import net.hwyz.iov.cloud.sec.ciam.service.application.dto.DeviceInfo;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.adapter.AppleLoginAdapter;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.adapter.CaptchaAdapter;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.adapter.CaptchaChallenge;
@@ -18,7 +19,7 @@ import net.hwyz.iov.cloud.sec.ciam.service.domain.adapter.LocalMobileAuthAdapter
 import net.hwyz.iov.cloud.sec.ciam.service.domain.adapter.SmsAdapter;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.adapter.ThirdPartyUserInfo;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.adapter.WechatLoginAdapter;
-import static org.mockito.Mockito.*;import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.CredentialStatus;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.CredentialStatus;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.CredentialType;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.IdentityStatus;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.IdentityType;
@@ -43,8 +44,6 @@ import org.mockito.ArgumentCaptor;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
 
 /**
  * AuthenticationAppService 单元测试。
@@ -89,7 +88,7 @@ class AuthenticationAppServiceTest {
     private static final String MOBILE = "13800138000";
     private static final String COUNTRY_CODE = "+86";
     private static final String CLIENT_ID = "app-client";
-    private static final DeviceInfo DEVICE_INFO = DeviceInfo.builder()
+    private static final DeviceInfoDTO DEVICE_INFO = DeviceInfoDTO.builder()
             .deviceId("dev-001")
             .deviceName("iPhone 15")
             .deviceOs("iOS 17.0")
@@ -220,7 +219,7 @@ class AuthenticationAppServiceTest {
             });
             when(userRepository.updateByUserId(any())).thenReturn(1);
 
-            LoginResult result = service.loginByMobileCode(MOBILE, COUNTRY_CODE, code, CLIENT_ID, DEVICE_INFO);
+            LoginResultDTO result = service.loginByMobileCode(MOBILE, COUNTRY_CODE, code, CLIENT_ID, DEVICE_INFO);
 
             assertTrue(result.isNewUser());
             assertNotNull(result.getUserId());
@@ -262,7 +261,7 @@ class AuthenticationAppServiceTest {
             when(userRepository.findByUserId(userId))
                     .thenReturn(Optional.of(stubUser(userId, UserStatus.ACTIVE)));
 
-            LoginResult result = service.loginByMobileCode(MOBILE, COUNTRY_CODE, code, CLIENT_ID, DEVICE_INFO);
+            LoginResultDTO result = service.loginByMobileCode(MOBILE, COUNTRY_CODE, code, CLIENT_ID, DEVICE_INFO);
 
             assertFalse(result.isNewUser());
             assertEquals(userId, result.getUserId());
@@ -402,7 +401,7 @@ class AuthenticationAppServiceTest {
             when(credentialRepository.findByUserIdAndType(userId, CredentialType.EMAIL_PASSWORD.getCode()))
                     .thenReturn(Optional.of(stubCredential(userId, VALID_PASSWORD)));
 
-            LoginResult result = service.loginByEmailPassword(EMAIL, VALID_PASSWORD, CLIENT_ID, null, null);
+            LoginResultDTO result = service.loginByEmailPassword(EMAIL, VALID_PASSWORD, CLIENT_ID, null, null);
 
             assertFalse(result.isNewUser());
             assertEquals(userId, result.getUserId());
@@ -443,7 +442,7 @@ class AuthenticationAppServiceTest {
             when(credentialRepository.findByUserIdAndType(userId, CredentialType.EMAIL_PASSWORD.getCode()))
                     .thenReturn(Optional.of(cred));
 
-            LoginResult result = service.loginByEmailPassword(EMAIL, "WrongPass1!", CLIENT_ID, null, null);
+            LoginResultDTO result = service.loginByEmailPassword(EMAIL, "WrongPass1!", CLIENT_ID, null, null);
 
             assertTrue(result.isChallengeRequired());
             assertNotNull(result.getCaptchaChallenge());
@@ -463,7 +462,7 @@ class AuthenticationAppServiceTest {
             // Pre-seed captcha challenge state
             codeStore.saveCode("captcha:captcha-valid", "PENDING", 300);
 
-            LoginResult result = service.loginByEmailPassword(
+            LoginResultDTO result = service.loginByEmailPassword(
                     EMAIL, VALID_PASSWORD, CLIENT_ID, "captcha-valid", "42");
 
             assertFalse(result.isChallengeRequired());
@@ -532,7 +531,7 @@ class AuthenticationAppServiceTest {
             when(userRepository.findByUserId(userId))
                     .thenReturn(Optional.of(stubUser(userId, UserStatus.ACTIVE)));
 
-            LoginResult result = service.loginByEmailCode(EMAIL, code, CLIENT_ID);
+            LoginResultDTO result = service.loginByEmailCode(EMAIL, code, CLIENT_ID);
 
             assertFalse(result.isNewUser());
             assertEquals(userId, result.getUserId());
@@ -558,7 +557,7 @@ class AuthenticationAppServiceTest {
             });
             when(userRepository.updateByUserId(any())).thenReturn(1);
 
-            LoginResult result = service.loginByEmailCode(EMAIL, code, CLIENT_ID);
+            LoginResultDTO result = service.loginByEmailCode(EMAIL, code, CLIENT_ID);
 
             assertTrue(result.isNewUser());
             assertNotNull(result.getUserId());
@@ -602,7 +601,7 @@ class AuthenticationAppServiceTest {
             });
             when(userRepository.updateByUserId(any())).thenReturn(1);
 
-            LoginResult result = service.loginByWechat(wechatCode, CLIENT_ID);
+            LoginResultDTO result = service.loginByWechat(wechatCode, CLIENT_ID);
 
             assertTrue(result.isNewUser());
             assertNotNull(result.getUserId());
@@ -637,7 +636,7 @@ class AuthenticationAppServiceTest {
             when(userRepository.findByUserId(userId))
                     .thenReturn(Optional.of(stubUser(userId, UserStatus.ACTIVE)));
 
-            LoginResult result = service.loginByWechat(wechatCode, CLIENT_ID);
+            LoginResultDTO result = service.loginByWechat(wechatCode, CLIENT_ID);
 
             assertFalse(result.isNewUser());
             assertEquals(userId, result.getUserId());
@@ -677,7 +676,7 @@ class AuthenticationAppServiceTest {
             });
             when(userRepository.updateByUserId(any())).thenReturn(1);
 
-            LoginResult result = service.loginByApple(identityToken, CLIENT_ID);
+            LoginResultDTO result = service.loginByApple(identityToken, CLIENT_ID);
 
             assertTrue(result.isNewUser());
             assertNotNull(result.getUserId());
@@ -713,7 +712,7 @@ class AuthenticationAppServiceTest {
             when(userRepository.findByUserId(userId))
                     .thenReturn(Optional.of(stubUser(userId, UserStatus.ACTIVE)));
 
-            LoginResult result = service.loginByGoogle(idToken, CLIENT_ID);
+            LoginResultDTO result = service.loginByGoogle(idToken, CLIENT_ID);
 
             assertFalse(result.isNewUser());
             assertEquals(userId, result.getUserId());
@@ -785,7 +784,7 @@ class AuthenticationAppServiceTest {
             });
             when(userRepository.updateByUserId(any())).thenReturn(1);
 
-            LoginResult result = service.loginByLocalMobile(token, CLIENT_ID, DEVICE_INFO);
+            LoginResultDTO result = service.loginByLocalMobile(token, CLIENT_ID, DEVICE_INFO);
 
             assertTrue(result.isNewUser());
             assertNotNull(result.getUserId());
@@ -811,7 +810,7 @@ class AuthenticationAppServiceTest {
             when(userRepository.findByUserId(userId))
                     .thenReturn(Optional.of(stubUser(userId, UserStatus.ACTIVE)));
 
-            LoginResult result = service.loginByLocalMobile(token, CLIENT_ID, DEVICE_INFO);
+            LoginResultDTO result = service.loginByLocalMobile(token, CLIENT_ID, DEVICE_INFO);
 
             assertFalse(result.isNewUser());
             assertEquals(userId, result.getUserId());
@@ -829,7 +828,7 @@ class AuthenticationAppServiceTest {
             String token = "carrier-token-unsupported";
             when(localMobileAuthAdapter.verifyToken(token)).thenReturn(null);
 
-            LoginResult result = service.loginByLocalMobile(token, CLIENT_ID, DEVICE_INFO);
+            LoginResultDTO result = service.loginByLocalMobile(token, CLIENT_ID, DEVICE_INFO);
 
             assertTrue(result.isFallbackRequired());
             assertNull(result.getUserId());

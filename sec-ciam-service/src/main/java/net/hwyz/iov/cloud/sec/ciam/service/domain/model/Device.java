@@ -26,4 +26,5 @@ public class Device {
     private Instant firstLoginTime;
     private Instant lastLoginTime;
     private String description;
+    private Instant createTime;
 }

@@ -2,6 +2,7 @@ package net.hwyz.iov.cloud.sec.ciam.service.application;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.StatisticsResultDTO;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -27,10 +28,10 @@ public class StatisticsAppService {
      * @param channel   渠道筛选（可为 null）
      * @return 注册统计结果
      */
-    public StatisticsResult getRegistrationStats(LocalDateTime startTime, LocalDateTime endTime, String channel) {
+    public StatisticsResultDTO getRegistrationStats(LocalDateTime startTime, LocalDateTime endTime, String channel) {
         log.info("查询注册统计: startTime={}, endTime={}, channel={}", startTime, endTime, channel);
         // TODO: 待 ES 聚合查询集成后替换为真实实现
-        return StatisticsResult.builder()
+        return StatisticsResultDTO.builder()
                 .registrationCount(0)
                 .conversionRate(0.0)
                 .channelDistribution(Collections.emptyMap())
@@ -49,10 +50,10 @@ public class StatisticsAppService {
      * @param clientType 终端类型筛选（可为 null，如 app / web / vehicle）
      * @return 登录统计结果
      */
-    public StatisticsResult getLoginStats(LocalDateTime startTime, LocalDateTime endTime, String clientType) {
+    public StatisticsResultDTO getLoginStats(LocalDateTime startTime, LocalDateTime endTime, String clientType) {
         log.info("查询登录统计: startTime={}, endTime={}, clientType={}", startTime, endTime, clientType);
         // TODO: 待 ES 聚合查询集成后替换为真实实现
-        return StatisticsResult.builder()
+        return StatisticsResultDTO.builder()
                 .loginSuccessCount(0)
                 .loginFailureCount(0)
                 .loginSuccessRate(0.0)
@@ -70,10 +71,10 @@ public class StatisticsAppService {
      * @param endTime   结束时间（可为 null）
      * @return 渠道分布统计结果
      */
-    public StatisticsResult getChannelDistribution(LocalDateTime startTime, LocalDateTime endTime) {
+    public StatisticsResultDTO getChannelDistribution(LocalDateTime startTime, LocalDateTime endTime) {
         log.info("查询渠道分布: startTime={}, endTime={}", startTime, endTime);
         // TODO: 待 ES 聚合查询集成后替换为真实实现
-        return StatisticsResult.builder()
+        return StatisticsResultDTO.builder()
                 .channelDistribution(Collections.emptyMap())
                 .registrationCount(0)
                 .conversionRate(0.0)
@@ -91,10 +92,10 @@ public class StatisticsAppService {
      * @param endTime   结束时间（可为 null）
      * @return 第三方登录分布统计结果
      */
-    public StatisticsResult getThirdPartyLoginDistribution(LocalDateTime startTime, LocalDateTime endTime) {
+    public StatisticsResultDTO getThirdPartyLoginDistribution(LocalDateTime startTime, LocalDateTime endTime) {
         log.info("查询第三方登录分布: startTime={}, endTime={}", startTime, endTime);
         // TODO: 待 ES 聚合查询集成后替换为真实实现
-        return StatisticsResult.builder()
+        return StatisticsResultDTO.builder()
                 .thirdPartyDistribution(Collections.emptyMap())
                 .registrationCount(0)
                 .conversionRate(0.0)

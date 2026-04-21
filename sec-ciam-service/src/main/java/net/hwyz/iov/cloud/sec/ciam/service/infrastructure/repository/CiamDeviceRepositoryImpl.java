@@ -3,6 +3,8 @@ package net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import lombok.RequiredArgsConstructor;
+import net.hwyz.iov.cloud.sec.ciam.service.application.mapper.DeviceMapper;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.model.Device;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamDeviceRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.CiamDeviceMapper;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamDeviceDo;
@@ -10,60 +12,75 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
 public class CiamDeviceRepositoryImpl implements CiamDeviceRepository {
 
     private final CiamDeviceMapper mapper;
+    private final DeviceMapper deviceMapper = DeviceMapper.INSTANCE;
 
     @Override
-    public Optional<CiamDeviceDo> findByDeviceId(String deviceId) {
-        return Optional.ofNullable(mapper.selectOne(
+    public Optional<Device> findByDeviceId(String deviceId) {
+        CiamDeviceDo entity = mapper.selectOne(
                 new LambdaQueryWrapper<CiamDeviceDo>()
                         .eq(CiamDeviceDo::getDeviceId, deviceId)
-                        .eq(CiamDeviceDo::getRowValid, 1)));
+                        .eq(CiamDeviceDo::getRowValid, 1));
+        return Optional.ofNullable(deviceMapper.toDomain(entity));
     }
 
     @Override
-    public List<CiamDeviceDo> findByUserIdAndStatus(String userId, int deviceStatus) {
+    public List<Device> findByUserIdAndStatus(String userId, int deviceStatus) {
         return mapper.selectList(
                 new LambdaQueryWrapper<CiamDeviceDo>()
                         .eq(CiamDeviceDo::getUserId, userId)
                         .eq(CiamDeviceDo::getDeviceStatus, deviceStatus)
-                        .eq(CiamDeviceDo::getRowValid, 1));
+                        .eq(CiamDeviceDo::getRowValid, 1))
+                .stream()
+                .map(deviceMapper::toDomain)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<CiamDeviceDo> findByUserId(String userId) {
+    public List<Device> findByUserId(String userId) {
         return mapper.selectList(
                 new LambdaQueryWrapper<CiamDeviceDo>()
                         .eq(CiamDeviceDo::getUserId, userId)
-                        .eq(CiamDeviceDo::getRowValid, 1));
+                        .eq(CiamDeviceDo::getRowValid, 1))
+                .stream()
+                .map(deviceMapper::toDomain)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<CiamDeviceDo> findAll() {
+    public List<Device> findAll() {
         return mapper.selectList(
                 new LambdaQueryWrapper<CiamDeviceDo>()
-                        .eq(CiamDeviceDo::getRowValid, 1));
+                        .eq(CiamDeviceDo::getRowValid, 1))
+                .stream()
+                .map(deviceMapper::toDomain)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public Optional<CiamDeviceDo> findByDeviceFingerprint(String deviceFingerprint) {
-        return Optional.ofNullable(mapper.selectOne(
+    public Optional<Device> findByDeviceFingerprint(String deviceFingerprint) {
+        CiamDeviceDo entity = mapper.selectOne(
                 new LambdaQueryWrapper<CiamDeviceDo>()
                         .eq(CiamDeviceDo::getDeviceFingerprint, deviceFingerprint)
-                        .eq(CiamDeviceDo::getRowValid, 1)));
+                        .eq(CiamDeviceDo::getRowValid, 1));
+        return Optional.ofNullable(deviceMapper.toDomain(entity));
     }
 
     @Override
-    public int insert(CiamDeviceDo entity) {
+    public int insert(Device device) {
+        CiamDeviceDo entity = deviceMapper.toDo(device);
         return mapper.insert(entity);
     }
 
     @Override
-    public int updateByDeviceId(CiamDeviceDo entity) {
+    public int updateByDeviceId(Device device) {
+        CiamDeviceDo entity = deviceMapper.toDo(device);
         return mapper.update(entity,
                 new LambdaUpdateWrapper<CiamDeviceDo>()
                         .eq(CiamDeviceDo::getDeviceId, entity.getDeviceId()));

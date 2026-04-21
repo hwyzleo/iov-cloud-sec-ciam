@@ -1,0 +1,22 @@
+package net.hwyz.iov.cloud.sec.ciam.service.controller.mobile.vo;
+
+import jakarta.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class LoginByMobileRequest {
+    @NotBlank
+    private String mobile;
+    private String countryCode;
+    @NotBlank
+    private String code;
+    @NotBlank
+    private String clientId;
+    private String deviceInfo;
+}

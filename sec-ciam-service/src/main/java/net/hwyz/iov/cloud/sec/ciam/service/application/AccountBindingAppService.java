@@ -3,6 +3,10 @@ package net.hwyz.iov.cloud.sec.ciam.service.application;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.MergeRequestDTO;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.UserIdentityDTO;
+import net.hwyz.iov.cloud.sec.ciam.service.application.mapper.MergeRequestMapper;
+import net.hwyz.iov.cloud.sec.ciam.service.application.mapper.UserIdentityMapper;
 import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditEvent;
 import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditEventType;
 import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditLogger;
@@ -20,6 +24,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * 账号绑定、解绑与合并应用服务 — 编排标识绑定/解绑、冲突检测与账号合并流程。
@@ -60,7 +65,7 @@ public class AccountBindingAppService {
      * @param bindSource    绑定来源
      * @return 新创建的标识数据对象
      */
-    public CiamUserIdentityDo bindIdentity(String userId, IdentityType identityType,
+    public UserIdentityDTO bindIdentity(String userId, IdentityType identityType,
                                            String identityValue, String countryCode,
                                            String bindSource) {
         // 冲突检测：检查标识是否已被其他用户绑定
@@ -88,7 +93,7 @@ public class AccountBindingAppService {
         logAudit(userId, AuditEventType.BIND, true);
 
         log.info("标识绑定成功: userId={}, identityType={}", userId, identityType.getCode());
-        return result;
+        return UserIdentityMapper.INSTANCE.toDto(UserIdentityMapper.INSTANCE.toDomain(result));
     }
 
     /**
@@ -123,7 +128,7 @@ public class AccountBindingAppService {
      * @param applySource          申请来源
      * @return 新创建的合并申请记录
      */
-    public CiamMergeRequestDo createMergeRequest(String sourceUserId, String targetUserId,
+    public MergeRequestDTO createMergeRequest(String sourceUserId, String targetUserId,
                                                  String conflictIdentityType,
                                                  String conflictIdentityHash,
                                                  String applySource) {
@@ -146,7 +151,7 @@ public class AccountBindingAppService {
 
         log.info("合并申请已创建: mergeRequestId={}, sourceUserId={}, targetUserId={}",
                 request.getMergeRequestId(), sourceUserId, targetUserId);
-        return request;
+        return MergeRequestMapper.INSTANCE.toDto(MergeRequestMapper.INSTANCE.toDomain(request));
     }
 
     /**

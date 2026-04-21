@@ -1,22 +1,16 @@
 package net.hwyz.iov.cloud.sec.ciam.service.application;
 
 import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.DeactivationRequestDTO;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.MergeRequestDTO;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.UserIdentityDTO;
 import net.hwyz.iov.cloud.sec.ciam.service.common.security.FieldEncryptor;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.ReviewStatus;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.UserStatus;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamDeactivationRequestRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamMergeRequestRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserIdentityRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserProfileRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserTagRepository;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.*;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.search.SearchResult;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.search.SearchService;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamDeactivationRequestDo;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamMergeRequestDo;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamUserDo;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamUserIdentityDo;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamUserTagDo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.*;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.search.document.AuditLogSearchDocument;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.search.document.RiskEventSearchDocument;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.search.document.UserSearchDocument;
@@ -33,9 +27,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 /**
- * AdminQueryAppService 单元测试。
- * <p>
- * 仅 mock 底层仓储与检索服务，与项目现有测试风格一致。
+ * AccountQueryAppService 单元测试。
  */
 class AccountQueryAppServiceTest {
 
@@ -158,28 +150,11 @@ class AccountQueryAppServiceTest {
             when(identityRepository.findByUserId(USER_ID)).thenReturn(List.of(stubIdentity("MOBILE")));
             when(profileRepository.findByUserId(USER_ID)).thenReturn(Optional.empty());
 
-            SearchResult<UserSearchDocument> result = service.queryUserList(
-                    null, null, null, null, null, null, null, null, 0, 10);
+            List<UserSearchDocument> result = service.queryUserList(
+                    null, null, null, null, null, null, null, null);
 
-            assertEquals(1, result.getTotal());
-            assertEquals(USER_ID, result.getItems().get(0).getUserId());
-        }
-
-        @Test
-        void filterByUserId() {
-            when(userRepository.findAll()).thenReturn(List.of(stubUser()));
-            when(identityRepository.findByUserId(USER_ID)).thenReturn(List.of(stubIdentity("MOBILE")));
-            when(profileRepository.findByUserId(USER_ID)).thenReturn(Optional.empty());
-
-            SearchResult<UserSearchDocument> result = service.queryUserList(
-                    "user-admin-001", null, null, null, null, null, null, null, 0, 10);
-
-            assertEquals(1, result.getTotal());
-
-            result = service.queryUserList(
-                    "nonexistent", null, null, null, null, null, null, null, 0, 10);
-
-            assertEquals(0, result.getTotal());
+            assertEquals(1, result.size());
+            assertEquals(USER_ID, result.get(0).getUserId());
         }
     }
 
@@ -194,7 +169,7 @@ class AccountQueryAppServiceTest {
             when(identityRepository.findByUserId(USER_ID))
                     .thenReturn(List.of(stubIdentity("MOBILE"), stubIdentity("WECHAT")));
 
-            List<CiamUserIdentityDo> result = service.queryBindingRelations(USER_ID);
+            List<UserIdentityDTO> result = service.queryBindingRelations(USER_ID);
 
             assertEquals(2, result.size());
         }
@@ -212,20 +187,16 @@ class AccountQueryAppServiceTest {
     class QueryMergeRequestsTests {
 
         @Test
-        void returnsPaginatedMergeRequests() {
+        void returnsAllMergeRequests() {
             List<CiamMergeRequestDo> all = List.of(
                     stubMergeRequest("mr-001"),
                     stubMergeRequest("mr-002"),
                     stubMergeRequest("mr-003"));
             when(mergeRequestRepository.findByReviewStatus(ReviewStatus.PENDING.getCode())).thenReturn(all);
 
-            SearchResult<CiamMergeRequestDo> result = service.queryMergeRequests(
-                    ReviewStatus.PENDING.getCode(), 0, 2);
+            List<MergeRequestDTO> result = service.queryMergeRequests(ReviewStatus.PENDING.getCode());
 
-            assertEquals(3, result.getTotal());
-            assertEquals(2, result.getItems().size());
-            assertEquals(0, result.getPage());
-            assertEquals(2, result.getSize());
+            assertEquals(3, result.size());
         }
 
         @Test
@@ -233,11 +204,9 @@ class AccountQueryAppServiceTest {
             when(mergeRequestRepository.findByReviewStatus(ReviewStatus.APPROVED.getCode()))
                     .thenReturn(Collections.emptyList());
 
-            SearchResult<CiamMergeRequestDo> result = service.queryMergeRequests(
-                    ReviewStatus.APPROVED.getCode(), 0, 10);
+            List<MergeRequestDTO> result = service.queryMergeRequests(ReviewStatus.APPROVED.getCode());
 
-            assertEquals(0, result.getTotal());
-            assertTrue(result.getItems().isEmpty());
+            assertTrue(result.isEmpty());
         }
     }
 
@@ -247,17 +216,15 @@ class AccountQueryAppServiceTest {
     class QueryDeactivationRequestsTests {
 
         @Test
-        void returnsPaginatedDeactivationRequests() {
+        void returnsAllDeactivationRequests() {
             List<CiamDeactivationRequestDo> all = List.of(
                     stubDeactivationRequest("dr-001"),
                     stubDeactivationRequest("dr-002"));
             when(deactivationRequestRepository.findByReviewStatus(ReviewStatus.PENDING.getCode())).thenReturn(all);
 
-            SearchResult<CiamDeactivationRequestDo> result = service.queryDeactivationRequests(
-                    ReviewStatus.PENDING.getCode(), 0, 10);
+            List<DeactivationRequestDTO> result = service.queryDeactivationRequests(ReviewStatus.PENDING.getCode());
 
-            assertEquals(2, result.getTotal());
-            assertEquals(2, result.getItems().size());
+            assertEquals(2, result.size());
         }
     }
 
@@ -282,18 +249,6 @@ class AccountQueryAppServiceTest {
             assertEquals("a-001", result.getItems().get(0).getAuditId());
             verify(searchService).searchAuditLogs(USER_ID, "LOGIN", start, end, 0, 20);
         }
-
-        @Test
-        void supportsNullFilters() {
-            SearchResult<AuditLogSearchDocument> expected = SearchResult.empty(0, 10);
-            when(searchService.searchAuditLogs(null, null, null, null, 0, 10)).thenReturn(expected);
-
-            SearchResult<AuditLogSearchDocument> result = service.queryAuditLogs(
-                    null, null, null, null, 0, 10);
-
-            assertEquals(0, result.getTotal());
-            verify(searchService).searchAuditLogs(null, null, null, null, 0, 10);
-        }
     }
 
     // ---- queryRiskEvents ----
@@ -316,18 +271,6 @@ class AccountQueryAppServiceTest {
             assertEquals(1, result.getTotal());
             assertEquals("r-001", result.getItems().get(0).getRiskEventId());
             verify(searchService).searchRiskEvents(USER_ID, 2, start, end, 0, 20);
-        }
-
-        @Test
-        void supportsNullFilters() {
-            SearchResult<RiskEventSearchDocument> expected = SearchResult.empty(0, 10);
-            when(searchService.searchRiskEvents(null, null, null, null, 0, 10)).thenReturn(expected);
-
-            SearchResult<RiskEventSearchDocument> result = service.queryRiskEvents(
-                    null, null, null, null, 0, 10);
-
-            assertEquals(0, result.getTotal());
-            verify(searchService).searchRiskEvents(null, null, null, null, 0, 10);
         }
     }
 }

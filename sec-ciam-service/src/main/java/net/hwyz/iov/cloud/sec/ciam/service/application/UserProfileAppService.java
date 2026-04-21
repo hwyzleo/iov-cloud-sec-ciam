@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
 import net.hwyz.iov.cloud.framework.common.util.StrUtil;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.UserProfileDTO;
+import net.hwyz.iov.cloud.sec.ciam.service.application.mapper.UserProfileMapper;
 import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditEvent;
 import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditEventType;
 import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditLogger;
@@ -51,13 +53,13 @@ public class UserProfileAppService {
      * @param userId 用户业务唯一标识
      * @return 用户资料数据对象
      */
-    public CiamUserProfileDo getProfile(String userId) {
+    public UserProfileDTO getProfile(String userId) {
         CiamUserProfileDo ciamUserProfileDo = profileRepository.findByUserId(userId)
                 .orElseThrow(() -> new BusinessException(CiamErrorCode.PROFILE_NOT_FOUND));
         if (StrUtil.isBlank(ciamUserProfileDo.getAvatarUrl())) {
             ciamUserProfileDo.setAvatarUrl(defaultAvatar);
         }
-        return ciamUserProfileDo;
+        return UserProfileMapper.INSTANCE.toDto(UserProfileMapper.INSTANCE.toDomain(ciamUserProfileDo));
     }
 
     /**

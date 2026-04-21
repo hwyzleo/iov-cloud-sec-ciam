@@ -3,6 +3,8 @@ package net.hwyz.iov.cloud.sec.ciam.service.application;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.UserConsentDTO;
+import net.hwyz.iov.cloud.sec.ciam.service.application.mapper.UserConsentMapper;
 import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditEvent;
 import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditEventType;
 import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditLogger;
@@ -15,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * 协议同意与合规应用服务 — 编排协议同意、营销同意、撤回与数据导出删除请求。
@@ -54,7 +57,7 @@ public class ConsentAppService {
      * @param operateIp     操作 IP
      * @return 创建的同意记录
      */
-    public CiamUserConsentDo grantConsent(String userId,
+    public UserConsentDTO grantConsent(String userId,
                                           String consentType,
                                           String policyVersion,
                                           String sourceChannel,
@@ -85,7 +88,7 @@ public class ConsentAppService {
         log.info("同意授予成功: userId={}, consentType={}, policyVersion={}",
                 userId, consentType, policyVersion);
 
-        return record;
+        return UserConsentMapper.INSTANCE.toDto(UserConsentMapper.INSTANCE.toDomain(record));
     }
 
     /**
@@ -130,9 +133,11 @@ public class ConsentAppService {
      * @param userId 用户 ID
      * @return 同意记录列表
      */
-    public List<CiamUserConsentDo> getConsentRecords(String userId) {
+    public List<UserConsentDTO> getConsentRecords(String userId) {
         validateUserId(userId);
-        return consentRepository.findByUserId(userId);
+        return consentRepository.findByUserId(userId).stream()
+                .map(doObj -> UserConsentMapper.INSTANCE.toDto(UserConsentMapper.INSTANCE.toDomain(doObj)))
+                .collect(Collectors.toList());
     }
 
     /**
@@ -142,10 +147,12 @@ public class ConsentAppService {
      * @param consentType 同意类型
      * @return 同意记录列表
      */
-    public List<CiamUserConsentDo> getConsentByType(String userId, String consentType) {
+    public List<UserConsentDTO> getConsentByType(String userId, String consentType) {
         validateUserId(userId);
         validateConsentType(consentType);
-        return consentRepository.findByUserIdAndConsentType(userId, consentType);
+        return consentRepository.findByUserIdAndConsentType(userId, consentType).stream()
+                .map(doObj -> UserConsentMapper.INSTANCE.toDto(UserConsentMapper.INSTANCE.toDomain(doObj)))
+                .collect(Collectors.toList());
     }
 
     /**

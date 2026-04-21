@@ -3,10 +3,10 @@ package net.hwyz.iov.cloud.sec.ciam.service.domain.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
-import net.hwyz.iov.cloud.sec.ciam.service.application.dto.DeviceInfo;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.DeviceInfoDTO;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.DeviceStatus;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.model.Device;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamDeviceRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamDeviceDo;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -24,14 +24,14 @@ public class DeviceDomainService {
     /**
      * 记录或更新设备信息。
      *
-     * @param userId     用户业务唯一标识
+     * @param userId     用户业务唯一标识  
      * @param deviceId   设备标识
      * @param deviceInfo 设备信息对象
      * @return 设备业务唯一标识
      */
-    public String recordDevice(String userId, String deviceId, DeviceInfo deviceInfo) {
+    public String recordDevice(String userId, String deviceId, DeviceInfoDTO deviceInfo) {
         if (deviceInfo == null || (deviceInfo.getDeviceId() == null && deviceInfo.getDeviceFingerprint() == null)) {
-            log.warn("设备信息为空或缺少唯一标识，跳过记录: userId={}", userId);
+            log.warn("设备信息为空或缺少唯一标识，跳过记录：userId={}", userId);
             return null;
         }
 
@@ -41,12 +41,11 @@ public class DeviceDomainService {
                     deviceInfo.getDeviceFingerprint() : deviceInfo.toString()).hashCode());
         }
 
-        Optional<CiamDeviceDo> deviceOpt = deviceRepository.findByDeviceId(deviceId);
+        Optional<Device> deviceOpt = deviceRepository.findByDeviceId(deviceId);
         if (deviceOpt.isPresent()) {
-            CiamDeviceDo device = deviceOpt.get();
+            Device device = deviceOpt.get();
             // 更新最后登录时间及可能变化的信息
             device.setLastLoginTime(DateTimeUtil.getNowInstant());
-            device.setModifyTime(DateTimeUtil.getNowInstant());
             if (deviceInfo.getAppVersion() != null) {
                 device.setAppVersion(deviceInfo.getAppVersion());
             }
@@ -54,27 +53,25 @@ public class DeviceDomainService {
                 device.setLanguage(deviceInfo.getLanguage());
             }
             deviceRepository.updateByDeviceId(device);
-            log.info("更新设备登录信息: deviceId={}, userId={}", deviceId, userId);
+            log.info("更新设备登录信息：deviceId={}, userId={}", deviceId, userId);
         } else {
-            CiamDeviceDo device = new CiamDeviceDo();
-            device.setDeviceId(deviceId);
-            device.setUserId(userId);
-            device.setClientType(deviceInfo.getClientType());
-            device.setClientId(deviceInfo.getClientId());
-            device.setDeviceName(deviceInfo.getDeviceName());
-            device.setDeviceOs(deviceInfo.getDeviceOs());
-            device.setAppVersion(deviceInfo.getAppVersion());
-            device.setLanguage(deviceInfo.getLanguage());
-            device.setDeviceFingerprint(deviceInfo.getDeviceFingerprint());
-            device.setDeviceStatus(DeviceStatus.ACTIVE.getCode());
-            device.setFirstLoginTime(DateTimeUtil.getNowInstant());
-            device.setLastLoginTime(DateTimeUtil.getNowInstant());
-            device.setCreateTime(DateTimeUtil.getNowInstant());
-            device.setModifyTime(DateTimeUtil.getNowInstant());
-            device.setRowValid(1);
-            device.setRowVersion(1);
+            Device device = Device.builder()
+                    .deviceId(deviceId)
+                    .userId(userId)
+                    .clientType(deviceInfo.getClientType())
+                    .clientId(deviceInfo.getClientId())
+                    .deviceName(deviceInfo.getDeviceName())
+                    .deviceOs(deviceInfo.getDeviceOs())
+                    .appVersion(deviceInfo.getAppVersion())
+                    .language(deviceInfo.getLanguage())
+                    .deviceFingerprint(deviceInfo.getDeviceFingerprint())
+                    .deviceStatus(DeviceStatus.ACTIVE.getCode())
+                    .firstLoginTime(DateTimeUtil.getNowInstant())
+                    .lastLoginTime(DateTimeUtil.getNowInstant())
+                    .description("Created by recordDevice")
+                    .build();
             deviceRepository.insert(device);
-            log.info("记录新设备: deviceId={}, userId={}", deviceId, userId);
+            log.info("记录新设备：deviceId={}, userId={}", deviceId, userId);
         }
 
         return deviceId;
@@ -88,11 +85,10 @@ public class DeviceDomainService {
      * @param language 语言代码，如 zh-CN, en-US
      */
     public void changeLanguage(String userId, String deviceId, String language) {
-        Optional<CiamDeviceDo> deviceOpt = deviceRepository.findByDeviceId(deviceId);
+        Optional<Device> deviceOpt = deviceRepository.findByDeviceId(deviceId);
         if (deviceOpt.isPresent()) {
-            CiamDeviceDo device = deviceOpt.get();
+            Device device = deviceOpt.get();
             device.setLanguage(language);
-            device.setModifyTime(DateTimeUtil.getNowInstant());
             deviceRepository.updateByDeviceId(device);
             log.info("切换设备语言：deviceId={}, userId={}, language={}", deviceId, userId, language);
         } else {

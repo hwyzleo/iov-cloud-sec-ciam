@@ -7,10 +7,10 @@ import net.hwyz.iov.cloud.sec.ciam.service.common.exception.CiamErrorCode;
 import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.DeviceStatus;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.SessionStatus;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.model.Device;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamDeviceRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamRefreshTokenRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamSessionRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamDeviceDo;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamSessionDo;
 import org.springframework.stereotype.Service;
 
@@ -55,7 +55,7 @@ public class SessionDomainService {
         }
 
         if (session.getSessionStatus() != SessionStatus.ACTIVE.getCode()) {
-            log.info("会话已非活跃状态，跳过退出操作: sessionId={}, status={}",
+            log.info("会话已非活跃状态，跳过退出操作：sessionId={}, status={}",
                     sessionId, session.getSessionStatus());
             return;
         }
@@ -66,7 +66,7 @@ public class SessionDomainService {
         sessionRepository.updateBySessionId(session);
 
         int revokedCount = refreshTokenRepository.revokeAllBySessionId(sessionId);
-        log.info("退出登录完成: sessionId={}, userId={}, revokedTokens={}",
+        log.info("退出登录完成：sessionId={}, userId={}, revokedTokens={}",
                 sessionId, userId, revokedCount);
     }
 
@@ -84,7 +84,7 @@ public class SessionDomainService {
                 .orElseThrow(() -> new BusinessException(CiamErrorCode.SESSION_NOT_FOUND));
 
         if (session.getSessionStatus() != SessionStatus.ACTIVE.getCode()) {
-            log.info("会话已非活跃状态，跳过失效操作: sessionId={}, status={}",
+            log.info("会话已非活跃状态，跳过失效操作：sessionId={}, status={}",
                     sessionId, session.getSessionStatus());
             return;
         }
@@ -95,7 +95,7 @@ public class SessionDomainService {
         sessionRepository.updateBySessionId(session);
 
         int revokedCount = refreshTokenRepository.revokeAllBySessionId(sessionId);
-        log.info("会话强制失效完成: sessionId={}, revokedTokens={}", sessionId, revokedCount);
+        log.info("会话强制失效完成：sessionId={}, revokedTokens={}", sessionId, revokedCount);
     }
 
     /**
@@ -125,12 +125,12 @@ public class SessionDomainService {
      * @param userId 用户业务唯一标识
      * @return 活跃设备列表
      */
-    public List<CiamDeviceDo> findUserDevices(String userId) {
+    public List<Device> findUserDevices(String userId) {
         return deviceRepository.findByUserIdAndStatus(userId, DeviceStatus.ACTIVE.getCode());
     }
 
     /**
-     * 强制下线指定会话。
+     * 強制下线指定会话。
      * <p>
      * 复用 {@link #logout} 逻辑：校验会话归属、设置 KICKED 状态、撤销关联 Refresh Token。
      *
@@ -140,7 +140,7 @@ public class SessionDomainService {
      */
     public void kickSession(String sessionId, String userId) {
         logout(sessionId, userId);
-        log.info("强制下线会话完成: sessionId={}, userId={}", sessionId, userId);
+        log.info("强制下线会话完成：sessionId={}, userId={}", sessionId, userId);
     }
 
     /**
@@ -151,7 +151,7 @@ public class SessionDomainService {
      * @throws BusinessException DEVICE_NOT_FOUND 设备不存在；FORBIDDEN 设备不属于该用户
      */
     public void kickDevice(String deviceId, String userId) {
-        CiamDeviceDo device = deviceRepository.findByDeviceId(deviceId)
+        Device device = deviceRepository.findByDeviceId(deviceId)
                 .orElseThrow(() -> new BusinessException(CiamErrorCode.DEVICE_NOT_FOUND));
 
         if (!userId.equals(device.getUserId())) {
@@ -171,10 +171,9 @@ public class SessionDomainService {
 
         // 将设备状态设为失效
         device.setDeviceStatus(DeviceStatus.INVALID.getCode());
-        device.setModifyTime(DateTimeUtil.getNowInstant());
         deviceRepository.updateByDeviceId(device);
 
-        log.info("强制下线设备完成: deviceId={}, userId={}, offlineSessions={}",
+        log.info("强制下线设备完成：deviceId={}, userId={}, offlineSessions={}",
                 deviceId, userId, activeSessions.size());
     }
 }

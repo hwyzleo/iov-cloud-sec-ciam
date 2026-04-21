@@ -4,10 +4,10 @@ import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
 import net.hwyz.iov.cloud.sec.ciam.service.common.exception.CiamErrorCode;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.DeviceStatus;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.SessionStatus;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.model.Device;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamDeviceRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamRefreshTokenRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamSessionRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamDeviceDo;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamSessionDo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -19,7 +19,6 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 class SessionDomainServiceTest {
@@ -52,12 +51,11 @@ class SessionDomainServiceTest {
         return session;
     }
 
-    private CiamDeviceDo stubDevice(String deviceId, String userId, DeviceStatus status) {
-        CiamDeviceDo device = new CiamDeviceDo();
+    private Device stubDevice(String deviceId, String userId, DeviceStatus status) {
+        Device device = new Device();
         device.setDeviceId(deviceId);
         device.setUserId(userId);
         device.setDeviceStatus(status.getCode());
-        device.setRowValid(1);
         return device;
     }
 
@@ -215,12 +213,12 @@ class SessionDomainServiceTest {
 
         @Test
         void findUserDevices_returnsActiveDevicesForUser() {
-            CiamDeviceDo d1 = stubDevice("d1", USER_ID, DeviceStatus.ACTIVE);
-            CiamDeviceDo d2 = stubDevice("d2", USER_ID, DeviceStatus.ACTIVE);
+            Device d1 = stubDevice("d1", USER_ID, DeviceStatus.ACTIVE);
+            Device d2 = stubDevice("d2", USER_ID, DeviceStatus.ACTIVE);
             when(deviceRepository.findByUserIdAndStatus(USER_ID, DeviceStatus.ACTIVE.getCode()))
                     .thenReturn(List.of(d1, d2));
 
-            List<CiamDeviceDo> result = service.findUserDevices(USER_ID);
+            List<Device> result = service.findUserDevices(USER_ID);
 
             assertEquals(2, result.size());
             verify(deviceRepository).findByUserIdAndStatus(USER_ID, DeviceStatus.ACTIVE.getCode());
@@ -231,7 +229,7 @@ class SessionDomainServiceTest {
             when(deviceRepository.findByUserIdAndStatus(USER_ID, DeviceStatus.ACTIVE.getCode()))
                     .thenReturn(Collections.emptyList());
 
-            List<CiamDeviceDo> result = service.findUserDevices(USER_ID);
+            List<Device> result = service.findUserDevices(USER_ID);
 
             assertTrue(result.isEmpty());
         }
@@ -283,7 +281,7 @@ class SessionDomainServiceTest {
 
         @Test
         void kickDevice_offlineAllSessionsAndInvalidatesDevice() {
-            CiamDeviceDo device = stubDevice(DEVICE_ID, USER_ID, DeviceStatus.ACTIVE);
+            Device device = stubDevice(DEVICE_ID, USER_ID, DeviceStatus.ACTIVE);
             when(deviceRepository.findByDeviceId(DEVICE_ID)).thenReturn(Optional.of(device));
 
             CiamSessionDo s1 = stubSession("s1", USER_ID, SessionStatus.ACTIVE);
@@ -321,7 +319,7 @@ class SessionDomainServiceTest {
 
         @Test
         void kickDevice_throwsWhenUserIdMismatch() {
-            CiamDeviceDo device = stubDevice(DEVICE_ID, "other-user", DeviceStatus.ACTIVE);
+            Device device = stubDevice(DEVICE_ID, "other-user", DeviceStatus.ACTIVE);
             when(deviceRepository.findByDeviceId(DEVICE_ID)).thenReturn(Optional.of(device));
 
             BusinessException ex = assertThrows(BusinessException.class,
@@ -331,7 +329,7 @@ class SessionDomainServiceTest {
 
         @Test
         void kickDevice_handlesNoActiveSessionsGracefully() {
-            CiamDeviceDo device = stubDevice(DEVICE_ID, USER_ID, DeviceStatus.ACTIVE);
+            Device device = stubDevice(DEVICE_ID, USER_ID, DeviceStatus.ACTIVE);
             when(deviceRepository.findByDeviceId(DEVICE_ID)).thenReturn(Optional.of(device));
             when(sessionRepository.findByDeviceIdAndStatus(DEVICE_ID, SessionStatus.ACTIVE.getCode()))
                     .thenReturn(Collections.emptyList());

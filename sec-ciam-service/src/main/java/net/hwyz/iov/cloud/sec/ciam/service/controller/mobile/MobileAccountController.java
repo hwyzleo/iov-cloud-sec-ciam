@@ -4,9 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import net.hwyz.iov.cloud.framework.common.bean.ApiResponse;
 import net.hwyz.iov.cloud.framework.web.context.SecurityContextHolder;
-import net.hwyz.iov.cloud.sec.ciam.api.vo.DeviceVO;
-import net.hwyz.iov.cloud.sec.ciam.api.vo.SessionVO;
-import net.hwyz.iov.cloud.sec.ciam.api.vo.UserProfileVO;
+import net.hwyz.iov.cloud.sec.ciam.service.controller.vo.*;
 import net.hwyz.iov.cloud.sec.ciam.service.application.AccountBindingAppService;
 import net.hwyz.iov.cloud.sec.ciam.service.application.AccountLifecycleAppService;
 import net.hwyz.iov.cloud.sec.ciam.service.application.ConsentAppService;
@@ -14,16 +12,11 @@ import net.hwyz.iov.cloud.sec.ciam.service.application.OwnerCertificationAppServ
 import net.hwyz.iov.cloud.sec.ciam.service.application.PasswordChangeAppService;
 import net.hwyz.iov.cloud.sec.ciam.service.application.PasswordResetAppService;
 import net.hwyz.iov.cloud.sec.ciam.service.application.UserProfileAppService;
-import net.hwyz.iov.cloud.sec.ciam.service.application.mapper.DeviceMapper;
-import net.hwyz.iov.cloud.sec.ciam.service.application.mapper.SessionMapper;
-import net.hwyz.iov.cloud.sec.ciam.service.application.mapper.UserProfileMapper;
-import net.hwyz.iov.cloud.sec.ciam.service.controller.mobile.dto.*;
+import net.hwyz.iov.cloud.sec.ciam.service.application.mapper.*;
+import net.hwyz.iov.cloud.sec.ciam.service.controller.mobile.vo.*;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.IdentityType;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.service.SessionDomainService;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.service.VerificationCodeType;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamOwnerCertStateDo;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamUserConsentDo;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamUserIdentityDo;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -54,20 +47,13 @@ public class MobileAccountController {
     private final ConsentAppService consentAppService;
     private final OwnerCertificationAppService ownerCertificationAppService;
 
-    private final UserProfileMapper userProfileMapper = UserProfileMapper.INSTANCE;
-    private final SessionMapper sessionMapper = SessionMapper.INSTANCE;
-    private final DeviceMapper deviceMapper = DeviceMapper.INSTANCE;
-
     // ---- 用户资料 ----
 
     /** 查询用户资料 */
     @GetMapping("/profile")
     public ApiResponse<UserProfileVO> getProfile() {
         String userId = SecurityContextHolder.getUserId();
-        var profile = userProfileAppService.getProfile(userId);
-        var domainModel = userProfileMapper.toDomain(profile);
-        UserProfileVO vo = userProfileMapper.toVo(domainModel);
-        return ApiResponse.ok(vo);
+        return ApiResponse.ok(UserProfileMapper.INSTANCE.toVo(userProfileAppService.getProfile(userId)));
     }
 
     /** 更新用户资料 */
@@ -90,11 +76,11 @@ public class MobileAccountController {
 
     /** 绑定登录标识 */
     @PostMapping("/binding")
-    public ApiResponse<CiamUserIdentityDo> bindIdentity(@RequestBody @Valid BindIdentityRequest request) {
+    public ApiResponse<UserIdentityVO> bindIdentity(@RequestBody @Valid BindIdentityRequest request) {
         String userId = SecurityContextHolder.getUserId();
-        CiamUserIdentityDo result = accountBindingAppService.bindIdentity(
-                userId, IdentityType.fromCode(request.getIdentityType()), request.getIdentityValue(), request.getCountryCode(), request.getBindSource());
-        return ApiResponse.ok(result);
+        UserIdentityVO vo = UserIdentityMapper.INSTANCE.toVo(accountBindingAppService.bindIdentity(
+                userId, IdentityType.fromCode(request.getIdentityType()), request.getIdentityValue(), request.getCountryCode(), request.getBindSource()));
+        return ApiResponse.ok(vo);
     }
 
     /** 解绑登录标识 */
@@ -112,13 +98,9 @@ public class MobileAccountController {
     @GetMapping("/sessions")
     public ApiResponse<List<SessionVO>> listSessions() {
         String userId = SecurityContextHolder.getUserId();
-        var sessions = sessionDomainService.findUserSessions(userId);
-        List<SessionVO> voList = sessions.stream()
-            .map(s -> {
-                var domainModel = sessionMapper.toDomain(s);
-                return sessionMapper.toVo(domainModel);
-            })
-            .collect(Collectors.toList());
+        List<SessionVO> voList = sessionDomainService.findUserSessions(userId).stream()
+                .map(doObj -> SessionMapper.INSTANCE.toVo(SessionMapper.INSTANCE.toDto(SessionMapper.INSTANCE.toDomain(doObj))))
+                .collect(Collectors.toList());
         return ApiResponse.ok(voList);
     }
 
@@ -126,13 +108,9 @@ public class MobileAccountController {
     @GetMapping("/devices")
     public ApiResponse<List<DeviceVO>> listDevices() {
         String userId = SecurityContextHolder.getUserId();
-        var devices = sessionDomainService.findUserDevices(userId);
-        List<DeviceVO> voList = devices.stream()
-            .map(d -> {
-                var domainModel = deviceMapper.toDomain(d);
-                return deviceMapper.toVo(domainModel);
-            })
-            .collect(Collectors.toList());
+        List<DeviceVO> voList = sessionDomainService.findUserDevices(userId).stream()
+                .map(domain -> DeviceMapper.INSTANCE.toVo(DeviceMapper.INSTANCE.toDto(domain)))
+                .collect(Collectors.toList());
         return ApiResponse.ok(voList);
     }
 
@@ -210,11 +188,11 @@ public class MobileAccountController {
 
     /** 授予同意 */
     @PostMapping("/consent")
-    public ApiResponse<CiamUserConsentDo> grantConsent(@RequestBody @Valid GrantConsentRequest request) {
+    public ApiResponse<UserConsentVO> grantConsent(@RequestBody @Valid GrantConsentRequest request) {
         String userId = SecurityContextHolder.getUserId();
-        CiamUserConsentDo result = consentAppService.grantConsent(
-                userId, request.getConsentType(), request.getPolicyVersion(), request.getSourceChannel(), request.getClientType(), request.getOperateIp());
-        return ApiResponse.ok(result);
+        UserConsentVO vo = UserConsentMapper.INSTANCE.toVo(consentAppService.grantConsent(
+                userId, request.getConsentType(), request.getPolicyVersion(), request.getSourceChannel(), request.getClientType(), request.getOperateIp()));
+        return ApiResponse.ok(vo);
     }
 
     /** 撤回营销同意 */
@@ -227,12 +205,19 @@ public class MobileAccountController {
 
     /** 查询同意记录 */
     @GetMapping("/consent")
-    public ApiResponse<List<CiamUserConsentDo>> getConsentRecords(@RequestParam(required = false) String consentType) {
+    public ApiResponse<List<UserConsentVO>> getConsentRecords(@RequestParam(required = false) String consentType) {
         String userId = SecurityContextHolder.getUserId();
+        List<UserConsentVO> voList;
         if (consentType != null && !consentType.isBlank()) {
-            return ApiResponse.ok(consentAppService.getConsentByType(userId, consentType));
+            voList = consentAppService.getConsentByType(userId, consentType).stream()
+                    .map(UserConsentMapper.INSTANCE::toVo)
+                    .collect(Collectors.toList());
+        } else {
+            voList = consentAppService.getConsentRecords(userId).stream()
+                    .map(UserConsentMapper.INSTANCE::toVo)
+                    .collect(Collectors.toList());
         }
-        return ApiResponse.ok(consentAppService.getConsentRecords(userId));
+        return ApiResponse.ok(voList);
     }
 
     /** 请求数据导出 */
@@ -255,8 +240,11 @@ public class MobileAccountController {
 
     /** 查询车主认证状态 */
     @GetMapping("/owner-certification")
-    public ApiResponse<List<CiamOwnerCertStateDo>> getOwnerCertStatus() {
+    public ApiResponse<List<OwnerCertificationVO>> getOwnerCertStatus() {
         String userId = SecurityContextHolder.getUserId();
-        return ApiResponse.ok(ownerCertificationAppService.queryCertificationStatus(userId));
+        List<OwnerCertificationVO> voList = ownerCertificationAppService.queryCertificationStatus(userId).stream()
+                .map(OwnerCertificationMapper.INSTANCE::toVo)
+                .collect(Collectors.toList());
+        return ApiResponse.ok(voList);
     }
 }

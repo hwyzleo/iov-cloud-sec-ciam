@@ -4,7 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import net.hwyz.iov.cloud.framework.common.bean.ApiResponse;
 import net.hwyz.iov.cloud.sec.ciam.service.common.exception.CiamErrorCode;
-import net.hwyz.iov.cloud.sec.ciam.service.controller.open.dto.*;
+import net.hwyz.iov.cloud.sec.ciam.service.controller.open.vo.*;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.service.AuthCodeExchangeResult;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.service.ClientCredentialsResult;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.service.DeviceAuthorizationResponse;

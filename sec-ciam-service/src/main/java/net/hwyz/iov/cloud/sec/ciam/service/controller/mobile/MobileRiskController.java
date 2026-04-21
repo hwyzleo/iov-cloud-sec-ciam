@@ -4,15 +4,15 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import net.hwyz.iov.cloud.framework.common.bean.ApiResponse;
 import net.hwyz.iov.cloud.framework.web.context.SecurityContextHolder;
-import net.hwyz.iov.cloud.sec.ciam.api.vo.RiskEventVO;
+import net.hwyz.iov.cloud.framework.web.controller.BaseController;
+import net.hwyz.iov.cloud.sec.ciam.service.controller.vo.RiskEventVO;
+import net.hwyz.iov.cloud.sec.ciam.service.application.RiskEventAppService;
 import net.hwyz.iov.cloud.sec.ciam.service.application.mapper.RiskEventMapper;
-import net.hwyz.iov.cloud.sec.ciam.service.controller.mobile.dto.TriggerMfaRequest;
-import net.hwyz.iov.cloud.sec.ciam.service.controller.mobile.dto.VerifyMfaRequest;
+import net.hwyz.iov.cloud.sec.ciam.service.controller.mobile.vo.TriggerMfaRequest;
+import net.hwyz.iov.cloud.sec.ciam.service.controller.mobile.vo.VerifyMfaRequest;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.ChallengeScene;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.ChallengeType;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamRiskEventRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.service.MfaDomainService;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamRiskEventDo;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -32,10 +32,10 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/mobile/v1/risk")
 @RequiredArgsConstructor
-public class MobileRiskController {
+public class MobileRiskController extends BaseController {
 
     private final MfaDomainService mfaDomainService;
-    private final CiamRiskEventRepository riskEventRepository;
+    private final RiskEventAppService riskEventAppService;
     
     private final RiskEventMapper riskEventMapper = RiskEventMapper.INSTANCE;
 
@@ -63,12 +63,8 @@ public class MobileRiskController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startTime,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endTime) {
         String userId = SecurityContextHolder.getUserId();
-        List<CiamRiskEventDo> events = riskEventRepository.findByUserIdAndTimeRange(userId, startTime, endTime);
-        List<RiskEventVO> voList = events.stream()
-            .map(e -> {
-                var domainModel = riskEventMapper.toDomain(e);
-                return riskEventMapper.toVo(domainModel);
-            })
+        List<RiskEventVO> voList = riskEventAppService.queryUserRiskEvents(userId, startTime, endTime).stream()
+            .map(riskEventMapper::toVo)
             .collect(Collectors.toList());
         return ApiResponse.ok(voList);
     }

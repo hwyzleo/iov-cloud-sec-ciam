@@ -42,7 +42,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             "/api/open/v1/oauth/device",
             "/api/vehicle/v1/auth/**",
             "/api/service/v1/**",
-            "/api/mp/**",
+            "/api/mpt/**",
             "/swagger-ui/**",
             "/swagger-ui.html",
             "/v3/api-docs/**",
