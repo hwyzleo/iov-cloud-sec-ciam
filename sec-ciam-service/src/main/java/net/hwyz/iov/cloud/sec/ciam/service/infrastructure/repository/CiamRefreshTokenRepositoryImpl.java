@@ -42,7 +42,7 @@ public class CiamRefreshTokenRepositoryImpl implements CiamRefreshTokenRepositor
     @Override
     public int revokeAllBySessionId(String sessionId) {
         CiamRefreshTokenDo update = new CiamRefreshTokenDo();
-        update.setTokenStatus(0);
+        update.setTokenStatus(0); 
         update.setRevokeTime(Instant.now());
         return mapper.update(update,
                 new LambdaUpdateWrapper<CiamRefreshTokenDo>()
@@ -71,42 +71,29 @@ public class CiamRefreshTokenRepositoryImpl implements CiamRefreshTokenRepositor
 
     @Override
     public List<CiamRefreshTokenDo> findAll() {
-        return mapper.selectList(new LambdaQueryWrapper<CiamRefreshTokenDo>().eq(CiamRefreshTokenDo::getRowValid, 1));
+        return mapper.searchTokens(null, null, null, null, null, null, null);
     }
 
     @Override
     public List<CiamRefreshTokenDo> search(TokenQuery query) {
-        LambdaQueryWrapper<CiamRefreshTokenDo> wrapper = new LambdaQueryWrapper<CiamRefreshTokenDo>()
-                .eq(CiamRefreshTokenDo::getRowValid, 1)
-                .eq(query.getRefreshTokenId() != null, CiamRefreshTokenDo::getRefreshTokenId, query.getRefreshTokenId())
-                .eq(query.getUserId() != null, CiamRefreshTokenDo::getUserId, query.getUserId())
-                .eq(query.getSessionId() != null, CiamRefreshTokenDo::getSessionId, query.getSessionId())
-                .eq(query.getClientId() != null, CiamRefreshTokenDo::getClientId, query.getClientId())
-                .eq(query.getTokenStatus() != null, CiamRefreshTokenDo::getTokenStatus, query.getTokenStatus())
-                .ge(query.getStartTime() != null, CiamRefreshTokenDo::getIssueTime, query.getStartTime() != null ? query.getStartTime().toInstant() : null)
-                .le(query.getEndTime() != null, CiamRefreshTokenDo::getIssueTime, query.getEndTime() != null ? query.getEndTime().toInstant() : null);
-        
-        // 强制使用 last 追加排序，确保其在分页拦截器生成的 SQL 中具有最高优先级
-        wrapper.last("ORDER BY issue_time DESC");
-        
-        return mapper.selectList(wrapper);
+        return mapper.searchTokens(
+                query.getRefreshTokenId(),
+                query.getUserId(),
+                query.getSessionId(),
+                query.getClientId(),
+                query.getTokenStatus(),
+                query.getStartTime() != null ? query.getStartTime().toInstant() : null,
+                query.getEndTime() != null ? query.getEndTime().toInstant() : null
+        );
     }
 
     @Override
     public List<CiamRefreshTokenDo> findByUserId(String userId) {
-        return mapper.selectList(
-                new LambdaQueryWrapper<CiamRefreshTokenDo>()
-                        .eq(CiamRefreshTokenDo::getUserId, userId)
-                        .eq(CiamRefreshTokenDo::getRowValid, 1)
-                        .orderByDesc(CiamRefreshTokenDo::getIssueTime));
+        return mapper.searchTokens(null, userId, null, null, null, null, null);
     }
 
     @Override
     public List<CiamRefreshTokenDo> findBySessionId(String sessionId) {
-        return mapper.selectList(
-                new LambdaQueryWrapper<CiamRefreshTokenDo>()
-                        .eq(CiamRefreshTokenDo::getSessionId, sessionId)
-                        .eq(CiamRefreshTokenDo::getRowValid, 1)
-                        .orderByDesc(CiamRefreshTokenDo::getIssueTime));
+        return mapper.searchTokens(null, null, sessionId, null, null, null, null);
     }
 }

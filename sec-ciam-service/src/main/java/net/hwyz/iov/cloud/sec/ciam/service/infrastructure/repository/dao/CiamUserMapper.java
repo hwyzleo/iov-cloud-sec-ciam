@@ -31,6 +31,7 @@ public interface CiamUserMapper extends BaseMapper<CiamUserDo> {
             "<if test='userStatus != null'> AND u.user_status = #{userStatus} </if> " +
             "<if test='startTime != null'> AND u.create_time &gt;= #{startTime} </if> " +
             "<if test='endTime != null'> AND u.create_time &lt;= #{endTime} </if> " +
+            "ORDER BY id DESC" +
             "</script>")
     List<CiamUserDo> searchUsers(@Param("userId") String userId,
                                  @Param("identityType") String identityType,

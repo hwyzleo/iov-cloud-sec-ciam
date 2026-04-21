@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 public class MptDeviceController extends BaseController {
 
     private final DeviceQueryAppService deviceQueryAppService;
-    
+
     private final DeviceMapper deviceMapper = DeviceMapper.INSTANCE;
 
     /**
@@ -46,42 +46,23 @@ public class MptDeviceController extends BaseController {
             @RequestParam(required = false) String language,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime startTime,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime endTime) {
-        
-        DeviceQuery query = DeviceQuery.builder()
-                .deviceId(deviceId)
-                .userId(userId)
-                .clientType(clientType)
-                .clientId(clientId)
-                .deviceName(deviceName)
-                .deviceOs(deviceOs)
-                .deviceStatus(deviceStatus)
-                .trustedFlag(trustedFlag)
-                .language(language)
-                .startTime(startTime)
-                .endTime(endTime)
-                .build();
-        
+
+        DeviceQuery query = DeviceQuery.builder().deviceId(deviceId).userId(userId).clientType(clientType).clientId(clientId).deviceName(deviceName).deviceOs(deviceOs).deviceStatus(deviceStatus).trustedFlag(trustedFlag).language(language).startTime(startTime).endTime(endTime).build();
         startPage();
         List<DeviceQueryAppService.DeviceSearchResult> list = deviceQueryAppService.queryDeviceList(query);
         return ApiResponse.ok(getPageResult(list));
     }
 
-    /**
-     * 查询设备详情
-     */
     @GetMapping("/devices/detail")
     public ApiResponse<DeviceVO> getDeviceDetail(@RequestParam String deviceId) {
         return ApiResponse.ok(deviceMapper.toVo(deviceQueryAppService.queryDevice(deviceId)));
     }
 
-    /**
-     * 查询用户的设备列表
-     */
     @GetMapping("/devices/user")
     public ApiResponse<List<DeviceVO>> getUserDevices(@RequestParam String userId) {
         List<DeviceVO> voList = deviceQueryAppService.queryUserDevices(userId).stream()
-            .map(deviceMapper::toVo)
-            .collect(Collectors.toList());
+                .map(deviceMapper::toVo)
+                .collect(Collectors.toList());
         return ApiResponse.ok(voList);
     }
 }

@@ -1,6 +1,7 @@
 package net.hwyz.iov.cloud.sec.ciam.service.controller.mpt;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.framework.common.bean.ApiResponse;
 import net.hwyz.iov.cloud.framework.common.bean.PageResult;
 import net.hwyz.iov.cloud.framework.web.controller.BaseController;
@@ -21,13 +22,13 @@ import java.util.stream.Collectors;
 /**
  * 运营后台管理控制器 — 令牌查询。
  */
+@Slf4j
 @RestController
 @RequestMapping("/api/mpt/token/v1")
 @RequiredArgsConstructor
 public class MptTokenController extends BaseController {
 
     private final TokenQueryAppService tokenQueryAppService;
-    
     private final RefreshTokenMapper refreshTokenMapper = RefreshTokenMapper.INSTANCE;
 
     /**
@@ -43,32 +44,17 @@ public class MptTokenController extends BaseController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime startTime,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime endTime) {
         
-        TokenQuery query = TokenQuery.builder()
-                .refreshTokenId(refreshTokenId)
-                .userId(userId)
-                .sessionId(sessionId)
-                .clientId(clientId)
-                .tokenStatus(tokenStatus)
-                .startTime(startTime)
-                .endTime(endTime)
-                .build();
-        
+        TokenQuery query = TokenQuery.builder().refreshTokenId(refreshTokenId).userId(userId).sessionId(sessionId).clientId(clientId).tokenStatus(tokenStatus).startTime(startTime).endTime(endTime).build();
         startPage();
         List<TokenQueryAppService.TokenSearchResult> list = tokenQueryAppService.queryTokenList(query);
         return ApiResponse.ok(getPageResult(list));
     }
 
-    /**
-     * 查询令牌详情
-     */
     @GetMapping("/tokens/detail")
     public ApiResponse<RefreshTokenVO> getTokenDetail(@RequestParam String refreshTokenId) {
         return ApiResponse.ok(refreshTokenMapper.toVo(tokenQueryAppService.queryToken(refreshTokenId)));
     }
 
-    /**
-     * 查询用户的令牌列表
-     */
     @GetMapping("/tokens/user")
     public ApiResponse<List<RefreshTokenVO>> getUserTokens(@RequestParam String userId) {
         List<RefreshTokenVO> voList = tokenQueryAppService.queryUserTokens(userId).stream()
@@ -77,9 +63,6 @@ public class MptTokenController extends BaseController {
         return ApiResponse.ok(voList);
     }
 
-    /**
-     * 查询会话的令牌列表
-     */
     @GetMapping("/tokens/session")
     public ApiResponse<List<RefreshTokenVO>> getSessionTokens(@RequestParam String sessionId) {
         List<RefreshTokenVO> voList = tokenQueryAppService.querySessionTokens(sessionId).stream()
