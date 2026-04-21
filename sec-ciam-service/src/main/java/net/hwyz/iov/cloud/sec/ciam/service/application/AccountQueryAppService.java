@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
 import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
+import net.hwyz.iov.cloud.framework.web.util.PageUtil;
 import net.hwyz.iov.cloud.sec.ciam.service.application.dto.DeactivationRequestDTO;
 import net.hwyz.iov.cloud.sec.ciam.service.application.dto.MergeRequestDTO;
 import net.hwyz.iov.cloud.sec.ciam.service.application.dto.UserIdentityDTO;
@@ -14,6 +15,7 @@ import net.hwyz.iov.cloud.sec.ciam.service.common.exception.CiamErrorCode;
 import net.hwyz.iov.cloud.sec.ciam.service.common.security.FieldEncryptor;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.IdentityType;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.*;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.query.UserQuery;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.search.SearchResult;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.search.SearchService;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.*;
@@ -93,60 +95,41 @@ public class AccountQueryAppService {
 
     /**
      * 检索用户列表
-     * <p>
-     * 注意：由于在内存中进行 filter，会导致 PageHelper 的自动 count 结果与实际结果不符。
-     * 严谨做法应在 SQL 层完成过滤。此处保持内存过滤逻辑，但返回 List 供 Controller 包装。
      */
-    public List<UserSearchDocument> queryUserList(String userId, String identityType,
-                                                   String identityValue, String nickname,
-                                                   String registerSource, Integer userStatus,
-                                                   OffsetDateTime startTime, OffsetDateTime endTime) {
-        List<CiamUserDo> userList = userRepository.findAll();
+    public List<UserSearchDocument> queryUserList(UserQuery query) {
+        List<CiamUserDo> userList = userRepository.search(query);
 
-        return userList.stream()
-                .map(user -> {
-                    UserSearchDocument doc = UserSearchDocument.builder()
-                            .userId(user.getUserId())
-                            .userStatus(user.getUserStatus())
-                            .registerSource(user.getRegisterSource())
-                            .registerChannel(user.getRegisterChannel())
-                            .lastLoginTime(DateTimeUtil.instantToOffsetDateTime(user.getLastLoginTime()))
-                            .createTime(DateTimeUtil.instantToOffsetDateTime(user.getCreateTime()))
-                            .build();
+        // 使用 PageUtil.convert 确保分页元数据透传
+        return PageUtil.convert(userList, user -> {
+            UserSearchDocument doc = UserSearchDocument.builder()
+                    .userId(user.getUserId())
+                    .userStatus(user.getUserStatus())
+                    .registerSource(user.getRegisterSource())
+                    .registerChannel(user.getRegisterChannel())
+                    .lastLoginTime(DateTimeUtil.instantToOffsetDateTime(user.getLastLoginTime()))
+                    .createTime(DateTimeUtil.instantToOffsetDateTime(user.getCreateTime()))
+                    .build();
 
-                    List<CiamUserIdentityDo> identities = identityRepository.findByUserId(user.getUserId());
-                    for (CiamUserIdentityDo identity : identities) {
-                        if (IdentityType.fromCode(identity.getIdentityType()) == IdentityType.MOBILE ||
-                                IdentityType.fromCode(identity.getIdentityType()) == IdentityType.EMAIL) {
-                            doc.setIdentityType(identity.getIdentityType());
-                            try {
-                                doc.setIdentityValue(fieldEncryptor.decrypt(identity.getIdentityValue()));
-                            } catch (Exception e) {
-                                doc.setIdentityValue(identity.getIdentityValue());
-                            }
-                            break;
-                        }
+            // 补充关联字段
+            List<CiamUserIdentityDo> identities = identityRepository.findByUserId(user.getUserId());
+            for (CiamUserIdentityDo identity : identities) {
+                if (IdentityType.fromCode(identity.getIdentityType()) == IdentityType.MOBILE ||
+                        IdentityType.fromCode(identity.getIdentityType()) == IdentityType.EMAIL) {
+                    doc.setIdentityType(identity.getIdentityType());
+                    try {
+                        doc.setIdentityValue(fieldEncryptor.decrypt(identity.getIdentityValue()));
+                    } catch (Exception e) {
+                        doc.setIdentityValue(identity.getIdentityValue());
                     }
-
-                    profileRepository.findByUserId(user.getUserId()).ifPresent(profile -> {
-                        doc.setNickname(profile.getNickname());
-                        doc.setGender(profile.getGender());
-                    });
-
-                    return doc;
-                })
-                .filter(doc -> {
-                    if (userId != null && !userId.isEmpty() && !userId.equals(doc.getUserId())) return false;
-                    if (identityType != null && !identityType.isEmpty() && !identityType.equals(doc.getIdentityType())) return false;
-                    if (identityValue != null && !identityValue.isEmpty() && (doc.getIdentityValue() == null || !doc.getIdentityValue().contains(identityValue))) return false;
-                    if (nickname != null && !nickname.isEmpty() && (doc.getNickname() == null || !doc.getNickname().contains(nickname))) return false;
-                    if (registerSource != null && !registerSource.isEmpty() && !registerSource.equals(doc.getRegisterSource())) return false;
-                    if (userStatus != null && !userStatus.equals(doc.getUserStatus())) return false;
-                    if (startTime != null && doc.getCreateTime() != null && doc.getCreateTime().isBefore(startTime)) return false;
-                    if (endTime != null && doc.getCreateTime() != null && doc.getCreateTime().isAfter(endTime)) return false;
-                    return true;
-                })
-                .collect(Collectors.toList());
+                    break;
+                }
+            }
+            profileRepository.findByUserId(user.getUserId()).ifPresent(profile -> {
+                doc.setNickname(profile.getNickname());
+                doc.setGender(profile.getGender());
+            });
+            return doc;
+        });
     }
 
     public List<UserIdentityDTO> queryBindingRelations(String userId) {
@@ -159,16 +142,12 @@ public class AccountQueryAppService {
 
     public List<MergeRequestDTO> queryMergeRequests(int reviewStatus) {
         List<CiamMergeRequestDo> all = mergeRequestRepository.findByReviewStatus(reviewStatus);
-        return all.stream()
-                .map(doObj -> MergeRequestMapper.INSTANCE.toDto(MergeRequestMapper.INSTANCE.toDomain(doObj)))
-                .collect(Collectors.toList());
+        return PageUtil.convert(all, doObj -> MergeRequestMapper.INSTANCE.toDto(MergeRequestMapper.INSTANCE.toDomain(doObj)));
     }
 
     public List<DeactivationRequestDTO> queryDeactivationRequests(int reviewStatus) {
         List<CiamDeactivationRequestDo> all = deactivationRequestRepository.findByReviewStatus(reviewStatus);
-        return all.stream()
-                .map(doObj -> DeactivationRequestMapper.INSTANCE.toDto(DeactivationRequestMapper.INSTANCE.toDomain(doObj)))
-                .collect(Collectors.toList());
+        return PageUtil.convert(all, doObj -> DeactivationRequestMapper.INSTANCE.toDto(DeactivationRequestMapper.INSTANCE.toDomain(doObj)));
     }
 
     public SearchResult<AuditLogSearchDocument> queryAuditLogs(String userId, String eventType,

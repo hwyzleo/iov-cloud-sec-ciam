@@ -4,9 +4,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
 import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
+import net.hwyz.iov.cloud.framework.web.util.PageUtil;
 import net.hwyz.iov.cloud.sec.ciam.service.application.dto.RefreshTokenDTO;
 import net.hwyz.iov.cloud.sec.ciam.service.application.mapper.RefreshTokenMapper;
 import net.hwyz.iov.cloud.sec.ciam.service.common.exception.CiamErrorCode;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.query.TokenQuery;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamRefreshTokenRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamRefreshTokenDo;
 import org.springframework.stereotype.Service;
@@ -25,28 +27,10 @@ public class TokenQueryAppService {
 
     private final CiamRefreshTokenRepository refreshTokenRepository;
 
-    public List<TokenSearchResult> queryTokenList(String refreshTokenId,
-                                                   String userId,
-                                                   String sessionId,
-                                                   String clientId,
-                                                   Integer tokenStatus,
-                                                   OffsetDateTime startTime,
-                                                   OffsetDateTime endTime) {
-        List<CiamRefreshTokenDo> allTokens = refreshTokenRepository.findAll();
+    public List<TokenSearchResult> queryTokenList(TokenQuery query) {
+        List<CiamRefreshTokenDo> allTokens = refreshTokenRepository.search(query);
 
-        return allTokens.stream()
-                .map(this::toTokenSearchResult)
-                .filter(doc -> {
-                    if (refreshTokenId != null && !refreshTokenId.isEmpty() && !refreshTokenId.equals(doc.refreshTokenId())) return false;
-                    if (userId != null && !userId.isEmpty() && !userId.equals(doc.userId())) return false;
-                    if (sessionId != null && !sessionId.isEmpty() && !sessionId.equals(doc.sessionId())) return false;
-                    if (clientId != null && !clientId.isEmpty() && !clientId.equals(doc.clientId())) return false;
-                    if (tokenStatus != null && !tokenStatus.equals(doc.tokenStatus())) return false;
-                    if (startTime != null && doc.issueTime() != null && doc.issueTime().isBefore(startTime)) return false;
-                    if (endTime != null && doc.issueTime() != null && doc.issueTime().isAfter(endTime)) return false;
-                    return true;
-                })
-                .collect(Collectors.toList());
+        return PageUtil.convert(allTokens, this::toTokenSearchResult);
     }
 
     public RefreshTokenDTO queryToken(String refreshTokenId) {

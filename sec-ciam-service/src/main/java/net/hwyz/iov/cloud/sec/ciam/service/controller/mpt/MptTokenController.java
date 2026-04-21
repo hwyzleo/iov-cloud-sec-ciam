@@ -7,6 +7,7 @@ import net.hwyz.iov.cloud.framework.web.controller.BaseController;
 import net.hwyz.iov.cloud.sec.ciam.service.controller.vo.RefreshTokenVO;
 import net.hwyz.iov.cloud.sec.ciam.service.application.TokenQueryAppService;
 import net.hwyz.iov.cloud.sec.ciam.service.application.mapper.RefreshTokenMapper;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.query.TokenQuery;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -41,9 +42,19 @@ public class MptTokenController extends BaseController {
             @RequestParam(required = false) Integer tokenStatus,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime startTime,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime endTime) {
+        
+        TokenQuery query = TokenQuery.builder()
+                .refreshTokenId(refreshTokenId)
+                .userId(userId)
+                .sessionId(sessionId)
+                .clientId(clientId)
+                .tokenStatus(tokenStatus)
+                .startTime(startTime)
+                .endTime(endTime)
+                .build();
+        
         startPage();
-        List<TokenQueryAppService.TokenSearchResult> list = tokenQueryAppService.queryTokenList(
-                refreshTokenId, userId, sessionId, clientId, tokenStatus, startTime, endTime);
+        List<TokenQueryAppService.TokenSearchResult> list = tokenQueryAppService.queryTokenList(query);
         return ApiResponse.ok(getPageResult(list));
     }
 

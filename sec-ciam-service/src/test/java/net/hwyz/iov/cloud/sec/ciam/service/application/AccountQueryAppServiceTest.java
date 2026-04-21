@@ -8,6 +8,7 @@ import net.hwyz.iov.cloud.sec.ciam.service.common.security.FieldEncryptor;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.ReviewStatus;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.UserStatus;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.*;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.query.UserQuery;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.search.SearchResult;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.search.SearchService;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.*;
@@ -146,12 +147,11 @@ class AccountQueryAppServiceTest {
 
         @Test
         void returnsFilteredUsers() {
-            when(userRepository.findAll()).thenReturn(List.of(stubUser()));
+            when(userRepository.search(any(UserQuery.class))).thenReturn(List.of(stubUser()));
             when(identityRepository.findByUserId(USER_ID)).thenReturn(List.of(stubIdentity("MOBILE")));
             when(profileRepository.findByUserId(USER_ID)).thenReturn(Optional.empty());
 
-            List<UserSearchDocument> result = service.queryUserList(
-                    null, null, null, null, null, null, null, null);
+            List<UserSearchDocument> result = service.queryUserList(UserQuery.builder().build());
 
             assertEquals(1, result.size());
             assertEquals(USER_ID, result.get(0).getUserId());

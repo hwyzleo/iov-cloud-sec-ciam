@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import lombok.RequiredArgsConstructor;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserRepository;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.query.UserQuery;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.CiamUserMapper;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamUserDo;
 import org.springframework.stereotype.Repository;
@@ -26,10 +27,16 @@ public class CiamUserRepositoryImpl implements CiamUserRepository {
     }
 
     @Override
-    public List<CiamUserDo> findAll() {
-        return mapper.selectList(
-                new LambdaQueryWrapper<CiamUserDo>()
-                        .eq(CiamUserDo::getRowValid, 1));
+    public List<CiamUserDo> search(UserQuery query) {
+        return mapper.searchUsers(
+                query.getUserId(),
+                query.getIdentityType(),
+                query.getIdentityValue(),
+                query.getNickname(),
+                query.getRegisterSource(),
+                query.getUserStatus(),
+                query.getStartTime(),
+                query.getEndTime());
     }
 
     @Override

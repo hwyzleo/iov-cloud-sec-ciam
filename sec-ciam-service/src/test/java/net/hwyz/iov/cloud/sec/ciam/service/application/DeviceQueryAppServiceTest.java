@@ -4,6 +4,7 @@ import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
 import net.hwyz.iov.cloud.sec.ciam.service.application.dto.DeviceInfoDTO;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.DeviceStatus;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.model.Device;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.query.DeviceQuery;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamDeviceRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -87,25 +88,22 @@ class DeviceQueryAppServiceTest {
 
         @Test
         void returnsAllDevicesWhenNoFilters() {
-            when(deviceRepository.findAll()).thenReturn(List.of(
+            when(deviceRepository.search(any(DeviceQuery.class))).thenReturn(List.of(
                     stubDevice("DEV-001"),
                     stubDevice("DEV-002"),
                     stubDevice("DEV-003")));
 
-            List<DeviceQueryAppService.DeviceSearchResult> result = service.queryDeviceList(
-                    null, null, null, null, null, null, null, null, null, null, null);
+            List<DeviceQueryAppService.DeviceSearchResult> result = service.queryDeviceList(DeviceQuery.builder().build());
 
             assertEquals(3, result.size());
         }
 
         @Test
         void filtersByDeviceId() {
-            when(deviceRepository.findAll()).thenReturn(List.of(
-                    stubDevice("DEV-001"),
-                    stubDevice("DEV-002")));
+            when(deviceRepository.search(argThat(q -> "DEV-001".equals(q.getDeviceId())))).thenReturn(List.of(
+                    stubDevice("DEV-001")));
 
-            List<DeviceQueryAppService.DeviceSearchResult> result = service.queryDeviceList(
-                    "DEV-001", null, null, null, null, null, null, null, null, null, null);
+            List<DeviceQueryAppService.DeviceSearchResult> result = service.queryDeviceList(DeviceQuery.builder().deviceId("DEV-001").build());
 
             assertEquals(1, result.size());
             assertEquals("DEV-001", result.get(0).deviceId());
@@ -113,26 +111,21 @@ class DeviceQueryAppServiceTest {
 
         @Test
         void filtersByUserId() {
-            when(deviceRepository.findAll()).thenReturn(List.of(
+            when(deviceRepository.search(argThat(q -> USER_ID.equals(q.getUserId())))).thenReturn(List.of(
                     stubDevice("DEV-001"),
                     stubDevice("DEV-002")));
 
-            List<DeviceQueryAppService.DeviceSearchResult> result = service.queryDeviceList(
-                    null, "user-device-001", null, null, null, null, null, null, null, null, null);
+            List<DeviceQueryAppService.DeviceSearchResult> result = service.queryDeviceList(DeviceQuery.builder().userId(USER_ID).build());
 
             assertEquals(2, result.size());
         }
 
         @Test
         void filtersByClientType() {
-            Device device1 = stubDevice("DEV-001");
-            device1.setClientType("MOBILE");
-            Device device2 = stubDevice("DEV-002");
-            device2.setClientType("WEB");
-            when(deviceRepository.findAll()).thenReturn(List.of(device1, device2));
+            when(deviceRepository.search(argThat(q -> "MOBILE".equals(q.getClientType())))).thenReturn(List.of(
+                    stubDevice("DEV-001")));
 
-            List<DeviceQueryAppService.DeviceSearchResult> result = service.queryDeviceList(
-                    null, null, "MOBILE", null, null, null, null, null, null, null, null);
+            List<DeviceQueryAppService.DeviceSearchResult> result = service.queryDeviceList(DeviceQuery.builder().clientType("MOBILE").build());
 
             assertEquals(1, result.size());
             assertEquals("MOBILE", result.get(0).clientType());
@@ -140,14 +133,10 @@ class DeviceQueryAppServiceTest {
 
         @Test
         void filtersByDeviceStatus() {
-            Device device1 = stubDevice("DEV-001");
-            device1.setDeviceStatus(DeviceStatus.ACTIVE.getCode());
-            Device device2 = stubDevice("DEV-002");
-            device2.setDeviceStatus(DeviceStatus.INVALID.getCode());
-            when(deviceRepository.findAll()).thenReturn(List.of(device1, device2));
+            when(deviceRepository.search(argThat(q -> DeviceStatus.ACTIVE.getCode() == q.getDeviceStatus()))).thenReturn(List.of(
+                    stubDevice("DEV-001")));
 
-            List<DeviceQueryAppService.DeviceSearchResult> result = service.queryDeviceList(
-                    null, null, null, null, null, null, DeviceStatus.ACTIVE.getCode(), null, null, null, null);
+            List<DeviceQueryAppService.DeviceSearchResult> result = service.queryDeviceList(DeviceQuery.builder().deviceStatus(DeviceStatus.ACTIVE.getCode()).build());
 
             assertEquals(1, result.size());
             assertEquals(DeviceStatus.ACTIVE.getCode(), result.get(0).deviceStatus());
@@ -155,14 +144,10 @@ class DeviceQueryAppServiceTest {
 
         @Test
         void filtersByTrustedFlag() {
-            Device device1 = stubDevice("DEV-001");
-            device1.setTrustedFlag(1);
-            Device device2 = stubDevice("DEV-002");
-            device2.setTrustedFlag(0);
-            when(deviceRepository.findAll()).thenReturn(List.of(device1, device2));
+            when(deviceRepository.search(argThat(q -> q.getTrustedFlag() != null && q.getTrustedFlag()))).thenReturn(List.of(
+                    stubDevice("DEV-001")));
 
-            List<DeviceQueryAppService.DeviceSearchResult> result = service.queryDeviceList(
-                    null, null, null, null, null, null, null, true, null, null, null);
+            List<DeviceQueryAppService.DeviceSearchResult> result = service.queryDeviceList(DeviceQuery.builder().trustedFlag(true).build());
 
             assertEquals(1, result.size());
             assertEquals(1, result.get(0).trustedFlag());
@@ -170,14 +155,10 @@ class DeviceQueryAppServiceTest {
 
         @Test
         void filtersByDeviceNameFuzzy() {
-            Device device1 = stubDevice("DEV-001");
-            device1.setDeviceName("iPhone 15");
-            Device device2 = stubDevice("DEV-002");
-            device2.setDeviceName("Samsung Galaxy");
-            when(deviceRepository.findAll()).thenReturn(List.of(device1, device2));
+            when(deviceRepository.search(argThat(q -> "iPhone".equals(q.getDeviceName())))).thenReturn(List.of(
+                    stubDevice("DEV-001")));
 
-            List<DeviceQueryAppService.DeviceSearchResult> result = service.queryDeviceList(
-                    null, null, null, null, "iPhone", null, null, null, null, null, null);
+            List<DeviceQueryAppService.DeviceSearchResult> result = service.queryDeviceList(DeviceQuery.builder().deviceName("iPhone").build());
 
             assertEquals(1, result.size());
             assertTrue(result.get(0).deviceName().contains("iPhone"));
@@ -185,14 +166,10 @@ class DeviceQueryAppServiceTest {
 
         @Test
         void filtersByDeviceOsFuzzy() {
-            Device device1 = stubDevice("DEV-001");
-            device1.setDeviceOs("iOS 17.0");
-            Device device2 = stubDevice("DEV-002");
-            device2.setDeviceOs("Android 14");
-            when(deviceRepository.findAll()).thenReturn(List.of(device1, device2));
+            when(deviceRepository.search(argThat(q -> "iOS".equals(q.getDeviceOs())))).thenReturn(List.of(
+                    stubDevice("DEV-001")));
 
-            List<DeviceQueryAppService.DeviceSearchResult> result = service.queryDeviceList(
-                    null, null, null, null, null, "iOS", null, null, null, null, null);
+            List<DeviceQueryAppService.DeviceSearchResult> result = service.queryDeviceList(DeviceQuery.builder().deviceOs("iOS").build());
 
             assertEquals(1, result.size());
             assertTrue(result.get(0).deviceOs().contains("iOS"));
@@ -200,14 +177,10 @@ class DeviceQueryAppServiceTest {
 
         @Test
         void filtersByLanguage() {
-            Device device1 = stubDevice("DEV-001");
-            device1.setLanguage("zh-CN");
-            Device device2 = stubDevice("DEV-002");
-            device2.setLanguage("en-US");
-            when(deviceRepository.findAll()).thenReturn(List.of(device1, device2));
+            when(deviceRepository.search(argThat(q -> "zh-CN".equals(q.getLanguage())))).thenReturn(List.of(
+                    stubDevice("DEV-001")));
 
-            List<DeviceQueryAppService.DeviceSearchResult> result = service.queryDeviceList(
-                    null, null, null, null, null, null, null, null, "zh-CN", null, null);
+            List<DeviceQueryAppService.DeviceSearchResult> result = service.queryDeviceList(DeviceQuery.builder().language("zh-CN").build());
 
             assertEquals(1, result.size());
             assertEquals("zh-CN", result.get(0).language());
@@ -215,10 +188,9 @@ class DeviceQueryAppServiceTest {
 
         @Test
         void returnsEmptyWhenNoDevices() {
-            when(deviceRepository.findAll()).thenReturn(Collections.emptyList());
+            when(deviceRepository.search(any(DeviceQuery.class))).thenReturn(Collections.emptyList());
 
-            List<DeviceQueryAppService.DeviceSearchResult> result = service.queryDeviceList(
-                    null, null, null, null, null, null, null, null, null, null, null);
+            List<DeviceQueryAppService.DeviceSearchResult> result = service.queryDeviceList(DeviceQuery.builder().build());
 
             assertTrue(result.isEmpty());
         }

@@ -1,6 +1,7 @@
 package net.hwyz.iov.cloud.sec.ciam.service.domain.repository;
 
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamUserDo;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.query.UserQuery;
 
 import java.util.List;
 import java.util.Optional;
@@ -13,8 +14,10 @@ public interface CiamUserRepository {
     /** 根据业务 ID 查询用户 */
     Optional<CiamUserDo> findByUserId(String userId);
 
-    /** 查询所有用户 */
-    List<CiamUserDo> findAll();
+    /**
+     * 检索用户列表（支持多表条件过滤）
+     */
+    List<CiamUserDo> search(UserQuery query);
 
     /** 根据用户状态查询列表 */
     List<CiamUserDo> findByUserStatus(int userStatus);

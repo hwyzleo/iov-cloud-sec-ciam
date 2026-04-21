@@ -7,6 +7,7 @@ import net.hwyz.iov.cloud.framework.web.controller.BaseController;
 import net.hwyz.iov.cloud.sec.ciam.service.controller.vo.DeviceVO;
 import net.hwyz.iov.cloud.sec.ciam.service.application.DeviceQueryAppService;
 import net.hwyz.iov.cloud.sec.ciam.service.application.mapper.DeviceMapper;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.query.DeviceQuery;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -45,10 +46,23 @@ public class MptDeviceController extends BaseController {
             @RequestParam(required = false) String language,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime startTime,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime endTime) {
+        
+        DeviceQuery query = DeviceQuery.builder()
+                .deviceId(deviceId)
+                .userId(userId)
+                .clientType(clientType)
+                .clientId(clientId)
+                .deviceName(deviceName)
+                .deviceOs(deviceOs)
+                .deviceStatus(deviceStatus)
+                .trustedFlag(trustedFlag)
+                .language(language)
+                .startTime(startTime)
+                .endTime(endTime)
+                .build();
+        
         startPage();
-        List<DeviceQueryAppService.DeviceSearchResult> list = deviceQueryAppService.queryDeviceList(
-                deviceId, userId, clientType, clientId, deviceName, deviceOs,
-                deviceStatus, trustedFlag, language, startTime, endTime);
+        List<DeviceQueryAppService.DeviceSearchResult> list = deviceQueryAppService.queryDeviceList(query);
         return ApiResponse.ok(getPageResult(list));
     }
 
