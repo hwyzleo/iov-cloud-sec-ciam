@@ -61,7 +61,7 @@ public class CiamDeviceRepositoryImpl implements CiamDeviceRepository {
                 .like(query.getDeviceName() != null, CiamDeviceDo::getDeviceName, query.getDeviceName())
                 .like(query.getDeviceOs() != null, CiamDeviceDo::getDeviceOs, query.getDeviceOs())
                 .eq(query.getDeviceStatus() != null, CiamDeviceDo::getDeviceStatus, query.getDeviceStatus())
-                .eq(query.getTrustedFlag() != null, CiamDeviceDo::getTrustedFlag, query.getTrustedFlag() ? 1 : 0)
+                .eq(query.getTrustedFlag() != null, CiamDeviceDo::getTrustedFlag, Boolean.TRUE.equals(query.getTrustedFlag()) ? 1 : 0)
                 .eq(query.getLanguage() != null, CiamDeviceDo::getLanguage, query.getLanguage())
                 .ge(query.getStartTime() != null, CiamDeviceDo::getCreateTime, query.getStartTime() != null ? query.getStartTime().toInstant() : null)
                 .le(query.getEndTime() != null, CiamDeviceDo::getCreateTime, query.getEndTime() != null ? query.getEndTime().toInstant() : null);
