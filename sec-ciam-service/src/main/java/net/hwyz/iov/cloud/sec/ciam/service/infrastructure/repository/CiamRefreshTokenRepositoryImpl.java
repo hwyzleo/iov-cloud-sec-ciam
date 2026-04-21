@@ -42,7 +42,7 @@ public class CiamRefreshTokenRepositoryImpl implements CiamRefreshTokenRepositor
     @Override
     public int revokeAllBySessionId(String sessionId) {
         CiamRefreshTokenDo update = new CiamRefreshTokenDo();
-        update.setTokenStatus(0); // 假设 0 为撤销
+        update.setTokenStatus(0);
         update.setRevokeTime(Instant.now());
         return mapper.update(update,
                 new LambdaUpdateWrapper<CiamRefreshTokenDo>()
@@ -84,8 +84,10 @@ public class CiamRefreshTokenRepositoryImpl implements CiamRefreshTokenRepositor
                 .eq(query.getClientId() != null, CiamRefreshTokenDo::getClientId, query.getClientId())
                 .eq(query.getTokenStatus() != null, CiamRefreshTokenDo::getTokenStatus, query.getTokenStatus())
                 .ge(query.getStartTime() != null, CiamRefreshTokenDo::getIssueTime, query.getStartTime() != null ? query.getStartTime().toInstant() : null)
-                .le(query.getEndTime() != null, CiamRefreshTokenDo::getIssueTime, query.getEndTime() != null ? query.getEndTime().toInstant() : null)
-                .orderByDesc(CiamRefreshTokenDo::getIssueTime);
+                .le(query.getEndTime() != null, CiamRefreshTokenDo::getIssueTime, query.getEndTime() != null ? query.getEndTime().toInstant() : null);
+        
+        // 强制使用 last 追加排序，确保其在分页拦截器生成的 SQL 中具有最高优先级
+        wrapper.last("ORDER BY issue_time DESC");
         
         return mapper.selectList(wrapper);
     }
@@ -95,7 +97,8 @@ public class CiamRefreshTokenRepositoryImpl implements CiamRefreshTokenRepositor
         return mapper.selectList(
                 new LambdaQueryWrapper<CiamRefreshTokenDo>()
                         .eq(CiamRefreshTokenDo::getUserId, userId)
-                        .eq(CiamRefreshTokenDo::getRowValid, 1));
+                        .eq(CiamRefreshTokenDo::getRowValid, 1)
+                        .orderByDesc(CiamRefreshTokenDo::getIssueTime));
     }
 
     @Override
@@ -103,6 +106,7 @@ public class CiamRefreshTokenRepositoryImpl implements CiamRefreshTokenRepositor
         return mapper.selectList(
                 new LambdaQueryWrapper<CiamRefreshTokenDo>()
                         .eq(CiamRefreshTokenDo::getSessionId, sessionId)
-                        .eq(CiamRefreshTokenDo::getRowValid, 1));
+                        .eq(CiamRefreshTokenDo::getRowValid, 1)
+                        .orderByDesc(CiamRefreshTokenDo::getIssueTime));
     }
 }
