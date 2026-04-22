@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
 import net.hwyz.iov.cloud.sec.ciam.service.common.exception.CiamErrorCode;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.JwkPo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.JwkPo;
 import org.springframework.stereotype.Service;
 
 import java.security.interfaces.RSAPrivateKey;

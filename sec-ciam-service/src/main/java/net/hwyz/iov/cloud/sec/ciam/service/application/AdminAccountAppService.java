@@ -17,9 +17,9 @@ import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserCredentialR
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserIdentityRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserProfileRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.UserPo;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.UserIdentityPo;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.UserProfilePo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.UserPo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.UserIdentityPo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.UserProfilePo;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

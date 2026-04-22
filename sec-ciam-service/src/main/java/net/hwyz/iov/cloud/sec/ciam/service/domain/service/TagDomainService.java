@@ -7,7 +7,7 @@ import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
 import net.hwyz.iov.cloud.sec.ciam.service.common.util.UserIdGenerator;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.TagStatus;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserTagRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.UserTagPo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.UserTagPo;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

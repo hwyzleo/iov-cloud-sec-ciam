@@ -3,7 +3,7 @@ package net.hwyz.iov.cloud.sec.ciam.service.application.mapper;
 import net.hwyz.iov.cloud.sec.ciam.service.controller.vo.UserIdentityVo;
 import net.hwyz.iov.cloud.sec.ciam.service.application.dto.UserIdentityDto;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.model.UserIdentity;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.UserIdentityPo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.UserIdentityPo;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 import org.mapstruct.factory.Mappers;

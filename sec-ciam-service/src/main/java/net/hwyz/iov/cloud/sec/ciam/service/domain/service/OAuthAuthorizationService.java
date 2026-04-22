@@ -8,8 +8,8 @@ import net.hwyz.iov.cloud.sec.ciam.service.common.security.TokenDigest;
 import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamAuthCodeRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamOAuthClientRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.AuthCodePo;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.OAuthClientPo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.AuthCodePo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.OAuthClientPo;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;

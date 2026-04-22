@@ -14,7 +14,7 @@ import net.hwyz.iov.cloud.sec.ciam.service.common.util.UserIdGenerator;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.CertStatus;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamOwnerCertStateRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.service.TagDomainService;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.OwnerCertStatePo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.OwnerCertStatePo;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

@@ -6,7 +6,7 @@ import net.hwyz.iov.cloud.sec.ciam.service.common.security.PasswordEncoder;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.CredentialStatus;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.CredentialType;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserCredentialRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.UserCredentialPo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.UserCredentialPo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

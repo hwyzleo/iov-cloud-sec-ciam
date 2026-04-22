@@ -11,7 +11,7 @@ import net.hwyz.iov.cloud.sec.ciam.service.domain.model.Device;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamDeviceRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamRefreshTokenRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamSessionRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.SessionPo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.SessionPo;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

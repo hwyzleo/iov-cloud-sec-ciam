@@ -3,7 +3,7 @@ package net.hwyz.iov.cloud.sec.ciam.service.domain.service;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.DecisionResult;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.RiskLevel;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamRiskEventRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.RiskEventPo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.RiskEventPo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;

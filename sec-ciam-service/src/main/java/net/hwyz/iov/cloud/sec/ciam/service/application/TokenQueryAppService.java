@@ -10,7 +10,7 @@ import net.hwyz.iov.cloud.sec.ciam.service.application.mapper.RefreshTokenMapper
 import net.hwyz.iov.cloud.sec.ciam.service.common.exception.CiamErrorCode;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.query.TokenQuery;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamRefreshTokenRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.RefreshTokenPo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.RefreshTokenPo;
 import org.springframework.stereotype.Service;
 
 import java.time.OffsetDateTime;

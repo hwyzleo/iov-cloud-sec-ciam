@@ -1,6 +1,6 @@
 package net.hwyz.iov.cloud.sec.ciam.service.domain.repository;
 
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.JwkPo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.JwkPo;
 
 import java.util.List;
 import java.util.Optional;

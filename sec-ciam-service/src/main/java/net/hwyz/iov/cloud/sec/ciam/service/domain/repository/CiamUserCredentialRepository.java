@@ -1,6 +1,6 @@
 package net.hwyz.iov.cloud.sec.ciam.service.domain.repository;
 
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.UserCredentialPo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.UserCredentialPo;
 
 import java.util.Optional;
 

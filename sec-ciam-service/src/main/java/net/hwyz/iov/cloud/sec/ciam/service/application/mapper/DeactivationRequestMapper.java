@@ -3,7 +3,7 @@ package net.hwyz.iov.cloud.sec.ciam.service.application.mapper;
 import net.hwyz.iov.cloud.sec.ciam.service.controller.vo.DeactivationRequestVo;
 import net.hwyz.iov.cloud.sec.ciam.service.application.dto.DeactivationRequestDto;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.model.DeactivationRequest;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.DeactivationRequestPo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.DeactivationRequestPo;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 import org.mapstruct.factory.Mappers;

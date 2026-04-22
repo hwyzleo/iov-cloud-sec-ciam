@@ -26,8 +26,8 @@ import net.hwyz.iov.cloud.sec.ciam.service.domain.service.IdentityDomainService;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.service.UserDomainService;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.service.VerificationCodeService;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.service.VerificationCodeType;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.DeactivationRequestPo;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.UserIdentityPo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.DeactivationRequestPo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.UserIdentityPo;
 import org.springframework.stereotype.Service;
 
 /**

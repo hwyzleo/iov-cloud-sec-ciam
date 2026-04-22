@@ -1,6 +1,6 @@
 package net.hwyz.iov.cloud.sec.ciam.service.domain.repository;
 
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.RiskEventPo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.RiskEventPo;
 
 import java.time.LocalDateTime;
 import java.util.List;

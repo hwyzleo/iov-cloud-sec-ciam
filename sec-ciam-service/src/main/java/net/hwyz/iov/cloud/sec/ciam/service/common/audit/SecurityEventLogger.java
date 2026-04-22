@@ -3,7 +3,7 @@ package net.hwyz.iov.cloud.sec.ciam.service.common.audit;
 import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamRiskEventRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.RiskEventPo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.RiskEventPo;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 

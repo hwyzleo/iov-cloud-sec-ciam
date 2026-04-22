@@ -1,6 +1,6 @@
 package net.hwyz.iov.cloud.sec.ciam.service.domain.repository;
 
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.UserPo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.UserPo;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.query.UserQuery;
 
 import java.util.List;

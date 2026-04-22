@@ -12,8 +12,8 @@ import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.ChallengeScene;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.ChallengeType;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.DecisionResult;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamRiskEventRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.RiskEventPo;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.SessionPo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.RiskEventPo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.SessionPo;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

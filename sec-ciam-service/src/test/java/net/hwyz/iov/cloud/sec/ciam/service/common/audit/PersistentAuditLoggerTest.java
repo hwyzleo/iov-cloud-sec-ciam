@@ -1,7 +1,7 @@
 package net.hwyz.iov.cloud.sec.ciam.service.common.audit;
 
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamAuditLogRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.AuditLogPo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.AuditLogPo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

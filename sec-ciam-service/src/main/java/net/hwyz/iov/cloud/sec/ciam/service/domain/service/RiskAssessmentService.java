@@ -6,7 +6,7 @@ import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.DecisionResult;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.RiskLevel;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamRiskEventRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.RiskEventPo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.RiskEventPo;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;

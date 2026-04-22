@@ -10,7 +10,7 @@ import net.hwyz.iov.cloud.sec.ciam.service.common.exception.CiamErrorCode;
 import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
 import net.hwyz.iov.cloud.sec.ciam.service.common.util.UserIdGenerator;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamInvitationRelationRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.InvitationRelationPo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.InvitationRelationPo;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;

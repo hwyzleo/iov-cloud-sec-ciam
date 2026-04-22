@@ -12,7 +12,7 @@ import net.hwyz.iov.cloud.sec.ciam.service.domain.adapter.SmsAdapter;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.*;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.*;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.service.*;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.*;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.*;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.store.InMemoryVerificationCodeStore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;

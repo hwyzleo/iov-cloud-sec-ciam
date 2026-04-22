@@ -18,8 +18,8 @@ import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.IdentityType;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.ReviewStatus;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamMergeRequestRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.service.IdentityDomainService;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.MergeRequestPo;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.UserIdentityPo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.MergeRequestPo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.UserIdentityPo;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

@@ -15,7 +15,7 @@ import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserCredentialR
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserIdentityRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserProfileRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.*;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.*;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.store.InMemoryVerificationCodeStore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

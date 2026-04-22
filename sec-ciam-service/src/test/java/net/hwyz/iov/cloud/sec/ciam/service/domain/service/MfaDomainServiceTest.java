@@ -10,7 +10,7 @@ import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.ChallengeScene;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.ChallengeStatus;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.ChallengeType;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamMfaChallengeRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.MfaChallengePo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.MfaChallengePo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

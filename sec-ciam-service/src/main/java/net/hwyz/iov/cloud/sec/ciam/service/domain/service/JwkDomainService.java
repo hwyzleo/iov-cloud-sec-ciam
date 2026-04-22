@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamJwkRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.JwkPo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.JwkPo;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 

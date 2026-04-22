@@ -4,7 +4,7 @@ import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
 import net.hwyz.iov.cloud.sec.ciam.service.common.exception.CiamErrorCode;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.TagStatus;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserTagRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.UserTagPo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.UserTagPo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

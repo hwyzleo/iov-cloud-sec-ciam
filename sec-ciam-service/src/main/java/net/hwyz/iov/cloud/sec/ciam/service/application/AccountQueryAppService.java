@@ -18,7 +18,7 @@ import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.*;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.query.UserQuery;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.search.SearchResult;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.search.SearchService;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.*;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.*;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.search.document.AuditLogSearchDocument;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.search.document.RiskEventSearchDocument;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.search.document.UserSearchDocument;

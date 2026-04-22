@@ -1,6 +1,6 @@
 package net.hwyz.iov.cloud.sec.ciam.service.domain.repository;
 
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.RefreshTokenPo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.RefreshTokenPo;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.query.TokenQuery;
 
 import java.util.List;

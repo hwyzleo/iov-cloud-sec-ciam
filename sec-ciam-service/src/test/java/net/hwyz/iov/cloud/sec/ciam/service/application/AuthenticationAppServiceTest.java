@@ -32,9 +32,9 @@ import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamRefreshTokenRep
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamSessionRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamDeviceRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.service.*;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.UserCredentialPo;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.UserPo;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.UserIdentityPo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.UserCredentialPo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.UserPo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.UserIdentityPo;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.store.InMemoryVerificationCodeStore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;

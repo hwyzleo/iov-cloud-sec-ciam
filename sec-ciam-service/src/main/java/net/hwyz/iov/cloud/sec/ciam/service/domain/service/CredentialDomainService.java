@@ -9,7 +9,7 @@ import net.hwyz.iov.cloud.sec.ciam.service.common.util.UserIdGenerator;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.CredentialStatus;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.CredentialType;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserCredentialRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.UserCredentialPo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.UserCredentialPo;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
