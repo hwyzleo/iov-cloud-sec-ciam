@@ -1,4 +1,4 @@
-package net.hwyz.iov.cloud.sec.ciam.service.infrastructure.event;
+package net.hwyz.iov.cloud.sec.ciam.service.infrastructure.gatewayimpl.mq;
 
 import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.event.DomainEvent;

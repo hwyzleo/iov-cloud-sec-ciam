@@ -1,4 +1,4 @@
-package net.hwyz.iov.cloud.sec.ciam.service.infrastructure.adapter;
+package net.hwyz.iov.cloud.sec.ciam.service.infrastructure.gatewayimpl.http;
 
 import net.hwyz.iov.cloud.sec.ciam.service.domain.adapter.AdapterResult;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.adapter.CaptchaChallenge;

@@ -10,7 +10,7 @@ import net.hwyz.iov.cloud.sec.ciam.service.domain.event.DomainEvent;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.event.DomainEventType;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.search.SearchResult;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.search.SearchService;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.event.KafkaDomainEventPublisher;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.gatewayimpl.mq.KafkaDomainEventPublisher;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.repository.CiamAuditLogRepositoryImpl;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.repository.CiamSessionRepositoryImpl;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.repository.CiamUserIdentityRepositoryImpl;
@@ -27,7 +27,7 @@ import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.search.StubSearchServi
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.search.document.AuditLogSearchDocument;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.search.document.RiskEventSearchDocument;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.search.document.UserSearchDocument;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.store.InMemoryVerificationCodeStore;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.cache.InMemoryVerificationCodeStore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

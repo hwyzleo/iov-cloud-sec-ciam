@@ -1,4 +1,4 @@
-package net.hwyz.iov.cloud.sec.ciam.service.infrastructure.adapter;
+package net.hwyz.iov.cloud.sec.ciam.service.infrastructure.gatewayimpl.http;
 
 import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.adapter.AdapterResult;

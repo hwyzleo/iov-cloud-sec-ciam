@@ -1,4 +1,4 @@
-package net.hwyz.iov.cloud.sec.ciam.service.infrastructure.event;
+package net.hwyz.iov.cloud.sec.ciam.service.infrastructure.gatewayimpl.mq;
 
 import net.hwyz.iov.cloud.sec.ciam.service.domain.event.DomainEvent;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.event.DomainEventType;

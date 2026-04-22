@@ -1,4 +1,4 @@
-package net.hwyz.iov.cloud.sec.ciam.service.infrastructure.event;
+package net.hwyz.iov.cloud.sec.ciam.service.infrastructure.gatewayimpl.mq;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;

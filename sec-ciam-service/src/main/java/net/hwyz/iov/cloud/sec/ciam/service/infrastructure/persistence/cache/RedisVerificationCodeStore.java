@@ -1,4 +1,4 @@
-package net.hwyz.iov.cloud.sec.ciam.service.infrastructure.store;
+package net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.cache;
 
 import lombok.RequiredArgsConstructor;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.service.VerificationCodeStore;
