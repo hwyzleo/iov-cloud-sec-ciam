@@ -1,6 +1,6 @@
 package net.hwyz.iov.cloud.sec.ciam.service.application.assembler;
 
-import net.hwyz.iov.cloud.sec.ciam.service.controller.vo.RefreshTokenVo;
+import net.hwyz.iov.cloud.sec.ciam.service.adapter.web.vo.RefreshTokenVo;
 import net.hwyz.iov.cloud.sec.ciam.service.application.dto.RefreshTokenDto;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.model.RefreshToken;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.RefreshTokenPo;

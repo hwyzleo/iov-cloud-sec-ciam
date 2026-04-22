@@ -1,7 +1,7 @@
 package net.hwyz.iov.cloud.sec.ciam.service.application.assembler;
 
 import net.hwyz.iov.cloud.sec.ciam.service.application.dto.DeviceInfoDto;
-import net.hwyz.iov.cloud.sec.ciam.service.controller.vo.DeviceVo;
+import net.hwyz.iov.cloud.sec.ciam.service.adapter.web.vo.DeviceVo;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.model.Device;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.DevicePo;
 import org.mapstruct.Mapper;

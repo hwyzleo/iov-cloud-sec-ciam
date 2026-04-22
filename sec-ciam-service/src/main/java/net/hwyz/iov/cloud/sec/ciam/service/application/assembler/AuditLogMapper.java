@@ -1,7 +1,7 @@
 package net.hwyz.iov.cloud.sec.ciam.service.application.assembler;
 
 import net.hwyz.iov.cloud.sec.ciam.service.application.dto.AuditLogDto;
-import net.hwyz.iov.cloud.sec.ciam.service.controller.vo.AuditLogVo;
+import net.hwyz.iov.cloud.sec.ciam.service.adapter.web.vo.AuditLogVo;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.model.AuditLog;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.AuditLogPo;
 import org.mapstruct.Mapper;

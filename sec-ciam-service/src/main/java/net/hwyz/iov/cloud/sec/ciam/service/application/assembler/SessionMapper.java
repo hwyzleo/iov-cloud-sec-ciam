@@ -1,6 +1,6 @@
 package net.hwyz.iov.cloud.sec.ciam.service.application.assembler;
 
-import net.hwyz.iov.cloud.sec.ciam.service.controller.vo.SessionVo;
+import net.hwyz.iov.cloud.sec.ciam.service.adapter.web.vo.SessionVo;
 import net.hwyz.iov.cloud.sec.ciam.service.application.dto.SessionDto;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.model.Session;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.SessionPo;

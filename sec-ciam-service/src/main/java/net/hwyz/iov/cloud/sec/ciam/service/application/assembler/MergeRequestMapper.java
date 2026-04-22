@@ -1,6 +1,6 @@
 package net.hwyz.iov.cloud.sec.ciam.service.application.assembler;
 
-import net.hwyz.iov.cloud.sec.ciam.service.controller.vo.MergeRequestVo;
+import net.hwyz.iov.cloud.sec.ciam.service.adapter.web.vo.MergeRequestVo;
 import net.hwyz.iov.cloud.sec.ciam.service.application.dto.MergeRequestDto;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.model.MergeRequest;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.MergeRequestPo;

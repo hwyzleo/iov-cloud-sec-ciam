@@ -1,6 +1,6 @@
 package net.hwyz.iov.cloud.sec.ciam.service.application.assembler;
 
-import net.hwyz.iov.cloud.sec.ciam.service.controller.vo.UserProfileVo;
+import net.hwyz.iov.cloud.sec.ciam.service.adapter.web.vo.UserProfileVo;
 import net.hwyz.iov.cloud.sec.ciam.service.application.dto.UserProfileDto;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.model.UserProfile;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.UserProfilePo;

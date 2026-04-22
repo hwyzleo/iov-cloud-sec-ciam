@@ -1,6 +1,6 @@
 package net.hwyz.iov.cloud.sec.ciam.service.application.assembler;
 
-import net.hwyz.iov.cloud.sec.ciam.service.controller.vo.UserConsentVo;
+import net.hwyz.iov.cloud.sec.ciam.service.adapter.web.vo.UserConsentVo;
 import net.hwyz.iov.cloud.sec.ciam.service.application.dto.UserConsentDto;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.model.UserConsent;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.UserConsentPo;

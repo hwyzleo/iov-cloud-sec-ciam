@@ -1,6 +1,6 @@
 package net.hwyz.iov.cloud.sec.ciam.service.application.assembler;
 
-import net.hwyz.iov.cloud.sec.ciam.service.controller.vo.RiskEventVo;
+import net.hwyz.iov.cloud.sec.ciam.service.adapter.web.vo.RiskEventVo;
 import net.hwyz.iov.cloud.sec.ciam.service.application.dto.RiskEventDto;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.model.RiskEvent;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.RiskEventPo;

@@ -1,6 +1,6 @@
 package net.hwyz.iov.cloud.sec.ciam.service.application.assembler;
 
-import net.hwyz.iov.cloud.sec.ciam.service.controller.vo.OwnerCertificationVo;
+import net.hwyz.iov.cloud.sec.ciam.service.adapter.web.vo.OwnerCertificationVo;
 import net.hwyz.iov.cloud.sec.ciam.service.application.dto.OwnerCertificationDto;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.model.OwnerCertification;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.OwnerCertStatePo;
