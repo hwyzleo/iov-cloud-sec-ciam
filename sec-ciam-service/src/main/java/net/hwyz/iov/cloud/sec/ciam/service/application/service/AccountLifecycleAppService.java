@@ -15,13 +15,10 @@ import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.CheckStatus;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.ExecuteStatus;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.IdentityType;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.ReviewStatus;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.model.DeactivationRequest;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.model.UserIdentity;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.*;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.service.IdentityDomainService;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.service.UserDomainService;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.service.VerificationCodeService;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.service.VerificationCodeType;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.DeactivationRequestPo;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.service.*;
 import org.springframework.stereotype.Service;
 
 /**
@@ -200,7 +197,7 @@ public class AccountLifecycleAppService {
     public String submitDeactivationRequest(String userId, String requestSource, String requestReason) {
         userDomainService.startDeactivation(userId);
 
-        DeactivationRequestPo request = new DeactivationRequestPo();
+        DeactivationRequest request = new DeactivationRequest();
         request.setDeactivationRequestId(UserIdGenerator.generate());
         request.setUserId(userId);
         request.setRequestSource(requestSource);
@@ -225,7 +222,7 @@ public class AccountLifecycleAppService {
      * 审核通过注销申请。
      */
     public void approveDeactivation(String deactivationRequestId, String reviewer) {
-        DeactivationRequestPo request = findDeactivationRequest(deactivationRequestId);
+        DeactivationRequest request = findDeactivationRequest(deactivationRequestId);
         request.setReviewStatus(ReviewStatus.APPROVED.getCode());
         request.setReviewer(reviewer);
         request.setReviewTime(DateTimeUtil.getNowInstant());
@@ -240,7 +237,7 @@ public class AccountLifecycleAppService {
      * 驳回注销申请。
      */
     public void rejectDeactivation(String deactivationRequestId, String reviewer) {
-        DeactivationRequestPo request = findDeactivationRequest(deactivationRequestId);
+        DeactivationRequest request = findDeactivationRequest(deactivationRequestId);
         request.setReviewStatus(ReviewStatus.REJECTED.getCode());
         request.setReviewer(reviewer);
         request.setReviewTime(DateTimeUtil.getNowInstant());
@@ -262,7 +259,7 @@ public class AccountLifecycleAppService {
      * 当前为占位实现，默认通过。后续对接外部业务系统检查未完结业务。
      */
     public void checkDeactivationPrerequisites(String deactivationRequestId) {
-        DeactivationRequestPo request = findDeactivationRequest(deactivationRequestId);
+        DeactivationRequest request = findDeactivationRequest(deactivationRequestId);
 
         // TODO: 对接外部业务系统检查未完结业务
         boolean passed = true;
@@ -283,7 +280,7 @@ public class AccountLifecycleAppService {
      * 执行注销 — 物理删除核心身份数据，仅保留脱敏审计凭证。
      */
     public void executeDeactivation(String deactivationRequestId) {
-        DeactivationRequestPo request = findDeactivationRequest(deactivationRequestId);
+        DeactivationRequest request = findDeactivationRequest(deactivationRequestId);
         String userId = request.getUserId();
 
         // 失效所有会话与令牌
@@ -309,7 +306,7 @@ public class AccountLifecycleAppService {
 
     // ---- 内部方法 ----
 
-    private DeactivationRequestPo findDeactivationRequest(String deactivationRequestId) {
+    private DeactivationRequest findDeactivationRequest(String deactivationRequestId) {
         return deactivationRequestRepository.findByDeactivationRequestId(deactivationRequestId)
                 .orElseThrow(() -> new BusinessException(CiamErrorCode.INVALID_PARAM, "注销申请不存在"));
     }

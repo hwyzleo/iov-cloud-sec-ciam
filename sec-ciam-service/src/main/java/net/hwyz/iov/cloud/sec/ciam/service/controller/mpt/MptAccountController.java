@@ -13,7 +13,7 @@ import net.hwyz.iov.cloud.sec.ciam.service.application.service.AccountQueryAppSe
 import net.hwyz.iov.cloud.sec.ciam.service.application.service.StatisticsAppService;
 import net.hwyz.iov.cloud.sec.ciam.service.application.dto.StatisticsResultDto;
 import net.hwyz.iov.cloud.sec.ciam.service.application.dto.DeactivationRequestDto;
-import net.hwyz.iov.cloud.sec.ciam.service.application.dto.MergeRequestDto;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.*;
 import net.hwyz.iov.cloud.sec.ciam.service.application.assembler.DeactivationRequestMapper;
 import net.hwyz.iov.cloud.sec.ciam.service.application.assembler.MergeRequestMapper;
 import net.hwyz.iov.cloud.sec.ciam.service.application.assembler.UserIdentityMapper;
@@ -50,7 +50,7 @@ public class MptAccountController extends BaseController {
     // ---- 用户查询 ----
 
     @GetMapping("/accounts")
-    public ApiResponse<PageResult<UserSearchDocument>> searchUsers(
+    public ApiResponse<PageResult<UserSearchDto>> searchUsers(
             @RequestParam(required = false) String userId,
             @RequestParam(required = false) String identityType,
             @RequestParam(required = false) String identityValue,
@@ -62,7 +62,7 @@ public class MptAccountController extends BaseController {
         
         UserQuery query = UserQuery.builder().userId(userId).identityType(identityType).identityValue(identityValue).nickname(nickname).registerSource(registerSource).userStatus(userStatus).startTime(startTime).endTime(endTime).build();
         startPage();
-        List<UserSearchDocument> list = adminQueryAppService.queryUserList(query);
+        List<UserSearchDto> list = adminQueryAppService.queryUserList(query);
         return ApiResponse.ok(getPageResult(list));
     }
 

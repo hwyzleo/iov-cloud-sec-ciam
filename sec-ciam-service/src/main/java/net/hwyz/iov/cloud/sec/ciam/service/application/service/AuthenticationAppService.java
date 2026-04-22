@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
 import net.hwyz.iov.cloud.sec.ciam.service.application.dto.DeviceInfoDto;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.cmd.LoginByMobileCodeCmd;
 import net.hwyz.iov.cloud.sec.ciam.service.application.dto.LoginResultDto;
 import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditEvent;
 import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditEventType;
@@ -79,16 +80,16 @@ public class AuthenticationAppService {
     /**
      * 手机号验证码登录（账号不存在自动注册）。
      *
-     * @param mobile      手机号
-     * @param countryCode 国家区号
-     * @param code        验证码
-     * @param deviceId    设备标识
-     * @param deviceInfo  设备信息
+     * @param cmd 登录命令对象
      * @return 登录结果
      */
-    public LoginResultDto loginByMobileCode(String mobile, String countryCode,
-                                            String code, String deviceId,
-                                            DeviceInfoDto deviceInfo) {
+    public LoginResultDto loginByMobileCode(LoginByMobileCodeCmd cmd) {
+        String mobile = cmd.getMobile();
+        String countryCode = cmd.getCountryCode();
+        String code = cmd.getCode();
+        String deviceId = cmd.getDeviceId();
+        DeviceInfoDto deviceInfo = cmd.getDeviceInfo();
+
         String userKey = FieldEncryptor.hash(mobile);
 
         // 1. 校验验证码
@@ -574,4 +575,3 @@ public class AuthenticationAppService {
         deviceDomainService.changeLanguage(userId, deviceId, language);
     }
 }
-

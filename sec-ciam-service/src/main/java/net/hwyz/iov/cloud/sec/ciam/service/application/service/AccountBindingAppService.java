@@ -16,10 +16,10 @@ import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
 import net.hwyz.iov.cloud.sec.ciam.service.common.util.UserIdGenerator;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.IdentityType;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.ReviewStatus;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.model.MergeRequest;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.model.UserIdentity;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamMergeRequestRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.service.IdentityDomainService;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.MergeRequestPo;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.*;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.service.*;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -132,7 +132,7 @@ public class AccountBindingAppService {
                                                  String conflictIdentityType,
                                                  String conflictIdentityHash,
                                                  String applySource) {
-        MergeRequestPo request = new MergeRequestPo();
+        MergeRequest request = new MergeRequest();
         request.setMergeRequestId(UserIdGenerator.generate());
         request.setSourceUserId(sourceUserId);
         request.setTargetUserId(targetUserId);
@@ -151,7 +151,7 @@ public class AccountBindingAppService {
 
         log.info("合并申请已创建: mergeRequestId={}, sourceUserId={}, targetUserId={}",
                 request.getMergeRequestId(), sourceUserId, targetUserId);
-        return MergeRequestMapper.INSTANCE.toDto(MergeRequestMapper.INSTANCE.toDomain(request));
+        return MergeRequestMapper.INSTANCE.toDto(request);
     }
 
     /**
@@ -161,7 +161,7 @@ public class AccountBindingAppService {
      * @param reviewer       审核人
      */
     public void approveMergeRequest(String mergeRequestId, String reviewer) {
-        MergeRequestPo request = mergeRequestRepository.findByMergeRequestId(mergeRequestId)
+        MergeRequest request = mergeRequestRepository.findByMergeRequestId(mergeRequestId)
                 .orElseThrow(() -> new BusinessException(CiamErrorCode.INVALID_PARAM, "合并申请不存在"));
 
         request.setReviewStatus(ReviewStatus.APPROVED.getCode());
@@ -183,7 +183,7 @@ public class AccountBindingAppService {
      * @param reviewer       审核人
      */
     public void rejectMergeRequest(String mergeRequestId, String reviewer) {
-        MergeRequestPo request = mergeRequestRepository.findByMergeRequestId(mergeRequestId)
+        MergeRequest request = mergeRequestRepository.findByMergeRequestId(mergeRequestId)
                 .orElseThrow(() -> new BusinessException(CiamErrorCode.INVALID_PARAM, "合并申请不存在"));
 
         request.setReviewStatus(ReviewStatus.REJECTED.getCode());
@@ -207,7 +207,7 @@ public class AccountBindingAppService {
      * @param finalUserId    最终保留的用户业务标识（由用户选择）
      */
     public void executeMerge(String mergeRequestId, String finalUserId) {
-        MergeRequestPo request = mergeRequestRepository.findByMergeRequestId(mergeRequestId)
+        MergeRequest request = mergeRequestRepository.findByMergeRequestId(mergeRequestId)
                 .orElseThrow(() -> new BusinessException(CiamErrorCode.INVALID_PARAM, "合并申请不存在"));
 
         if (request.getReviewStatus() != ReviewStatus.APPROVED.getCode()) {

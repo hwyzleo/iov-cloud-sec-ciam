@@ -8,6 +8,7 @@ import net.hwyz.iov.cloud.framework.web.util.PageUtil;
 import net.hwyz.iov.cloud.sec.ciam.service.application.dto.DeactivationRequestDto;
 import net.hwyz.iov.cloud.sec.ciam.service.application.dto.MergeRequestDto;
 import net.hwyz.iov.cloud.sec.ciam.service.application.dto.UserIdentityDto;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.UserSearchDto;
 import net.hwyz.iov.cloud.sec.ciam.service.application.assembler.DeactivationRequestMapper;
 import net.hwyz.iov.cloud.sec.ciam.service.application.assembler.MergeRequestMapper;
 import net.hwyz.iov.cloud.sec.ciam.service.application.assembler.UserIdentityMapper;
@@ -100,12 +101,12 @@ public class AccountQueryAppService {
     /**
      * 检索用户列表
      */
-    public List<UserSearchDocument> queryUserList(UserQuery query) {
+    public List<UserSearchDto> queryUserList(UserQuery query) {
         List<User> userList = userRepository.search(query);
 
         // 使用 PageUtil.convert 确保分页元数据透传
         return PageUtil.convert(userList, user -> {
-            UserSearchDocument doc = UserSearchDocument.builder()
+            UserSearchDto dto = UserSearchDto.builder()
                     .userId(user.getUserId())
                     .userStatus(user.getUserStatus())
                     .registerSource(user.getRegisterSource())
@@ -119,20 +120,20 @@ public class AccountQueryAppService {
             for (UserIdentity identity : identities) {
                 if (IdentityType.fromCode(identity.getIdentityType()) == IdentityType.MOBILE ||
                         IdentityType.fromCode(identity.getIdentityType()) == IdentityType.EMAIL) {
-                    doc.setIdentityType(identity.getIdentityType());
+                    dto.setIdentityType(identity.getIdentityType());
                     try {
-                        doc.setIdentityValue(fieldEncryptor.decrypt(identity.getIdentityValue()));
+                        dto.setIdentityValue(fieldEncryptor.decrypt(identity.getIdentityValue()));
                     } catch (Exception e) {
-                        doc.setIdentityValue(identity.getIdentityValue());
+                        dto.setIdentityValue(identity.getIdentityValue());
                     }
                     break;
                 }
             }
             profileRepository.findByUserId(user.getUserId()).ifPresent(profile -> {
-                doc.setNickname(profile.getNickname());
-                doc.setGender(profile.getGender());
+                dto.setNickname(profile.getNickname());
+                dto.setGender(profile.getGender());
             });
-            return doc;
+            return dto;
         });
     }
 
@@ -145,13 +146,11 @@ public class AccountQueryAppService {
     }
 
     public List<MergeRequestDto> queryMergeRequests(int reviewStatus) {
-        List<MergeRequestPo> all = mergeRequestRepository.findByReviewStatus(reviewStatus);
-        return PageUtil.convert(all, doObj -> MergeRequestMapper.INSTANCE.toDto(MergeRequestMapper.INSTANCE.toDomain(doObj)));
+        return PageUtil.convert(mergeRequestRepository.findByReviewStatus(reviewStatus), MergeRequestMapper.INSTANCE::toDto);
     }
 
     public List<DeactivationRequestDto> queryDeactivationRequests(int reviewStatus) {
-        List<DeactivationRequestPo> all = deactivationRequestRepository.findByReviewStatus(reviewStatus);
-        return PageUtil.convert(all, doObj -> DeactivationRequestMapper.INSTANCE.toDto(DeactivationRequestMapper.INSTANCE.toDomain(doObj)));
+        return PageUtil.convert(deactivationRequestRepository.findByReviewStatus(reviewStatus), DeactivationRequestMapper.INSTANCE::toDto);
     }
 
     public SearchResult<AuditLogSearchDocument> queryAuditLogs(String userId, String eventType,

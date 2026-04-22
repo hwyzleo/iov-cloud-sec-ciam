@@ -6,6 +6,7 @@ import net.hwyz.iov.cloud.framework.common.bean.ApiResponse;
 import net.hwyz.iov.cloud.framework.common.constant.CustomHeaders;
 import net.hwyz.iov.cloud.framework.web.context.SecurityContextHolder;
 import net.hwyz.iov.cloud.sec.ciam.service.application.service.AuthenticationAppService;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.cmd.LoginByMobileCodeCmd;
 import net.hwyz.iov.cloud.sec.ciam.service.application.dto.LoginResultDto;
 import net.hwyz.iov.cloud.sec.ciam.service.application.dto.DeviceInfoDto;
 import net.hwyz.iov.cloud.sec.ciam.service.controller.mobile.vo.*;
@@ -56,8 +57,13 @@ public class MobileAuthController {
         deviceInfo.setClientType(clientType);
         deviceInfo.setDeviceOs(platform);
         deviceInfo.setAppVersion(appVersion);
-        LoginResultDto result = authenticationAppService.loginByMobileCode(
-                req.getMobile(), req.getCountryCode(), req.getCode(), deviceId, deviceInfo);
+        LoginResultDto result = authenticationAppService.loginByMobileCode(LoginByMobileCodeCmd.builder()
+                .mobile(req.getMobile())
+                .countryCode(req.getCountryCode())
+                .code(req.getCode())
+                .deviceId(deviceId)
+                .deviceInfo(deviceInfo)
+                .build());
         return ApiResponse.ok(result);
     }
 

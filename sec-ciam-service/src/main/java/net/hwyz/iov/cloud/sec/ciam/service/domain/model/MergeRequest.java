@@ -15,11 +15,18 @@ public class MergeRequest {
     private String mergeRequestId;
     private String sourceUserId;
     private String targetUserId;
+    private String conflictIdentityType;
+    private String conflictIdentityHash;
+    private String applySource;
     private Integer reviewStatus;
-    private String requestSource;
-    private Instant requestTime;
-    private Instant reviewTime;
     private String reviewer;
-    private String remark;
-    private String description;
+    private Instant reviewTime;
+    private String reviewOpinion;
+    private Integer executeStatus;
+    private String finalUserId;
+    private Instant finishTime;
+    private Integer rowVersion;
+    private Integer rowValid;
+    private Instant createTime;
+    private Instant modifyTime;
 }

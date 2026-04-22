@@ -14,11 +14,19 @@ import java.time.Instant;
 public class DeactivationRequest {
     private String deactivationRequestId;
     private String userId;
-    private Integer reviewStatus;
+    private String requestSource;
     private String requestReason;
-    private String remark;
-    private Instant requestTime;
-    private Instant reviewTime;
+    private Integer checkStatus;
+    private Integer reviewStatus;
     private String reviewer;
-    private String description;
+    private Instant reviewTime;
+    private String reviewOpinion;
+    private Integer executeStatus;
+    private Instant executeTime;
+    private Instant requestedTime;
+    private Integer retainAuditOnly;
+    private Integer rowVersion;
+    private Integer rowValid;
+    private Instant createTime;
+    private Instant modifyTime;
 }
