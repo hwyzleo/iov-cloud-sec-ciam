@@ -1,4 +1,4 @@
-package net.hwyz.iov.cloud.sec.ciam.service.application.mapper;
+package net.hwyz.iov.cloud.sec.ciam.service.application.assembler;
 
 import net.hwyz.iov.cloud.sec.ciam.service.controller.vo.UserConsentVo;
 import net.hwyz.iov.cloud.sec.ciam.service.application.dto.UserConsentDto;

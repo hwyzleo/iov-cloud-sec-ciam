@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import net.hwyz.iov.cloud.framework.common.bean.ApiResponse;
 import net.hwyz.iov.cloud.framework.common.constant.CustomHeaders;
 import net.hwyz.iov.cloud.framework.web.context.SecurityContextHolder;
-import net.hwyz.iov.cloud.sec.ciam.service.application.AuthenticationAppService;
+import net.hwyz.iov.cloud.sec.ciam.service.application.service.AuthenticationAppService;
 import net.hwyz.iov.cloud.sec.ciam.service.application.dto.LoginResultDto;
 import net.hwyz.iov.cloud.sec.ciam.service.application.dto.DeviceInfoDto;
 import net.hwyz.iov.cloud.sec.ciam.service.controller.mobile.vo.*;

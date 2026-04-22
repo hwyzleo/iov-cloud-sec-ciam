@@ -1,9 +1,9 @@
-package net.hwyz.iov.cloud.sec.ciam.service.application;
+package net.hwyz.iov.cloud.sec.ciam.service.application.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.sec.ciam.service.application.dto.RiskEventDto;
-import net.hwyz.iov.cloud.sec.ciam.service.application.mapper.RiskEventMapper;
+import net.hwyz.iov.cloud.sec.ciam.service.application.assembler.RiskEventMapper;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamRiskEventRepository;
 import org.springframework.stereotype.Service;
 

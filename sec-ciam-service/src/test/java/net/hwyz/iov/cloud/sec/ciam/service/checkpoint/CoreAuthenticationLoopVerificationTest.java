@@ -3,7 +3,7 @@ package net.hwyz.iov.cloud.sec.ciam.service.checkpoint;
 import net.hwyz.iov.cloud.framework.common.bean.ApiResponse;
 import net.hwyz.iov.cloud.sec.ciam.service.application.*;
 import net.hwyz.iov.cloud.sec.ciam.service.application.dto.*;
-import net.hwyz.iov.cloud.sec.ciam.service.application.mapper.*;
+import net.hwyz.iov.cloud.sec.ciam.service.application.assembler.*;
 import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditLogger;
 import net.hwyz.iov.cloud.sec.ciam.service.common.audit.SecurityEventLogger;
 import net.hwyz.iov.cloud.sec.ciam.service.common.security.FieldEncryptor;

@@ -1,4 +1,4 @@
-package net.hwyz.iov.cloud.sec.ciam.service.application;
+package net.hwyz.iov.cloud.sec.ciam.service.application.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -8,9 +8,9 @@ import net.hwyz.iov.cloud.framework.web.util.PageUtil;
 import net.hwyz.iov.cloud.sec.ciam.service.application.dto.DeactivationRequestDto;
 import net.hwyz.iov.cloud.sec.ciam.service.application.dto.MergeRequestDto;
 import net.hwyz.iov.cloud.sec.ciam.service.application.dto.UserIdentityDto;
-import net.hwyz.iov.cloud.sec.ciam.service.application.mapper.DeactivationRequestMapper;
-import net.hwyz.iov.cloud.sec.ciam.service.application.mapper.MergeRequestMapper;
-import net.hwyz.iov.cloud.sec.ciam.service.application.mapper.UserIdentityMapper;
+import net.hwyz.iov.cloud.sec.ciam.service.application.assembler.DeactivationRequestMapper;
+import net.hwyz.iov.cloud.sec.ciam.service.application.assembler.MergeRequestMapper;
+import net.hwyz.iov.cloud.sec.ciam.service.application.assembler.UserIdentityMapper;
 import net.hwyz.iov.cloud.sec.ciam.service.common.exception.CiamErrorCode;
 import net.hwyz.iov.cloud.sec.ciam.service.common.security.FieldEncryptor;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.IdentityType;

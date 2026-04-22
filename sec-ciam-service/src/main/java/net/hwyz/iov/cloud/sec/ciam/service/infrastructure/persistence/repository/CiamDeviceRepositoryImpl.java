@@ -3,7 +3,7 @@ package net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.repositor
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import lombok.RequiredArgsConstructor;
-import net.hwyz.iov.cloud.sec.ciam.service.application.mapper.DeviceMapper;
+import net.hwyz.iov.cloud.sec.ciam.service.application.assembler.DeviceMapper;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.model.Device;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.query.DeviceQuery;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamDeviceRepository;

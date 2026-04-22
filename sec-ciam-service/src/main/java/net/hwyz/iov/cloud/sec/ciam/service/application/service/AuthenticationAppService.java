@@ -1,4 +1,4 @@
-package net.hwyz.iov.cloud.sec.ciam.service.application;
+package net.hwyz.iov.cloud.sec.ciam.service.application.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

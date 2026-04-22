@@ -1,10 +1,10 @@
-package net.hwyz.iov.cloud.sec.ciam.service.application;
+package net.hwyz.iov.cloud.sec.ciam.service.application.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
 import net.hwyz.iov.cloud.sec.ciam.service.application.dto.UserConsentDto;
-import net.hwyz.iov.cloud.sec.ciam.service.application.mapper.UserConsentMapper;
+import net.hwyz.iov.cloud.sec.ciam.service.application.assembler.UserConsentMapper;
 import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditEvent;
 import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditEventType;
 import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditLogger;

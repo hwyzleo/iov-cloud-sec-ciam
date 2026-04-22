@@ -1,4 +1,4 @@
-package net.hwyz.iov.cloud.sec.ciam.service.application;
+package net.hwyz.iov.cloud.sec.ciam.service.application.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -6,7 +6,7 @@ import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
 import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
 import net.hwyz.iov.cloud.framework.web.util.PageUtil;
 import net.hwyz.iov.cloud.sec.ciam.service.application.dto.DeviceInfoDto;
-import net.hwyz.iov.cloud.sec.ciam.service.application.mapper.DeviceMapper;
+import net.hwyz.iov.cloud.sec.ciam.service.application.assembler.DeviceMapper;
 import net.hwyz.iov.cloud.sec.ciam.service.common.exception.CiamErrorCode;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.model.Device;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.query.DeviceQuery;
