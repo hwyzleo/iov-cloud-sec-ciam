@@ -9,47 +9,38 @@ import lombok.Data;
 import java.time.Instant;
 
 /**
- * 账号合并申请表数据对象。
+ * 邀请关系表数据对象。
  */
 @Data
-@TableName("ciam_merge_request")
-public class CiamMergeRequestDo {
+@TableName("ciam_invitation_relation")
+public class InvitationRelationPo {
 
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
-    @TableField("merge_request_id")
-    private String mergeRequestId;
+    @TableField("relation_id")
+    private String relationId;
 
-    @TableField("source_user_id")
-    private String sourceUserId;
+    @TableField("inviter_user_id")
+    private String inviterUserId;
 
-    @TableField("target_user_id")
-    private String targetUserId;
+    @TableField("invitee_user_id")
+    private String inviteeUserId;
 
-    @TableField("conflict_identity_type")
-    private String conflictIdentityType;
+    @TableField("invite_code")
+    private String inviteCode;
 
-    @TableField("conflict_identity_hash")
-    private String conflictIdentityHash;
+    @TableField("invite_channel_code")
+    private String inviteChannelCode;
 
-    @TableField("apply_source")
-    private String applySource;
+    @TableField("invite_activity_code")
+    private String inviteActivityCode;
 
-    @TableField("review_status")
-    private Integer reviewStatus;
+    @TableField("relation_lock_flag")
+    private Integer relationLockFlag;
 
-    @TableField("reviewer")
-    private String reviewer;
-
-    @TableField("review_time")
-    private Instant reviewTime;
-
-    @TableField("final_user_id")
-    private String finalUserId;
-
-    @TableField("finish_time")
-    private Instant finishTime;
+    @TableField("register_time")
+    private Instant registerTime;
 
     @TableField("description")
     private String description;

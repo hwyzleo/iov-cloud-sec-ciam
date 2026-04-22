@@ -17,7 +17,7 @@ import net.hwyz.iov.cloud.sec.ciam.service.domain.service.CredentialDomainServic
 import net.hwyz.iov.cloud.sec.ciam.service.domain.service.IdentityDomainService;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.service.VerificationCodeService;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.service.VerificationCodeType;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamUserIdentityDo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.UserIdentityPo;
 import org.springframework.stereotype.Service;
 
 /**
@@ -59,7 +59,7 @@ public class PasswordResetAppService {
      * @return 关联的用户 ID
      */
     public String requestResetByMobile(String mobile, String countryCode, String clientId) {
-        CiamUserIdentityDo identity = findBoundIdentity(IdentityType.MOBILE, mobile);
+        UserIdentityPo identity = findBoundIdentity(IdentityType.MOBILE, mobile);
         String userId = identity.getUserId();
 
         verificationCodeService.sendSmsCode(mobile, countryCode, userId, clientId);
@@ -79,7 +79,7 @@ public class PasswordResetAppService {
      * @return 关联的用户 ID
      */
     public String requestResetByEmail(String email, String clientId) {
-        CiamUserIdentityDo identity = findBoundIdentity(IdentityType.EMAIL, email);
+        UserIdentityPo identity = findBoundIdentity(IdentityType.EMAIL, email);
         String userId = identity.getUserId();
 
         verificationCodeService.sendEmailCode(email, userId, clientId);
@@ -134,7 +134,7 @@ public class PasswordResetAppService {
     /**
      * 根据标识类型和原值查找已绑定的用户标识，未找到则抛出 USER_NOT_FOUND。
      */
-    private CiamUserIdentityDo findBoundIdentity(IdentityType type, String identityValue) {
+    private UserIdentityPo findBoundIdentity(IdentityType type, String identityValue) {
         return identityDomainService.findByTypeAndValue(type, identityValue)
                 .filter(i -> i.getIdentityStatus() == IdentityStatus.BOUND.getCode())
                 .orElseThrow(() -> new BusinessException(CiamErrorCode.USER_NOT_FOUND));

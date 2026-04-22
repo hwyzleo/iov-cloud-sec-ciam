@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import lombok.RequiredArgsConstructor;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserProfileRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.CiamUserProfileMapper;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamUserProfileDo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.UserProfilePo;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -17,43 +17,43 @@ public class CiamUserProfileRepositoryImpl implements CiamUserProfileRepository 
     private final CiamUserProfileMapper mapper;
 
     @Override
-    public Optional<CiamUserProfileDo> findByUserId(String userId) {
+    public Optional<UserProfilePo> findByUserId(String userId) {
         return Optional.ofNullable(mapper.selectOne(
-                new LambdaQueryWrapper<CiamUserProfileDo>()
-                        .eq(CiamUserProfileDo::getUserId, userId)
-                        .eq(CiamUserProfileDo::getRowValid, 1)));
+                new LambdaQueryWrapper<UserProfilePo>()
+                        .eq(UserProfilePo::getUserId, userId)
+                        .eq(UserProfilePo::getRowValid, 1)));
     }
 
     @Override
-    public Optional<CiamUserProfileDo> findByProfileId(String profileId) {
+    public Optional<UserProfilePo> findByProfileId(String profileId) {
         return Optional.ofNullable(mapper.selectOne(
-                new LambdaQueryWrapper<CiamUserProfileDo>()
-                        .eq(CiamUserProfileDo::getProfileId, profileId)));
+                new LambdaQueryWrapper<UserProfilePo>()
+                        .eq(UserProfilePo::getProfileId, profileId)));
     }
 
     @Override
-    public int insert(CiamUserProfileDo entity) {
+    public int insert(UserProfilePo entity) {
         return mapper.insert(entity);
     }
 
     @Override
-    public int updateByProfileId(CiamUserProfileDo entity) {
+    public int updateByProfileId(UserProfilePo entity) {
         return mapper.update(entity,
-                new LambdaUpdateWrapper<CiamUserProfileDo>()
-                        .eq(CiamUserProfileDo::getProfileId, entity.getProfileId()));
+                new LambdaUpdateWrapper<UserProfilePo>()
+                        .eq(UserProfilePo::getProfileId, entity.getProfileId()));
     }
 
     @Override
-    public int updateByUserId(CiamUserProfileDo entity) {
+    public int updateByUserId(UserProfilePo entity) {
         return mapper.update(entity,
-                new LambdaUpdateWrapper<CiamUserProfileDo>()
-                        .eq(CiamUserProfileDo::getUserId, entity.getUserId()));
+                new LambdaUpdateWrapper<UserProfilePo>()
+                        .eq(UserProfilePo::getUserId, entity.getUserId()));
     }
 
     @Override
     public int physicalDeleteByUserId(String userId) {
         return mapper.delete(
-                new LambdaQueryWrapper<CiamUserProfileDo>()
-                        .eq(CiamUserProfileDo::getUserId, userId));
+                new LambdaQueryWrapper<UserProfilePo>()
+                        .eq(UserProfilePo::getUserId, userId));
     }
 }

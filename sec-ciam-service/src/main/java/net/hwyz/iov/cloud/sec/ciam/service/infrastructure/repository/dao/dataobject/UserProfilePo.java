@@ -6,41 +6,45 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
+import java.time.LocalDate;
 import java.time.Instant;
 
 /**
- * 用户主表数据对象。
+ * 用户资料扩展表数据对象。
  */
 @Data
-@TableName("ciam_user")
-public class CiamUserDo {
+@TableName("ciam_user_profile")
+public class UserProfilePo {
 
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
+    @TableField("profile_id")
+    private String profileId;
+
     @TableField("user_id")
     private String userId;
 
-    @TableField("user_status")
-    private Integer userStatus;
+    @TableField("nickname")
+    private String nickname;
 
-    @TableField("brand_code")
-    private String brandCode;
+    @TableField("avatar_url")
+    private String avatarUrl;
 
-    @TableField("register_source")
-    private String registerSource;
+    @TableField("real_name")
+    private String realName;
 
-    @TableField("register_channel")
-    private String registerChannel;
+    @TableField("gender")
+    private Integer gender;
 
-    @TableField("primary_identity_type")
-    private String primaryIdentityType;
+    @TableField("birthday")
+    private LocalDate birthday;
 
-    @TableField("last_login_time")
-    private Instant lastLoginTime;
+    @TableField("region_code")
+    private String regionCode;
 
-    @TableField("deactivated_time")
-    private Instant deactivatedTime;
+    @TableField("region_name")
+    private String regionName;
 
     @TableField("description")
     private String description;

@@ -12,8 +12,8 @@ import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.ChallengeScene;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.ChallengeType;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.DecisionResult;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamRiskEventRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamRiskEventDo;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamSessionDo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.RiskEventPo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.SessionPo;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -93,7 +93,7 @@ public class RiskDispositionService {
      * @param riskEventId 风险事件业务唯一标识
      */
     public void markRiskEventHandled(String riskEventId) {
-        CiamRiskEventDo event = riskEventRepository.findByRiskEventId(riskEventId)
+        RiskEventPo event = riskEventRepository.findByRiskEventId(riskEventId)
                 .orElseThrow(() -> new BusinessException(CiamErrorCode.RISK_EVENT_NOT_FOUND));
 
         event.setHandledFlag(1);
@@ -140,8 +140,8 @@ public class RiskDispositionService {
     }
 
     private void kickoutAllSessions(RiskAssessmentResult result, String userId) {
-        List<CiamSessionDo> activeSessions = sessionDomainService.findUserSessions(userId);
-        for (CiamSessionDo session : activeSessions) {
+        List<SessionPo> activeSessions = sessionDomainService.findUserSessions(userId);
+        for (SessionPo session : activeSessions) {
             sessionDomainService.invalidateSession(session.getSessionId());
         }
 

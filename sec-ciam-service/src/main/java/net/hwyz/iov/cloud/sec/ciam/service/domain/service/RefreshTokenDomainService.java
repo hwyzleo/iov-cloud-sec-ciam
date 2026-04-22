@@ -8,7 +8,7 @@ import net.hwyz.iov.cloud.sec.ciam.service.common.security.TokenDigest;
 import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.TokenStatus;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamRefreshTokenRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamRefreshTokenDo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.RefreshTokenPo;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
@@ -53,7 +53,7 @@ public class RefreshTokenDomainService {
         String fingerprint = TokenDigest.fingerprint(rawToken);
         Instant now = DateTimeUtil.getNowInstant();
 
-        CiamRefreshTokenDo entity = new CiamRefreshTokenDo();
+        RefreshTokenPo entity = new RefreshTokenPo();
         entity.setRefreshTokenId(UUID.randomUUID().toString());
         entity.setUserId(userId);
         entity.setSessionId(sessionId);
@@ -92,7 +92,7 @@ public class RefreshTokenDomainService {
      */
     public RefreshTokenRotationResult rotateRefreshToken(String rawToken, String clientId) {
         String fingerprint = TokenDigest.fingerprint(rawToken);
-        CiamRefreshTokenDo existing = refreshTokenRepository.findByTokenFingerprint(fingerprint)
+        RefreshTokenPo existing = refreshTokenRepository.findByTokenFingerprint(fingerprint)
                 .orElseThrow(() -> new BusinessException(CiamErrorCode.TOKEN_INVALID));
 
         // 重放检测：已轮换的令牌被再次使用
@@ -135,7 +135,7 @@ public class RefreshTokenDomainService {
         String newRawToken = generateRawToken();
         String newFingerprint = TokenDigest.fingerprint(newRawToken);
 
-        CiamRefreshTokenDo newEntity = new CiamRefreshTokenDo();
+        RefreshTokenPo newEntity = new RefreshTokenPo();
         newEntity.setRefreshTokenId(UUID.randomUUID().toString());
         newEntity.setUserId(existing.getUserId());
         newEntity.setSessionId(existing.getSessionId());
@@ -171,7 +171,7 @@ public class RefreshTokenDomainService {
      */
     public void revokeRefreshToken(String rawToken) {
         String fingerprint = TokenDigest.fingerprint(rawToken);
-        CiamRefreshTokenDo existing = refreshTokenRepository.findByTokenFingerprint(fingerprint)
+        RefreshTokenPo existing = refreshTokenRepository.findByTokenFingerprint(fingerprint)
                 .orElseThrow(() -> new BusinessException(CiamErrorCode.TOKEN_INVALID));
 
         TokenStatus status = TokenStatus.fromCode(existing.getTokenStatus());

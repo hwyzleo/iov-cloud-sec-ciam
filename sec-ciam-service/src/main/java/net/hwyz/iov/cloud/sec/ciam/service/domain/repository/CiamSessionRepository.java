@@ -1,6 +1,6 @@
 package net.hwyz.iov.cloud.sec.ciam.service.domain.repository;
 
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamSessionDo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.SessionPo;
 
 import java.util.List;
 import java.util.Optional;
@@ -11,22 +11,22 @@ import java.util.Optional;
 public interface CiamSessionRepository {
 
     /** 根据业务 ID 查询 */
-    Optional<CiamSessionDo> findBySessionId(String sessionId);
+    Optional<SessionPo> findBySessionId(String sessionId);
 
     /** 根据用户 ID 和会话状态查询 */
-    List<CiamSessionDo> findByUserIdAndStatus(String userId, int sessionStatus);
+    List<SessionPo> findByUserIdAndStatus(String userId, int sessionStatus);
 
     /** 根据设备 ID 查询 */
-    List<CiamSessionDo> findByDeviceId(String deviceId);
+    List<SessionPo> findByDeviceId(String deviceId);
 
     /** 根据设备 ID 和会话状态查询 */
-    List<CiamSessionDo> findByDeviceIdAndStatus(String deviceId, int sessionStatus);
+    List<SessionPo> findByDeviceIdAndStatus(String deviceId, int sessionStatus);
 
     /** 插入会话记录 */
-    int insert(CiamSessionDo entity);
+    int insert(SessionPo entity);
 
     /** 根据业务 ID 更新 */
-    int updateBySessionId(CiamSessionDo entity);
+    int updateBySessionId(SessionPo entity);
 
     /** 批量失效用户所有有效会话 */
     int invalidateAllByUserId(String userId);

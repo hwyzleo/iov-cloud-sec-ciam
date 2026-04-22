@@ -12,7 +12,7 @@ import net.hwyz.iov.cloud.sec.ciam.service.common.exception.CiamErrorCode;
 import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
 import net.hwyz.iov.cloud.sec.ciam.service.common.util.UserIdGenerator;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserConsentRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamUserConsentDo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.UserConsentPo;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -66,7 +66,7 @@ public class ConsentAppService {
         validateUserId(userId);
         validateConsentType(consentType);
 
-        CiamUserConsentDo record = new CiamUserConsentDo();
+        UserConsentPo record = new UserConsentPo();
         record.setConsentId(UserIdGenerator.generate());
         record.setUserId(userId);
         record.setConsentType(consentType);
@@ -102,10 +102,10 @@ public class ConsentAppService {
     public void withdrawMarketingConsent(String userId, String operateIp) {
         validateUserId(userId);
 
-        List<CiamUserConsentDo> records =
+        List<UserConsentPo> records =
                 consentRepository.findByUserIdAndConsentType(userId, CONSENT_TYPE_MARKETING);
 
-        Optional<CiamUserConsentDo> activeConsent = records.stream()
+        Optional<UserConsentPo> activeConsent = records.stream()
                 .filter(r -> r.getConsentStatus() != null && r.getConsentStatus() == CONSENT_STATUS_AGREED)
                 .findFirst();
 
@@ -114,7 +114,7 @@ public class ConsentAppService {
             throw new BusinessException(CiamErrorCode.INVALID_PARAM, "未找到有效的营销同意记录");
         }
 
-        CiamUserConsentDo consent = activeConsent.get();
+        UserConsentPo consent = activeConsent.get();
         consent.setConsentStatus(CONSENT_STATUS_WITHDRAWN);
         consent.setOperateIp(operateIp);
         consent.setOperateTime(DateTimeUtil.getNowInstant());

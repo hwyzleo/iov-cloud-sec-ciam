@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.query.UserQuery;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.CiamUserMapper;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamUserDo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.UserPo;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -19,15 +19,15 @@ public class CiamUserRepositoryImpl implements CiamUserRepository {
     private final CiamUserMapper mapper;
 
     @Override
-    public Optional<CiamUserDo> findByUserId(String userId) {
+    public Optional<UserPo> findByUserId(String userId) {
         return Optional.ofNullable(mapper.selectOne(
-                new LambdaQueryWrapper<CiamUserDo>()
-                        .eq(CiamUserDo::getUserId, userId)
-                        .eq(CiamUserDo::getRowValid, 1)));
+                new LambdaQueryWrapper<UserPo>()
+                        .eq(UserPo::getUserId, userId)
+                        .eq(UserPo::getRowValid, 1)));
     }
 
     @Override
-    public List<CiamUserDo> search(UserQuery query) {
+    public List<UserPo> search(UserQuery query) {
         return mapper.searchUsers(
                 query.getUserId(),
                 query.getIdentityType(),
@@ -40,29 +40,29 @@ public class CiamUserRepositoryImpl implements CiamUserRepository {
     }
 
     @Override
-    public List<CiamUserDo> findByUserStatus(int userStatus) {
+    public List<UserPo> findByUserStatus(int userStatus) {
         return mapper.selectList(
-                new LambdaQueryWrapper<CiamUserDo>()
-                        .eq(CiamUserDo::getUserStatus, userStatus)
-                        .eq(CiamUserDo::getRowValid, 1));
+                new LambdaQueryWrapper<UserPo>()
+                        .eq(UserPo::getUserStatus, userStatus)
+                        .eq(UserPo::getRowValid, 1));
     }
 
     @Override
-    public int insert(CiamUserDo entity) {
+    public int insert(UserPo entity) {
         return mapper.insert(entity);
     }
 
     @Override
-    public int updateByUserId(CiamUserDo entity) {
+    public int updateByUserId(UserPo entity) {
         return mapper.update(entity,
-                new LambdaUpdateWrapper<CiamUserDo>()
-                        .eq(CiamUserDo::getUserId, entity.getUserId()));
+                new LambdaUpdateWrapper<UserPo>()
+                        .eq(UserPo::getUserId, entity.getUserId()));
     }
 
     @Override
     public int physicalDeleteByUserId(String userId) {
         return mapper.delete(
-                new LambdaQueryWrapper<CiamUserDo>()
-                        .eq(CiamUserDo::getUserId, userId));
+                new LambdaQueryWrapper<UserPo>()
+                        .eq(UserPo::getUserId, userId));
     }
 }

@@ -1,7 +1,7 @@
 package net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamUserDo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.UserPo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
@@ -13,7 +13,7 @@ import java.util.List;
  * 用户主表 Mapper。
  */
 @Mapper
-public interface CiamUserMapper extends BaseMapper<CiamUserDo> {
+public interface CiamUserMapper extends BaseMapper<UserPo> {
 
     /**
      * 联表搜索用户（带分页支持）
@@ -33,7 +33,7 @@ public interface CiamUserMapper extends BaseMapper<CiamUserDo> {
             "<if test='endTime != null'> AND u.create_time &lt;= #{endTime} </if> " +
             "ORDER BY id DESC" +
             "</script>")
-    List<CiamUserDo> searchUsers(@Param("userId") String userId,
+    List<UserPo> searchUsers(@Param("userId") String userId,
                                  @Param("identityType") String identityType,
                                  @Param("identityValue") String identityValue,
                                  @Param("nickname") String nickname,

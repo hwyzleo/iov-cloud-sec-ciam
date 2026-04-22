@@ -8,7 +8,7 @@ import net.hwyz.iov.cloud.sec.ciam.service.domain.model.Device;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamDeviceRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamRefreshTokenRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamSessionRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamSessionDo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.SessionPo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -42,8 +42,8 @@ class SessionDomainServiceTest {
         service = new SessionDomainService(sessionRepository, refreshTokenRepository, deviceRepository);
     }
 
-    private CiamSessionDo stubSession(String sessionId, String userId, SessionStatus status) {
-        CiamSessionDo session = new CiamSessionDo();
+    private SessionPo stubSession(String sessionId, String userId, SessionStatus status) {
+        SessionPo session = new SessionPo();
         session.setSessionId(sessionId);
         session.setUserId(userId);
         session.setSessionStatus(status.getCode());
@@ -66,7 +66,7 @@ class SessionDomainServiceTest {
 
         @Test
         void logout_setsSessionToKickedAndRevokesTokens() {
-            CiamSessionDo session = stubSession(SESSION_ID, USER_ID, SessionStatus.ACTIVE);
+            SessionPo session = stubSession(SESSION_ID, USER_ID, SessionStatus.ACTIVE);
             when(sessionRepository.findBySessionId(SESSION_ID)).thenReturn(Optional.of(session));
             when(refreshTokenRepository.revokeAllBySessionId(SESSION_ID)).thenReturn(2);
 
@@ -92,7 +92,7 @@ class SessionDomainServiceTest {
 
         @Test
         void logout_throwsWhenUserIdMismatch() {
-            CiamSessionDo session = stubSession(SESSION_ID, "other-user", SessionStatus.ACTIVE);
+            SessionPo session = stubSession(SESSION_ID, "other-user", SessionStatus.ACTIVE);
             when(sessionRepository.findBySessionId(SESSION_ID)).thenReturn(Optional.of(session));
 
             BusinessException ex = assertThrows(BusinessException.class,
@@ -104,7 +104,7 @@ class SessionDomainServiceTest {
 
         @Test
         void logout_skipsWhenSessionAlreadyOffline() {
-            CiamSessionDo session = stubSession(SESSION_ID, USER_ID, SessionStatus.KICKED);
+            SessionPo session = stubSession(SESSION_ID, USER_ID, SessionStatus.KICKED);
             when(sessionRepository.findBySessionId(SESSION_ID)).thenReturn(Optional.of(session));
 
             service.logout(SESSION_ID, USER_ID);
@@ -115,7 +115,7 @@ class SessionDomainServiceTest {
 
         @Test
         void logout_skipsWhenSessionExpired() {
-            CiamSessionDo session = stubSession(SESSION_ID, USER_ID, SessionStatus.EXPIRED);
+            SessionPo session = stubSession(SESSION_ID, USER_ID, SessionStatus.EXPIRED);
             when(sessionRepository.findBySessionId(SESSION_ID)).thenReturn(Optional.of(session));
 
             service.logout(SESSION_ID, USER_ID);
@@ -126,7 +126,7 @@ class SessionDomainServiceTest {
 
         @Test
         void logout_revokesMultipleActiveTokens() {
-            CiamSessionDo session = stubSession(SESSION_ID, USER_ID, SessionStatus.ACTIVE);
+            SessionPo session = stubSession(SESSION_ID, USER_ID, SessionStatus.ACTIVE);
             when(sessionRepository.findBySessionId(SESSION_ID)).thenReturn(Optional.of(session));
             when(refreshTokenRepository.revokeAllBySessionId(SESSION_ID)).thenReturn(5);
 
@@ -143,7 +143,7 @@ class SessionDomainServiceTest {
 
         @Test
         void invalidateSession_setsSessionToInvalidAndRevokesTokens() {
-            CiamSessionDo session = stubSession(SESSION_ID, USER_ID, SessionStatus.ACTIVE);
+            SessionPo session = stubSession(SESSION_ID, USER_ID, SessionStatus.ACTIVE);
             when(sessionRepository.findBySessionId(SESSION_ID)).thenReturn(Optional.of(session));
             when(refreshTokenRepository.revokeAllBySessionId(SESSION_ID)).thenReturn(1);
 
@@ -167,7 +167,7 @@ class SessionDomainServiceTest {
 
         @Test
         void invalidateSession_skipsWhenSessionAlreadyInvalid() {
-            CiamSessionDo session = stubSession(SESSION_ID, USER_ID, SessionStatus.INVALID);
+            SessionPo session = stubSession(SESSION_ID, USER_ID, SessionStatus.INVALID);
             when(sessionRepository.findBySessionId(SESSION_ID)).thenReturn(Optional.of(session));
 
             service.invalidateSession(SESSION_ID);
@@ -184,12 +184,12 @@ class SessionDomainServiceTest {
 
         @Test
         void findUserSessions_returnsActiveSessionsForUser() {
-            CiamSessionDo s1 = stubSession("s1", USER_ID, SessionStatus.ACTIVE);
-            CiamSessionDo s2 = stubSession("s2", USER_ID, SessionStatus.ACTIVE);
+            SessionPo s1 = stubSession("s1", USER_ID, SessionStatus.ACTIVE);
+            SessionPo s2 = stubSession("s2", USER_ID, SessionStatus.ACTIVE);
             when(sessionRepository.findByUserIdAndStatus(USER_ID, SessionStatus.ACTIVE.getCode()))
                     .thenReturn(List.of(s1, s2));
 
-            List<CiamSessionDo> result = service.findUserSessions(USER_ID);
+            List<SessionPo> result = service.findUserSessions(USER_ID);
 
             assertEquals(2, result.size());
             verify(sessionRepository).findByUserIdAndStatus(USER_ID, SessionStatus.ACTIVE.getCode());
@@ -200,7 +200,7 @@ class SessionDomainServiceTest {
             when(sessionRepository.findByUserIdAndStatus(USER_ID, SessionStatus.ACTIVE.getCode()))
                     .thenReturn(Collections.emptyList());
 
-            List<CiamSessionDo> result = service.findUserSessions(USER_ID);
+            List<SessionPo> result = service.findUserSessions(USER_ID);
 
             assertTrue(result.isEmpty());
         }
@@ -242,7 +242,7 @@ class SessionDomainServiceTest {
 
         @Test
         void kickSession_delegatesToLogout() {
-            CiamSessionDo session = stubSession(SESSION_ID, USER_ID, SessionStatus.ACTIVE);
+            SessionPo session = stubSession(SESSION_ID, USER_ID, SessionStatus.ACTIVE);
             when(sessionRepository.findBySessionId(SESSION_ID)).thenReturn(Optional.of(session));
             when(refreshTokenRepository.revokeAllBySessionId(SESSION_ID)).thenReturn(1);
 
@@ -265,7 +265,7 @@ class SessionDomainServiceTest {
 
         @Test
         void kickSession_throwsWhenUserIdMismatch() {
-            CiamSessionDo session = stubSession(SESSION_ID, "other-user", SessionStatus.ACTIVE);
+            SessionPo session = stubSession(SESSION_ID, "other-user", SessionStatus.ACTIVE);
             when(sessionRepository.findBySessionId(SESSION_ID)).thenReturn(Optional.of(session));
 
             BusinessException ex = assertThrows(BusinessException.class,
@@ -284,9 +284,9 @@ class SessionDomainServiceTest {
             Device device = stubDevice(DEVICE_ID, USER_ID, DeviceStatus.ACTIVE);
             when(deviceRepository.findByDeviceId(DEVICE_ID)).thenReturn(Optional.of(device));
 
-            CiamSessionDo s1 = stubSession("s1", USER_ID, SessionStatus.ACTIVE);
+            SessionPo s1 = stubSession("s1", USER_ID, SessionStatus.ACTIVE);
             s1.setDeviceId(DEVICE_ID);
-            CiamSessionDo s2 = stubSession("s2", USER_ID, SessionStatus.ACTIVE);
+            SessionPo s2 = stubSession("s2", USER_ID, SessionStatus.ACTIVE);
             s2.setDeviceId(DEVICE_ID);
             when(sessionRepository.findByDeviceIdAndStatus(DEVICE_ID, SessionStatus.ACTIVE.getCode()))
                     .thenReturn(List.of(s1, s2));

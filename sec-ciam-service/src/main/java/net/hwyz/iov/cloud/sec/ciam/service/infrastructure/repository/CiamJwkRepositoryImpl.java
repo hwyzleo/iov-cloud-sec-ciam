@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamJwkRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.CiamJwkMapper;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamJwkDo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.JwkPo;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -22,49 +22,49 @@ public class CiamJwkRepositoryImpl implements CiamJwkRepository {
     private final CiamJwkMapper mapper;
 
     @Override
-    public Optional<CiamJwkDo> findByKeyId(String keyId) {
+    public Optional<JwkPo> findByKeyId(String keyId) {
         return Optional.ofNullable(mapper.selectOne(
-                new LambdaQueryWrapper<CiamJwkDo>()
-                        .eq(CiamJwkDo::getKeyId, keyId)));
+                new LambdaQueryWrapper<JwkPo>()
+                        .eq(JwkPo::getKeyId, keyId)));
     }
 
     @Override
-    public Optional<CiamJwkDo> findPrimary() {
+    public Optional<JwkPo> findPrimary() {
         return Optional.ofNullable(mapper.selectOne(
-                new LambdaQueryWrapper<CiamJwkDo>()
-                        .eq(CiamJwkDo::getIsPrimary, 1)
-                        .eq(CiamJwkDo::getStatus, 1)
-                        .orderByDesc(CiamJwkDo::getIssueTime)
+                new LambdaQueryWrapper<JwkPo>()
+                        .eq(JwkPo::getIsPrimary, 1)
+                        .eq(JwkPo::getStatus, 1)
+                        .orderByDesc(JwkPo::getIssueTime)
                         .last("LIMIT 1")));
     }
 
     @Override
-    public List<CiamJwkDo> findAllActive() {
+    public List<JwkPo> findAllActive() {
         return mapper.selectList(
-                new LambdaQueryWrapper<CiamJwkDo>()
-                        .eq(CiamJwkDo::getStatus, 1));
+                new LambdaQueryWrapper<JwkPo>()
+                        .eq(JwkPo::getStatus, 1));
     }
 
     @Override
-    public int insert(CiamJwkDo entity) {
+    public int insert(JwkPo entity) {
         return mapper.insert(entity);
     }
 
     @Override
-    public int update(CiamJwkDo entity) {
+    public int update(JwkPo entity) {
         entity.setModifyTime(DateTimeUtil.getNowInstant());
         return mapper.update(entity,
-                new LambdaUpdateWrapper<CiamJwkDo>()
-                        .eq(CiamJwkDo::getKeyId, entity.getKeyId()));
+                new LambdaUpdateWrapper<JwkPo>()
+                        .eq(JwkPo::getKeyId, entity.getKeyId()));
     }
 
     @Override
     public int revokePrimary() {
-        CiamJwkDo update = new CiamJwkDo();
+        JwkPo update = new JwkPo();
         update.setIsPrimary(0);
         update.setModifyTime(DateTimeUtil.getNowInstant());
         return mapper.update(update,
-                new LambdaUpdateWrapper<CiamJwkDo>()
-                        .eq(CiamJwkDo::getIsPrimary, 1));
+                new LambdaUpdateWrapper<JwkPo>()
+                        .eq(JwkPo::getIsPrimary, 1));
     }
 }

@@ -9,20 +9,17 @@ import lombok.Data;
 import java.time.Instant;
 
 /**
- * 授权码记录表数据对象。
+ * MFA 挑战表数据对象。
  */
 @Data
-@TableName("ciam_auth_code")
-public class CiamAuthCodeDo {
+@TableName("ciam_mfa_challenge")
+public class MfaChallengePo {
 
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
-    @TableField("auth_code_id")
-    private String authCodeId;
-
-    @TableField("client_id")
-    private String clientId;
+    @TableField("challenge_id")
+    private String challengeId;
 
     @TableField("user_id")
     private String userId;
@@ -30,29 +27,32 @@ public class CiamAuthCodeDo {
     @TableField("session_id")
     private String sessionId;
 
-    @TableField("code_hash")
-    private String codeHash;
+    @TableField("challenge_type")
+    private String challengeType;
 
-    @TableField("redirect_uri")
-    private String redirectUri;
+    @TableField("challenge_scene")
+    private String challengeScene;
 
-    @TableField("scope")
-    private String scope;
+    @TableField("receiver_mask")
+    private String receiverMask;
 
-    @TableField("code_challenge")
-    private String codeChallenge;
+    @TableField("verify_code_hash")
+    private String verifyCodeHash;
 
-    @TableField("challenge_method")
-    private String challengeMethod;
+    @TableField("send_time")
+    private Instant sendTime;
 
     @TableField("expire_time")
     private Instant expireTime;
 
-    @TableField("used_flag")
-    private Integer usedFlag;
+    @TableField("verify_time")
+    private Instant verifyTime;
 
-    @TableField("used_time")
-    private Instant usedTime;
+    @TableField("challenge_status")
+    private Integer challengeStatus;
+
+    @TableField("risk_event_id")
+    private String riskEventId;
 
     @TableField("description")
     private String description;

@@ -9,53 +9,41 @@ import lombok.Data;
 import java.time.Instant;
 
 /**
- * 设备表数据对象。
+ * 协议与营销同意表数据对象。
  */
 @Data
-@TableName("ciam_device")
-public class CiamDeviceDo {
+@TableName("ciam_user_consent")
+public class UserConsentPo {
 
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
-    @TableField("device_id")
-    private String deviceId;
+    @TableField("consent_id")
+    private String consentId;
 
     @TableField("user_id")
     private String userId;
 
+    @TableField("consent_type")
+    private String consentType;
+
+    @TableField("consent_status")
+    private Integer consentStatus;
+
+    @TableField("policy_version")
+    private String policyVersion;
+
+    @TableField("source_channel")
+    private String sourceChannel;
+
     @TableField("client_type")
     private String clientType;
 
-    @TableField("client_id")
-    private String clientId;
+    @TableField("operate_ip")
+    private String operateIp;
 
-    @TableField("device_name")
-    private String deviceName;
-
-    @TableField("device_os")
-    private String deviceOs;
-
-    @TableField("app_version")
-    private String appVersion;
-
-    @TableField("device_fingerprint")
-    private String deviceFingerprint;
-
-    @TableField("language")
-    private String language;
-
-    @TableField("trusted_flag")
-    private Integer trustedFlag;
-
-    @TableField("first_login_time")
-    private Instant firstLoginTime;
-
-    @TableField("last_login_time")
-    private Instant lastLoginTime;
-
-    @TableField("device_status")
-    private Integer deviceStatus;
+    @TableField("operate_time")
+    private Instant operateTime;
 
     @TableField("description")
     private String description;

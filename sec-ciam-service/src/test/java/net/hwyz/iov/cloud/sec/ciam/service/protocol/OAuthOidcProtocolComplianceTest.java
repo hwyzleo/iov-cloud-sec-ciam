@@ -12,10 +12,10 @@ import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamOAuthClientRepo
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserIdentityRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserProfileRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.service.*;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamAuthCodeDo;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamOAuthClientDo;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamUserIdentityDo;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamUserProfileDo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.AuthCodePo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.OAuthClientPo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.UserIdentityPo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.UserProfilePo;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.store.InMemoryVerificationCodeStore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -72,8 +72,8 @@ class OAuthOidcProtocolComplianceTest {
             authService = new OAuthAuthorizationService(authCodeRepository, clientRepository, passwordEncoder);
         }
 
-        private CiamOAuthClientDo publicClientWithPkce() {
-            CiamOAuthClientDo c = new CiamOAuthClientDo();
+        private OAuthClientPo publicClientWithPkce() {
+            OAuthClientPo c = new OAuthClientPo();
             c.setClientId(CLIENT_ID);
             c.setClientName("PKCE Test App");
             c.setClientType("public");
@@ -101,8 +101,8 @@ class OAuthOidcProtocolComplianceTest {
             }
         }
 
-        private CiamAuthCodeDo stubAuthCode(String codeHash, String codeChallenge) {
-            CiamAuthCodeDo a = new CiamAuthCodeDo();
+        private AuthCodePo stubAuthCode(String codeHash, String codeChallenge) {
+            AuthCodePo a = new AuthCodePo();
             a.setClientId(CLIENT_ID);
             a.setUserId(USER_ID);
             a.setRedirectUri(REDIRECT_URI);
@@ -128,7 +128,7 @@ class OAuthOidcProtocolComplianceTest {
                     CLIENT_ID, USER_ID, null, REDIRECT_URI, SCOPE, codeChallenge, "S256");
             assertNotNull(code, "授权码不应为空");
 
-            CiamAuthCodeDo authCodeDo = stubAuthCode(TokenDigest.fingerprint(code), codeChallenge);
+            AuthCodePo authCodeDo = stubAuthCode(TokenDigest.fingerprint(code), codeChallenge);
             when(authCodeRepository.findByCodeHash(TokenDigest.fingerprint(code)))
                     .thenReturn(Optional.of(authCodeDo));
 
@@ -146,7 +146,7 @@ class OAuthOidcProtocolComplianceTest {
             String codeChallenge = computeS256Challenge("dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk");
             String rawCode = "test-raw-code-invalid-verifier";
 
-            CiamAuthCodeDo authCodeDo = stubAuthCode(TokenDigest.fingerprint(rawCode), codeChallenge);
+            AuthCodePo authCodeDo = stubAuthCode(TokenDigest.fingerprint(rawCode), codeChallenge);
             when(authCodeRepository.findByCodeHash(TokenDigest.fingerprint(rawCode))).thenReturn(Optional.of(authCodeDo));
             when(clientRepository.findByClientId(CLIENT_ID)).thenReturn(Optional.of(publicClientWithPkce()));
 
@@ -161,7 +161,7 @@ class OAuthOidcProtocolComplianceTest {
             String codeChallenge = computeS256Challenge("some-verifier-value-for-testing");
             String rawCode = "test-raw-code-missing-verifier";
 
-            CiamAuthCodeDo authCodeDo = stubAuthCode(TokenDigest.fingerprint(rawCode), codeChallenge);
+            AuthCodePo authCodeDo = stubAuthCode(TokenDigest.fingerprint(rawCode), codeChallenge);
             when(authCodeRepository.findByCodeHash(TokenDigest.fingerprint(rawCode))).thenReturn(Optional.of(authCodeDo));
             when(clientRepository.findByClientId(CLIENT_ID)).thenReturn(Optional.of(publicClientWithPkce()));
 
@@ -174,7 +174,7 @@ class OAuthOidcProtocolComplianceTest {
         @DisplayName("RFC 6749 §4.1.3: 授权码只能使用一次")
         void authorizationCode_shouldBeOneTimeUse() {
             String rawCode = "test-raw-code-used";
-            CiamAuthCodeDo authCodeDo = stubAuthCode(TokenDigest.fingerprint(rawCode), null);
+            AuthCodePo authCodeDo = stubAuthCode(TokenDigest.fingerprint(rawCode), null);
             authCodeDo.setUsedFlag(1);
             when(authCodeRepository.findByCodeHash(TokenDigest.fingerprint(rawCode))).thenReturn(Optional.of(authCodeDo));
 
@@ -187,7 +187,7 @@ class OAuthOidcProtocolComplianceTest {
         @DisplayName("RFC 6749 §4.1.3: redirect_uri 必须与授权请求一致")
         void authorizationCode_redirectUriMismatch_shouldFail() {
             String rawCode = "test-raw-code-redirect";
-            CiamAuthCodeDo authCodeDo = stubAuthCode(TokenDigest.fingerprint(rawCode), null);
+            AuthCodePo authCodeDo = stubAuthCode(TokenDigest.fingerprint(rawCode), null);
             when(authCodeRepository.findByCodeHash(TokenDigest.fingerprint(rawCode))).thenReturn(Optional.of(authCodeDo));
 
             BusinessException ex = assertThrows(BusinessException.class,
@@ -200,7 +200,7 @@ class OAuthOidcProtocolComplianceTest {
         @DisplayName("RFC 6749 §4.1.3: client_id 必须与授权请求一致")
         void authorizationCode_clientIdMismatch_shouldFail() {
             String rawCode = "test-raw-code-client";
-            CiamAuthCodeDo authCodeDo = stubAuthCode(TokenDigest.fingerprint(rawCode), null);
+            AuthCodePo authCodeDo = stubAuthCode(TokenDigest.fingerprint(rawCode), null);
             when(authCodeRepository.findByCodeHash(TokenDigest.fingerprint(rawCode))).thenReturn(Optional.of(authCodeDo));
 
             BusinessException ex = assertThrows(BusinessException.class,
@@ -235,8 +235,8 @@ class OAuthOidcProtocolComplianceTest {
             authService = new OAuthAuthorizationService(authCodeRepository, clientRepository, passwordEncoder);
         }
 
-        private CiamOAuthClientDo confidentialClient() {
-            CiamOAuthClientDo c = new CiamOAuthClientDo();
+        private OAuthClientPo confidentialClient() {
+            OAuthClientPo c = new OAuthClientPo();
             c.setClientId(CLIENT_ID);
             c.setClientName("Internal Service");
             c.setClientType("confidential");
@@ -287,7 +287,7 @@ class OAuthOidcProtocolComplianceTest {
         @Test
         @DisplayName("RFC 6749 §4.4: 已停用客户端应被拒绝")
         void clientCredentials_disabledClient_shouldFail() {
-            CiamOAuthClientDo disabled = confidentialClient();
+            OAuthClientPo disabled = confidentialClient();
             disabled.setClientStatus(0);
             when(clientRepository.findByClientId(CLIENT_ID)).thenReturn(Optional.of(disabled));
 
@@ -320,8 +320,8 @@ class OAuthOidcProtocolComplianceTest {
             deviceService = new DeviceAuthorizationService(clientRepository, store);
         }
 
-        private CiamOAuthClientDo vehicleClient() {
-            CiamOAuthClientDo c = new CiamOAuthClientDo();
+        private OAuthClientPo vehicleClient() {
+            OAuthClientPo c = new OAuthClientPo();
             c.setClientId(CLIENT_ID);
             c.setClientName("Vehicle App");
             c.setClientType("public");
@@ -466,7 +466,7 @@ class OAuthOidcProtocolComplianceTest {
         @Test
         @DisplayName("OIDC Core §5.1: UserInfo 声明使用标准命名")
         void userInfo_shouldUseStandardClaimNames() {
-            CiamUserProfileDo profile = new CiamUserProfileDo();
+            UserProfilePo profile = new UserProfilePo();
             profile.setUserId(USER_ID);
             profile.setNickname("TestUser");
             profile.setAvatarUrl("https://example.com/avatar.jpg");
@@ -490,21 +490,21 @@ class OAuthOidcProtocolComplianceTest {
             when(identityRepository.findByUserId(USER_ID)).thenReturn(List.of());
 
             // 验证 gender=1 → male
-            CiamUserProfileDo maleProfile = new CiamUserProfileDo();
+            UserProfilePo maleProfile = new UserProfilePo();
             maleProfile.setUserId(USER_ID);
             maleProfile.setGender(1);
             when(profileRepository.findByUserId(USER_ID)).thenReturn(Optional.of(maleProfile));
             assertEquals("male", oidcService.getUserInfo(USER_ID).getGender());
 
             // 验证 gender=2 → female
-            CiamUserProfileDo femaleProfile = new CiamUserProfileDo();
+            UserProfilePo femaleProfile = new UserProfilePo();
             femaleProfile.setUserId(USER_ID);
             femaleProfile.setGender(2);
             when(profileRepository.findByUserId(USER_ID)).thenReturn(Optional.of(femaleProfile));
             assertEquals("female", oidcService.getUserInfo(USER_ID).getGender());
 
             // 验证 gender=0 → unknown
-            CiamUserProfileDo unknownProfile = new CiamUserProfileDo();
+            UserProfilePo unknownProfile = new UserProfilePo();
             unknownProfile.setUserId(USER_ID);
             unknownProfile.setGender(0);
             when(profileRepository.findByUserId(USER_ID)).thenReturn(Optional.of(unknownProfile));
@@ -714,7 +714,7 @@ class OAuthOidcProtocolComplianceTest {
         @Test
         @DisplayName("OIDC Core §5.4: scope=profile 时应包含 profile 声明")
         void idToken_profileScope_shouldIncludeProfileClaims() {
-            CiamUserProfileDo profile = new CiamUserProfileDo();
+            UserProfilePo profile = new UserProfilePo();
             profile.setUserId(USER_ID);
             profile.setNickname("TestUser");
             profile.setAvatarUrl("https://example.com/avatar.jpg");
@@ -733,7 +733,7 @@ class OAuthOidcProtocolComplianceTest {
         @Test
         @DisplayName("OIDC Core §5.4: scope=email 时应包含 email 声明")
         void idToken_emailScope_shouldIncludeEmailClaim() {
-            CiamUserIdentityDo emailIdentity = new CiamUserIdentityDo();
+            UserIdentityPo emailIdentity = new UserIdentityPo();
             emailIdentity.setUserId(USER_ID);
             emailIdentity.setIdentityType(IdentityType.EMAIL.getCode());
             emailIdentity.setIdentityValue(fieldEncryptor.encrypt("user@example.com"));
@@ -750,7 +750,7 @@ class OAuthOidcProtocolComplianceTest {
         @Test
         @DisplayName("OIDC Core §5.4: scope=phone 时应包含 phone_number 声明")
         void idToken_phoneScope_shouldIncludePhoneClaim() {
-            CiamUserIdentityDo mobileIdentity = new CiamUserIdentityDo();
+            UserIdentityPo mobileIdentity = new UserIdentityPo();
             mobileIdentity.setUserId(USER_ID);
             mobileIdentity.setIdentityType(IdentityType.MOBILE.getCode());
             mobileIdentity.setIdentityValue(fieldEncryptor.encrypt("+8613800138000"));

@@ -17,8 +17,8 @@ import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.IdentityType;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.UserStatus;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.*;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.service.*;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamUserDo;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamUserIdentityDo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.UserPo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.UserIdentityPo;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.store.InMemoryVerificationCodeStore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -163,12 +163,12 @@ class CoreAuthenticationLoopVerificationTest {
         assertNotNull(userId);
 
         // 2. 登录 (模拟已存在用户)
-        CiamUserDo userDo = new CiamUserDo();
+        UserPo userDo = new UserPo();
         userDo.setUserId(userId);
         userDo.setUserStatus(UserStatus.ACTIVE.getCode());
         when(userRepository.findByUserId(userId)).thenReturn(Optional.of(userDo));
 
-        CiamUserIdentityDo idDo = new CiamUserIdentityDo();
+        UserIdentityPo idDo = new UserIdentityPo();
         idDo.setUserId(userId);
         idDo.setIdentityType(IdentityType.MOBILE.getCode());
         idDo.setIdentityHash(FieldEncryptor.hash(mobile));

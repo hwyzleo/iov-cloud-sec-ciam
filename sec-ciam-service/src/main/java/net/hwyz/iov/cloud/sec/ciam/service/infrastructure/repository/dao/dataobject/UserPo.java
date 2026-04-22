@@ -9,38 +9,38 @@ import lombok.Data;
 import java.time.Instant;
 
 /**
- * 邀请关系表数据对象。
+ * 用户主表数据对象。
  */
 @Data
-@TableName("ciam_invitation_relation")
-public class CiamInvitationRelationDo {
+@TableName("ciam_user")
+public class UserPo {
 
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
-    @TableField("relation_id")
-    private String relationId;
+    @TableField("user_id")
+    private String userId;
 
-    @TableField("inviter_user_id")
-    private String inviterUserId;
+    @TableField("user_status")
+    private Integer userStatus;
 
-    @TableField("invitee_user_id")
-    private String inviteeUserId;
+    @TableField("brand_code")
+    private String brandCode;
 
-    @TableField("invite_code")
-    private String inviteCode;
+    @TableField("register_source")
+    private String registerSource;
 
-    @TableField("invite_channel_code")
-    private String inviteChannelCode;
+    @TableField("register_channel")
+    private String registerChannel;
 
-    @TableField("invite_activity_code")
-    private String inviteActivityCode;
+    @TableField("primary_identity_type")
+    private String primaryIdentityType;
 
-    @TableField("relation_lock_flag")
-    private Integer relationLockFlag;
+    @TableField("last_login_time")
+    private Instant lastLoginTime;
 
-    @TableField("register_time")
-    private Instant registerTime;
+    @TableField("deactivated_time")
+    private Instant deactivatedTime;
 
     @TableField("description")
     private String description;

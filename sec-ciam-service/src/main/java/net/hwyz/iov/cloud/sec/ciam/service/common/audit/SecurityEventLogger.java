@@ -3,7 +3,7 @@ package net.hwyz.iov.cloud.sec.ciam.service.common.audit;
 import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamRiskEventRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamRiskEventDo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.RiskEventPo;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 
@@ -75,7 +75,7 @@ public class SecurityEventLogger {
         // 持久化到数据库
         if (riskEventRepository != null) {
             try {
-                CiamRiskEventDo riskEventDo = mapToDataObject(event);
+                RiskEventPo riskEventDo = mapToDataObject(event);
                 riskEventRepository.insert(riskEventDo);
             } catch (Exception e) {
                 log.warn("[SECURITY] 安全事件持久化失败，已降级为仅日志记录: {}", e.getMessage());
@@ -84,11 +84,11 @@ public class SecurityEventLogger {
     }
 
     /**
-     * 将 SecurityEvent 映射为 CiamRiskEventDo。
+     * 将 SecurityEvent 映射为 RiskEventPo。
      */
-    CiamRiskEventDo mapToDataObject(SecurityEvent event) {
+    RiskEventPo mapToDataObject(SecurityEvent event) {
         Instant now = DateTimeUtil.getNowInstant();
-        CiamRiskEventDo riskEventDo = new CiamRiskEventDo();
+        RiskEventPo riskEventDo = new RiskEventPo();
         riskEventDo.setRiskEventId(generateRiskEventId());
         riskEventDo.setUserId(event.getUserId());
         riskEventDo.setSessionId(event.getSessionId());

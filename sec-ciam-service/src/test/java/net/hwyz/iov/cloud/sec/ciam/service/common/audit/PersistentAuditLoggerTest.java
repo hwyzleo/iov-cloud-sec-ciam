@@ -1,7 +1,7 @@
 package net.hwyz.iov.cloud.sec.ciam.service.common.audit;
 
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamAuditLogRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamAuditLogDo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.AuditLogPo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -39,9 +39,9 @@ class PersistentAuditLoggerTest {
 
             persistentAuditLogger.log(event);
 
-            ArgumentCaptor<CiamAuditLogDo> captor = ArgumentCaptor.forClass(CiamAuditLogDo.class);
+            ArgumentCaptor<AuditLogPo> captor = ArgumentCaptor.forClass(AuditLogPo.class);
             verify(auditLogRepository).insert(captor.capture());
-            CiamAuditLogDo saved = captor.getValue();
+            AuditLogPo saved = captor.getValue();
 
             assertEquals("user-001", saved.getUserId());
             assertEquals("session-001", saved.getSessionId());
@@ -77,7 +77,7 @@ class PersistentAuditLoggerTest {
 
             persistentAuditLogger.log(event);
 
-            ArgumentCaptor<CiamAuditLogDo> captor = ArgumentCaptor.forClass(CiamAuditLogDo.class);
+            ArgumentCaptor<AuditLogPo> captor = ArgumentCaptor.forClass(AuditLogPo.class);
             verify(auditLogRepository).insert(captor.capture());
             assertEquals(0, captor.getValue().getOperationResult());
         }
@@ -111,7 +111,7 @@ class PersistentAuditLoggerTest {
 
             persistentAuditLogger.log(event);
 
-            ArgumentCaptor<CiamAuditLogDo> captor = ArgumentCaptor.forClass(CiamAuditLogDo.class);
+            ArgumentCaptor<AuditLogPo> captor = ArgumentCaptor.forClass(AuditLogPo.class);
             verify(auditLogRepository).insert(captor.capture());
             assertNotNull(captor.getValue().getEventTime());
         }
@@ -140,7 +140,7 @@ class PersistentAuditLoggerTest {
                     .eventTime(eventTime)
                     .build();
 
-            CiamAuditLogDo result = persistentAuditLogger.mapToDataObject(event);
+            AuditLogPo result = persistentAuditLogger.mapToDataObject(event);
 
             assertEquals("user-002", result.getUserId());
             assertEquals("session-002", result.getSessionId());
@@ -170,7 +170,7 @@ class PersistentAuditLoggerTest {
                     .success(true)
                     .build();
 
-            CiamAuditLogDo result = persistentAuditLogger.mapToDataObject(event);
+            AuditLogPo result = persistentAuditLogger.mapToDataObject(event);
 
             assertNull(result.getUserId());
             assertNull(result.getSessionId());

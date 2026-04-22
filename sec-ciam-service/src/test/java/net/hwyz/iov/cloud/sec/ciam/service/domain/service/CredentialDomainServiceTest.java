@@ -6,7 +6,7 @@ import net.hwyz.iov.cloud.sec.ciam.service.common.security.PasswordEncoder;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.CredentialStatus;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.CredentialType;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserCredentialRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamUserCredentialDo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.UserCredentialPo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -38,8 +38,8 @@ class CredentialDomainServiceTest {
         service = new CredentialDomainService(credentialRepository, passwordEncoder, passwordPolicyService);
     }
 
-    private CiamUserCredentialDo stubCredential(String userId, String rawPassword, int status) {
-        CiamUserCredentialDo cred = new CiamUserCredentialDo();
+    private UserCredentialPo stubCredential(String userId, String rawPassword, int status) {
+        UserCredentialPo cred = new UserCredentialPo();
         cred.setCredentialId("cred-001");
         cred.setUserId(userId);
         cred.setCredentialType(CredentialType.EMAIL_PASSWORD.getCode());
@@ -61,7 +61,7 @@ class CredentialDomainServiceTest {
             when(credentialRepository.findByUserIdAndType(eq("user-001"), eq("email_password")))
                     .thenReturn(Optional.empty());
 
-            CiamUserCredentialDo result = service.setPassword("user-001", VALID_PASSWORD);
+            UserCredentialPo result = service.setPassword("user-001", VALID_PASSWORD);
 
             assertNotNull(result.getCredentialId());
             assertEquals(32, result.getCredentialId().length());
@@ -77,12 +77,12 @@ class CredentialDomainServiceTest {
             assertNotEquals(VALID_PASSWORD, result.getCredentialHash());
             // hash should be verifiable
             assertTrue(passwordEncoder.matches(VALID_PASSWORD, result.getCredentialHash()));
-            verify(credentialRepository).insert(any(CiamUserCredentialDo.class));
+            verify(credentialRepository).insert(any(UserCredentialPo.class));
         }
 
         @Test
         void setPassword_throwsWhenActiveCredentialExists() {
-            CiamUserCredentialDo existing = stubCredential("user-001", "OldPass1!", CredentialStatus.VALID.getCode());
+            UserCredentialPo existing = stubCredential("user-001", "OldPass1!", CredentialStatus.VALID.getCode());
             when(credentialRepository.findByUserIdAndType(eq("user-001"), eq("email_password")))
                     .thenReturn(Optional.of(existing));
 
@@ -94,14 +94,14 @@ class CredentialDomainServiceTest {
 
         @Test
         void setPassword_allowsWhenExistingCredentialIsInvalid() {
-            CiamUserCredentialDo existing = stubCredential("user-001", "OldPass1!", CredentialStatus.INVALID.getCode());
+            UserCredentialPo existing = stubCredential("user-001", "OldPass1!", CredentialStatus.INVALID.getCode());
             when(credentialRepository.findByUserIdAndType(eq("user-001"), eq("email_password")))
                     .thenReturn(Optional.of(existing));
 
-            CiamUserCredentialDo result = service.setPassword("user-001", VALID_PASSWORD);
+            UserCredentialPo result = service.setPassword("user-001", VALID_PASSWORD);
 
             assertNotNull(result);
-            verify(credentialRepository).insert(any(CiamUserCredentialDo.class));
+            verify(credentialRepository).insert(any(UserCredentialPo.class));
         }
     }
 
@@ -112,7 +112,7 @@ class CredentialDomainServiceTest {
 
         @Test
         void verifyPassword_returnsSuccessOnMatch() {
-            CiamUserCredentialDo cred = stubCredential("user-001", "Correct1!", CredentialStatus.VALID.getCode());
+            UserCredentialPo cred = stubCredential("user-001", "Correct1!", CredentialStatus.VALID.getCode());
             when(credentialRepository.findByUserIdAndType(eq("user-001"), eq("email_password")))
                     .thenReturn(Optional.of(cred));
 
@@ -125,7 +125,7 @@ class CredentialDomainServiceTest {
 
         @Test
         void verifyPassword_returnsFailOnMismatch() {
-            CiamUserCredentialDo cred = stubCredential("user-001", "Correct1!", CredentialStatus.VALID.getCode());
+            UserCredentialPo cred = stubCredential("user-001", "Correct1!", CredentialStatus.VALID.getCode());
             when(credentialRepository.findByUserIdAndType(eq("user-001"), eq("email_password")))
                     .thenReturn(Optional.of(cred));
 
@@ -147,7 +147,7 @@ class CredentialDomainServiceTest {
 
         @Test
         void verifyPassword_throwsWhenCredentialInvalid() {
-            CiamUserCredentialDo cred = stubCredential("user-001", "Pass1!", CredentialStatus.INVALID.getCode());
+            UserCredentialPo cred = stubCredential("user-001", "Pass1!", CredentialStatus.INVALID.getCode());
             when(credentialRepository.findByUserIdAndType(eq("user-001"), eq("email_password")))
                     .thenReturn(Optional.of(cred));
 
@@ -158,7 +158,7 @@ class CredentialDomainServiceTest {
 
         @Test
         void verifyPassword_resetsFailCountOnSuccess() {
-            CiamUserCredentialDo cred = stubCredential("user-001", "Correct1!", CredentialStatus.VALID.getCode());
+            UserCredentialPo cred = stubCredential("user-001", "Correct1!", CredentialStatus.VALID.getCode());
             cred.setFailCount(3);
             when(credentialRepository.findByUserIdAndType(eq("user-001"), eq("email_password")))
                     .thenReturn(Optional.of(cred));
@@ -178,7 +178,7 @@ class CredentialDomainServiceTest {
 
         @Test
         void changePassword_updatesHashWhenOldPasswordMatches() {
-            CiamUserCredentialDo cred = stubCredential("user-001", "OldPass1!", CredentialStatus.VALID.getCode());
+            UserCredentialPo cred = stubCredential("user-001", "OldPass1!", CredentialStatus.VALID.getCode());
             String oldHash = cred.getCredentialHash();
             when(credentialRepository.findByUserIdAndType(eq("user-001"), eq("email_password")))
                     .thenReturn(Optional.of(cred));
@@ -194,7 +194,7 @@ class CredentialDomainServiceTest {
 
         @Test
         void changePassword_throwsWhenOldPasswordWrong() {
-            CiamUserCredentialDo cred = stubCredential("user-001", "OldPass1!", CredentialStatus.VALID.getCode());
+            UserCredentialPo cred = stubCredential("user-001", "OldPass1!", CredentialStatus.VALID.getCode());
             when(credentialRepository.findByUserIdAndType(eq("user-001"), eq("email_password")))
                     .thenReturn(Optional.of(cred));
 
@@ -222,7 +222,7 @@ class CredentialDomainServiceTest {
 
         @Test
         void resetPassword_updatesHashWithoutOldPasswordCheck() {
-            CiamUserCredentialDo cred = stubCredential("user-001", "OldPass1!", CredentialStatus.VALID.getCode());
+            UserCredentialPo cred = stubCredential("user-001", "OldPass1!", CredentialStatus.VALID.getCode());
             cred.setFailCount(5);
             when(credentialRepository.findByUserIdAndType(eq("user-001"), eq("email_password")))
                     .thenReturn(Optional.of(cred));
@@ -248,7 +248,7 @@ class CredentialDomainServiceTest {
 
         @Test
         void resetPassword_clearsLockedUntil() {
-            CiamUserCredentialDo cred = stubCredential("user-001", "OldPass1!", CredentialStatus.VALID.getCode());
+            UserCredentialPo cred = stubCredential("user-001", "OldPass1!", CredentialStatus.VALID.getCode());
             cred.setLockedUntil(java.time.Instant.now().plusSeconds(30 * 60));
             when(credentialRepository.findByUserIdAndType(eq("user-001"), eq("email_password")))
                     .thenReturn(Optional.of(cred));
@@ -266,11 +266,11 @@ class CredentialDomainServiceTest {
 
         @Test
         void findActiveCredential_returnsCredentialWhenValid() {
-            CiamUserCredentialDo cred = stubCredential("user-001", "Pass1!", CredentialStatus.VALID.getCode());
+            UserCredentialPo cred = stubCredential("user-001", "Pass1!", CredentialStatus.VALID.getCode());
             when(credentialRepository.findByUserIdAndType(eq("user-001"), eq("email_password")))
                     .thenReturn(Optional.of(cred));
 
-            Optional<CiamUserCredentialDo> result = service.findActiveCredential("user-001", CredentialType.EMAIL_PASSWORD);
+            Optional<UserCredentialPo> result = service.findActiveCredential("user-001", CredentialType.EMAIL_PASSWORD);
 
             assertTrue(result.isPresent());
             assertEquals("cred-001", result.get().getCredentialId());
@@ -278,11 +278,11 @@ class CredentialDomainServiceTest {
 
         @Test
         void findActiveCredential_returnsEmptyWhenInvalid() {
-            CiamUserCredentialDo cred = stubCredential("user-001", "Pass1!", CredentialStatus.INVALID.getCode());
+            UserCredentialPo cred = stubCredential("user-001", "Pass1!", CredentialStatus.INVALID.getCode());
             when(credentialRepository.findByUserIdAndType(eq("user-001"), eq("email_password")))
                     .thenReturn(Optional.of(cred));
 
-            Optional<CiamUserCredentialDo> result = service.findActiveCredential("user-001", CredentialType.EMAIL_PASSWORD);
+            Optional<UserCredentialPo> result = service.findActiveCredential("user-001", CredentialType.EMAIL_PASSWORD);
 
             assertTrue(result.isEmpty());
         }
@@ -292,7 +292,7 @@ class CredentialDomainServiceTest {
             when(credentialRepository.findByUserIdAndType(eq("user-001"), eq("email_password")))
                     .thenReturn(Optional.empty());
 
-            Optional<CiamUserCredentialDo> result = service.findActiveCredential("user-001", CredentialType.EMAIL_PASSWORD);
+            Optional<UserCredentialPo> result = service.findActiveCredential("user-001", CredentialType.EMAIL_PASSWORD);
 
             assertTrue(result.isEmpty());
         }
@@ -308,7 +308,7 @@ class CredentialDomainServiceTest {
             when(credentialRepository.findByUserIdAndType(anyString(), anyString()))
                     .thenReturn(Optional.empty());
 
-            CiamUserCredentialDo result = service.setPassword("user-001", VALID_PASSWORD);
+            UserCredentialPo result = service.setPassword("user-001", VALID_PASSWORD);
 
             assertEquals(CredentialType.EMAIL_PASSWORD.getCode(), result.getCredentialType());
         }
@@ -318,7 +318,7 @@ class CredentialDomainServiceTest {
             when(credentialRepository.findByUserIdAndType(anyString(), anyString()))
                     .thenReturn(Optional.empty());
 
-            CiamUserCredentialDo result = service.setPassword("user-001", VALID_PASSWORD);
+            UserCredentialPo result = service.setPassword("user-001", VALID_PASSWORD);
 
             assertEquals("BCRYPT", result.getHashAlgorithm());
             // BCrypt hashes start with $2a$ or $2b$
@@ -344,7 +344,7 @@ class CredentialDomainServiceTest {
 
         @Test
         void changePassword_rejectsWeakNewPassword() {
-            CiamUserCredentialDo cred = stubCredential("user-001", "OldPass1!", CredentialStatus.VALID.getCode());
+            UserCredentialPo cred = stubCredential("user-001", "OldPass1!", CredentialStatus.VALID.getCode());
             when(credentialRepository.findByUserIdAndType(eq("user-001"), eq("email_password")))
                     .thenReturn(Optional.of(cred));
 
@@ -355,7 +355,7 @@ class CredentialDomainServiceTest {
 
         @Test
         void resetPassword_rejectsWeakNewPassword() {
-            CiamUserCredentialDo cred = stubCredential("user-001", "OldPass1!", CredentialStatus.VALID.getCode());
+            UserCredentialPo cred = stubCredential("user-001", "OldPass1!", CredentialStatus.VALID.getCode());
             when(credentialRepository.findByUserIdAndType(eq("user-001"), eq("email_password")))
                     .thenReturn(Optional.of(cred));
 
@@ -372,7 +372,7 @@ class CredentialDomainServiceTest {
 
         @Test
         void verifyPassword_incrementsFailCountOnFailure() {
-            CiamUserCredentialDo cred = stubCredential("user-001", "Correct1!", CredentialStatus.VALID.getCode());
+            UserCredentialPo cred = stubCredential("user-001", "Correct1!", CredentialStatus.VALID.getCode());
             cred.setFailCount(0);
             when(credentialRepository.findByUserIdAndType(eq("user-001"), eq("email_password")))
                     .thenReturn(Optional.of(cred));
@@ -388,7 +388,7 @@ class CredentialDomainServiceTest {
 
         @Test
         void verifyPassword_triggersChallengeAt3Failures() {
-            CiamUserCredentialDo cred = stubCredential("user-001", "Correct1!", CredentialStatus.VALID.getCode());
+            UserCredentialPo cred = stubCredential("user-001", "Correct1!", CredentialStatus.VALID.getCode());
             cred.setFailCount(2); // next failure will be 3rd
             when(credentialRepository.findByUserIdAndType(eq("user-001"), eq("email_password")))
                     .thenReturn(Optional.of(cred));
@@ -403,7 +403,7 @@ class CredentialDomainServiceTest {
 
         @Test
         void verifyPassword_triggersChallengeAt4Failures() {
-            CiamUserCredentialDo cred = stubCredential("user-001", "Correct1!", CredentialStatus.VALID.getCode());
+            UserCredentialPo cred = stubCredential("user-001", "Correct1!", CredentialStatus.VALID.getCode());
             cred.setFailCount(3);
             when(credentialRepository.findByUserIdAndType(eq("user-001"), eq("email_password")))
                     .thenReturn(Optional.of(cred));
@@ -417,7 +417,7 @@ class CredentialDomainServiceTest {
 
         @Test
         void verifyPassword_locksAccountAt5Failures() {
-            CiamUserCredentialDo cred = stubCredential("user-001", "Correct1!", CredentialStatus.VALID.getCode());
+            UserCredentialPo cred = stubCredential("user-001", "Correct1!", CredentialStatus.VALID.getCode());
             cred.setFailCount(4); // next failure will be 5th
             when(credentialRepository.findByUserIdAndType(eq("user-001"), eq("email_password")))
                     .thenReturn(Optional.of(cred));
@@ -433,7 +433,7 @@ class CredentialDomainServiceTest {
 
         @Test
         void verifyPassword_throwsAccountLockedWhenStillLocked() {
-            CiamUserCredentialDo cred = stubCredential("user-001", "Correct1!", CredentialStatus.VALID.getCode());
+            UserCredentialPo cred = stubCredential("user-001", "Correct1!", CredentialStatus.VALID.getCode());
             cred.setFailCount(5);
             cred.setLockedUntil(java.time.Instant.now().plusSeconds(29 * 60));
             when(credentialRepository.findByUserIdAndType(eq("user-001"), eq("email_password")))
@@ -446,7 +446,7 @@ class CredentialDomainServiceTest {
 
         @Test
         void verifyPassword_allowsLoginAfterLockExpires() {
-            CiamUserCredentialDo cred = stubCredential("user-001", "Correct1!", CredentialStatus.VALID.getCode());
+            UserCredentialPo cred = stubCredential("user-001", "Correct1!", CredentialStatus.VALID.getCode());
             cred.setFailCount(5);
             cred.setLockedUntil(java.time.Instant.now().minusSeconds(1 * 60)); // lock expired
             when(credentialRepository.findByUserIdAndType(eq("user-001"), eq("email_password")))
@@ -461,7 +461,7 @@ class CredentialDomainServiceTest {
 
         @Test
         void verifyPassword_successResetsFailCountAndLockedUntil() {
-            CiamUserCredentialDo cred = stubCredential("user-001", "Correct1!", CredentialStatus.VALID.getCode());
+            UserCredentialPo cred = stubCredential("user-001", "Correct1!", CredentialStatus.VALID.getCode());
             cred.setFailCount(4);
             cred.setLockedUntil(null);
             when(credentialRepository.findByUserIdAndType(eq("user-001"), eq("email_password")))

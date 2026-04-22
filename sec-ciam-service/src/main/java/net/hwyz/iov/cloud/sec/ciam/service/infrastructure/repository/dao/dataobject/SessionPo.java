@@ -6,45 +6,56 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
-import java.time.LocalDate;
 import java.time.Instant;
 
 /**
- * 用户资料扩展表数据对象。
+ * 会话表数据对象。
  */
 @Data
-@TableName("ciam_user_profile")
-public class CiamUserProfileDo {
+@TableName("ciam_session")
+public class SessionPo {
 
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
-    @TableField("profile_id")
-    private String profileId;
+    @TableField("session_id")
+    private String sessionId;
 
     @TableField("user_id")
     private String userId;
 
-    @TableField("nickname")
-    private String nickname;
+    @TableField("device_id")
+    private String deviceId;
 
-    @TableField("avatar_url")
-    private String avatarUrl;
+    @TableField("client_id")
+    private String clientId;
 
-    @TableField("real_name")
-    private String realName;
+    @TableField("client_type")
+    private String clientType;
 
-    @TableField("gender")
-    private Integer gender;
+    @TableField("login_ip")
+    private String loginIp;
 
-    @TableField("birthday")
-    private LocalDate birthday;
+    @TableField("login_region")
+    private String loginRegion;
 
-    @TableField("region_code")
-    private String regionCode;
+    @TableField("risk_level")
+    private Integer riskLevel;
 
-    @TableField("region_name")
-    private String regionName;
+    @TableField("session_status")
+    private Integer sessionStatus;
+
+    @TableField("login_time")
+    private Instant loginTime;
+
+    @TableField("last_active_time")
+    private Instant lastActiveTime;
+
+    @TableField("logout_time")
+    private Instant logoutTime;
+
+    @TableField("expire_time")
+    private Instant expireTime;
 
     @TableField("description")
     private String description;

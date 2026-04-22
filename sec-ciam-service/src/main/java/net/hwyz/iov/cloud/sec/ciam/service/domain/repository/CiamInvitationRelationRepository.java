@@ -1,6 +1,6 @@
 package net.hwyz.iov.cloud.sec.ciam.service.domain.repository;
 
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamInvitationRelationDo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.InvitationRelationPo;
 
 import java.util.List;
 import java.util.Optional;
@@ -11,17 +11,17 @@ import java.util.Optional;
 public interface CiamInvitationRelationRepository {
 
     /** 根据业务 ID 查询 */
-    Optional<CiamInvitationRelationDo> findByRelationId(String relationId);
+    Optional<InvitationRelationPo> findByRelationId(String relationId);
 
     /** 根据被邀请人用户 ID 查询 */
-    Optional<CiamInvitationRelationDo> findByInviteeUserId(String inviteeUserId);
+    Optional<InvitationRelationPo> findByInviteeUserId(String inviteeUserId);
 
     /** 根据邀请人用户 ID 查询 */
-    List<CiamInvitationRelationDo> findByInviterUserId(String inviterUserId);
+    List<InvitationRelationPo> findByInviterUserId(String inviterUserId);
 
     /** 根据渠道码查询 */
-    List<CiamInvitationRelationDo> findByInviteChannelCode(String inviteChannelCode);
+    List<InvitationRelationPo> findByInviteChannelCode(String inviteChannelCode);
 
     /** 插入邀请关系记录 */
-    int insert(CiamInvitationRelationDo entity);
+    int insert(InvitationRelationPo entity);
 }

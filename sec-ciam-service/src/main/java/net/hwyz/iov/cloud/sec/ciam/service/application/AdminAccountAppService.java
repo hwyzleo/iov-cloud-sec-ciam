@@ -17,9 +17,9 @@ import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserCredentialR
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserIdentityRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserProfileRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamUserDo;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamUserIdentityDo;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamUserProfileDo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.UserPo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.UserIdentityPo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.UserProfilePo;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -59,7 +59,7 @@ public class AdminAccountAppService {
     public String createAccount(String identityType, String identityValue, String password,
                                  String nickname, Integer gender, String registerSource,
                                  Boolean enabled, String remark, String adminId) {
-        Optional<CiamUserIdentityDo> existing = identityRepository.findByTypeAndValue(
+        Optional<UserIdentityPo> existing = identityRepository.findByTypeAndValue(
                 identityType, identityValue);
         if (existing.isPresent()) {
             throw new BusinessException(CiamErrorCode.INVALID_PARAM, identityType + "已存在");
@@ -72,7 +72,7 @@ public class AdminAccountAppService {
         }
 
         String userId = UserIdGenerator.generate();
-        CiamUserDo user = new CiamUserDo();
+        UserPo user = new UserPo();
         user.setUserId(userId);
         user.setUserStatus(UserStatus.PENDING.getCode());
         user.setRegisterSource(registerSource);
@@ -86,7 +86,7 @@ public class AdminAccountAppService {
         user.setRowValid(1);
         userRepository.insert(user);
 
-        CiamUserIdentityDo identity = new CiamUserIdentityDo();
+        UserIdentityPo identity = new UserIdentityPo();
         identity.setIdentityId(UserIdGenerator.generate());
         identity.setUserId(userId);
         identity.setIdentityType(identityType);
@@ -101,7 +101,7 @@ public class AdminAccountAppService {
         identity.setRowValid(1);
         identityRepository.insert(identity);
 
-        CiamUserProfileDo profile = new CiamUserProfileDo();
+        UserProfilePo profile = new UserProfilePo();
         profile.setProfileId(UserIdGenerator.generate());
         profile.setUserId(userId);
         profile.setNickname(nickname);
@@ -126,7 +126,7 @@ public class AdminAccountAppService {
     public void updateAccount(String userId, String identityType, String identityValue,
                                String nickname, Integer gender, Boolean enabled,
                                String remark, String adminId) {
-        CiamUserDo user = userRepository.findByUserId(userId)
+        UserPo user = userRepository.findByUserId(userId)
                 .orElseThrow(() -> new BusinessException(CiamErrorCode.USER_NOT_FOUND));
 
         if (enabled != null) {
@@ -140,7 +140,7 @@ public class AdminAccountAppService {
         userRepository.updateByUserId(user);
 
         if (identityType != null && identityValue != null) {
-            Optional<CiamUserIdentityDo> existingIdentity = identityRepository.findByTypeAndValue(
+            Optional<UserIdentityPo> existingIdentity = identityRepository.findByTypeAndValue(
                     identityType, identityValue);
             if (existingIdentity.isPresent() && !existingIdentity.get().getUserId().equals(userId)) {
                 throw new BusinessException(CiamErrorCode.INVALID_PARAM, identityType + "已被其他用户使用");
@@ -150,9 +150,9 @@ public class AdminAccountAppService {
             identityRepository.updateIdentityValue(userId, identityType, hashedValue, encryptedValue);
         }
 
-        Optional<CiamUserProfileDo> profileOpt = profileRepository.findByUserId(userId);
+        Optional<UserProfilePo> profileOpt = profileRepository.findByUserId(userId);
         if (profileOpt.isPresent()) {
-            CiamUserProfileDo profile = profileOpt.get();
+            UserProfilePo profile = profileOpt.get();
             if (nickname != null) {
                 profile.setNickname(nickname);
             }
@@ -175,7 +175,7 @@ public class AdminAccountAppService {
      */
     @Transactional(rollbackFor = Exception.class)
     public void deleteAccount(String userId, String adminId) {
-        CiamUserDo user = userRepository.findByUserId(userId)
+        UserPo user = userRepository.findByUserId(userId)
                 .orElseThrow(() -> new BusinessException(CiamErrorCode.USER_NOT_FOUND));
 
         identityRepository.physicalDeleteByUserId(userId);

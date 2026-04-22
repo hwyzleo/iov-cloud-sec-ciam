@@ -5,7 +5,7 @@ import net.hwyz.iov.cloud.sec.ciam.service.common.exception.CiamErrorCode;
 import net.hwyz.iov.cloud.sec.ciam.service.common.security.TokenDigest;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.TokenStatus;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamRefreshTokenRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamRefreshTokenDo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.RefreshTokenPo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -40,8 +40,8 @@ class RefreshTokenDomainServiceTest {
         service = new RefreshTokenDomainService(refreshTokenRepository);
     }
 
-    private CiamRefreshTokenDo stubToken(String rawToken, TokenStatus status, Instant expireTime) {
-        CiamRefreshTokenDo token = new CiamRefreshTokenDo();
+    private RefreshTokenPo stubToken(String rawToken, TokenStatus status, Instant expireTime) {
+        RefreshTokenPo token = new RefreshTokenPo();
         token.setRefreshTokenId("rt-" + System.nanoTime());
         token.setUserId(USER_ID);
         token.setSessionId(SESSION_ID);
@@ -70,12 +70,12 @@ class RefreshTokenDomainServiceTest {
 
         @Test
         void issue_persistsTokenWithCorrectFields() {
-            ArgumentCaptor<CiamRefreshTokenDo> captor = ArgumentCaptor.forClass(CiamRefreshTokenDo.class);
+            ArgumentCaptor<RefreshTokenPo> captor = ArgumentCaptor.forClass(RefreshTokenPo.class);
 
             String rawToken = service.issueRefreshToken(USER_ID, SESSION_ID, CLIENT_ID, TTL_SECONDS);
 
             verify(refreshTokenRepository).insert(captor.capture());
-            CiamRefreshTokenDo saved = captor.getValue();
+            RefreshTokenPo saved = captor.getValue();
 
             assertEquals(USER_ID, saved.getUserId());
             assertEquals(SESSION_ID, saved.getSessionId());
@@ -105,7 +105,7 @@ class RefreshTokenDomainServiceTest {
         @Test
         void rotate_returnsNewTokenAndUserInfo() {
             String oldRawToken = "old-raw-token-value";
-            CiamRefreshTokenDo existing = stubToken(oldRawToken, TokenStatus.ACTIVE,
+            RefreshTokenPo existing = stubToken(oldRawToken, TokenStatus.ACTIVE,
                     Instant.now().plusSeconds(29L * 86400));
             when(refreshTokenRepository.findByTokenFingerprint(TokenDigest.fingerprint(oldRawToken)))
                     .thenReturn(Optional.of(existing));
@@ -121,7 +121,7 @@ class RefreshTokenDomainServiceTest {
         @Test
         void rotate_marksOldTokenAsRotated() {
             String oldRawToken = "old-raw-token-value";
-            CiamRefreshTokenDo existing = stubToken(oldRawToken, TokenStatus.ACTIVE,
+            RefreshTokenPo existing = stubToken(oldRawToken, TokenStatus.ACTIVE,
                     Instant.now().plusSeconds(29L * 86400));
             when(refreshTokenRepository.findByTokenFingerprint(TokenDigest.fingerprint(oldRawToken)))
                     .thenReturn(Optional.of(existing));
@@ -136,7 +136,7 @@ class RefreshTokenDomainServiceTest {
         @Test
         void rotate_insertsNewTokenWithParentLink() {
             String oldRawToken = "old-raw-token-value";
-            CiamRefreshTokenDo existing = stubToken(oldRawToken, TokenStatus.ACTIVE,
+            RefreshTokenPo existing = stubToken(oldRawToken, TokenStatus.ACTIVE,
                     Instant.now().plusSeconds(29L * 86400));
             String oldTokenId = existing.getRefreshTokenId();
             when(refreshTokenRepository.findByTokenFingerprint(TokenDigest.fingerprint(oldRawToken)))
@@ -145,9 +145,9 @@ class RefreshTokenDomainServiceTest {
             service.rotateRefreshToken(oldRawToken, CLIENT_ID);
 
             // insert called twice would be wrong; first call is for the new token
-            ArgumentCaptor<CiamRefreshTokenDo> captor = ArgumentCaptor.forClass(CiamRefreshTokenDo.class);
+            ArgumentCaptor<RefreshTokenPo> captor = ArgumentCaptor.forClass(RefreshTokenPo.class);
             verify(refreshTokenRepository).insert(captor.capture());
-            CiamRefreshTokenDo newToken = captor.getValue();
+            RefreshTokenPo newToken = captor.getValue();
 
             assertEquals(oldTokenId, newToken.getParentTokenId());
             assertEquals(TokenStatus.ACTIVE.getCode(), newToken.getTokenStatus());
@@ -169,7 +169,7 @@ class RefreshTokenDomainServiceTest {
         @Test
         void rotate_throwsWhenTokenExpired() {
             String oldRawToken = "expired-token";
-            CiamRefreshTokenDo existing = stubToken(oldRawToken, TokenStatus.ACTIVE,
+            RefreshTokenPo existing = stubToken(oldRawToken, TokenStatus.ACTIVE,
                     Instant.now().minusSeconds(1 * 3600));
             when(refreshTokenRepository.findByTokenFingerprint(TokenDigest.fingerprint(oldRawToken)))
                     .thenReturn(Optional.of(existing));
@@ -183,7 +183,7 @@ class RefreshTokenDomainServiceTest {
         @Test
         void rotate_throwsAndRevokesSessionOnReplay() {
             String oldRawToken = "already-rotated-token";
-            CiamRefreshTokenDo existing = stubToken(oldRawToken, TokenStatus.ROTATED,
+            RefreshTokenPo existing = stubToken(oldRawToken, TokenStatus.ROTATED,
                     Instant.now().plusSeconds(29L * 86400));
             when(refreshTokenRepository.findByTokenFingerprint(TokenDigest.fingerprint(oldRawToken)))
                     .thenReturn(Optional.of(existing));
@@ -201,7 +201,7 @@ class RefreshTokenDomainServiceTest {
         @Test
         void rotate_throwsWhenTokenRevoked() {
             String oldRawToken = "revoked-token";
-            CiamRefreshTokenDo existing = stubToken(oldRawToken, TokenStatus.REVOKED,
+            RefreshTokenPo existing = stubToken(oldRawToken, TokenStatus.REVOKED,
                     Instant.now().plusSeconds(29L * 86400));
             when(refreshTokenRepository.findByTokenFingerprint(TokenDigest.fingerprint(oldRawToken)))
                     .thenReturn(Optional.of(existing));
@@ -220,7 +220,7 @@ class RefreshTokenDomainServiceTest {
         @Test
         void revoke_setsTokenToRevokedStatus() {
             String rawToken = "active-token";
-            CiamRefreshTokenDo existing = stubToken(rawToken, TokenStatus.ACTIVE,
+            RefreshTokenPo existing = stubToken(rawToken, TokenStatus.ACTIVE,
                     Instant.now().plusSeconds(29L * 86400));
             when(refreshTokenRepository.findByTokenFingerprint(TokenDigest.fingerprint(rawToken)))
                     .thenReturn(Optional.of(existing));
@@ -245,7 +245,7 @@ class RefreshTokenDomainServiceTest {
         @Test
         void revoke_skipsWhenAlreadyRevoked() {
             String rawToken = "already-revoked";
-            CiamRefreshTokenDo existing = stubToken(rawToken, TokenStatus.REVOKED,
+            RefreshTokenPo existing = stubToken(rawToken, TokenStatus.REVOKED,
                     Instant.now().plusSeconds(29L * 86400));
             when(refreshTokenRepository.findByTokenFingerprint(TokenDigest.fingerprint(rawToken)))
                     .thenReturn(Optional.of(existing));

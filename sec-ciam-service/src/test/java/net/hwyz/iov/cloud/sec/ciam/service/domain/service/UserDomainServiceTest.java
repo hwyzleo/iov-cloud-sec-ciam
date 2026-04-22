@@ -7,8 +7,8 @@ import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.RegisterSource;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.UserStatus;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserProfileRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamUserDo;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamUserProfileDo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.UserPo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.UserProfilePo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -37,7 +37,7 @@ class UserDomainServiceTest {
 
     @Test
     void createUser_generatesGloballyUniqueUserId() {
-        CiamUserDo user = service.createUser(RegisterSource.MOBILE, "app", null, null);
+        UserPo user = service.createUser(RegisterSource.MOBILE, "app", null, null);
 
         assertNotNull(user.getUserId());
         assertEquals(32, user.getUserId().length());
@@ -46,14 +46,14 @@ class UserDomainServiceTest {
 
     @Test
     void createUser_setsInitialStatusToPending() {
-        CiamUserDo user = service.createUser(RegisterSource.EMAIL, null, null, null);
+        UserPo user = service.createUser(RegisterSource.EMAIL, null, null, null);
 
         assertEquals(UserStatus.PENDING.getCode(), user.getUserStatus());
     }
 
     @Test
     void createUser_setsRegisterSourceAndChannel() {
-        CiamUserDo user = service.createUser(RegisterSource.WECHAT, "mini_program", null, null);
+        UserPo user = service.createUser(RegisterSource.WECHAT, "mini_program", null, null);
 
         assertEquals("wechat", user.getRegisterSource());
         assertEquals("mini_program", user.getRegisterChannel());
@@ -61,21 +61,21 @@ class UserDomainServiceTest {
 
     @Test
     void createUser_defaultsBrandCodeToOpenIOV() {
-        CiamUserDo user = service.createUser(RegisterSource.MOBILE, null, null, null);
+        UserPo user = service.createUser(RegisterSource.MOBILE, null, null, null);
 
         assertEquals("OPENIOV", user.getBrandCode());
     }
 
     @Test
     void createUser_usesProvidedBrandCode() {
-        CiamUserDo user = service.createUser(RegisterSource.MOBILE, null, "CUSTOM_BRAND", null);
+        UserPo user = service.createUser(RegisterSource.MOBILE, null, "CUSTOM_BRAND", null);
 
         assertEquals("CUSTOM_BRAND", user.getBrandCode());
     }
 
     @Test
     void createUser_defaultsBrandCodeWhenBlank() {
-        CiamUserDo user = service.createUser(RegisterSource.MOBILE, null, "  ", null);
+        UserPo user = service.createUser(RegisterSource.MOBILE, null, "  ", null);
 
         assertEquals("OPENIOV", user.getBrandCode());
     }
@@ -84,18 +84,18 @@ class UserDomainServiceTest {
     void createUser_insertsUserRecord() {
         service.createUser(RegisterSource.MOBILE, null, null, null);
 
-        verify(userRepository, times(1)).insert(any(CiamUserDo.class));
+        verify(userRepository, times(1)).insert(any(UserPo.class));
     }
 
     @Test
     void createUser_insertsProfileRecord() {
         service.createUser(RegisterSource.MOBILE, null, null, null);
 
-        ArgumentCaptor<CiamUserProfileDo> captor =
-                ArgumentCaptor.forClass(CiamUserProfileDo.class);
+        ArgumentCaptor<UserProfilePo> captor =
+                ArgumentCaptor.forClass(UserProfilePo.class);
         verify(userProfileRepository, times(1)).insert(captor.capture());
 
-        CiamUserProfileDo profile = captor.getValue();
+        UserProfilePo profile = captor.getValue();
         assertNotNull(profile.getProfileId());
         assertEquals(32, profile.getProfileId().length());
         assertEquals(0, profile.getGender());
@@ -104,10 +104,10 @@ class UserDomainServiceTest {
 
     @Test
     void createUser_profileUserIdMatchesUserUserId() {
-        CiamUserDo user = service.createUser(RegisterSource.MOBILE, null, null, null);
+        UserPo user = service.createUser(RegisterSource.MOBILE, null, null, null);
 
-        ArgumentCaptor<CiamUserProfileDo> captor =
-                ArgumentCaptor.forClass(CiamUserProfileDo.class);
+        ArgumentCaptor<UserProfilePo> captor =
+                ArgumentCaptor.forClass(UserProfilePo.class);
         verify(userProfileRepository).insert(captor.capture());
 
         assertEquals(user.getUserId(), captor.getValue().getUserId());
@@ -115,7 +115,7 @@ class UserDomainServiceTest {
 
     @Test
     void createUser_setsRowVersionAndRowValid() {
-        CiamUserDo user = service.createUser(RegisterSource.MOBILE, null, null, null);
+        UserPo user = service.createUser(RegisterSource.MOBILE, null, null, null);
 
         assertEquals(1, user.getRowVersion());
         assertEquals(1, user.getRowValid());
@@ -123,7 +123,7 @@ class UserDomainServiceTest {
 
     @Test
     void createUser_setsTimestamps() {
-        CiamUserDo user = service.createUser(RegisterSource.MOBILE, null, null, null);
+        UserPo user = service.createUser(RegisterSource.MOBILE, null, null, null);
 
         assertNotNull(user.getCreateTime());
         assertNotNull(user.getModifyTime());
@@ -131,8 +131,8 @@ class UserDomainServiceTest {
 
     @Test
     void createUser_twoCalls_produceDifferentUserIds() {
-        CiamUserDo user1 = service.createUser(RegisterSource.MOBILE, null, null, null);
-        CiamUserDo user2 = service.createUser(RegisterSource.MOBILE, null, null, null);
+        UserPo user1 = service.createUser(RegisterSource.MOBILE, null, null, null);
+        UserPo user2 = service.createUser(RegisterSource.MOBILE, null, null, null);
 
         assertNotEquals(user1.getUserId(), user2.getUserId());
     }
@@ -142,8 +142,8 @@ class UserDomainServiceTest {
     @Nested
     class StatusTransitionTests {
 
-        private CiamUserDo stubUser(UserStatus status) {
-            CiamUserDo user = new CiamUserDo();
+        private UserPo stubUser(UserStatus status) {
+            UserPo user = new UserPo();
             user.setUserId("test-user-001");
             user.setUserStatus(status.getCode());
             return user;
@@ -156,7 +156,7 @@ class UserDomainServiceTest {
 
             service.activate("u1");
 
-            ArgumentCaptor<CiamUserDo> captor = ArgumentCaptor.forClass(CiamUserDo.class);
+            ArgumentCaptor<UserPo> captor = ArgumentCaptor.forClass(UserPo.class);
             verify(userRepository).updateByUserId(captor.capture());
             assertEquals(UserStatus.ACTIVE.getCode(), captor.getValue().getUserStatus());
         }
@@ -168,7 +168,7 @@ class UserDomainServiceTest {
 
             service.lock("u1");
 
-            ArgumentCaptor<CiamUserDo> captor = ArgumentCaptor.forClass(CiamUserDo.class);
+            ArgumentCaptor<UserPo> captor = ArgumentCaptor.forClass(UserPo.class);
             verify(userRepository).updateByUserId(captor.capture());
             assertEquals(UserStatus.LOCKED.getCode(), captor.getValue().getUserStatus());
         }
@@ -180,7 +180,7 @@ class UserDomainServiceTest {
 
             service.unlock("u1");
 
-            ArgumentCaptor<CiamUserDo> captor = ArgumentCaptor.forClass(CiamUserDo.class);
+            ArgumentCaptor<UserPo> captor = ArgumentCaptor.forClass(UserPo.class);
             verify(userRepository).updateByUserId(captor.capture());
             assertEquals(UserStatus.ACTIVE.getCode(), captor.getValue().getUserStatus());
         }
@@ -192,7 +192,7 @@ class UserDomainServiceTest {
 
             service.disable("u1");
 
-            ArgumentCaptor<CiamUserDo> captor = ArgumentCaptor.forClass(CiamUserDo.class);
+            ArgumentCaptor<UserPo> captor = ArgumentCaptor.forClass(UserPo.class);
             verify(userRepository).updateByUserId(captor.capture());
             assertEquals(UserStatus.DISABLED.getCode(), captor.getValue().getUserStatus());
         }
@@ -204,7 +204,7 @@ class UserDomainServiceTest {
 
             service.enable("u1");
 
-            ArgumentCaptor<CiamUserDo> captor = ArgumentCaptor.forClass(CiamUserDo.class);
+            ArgumentCaptor<UserPo> captor = ArgumentCaptor.forClass(UserPo.class);
             verify(userRepository).updateByUserId(captor.capture());
             assertEquals(UserStatus.ACTIVE.getCode(), captor.getValue().getUserStatus());
         }
@@ -216,7 +216,7 @@ class UserDomainServiceTest {
 
             service.startDeactivation("u1");
 
-            ArgumentCaptor<CiamUserDo> captor = ArgumentCaptor.forClass(CiamUserDo.class);
+            ArgumentCaptor<UserPo> captor = ArgumentCaptor.forClass(UserPo.class);
             verify(userRepository).updateByUserId(captor.capture());
             assertEquals(UserStatus.DEACTIVATING.getCode(), captor.getValue().getUserStatus());
         }
@@ -228,7 +228,7 @@ class UserDomainServiceTest {
 
             service.completeDeactivation("u1");
 
-            ArgumentCaptor<CiamUserDo> captor = ArgumentCaptor.forClass(CiamUserDo.class);
+            ArgumentCaptor<UserPo> captor = ArgumentCaptor.forClass(UserPo.class);
             verify(userRepository).updateByUserId(captor.capture());
             assertEquals(UserStatus.DEACTIVATED.getCode(), captor.getValue().getUserStatus());
         }
@@ -240,7 +240,7 @@ class UserDomainServiceTest {
 
             service.cancelDeactivation("u1");
 
-            ArgumentCaptor<CiamUserDo> captor = ArgumentCaptor.forClass(CiamUserDo.class);
+            ArgumentCaptor<UserPo> captor = ArgumentCaptor.forClass(UserPo.class);
             verify(userRepository).updateByUserId(captor.capture());
             assertEquals(UserStatus.ACTIVE.getCode(), captor.getValue().getUserStatus());
         }
@@ -277,7 +277,7 @@ class UserDomainServiceTest {
 
             service.activate("u1");
 
-            ArgumentCaptor<CiamUserDo> captor = ArgumentCaptor.forClass(CiamUserDo.class);
+            ArgumentCaptor<UserPo> captor = ArgumentCaptor.forClass(UserPo.class);
             verify(userRepository).updateByUserId(captor.capture());
             assertNotNull(captor.getValue().getModifyTime());
         }

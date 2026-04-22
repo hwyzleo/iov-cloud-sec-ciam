@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import lombok.RequiredArgsConstructor;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamDeactivationRequestRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.CiamDeactivationRequestMapper;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamDeactivationRequestDo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.DeactivationRequestPo;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -18,46 +18,46 @@ public class CiamDeactivationRequestRepositoryImpl implements CiamDeactivationRe
     private final CiamDeactivationRequestMapper mapper;
 
     @Override
-    public Optional<CiamDeactivationRequestDo> findByDeactivationRequestId(String deactivationRequestId) {
+    public Optional<DeactivationRequestPo> findByDeactivationRequestId(String deactivationRequestId) {
         return Optional.ofNullable(mapper.selectOne(
-                new LambdaQueryWrapper<CiamDeactivationRequestDo>()
-                        .eq(CiamDeactivationRequestDo::getDeactivationRequestId, deactivationRequestId)));
+                new LambdaQueryWrapper<DeactivationRequestPo>()
+                        .eq(DeactivationRequestPo::getDeactivationRequestId, deactivationRequestId)));
     }
 
     @Override
-    public List<CiamDeactivationRequestDo> findByUserIdAndReviewStatus(String userId, int reviewStatus) {
+    public List<DeactivationRequestPo> findByUserIdAndReviewStatus(String userId, int reviewStatus) {
         return mapper.selectList(
-                new LambdaQueryWrapper<CiamDeactivationRequestDo>()
-                        .eq(CiamDeactivationRequestDo::getUserId, userId)
-                        .eq(CiamDeactivationRequestDo::getReviewStatus, reviewStatus)
-                        .eq(CiamDeactivationRequestDo::getRowValid, 1));
+                new LambdaQueryWrapper<DeactivationRequestPo>()
+                        .eq(DeactivationRequestPo::getUserId, userId)
+                        .eq(DeactivationRequestPo::getReviewStatus, reviewStatus)
+                        .eq(DeactivationRequestPo::getRowValid, 1));
     }
 
     @Override
-    public List<CiamDeactivationRequestDo> findByReviewStatus(int reviewStatus) {
+    public List<DeactivationRequestPo> findByReviewStatus(int reviewStatus) {
         return mapper.selectList(
-                new LambdaQueryWrapper<CiamDeactivationRequestDo>()
-                        .eq(CiamDeactivationRequestDo::getReviewStatus, reviewStatus)
-                        .eq(CiamDeactivationRequestDo::getRowValid, 1));
+                new LambdaQueryWrapper<DeactivationRequestPo>()
+                        .eq(DeactivationRequestPo::getReviewStatus, reviewStatus)
+                        .eq(DeactivationRequestPo::getRowValid, 1));
     }
 
     @Override
-    public List<CiamDeactivationRequestDo> findByExecuteStatus(int executeStatus) {
+    public List<DeactivationRequestPo> findByExecuteStatus(int executeStatus) {
         return mapper.selectList(
-                new LambdaQueryWrapper<CiamDeactivationRequestDo>()
-                        .eq(CiamDeactivationRequestDo::getExecuteStatus, executeStatus)
-                        .eq(CiamDeactivationRequestDo::getRowValid, 1));
+                new LambdaQueryWrapper<DeactivationRequestPo>()
+                        .eq(DeactivationRequestPo::getExecuteStatus, executeStatus)
+                        .eq(DeactivationRequestPo::getRowValid, 1));
     }
 
     @Override
-    public int insert(CiamDeactivationRequestDo entity) {
+    public int insert(DeactivationRequestPo entity) {
         return mapper.insert(entity);
     }
 
     @Override
-    public int updateByDeactivationRequestId(CiamDeactivationRequestDo entity) {
+    public int updateByDeactivationRequestId(DeactivationRequestPo entity) {
         return mapper.update(entity,
-                new LambdaUpdateWrapper<CiamDeactivationRequestDo>()
-                        .eq(CiamDeactivationRequestDo::getDeactivationRequestId, entity.getDeactivationRequestId()));
+                new LambdaUpdateWrapper<DeactivationRequestPo>()
+                        .eq(DeactivationRequestPo::getDeactivationRequestId, entity.getDeactivationRequestId()));
     }
 }

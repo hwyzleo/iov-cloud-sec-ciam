@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamJwkRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamJwkDo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.JwkPo;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -103,7 +103,7 @@ public class JwkDomainService {
     /**
      * 获取所有激活状态的公钥（用于 JWKS 端点）。
      */
-    public List<CiamJwkDo> getAllActiveKeys() {
+    public List<JwkPo> getAllActiveKeys() {
         return jwkRepository.findAllActive();
     }
 
@@ -119,7 +119,7 @@ public class JwkDomainService {
     /**
      * 生成新密钥并存储。
      */
-    public CiamJwkDo generateAndStoreNewKey() {
+    public JwkPo generateAndStoreNewKey() {
         return generateAndStoreNewKey(DEFAULT_KEY_SIZE, true);
     }
 
@@ -130,7 +130,7 @@ public class JwkDomainService {
      * @param setPrimary  是否设为主密钥
      * @return 存储的密钥记录
      */
-    public CiamJwkDo generateAndStoreNewKey(int keySize, boolean setPrimary) {
+    public JwkPo generateAndStoreNewKey(int keySize, boolean setPrimary) {
         KeyPair keyPair = generateRsaKeyPair(keySize);
         String keyId = UUID.randomUUID().toString().replace("-", "");
         Instant now = DateTimeUtil.getNowInstant();
@@ -142,7 +142,7 @@ public class JwkDomainService {
             jwkRepository.revokePrimary();
         }
 
-        CiamJwkDo entity = new CiamJwkDo();
+        JwkPo entity = new JwkPo();
         entity.setKeyId(keyId);
         entity.setPrivateKeyPem(encodePrivateKey((RSAPrivateKey) keyPair.getPrivate()));
         entity.setPublicKeyPem(encodePublicKey((RSAPublicKey) keyPair.getPublic()));
@@ -175,7 +175,7 @@ public class JwkDomainService {
      *
      * @return 新生成的密钥记录
      */
-    public CiamJwkDo rotateKey() {
+    public JwkPo rotateKey() {
         log.info("开始 JWK 密钥轮换");
         return generateAndStoreNewKey(DEFAULT_KEY_SIZE, true);
     }
@@ -186,7 +186,7 @@ public class JwkDomainService {
      * @param keyId 密钥 ID
      */
     public void revokeKey(String keyId) {
-        CiamJwkDo entity = jwkRepository.findByKeyId(keyId)
+        JwkPo entity = jwkRepository.findByKeyId(keyId)
                 .orElseThrow(() -> new NoSuchElementException("密钥不存在：keyId=" + keyId));
 
         if (entity.getIsPrimary() == 1) {
@@ -203,7 +203,7 @@ public class JwkDomainService {
 
     // ---- 内部方法 ----
 
-    private KeyPair loadKeyPair(CiamJwkDo entity) {
+    private KeyPair loadKeyPair(JwkPo entity) {
         try {
             java.security.KeyFactory keyFactory = java.security.KeyFactory.getInstance(ALGORITHM_RSA);
 
@@ -250,7 +250,7 @@ public class JwkDomainService {
                 .encodeToString(publicKey.getEncoded());
     }
 
-    private RSAPublicKey parsePublicKey(CiamJwkDo entity) {
+    private RSAPublicKey parsePublicKey(JwkPo entity) {
         try {
             java.security.KeyFactory keyFactory = java.security.KeyFactory.getInstance(ALGORITHM_RSA);
             byte[] publicKeyBytes = Base64.getMimeDecoder().decode(entity.getPublicKeyPem());

@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
 import net.hwyz.iov.cloud.sec.ciam.service.common.exception.CiamErrorCode;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamOAuthClientRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamOAuthClientDo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.OAuthClientPo;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
@@ -127,8 +127,8 @@ public class DeviceAuthorizationService {
 
     // ---- 内部方法 ----
 
-    private CiamOAuthClientDo findEnabledClient(String clientId) {
-        CiamOAuthClientDo client = clientRepository.findByClientId(clientId)
+    private OAuthClientPo findEnabledClient(String clientId) {
+        OAuthClientPo client = clientRepository.findByClientId(clientId)
                 .orElseThrow(() -> new BusinessException(CiamErrorCode.CLIENT_NOT_FOUND));
         if (client.getClientStatus() == null || client.getClientStatus() != 1) {
             throw new BusinessException(CiamErrorCode.CLIENT_DISABLED);

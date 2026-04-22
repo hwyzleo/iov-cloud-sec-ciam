@@ -1,6 +1,6 @@
 package net.hwyz.iov.cloud.sec.ciam.service.domain.repository;
 
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamMergeRequestDo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.MergeRequestPo;
 
 import java.util.List;
 import java.util.Optional;
@@ -11,20 +11,20 @@ import java.util.Optional;
 public interface CiamMergeRequestRepository {
 
     /** 根据业务 ID 查询 */
-    Optional<CiamMergeRequestDo> findByMergeRequestId(String mergeRequestId);
+    Optional<MergeRequestPo> findByMergeRequestId(String mergeRequestId);
 
     /** 根据审核状态查询 */
-    List<CiamMergeRequestDo> findByReviewStatus(int reviewStatus);
+    List<MergeRequestPo> findByReviewStatus(int reviewStatus);
 
     /** 根据源用户 ID 查询 */
-    List<CiamMergeRequestDo> findBySourceUserId(String sourceUserId);
+    List<MergeRequestPo> findBySourceUserId(String sourceUserId);
 
     /** 根据目标用户 ID 查询 */
-    List<CiamMergeRequestDo> findByTargetUserId(String targetUserId);
+    List<MergeRequestPo> findByTargetUserId(String targetUserId);
 
     /** 插入合并申请记录 */
-    int insert(CiamMergeRequestDo entity);
+    int insert(MergeRequestPo entity);
 
     /** 根据业务 ID 更新 */
-    int updateByMergeRequestId(CiamMergeRequestDo entity);
+    int updateByMergeRequestId(MergeRequestPo entity);
 }

@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import lombok.RequiredArgsConstructor;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserCredentialRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.CiamUserCredentialMapper;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamUserCredentialDo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.UserCredentialPo;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -17,37 +17,37 @@ public class CiamUserCredentialRepositoryImpl implements CiamUserCredentialRepos
     private final CiamUserCredentialMapper mapper;
 
     @Override
-    public Optional<CiamUserCredentialDo> findByUserIdAndType(String userId, String credentialType) {
+    public Optional<UserCredentialPo> findByUserIdAndType(String userId, String credentialType) {
         return Optional.ofNullable(mapper.selectOne(
-                new LambdaQueryWrapper<CiamUserCredentialDo>()
-                        .eq(CiamUserCredentialDo::getUserId, userId)
-                        .eq(CiamUserCredentialDo::getCredentialType, credentialType)
-                        .eq(CiamUserCredentialDo::getRowValid, 1)));
+                new LambdaQueryWrapper<UserCredentialPo>()
+                        .eq(UserCredentialPo::getUserId, userId)
+                        .eq(UserCredentialPo::getCredentialType, credentialType)
+                        .eq(UserCredentialPo::getRowValid, 1)));
     }
 
     @Override
-    public Optional<CiamUserCredentialDo> findByCredentialId(String credentialId) {
+    public Optional<UserCredentialPo> findByCredentialId(String credentialId) {
         return Optional.ofNullable(mapper.selectOne(
-                new LambdaQueryWrapper<CiamUserCredentialDo>()
-                        .eq(CiamUserCredentialDo::getCredentialId, credentialId)));
+                new LambdaQueryWrapper<UserCredentialPo>()
+                        .eq(UserCredentialPo::getCredentialId, credentialId)));
     }
 
     @Override
-    public int insert(CiamUserCredentialDo entity) {
+    public int insert(UserCredentialPo entity) {
         return mapper.insert(entity);
     }
 
     @Override
-    public int updateByCredentialId(CiamUserCredentialDo entity) {
+    public int updateByCredentialId(UserCredentialPo entity) {
         return mapper.update(entity,
-                new LambdaUpdateWrapper<CiamUserCredentialDo>()
-                        .eq(CiamUserCredentialDo::getCredentialId, entity.getCredentialId()));
+                new LambdaUpdateWrapper<UserCredentialPo>()
+                        .eq(UserCredentialPo::getCredentialId, entity.getCredentialId()));
     }
 
     @Override
     public int physicalDeleteByUserId(String userId) {
         return mapper.delete(
-                new LambdaQueryWrapper<CiamUserCredentialDo>()
-                        .eq(CiamUserCredentialDo::getUserId, userId));
+                new LambdaQueryWrapper<UserCredentialPo>()
+                        .eq(UserCredentialPo::getUserId, userId));
     }
 }

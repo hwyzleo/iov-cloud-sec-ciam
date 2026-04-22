@@ -8,7 +8,7 @@ import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.ClientStatus;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.OAuthClientType;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamOAuthClientRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamOAuthClientDo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.OAuthClientPo;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
@@ -65,7 +65,7 @@ public class OAuthClientDomainService {
             secretHash = passwordEncoder.encode(rawSecret);
         }
 
-        CiamOAuthClientDo entity = new CiamOAuthClientDo();
+        OAuthClientPo entity = new OAuthClientPo();
         entity.setClientId(clientId);
         entity.setClientName(clientName);
         entity.setClientSecretHash(secretHash);
@@ -92,7 +92,7 @@ public class OAuthClientDomainService {
      * @param clientId 客户端标识
      * @return 客户端记录（如存在）
      */
-    public Optional<CiamOAuthClientDo> findByClientId(String clientId) {
+    public Optional<OAuthClientPo> findByClientId(String clientId) {
         return clientRepository.findByClientId(clientId);
     }
 
@@ -105,7 +105,7 @@ public class OAuthClientDomainService {
      * @throws BusinessException 客户端不存在时抛出 CLIENT_NOT_FOUND；客户端已停用时抛出 CLIENT_DISABLED
      */
     public boolean validateClient(String clientId, String clientSecret) {
-        CiamOAuthClientDo client = clientRepository.findByClientId(clientId)
+        OAuthClientPo client = clientRepository.findByClientId(clientId)
                 .orElseThrow(() -> new BusinessException(CiamErrorCode.CLIENT_NOT_FOUND));
 
         if (client.getClientStatus() != ClientStatus.ENABLED.getCode()) {
@@ -129,7 +129,7 @@ public class OAuthClientDomainService {
      * @throws BusinessException 客户端不存在时抛出 CLIENT_NOT_FOUND
      */
     public boolean validateRedirectUri(String clientId, String redirectUri) {
-        CiamOAuthClientDo client = clientRepository.findByClientId(clientId)
+        OAuthClientPo client = clientRepository.findByClientId(clientId)
                 .orElseThrow(() -> new BusinessException(CiamErrorCode.CLIENT_NOT_FOUND));
 
         if (client.getRedirectUris() == null || client.getRedirectUris().isBlank()) {
@@ -162,7 +162,7 @@ public class OAuthClientDomainService {
                              Boolean pkceRequired,
                              Integer accessTokenTtl,
                              Integer refreshTokenTtl) {
-        CiamOAuthClientDo client = clientRepository.findByClientId(clientId)
+        OAuthClientPo client = clientRepository.findByClientId(clientId)
                 .orElseThrow(() -> new BusinessException(CiamErrorCode.CLIENT_NOT_FOUND));
 
         if (clientName != null) {
@@ -197,7 +197,7 @@ public class OAuthClientDomainService {
      * @throws BusinessException 客户端不存在时抛出 CLIENT_NOT_FOUND
      */
     public void disableClient(String clientId) {
-        CiamOAuthClientDo client = clientRepository.findByClientId(clientId)
+        OAuthClientPo client = clientRepository.findByClientId(clientId)
                 .orElseThrow(() -> new BusinessException(CiamErrorCode.CLIENT_NOT_FOUND));
 
         client.setClientStatus(ClientStatus.DISABLED.getCode());
@@ -212,7 +212,7 @@ public class OAuthClientDomainService {
      * @throws BusinessException 客户端不存在时抛出 CLIENT_NOT_FOUND
      */
     public void enableClient(String clientId) {
-        CiamOAuthClientDo client = clientRepository.findByClientId(clientId)
+        OAuthClientPo client = clientRepository.findByClientId(clientId)
                 .orElseThrow(() -> new BusinessException(CiamErrorCode.CLIENT_NOT_FOUND));
 
         client.setClientStatus(ClientStatus.ENABLED.getCode());

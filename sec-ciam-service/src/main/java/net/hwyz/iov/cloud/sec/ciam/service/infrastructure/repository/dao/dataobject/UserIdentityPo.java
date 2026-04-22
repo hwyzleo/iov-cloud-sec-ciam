@@ -9,50 +9,50 @@ import lombok.Data;
 import java.time.Instant;
 
 /**
- * 注销申请表数据对象。
+ * 登录标识表数据对象。
  */
 @Data
-@TableName("ciam_deactivation_request")
-public class CiamDeactivationRequestDo {
+@TableName("ciam_user_identity")
+public class UserIdentityPo {
 
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
-    @TableField("deactivation_request_id")
-    private String deactivationRequestId;
+    @TableField("identity_id")
+    private String identityId;
 
     @TableField("user_id")
     private String userId;
 
-    @TableField("request_source")
-    private String requestSource;
+    @TableField("identity_type")
+    private String identityType;
 
-    @TableField("request_reason")
-    private String requestReason;
+    @TableField("identity_value")
+    private String identityValue;
 
-    @TableField("check_status")
-    private Integer checkStatus;
+    @TableField("identity_hash")
+    private String identityHash;
 
-    @TableField("review_status")
-    private Integer reviewStatus;
+    @TableField("country_code")
+    private String countryCode;
 
-    @TableField("execute_status")
-    private Integer executeStatus;
+    @TableField("verified_flag")
+    private Integer verifiedFlag;
 
-    @TableField("requested_time")
-    private Instant requestedTime;
+    @TableField("primary_flag")
+    private Integer primaryFlag;
 
-    @TableField("reviewer")
-    private String reviewer;
+    @TableField("bind_source")
+    private String bindSource;
 
-    @TableField("review_time")
-    private Instant reviewTime;
+    @TableField("bind_time")
+    private Instant bindTime;
 
-    @TableField("execute_time")
-    private Instant executeTime;
+    @TableField("unbind_time")
+    private Instant unbindTime;
 
-    @TableField("retain_audit_only")
-    private Integer retainAuditOnly;
+    @TableField("identity_status")
+    private Integer identityStatus;
 
     @TableField("description")
     private String description;

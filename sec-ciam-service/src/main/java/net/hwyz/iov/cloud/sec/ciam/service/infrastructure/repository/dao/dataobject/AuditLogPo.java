@@ -9,41 +9,59 @@ import lombok.Data;
 import java.time.Instant;
 
 /**
- * 协议与营销同意表数据对象。
+ * 审计日志表数据对象。
  */
 @Data
-@TableName("ciam_user_consent")
-public class CiamUserConsentDo {
+@TableName("ciam_audit_log")
+public class AuditLogPo {
 
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
-    @TableField("consent_id")
-    private String consentId;
+    @TableField("audit_id")
+    private String auditId;
 
     @TableField("user_id")
     private String userId;
 
-    @TableField("consent_type")
-    private String consentType;
+    @TableField("session_id")
+    private String sessionId;
 
-    @TableField("consent_status")
-    private Integer consentStatus;
-
-    @TableField("policy_version")
-    private String policyVersion;
-
-    @TableField("source_channel")
-    private String sourceChannel;
+    @TableField("client_id")
+    private String clientId;
 
     @TableField("client_type")
     private String clientType;
 
-    @TableField("operate_ip")
-    private String operateIp;
+    @TableField("event_type")
+    private String eventType;
 
-    @TableField("operate_time")
-    private Instant operateTime;
+    @TableField("event_name")
+    private String eventName;
+
+    @TableField("operation_result")
+    private Integer operationResult;
+
+    @TableField("request_uri")
+    private String requestUri;
+
+    @TableField("request_method")
+    private String requestMethod;
+
+    @TableField("response_code")
+    private String responseCode;
+
+    @TableField("ip_address")
+    private String ipAddress;
+
+    @TableField("trace_id")
+    private String traceId;
+
+    @TableField("request_snapshot")
+    private String requestSnapshot;
+
+    @TableField("event_time")
+    private Instant eventTime;
 
     @TableField("description")
     private String description;

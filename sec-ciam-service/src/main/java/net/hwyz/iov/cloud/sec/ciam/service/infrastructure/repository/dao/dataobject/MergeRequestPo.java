@@ -9,47 +9,47 @@ import lombok.Data;
 import java.time.Instant;
 
 /**
- * 凭据表数据对象。
+ * 账号合并申请表数据对象。
  */
 @Data
-@TableName("ciam_user_credential")
-public class CiamUserCredentialDo {
+@TableName("ciam_merge_request")
+public class MergeRequestPo {
 
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
-    @TableField("credential_id")
-    private String credentialId;
+    @TableField("merge_request_id")
+    private String mergeRequestId;
 
-    @TableField("user_id")
-    private String userId;
+    @TableField("source_user_id")
+    private String sourceUserId;
 
-    @TableField("credential_type")
-    private String credentialType;
+    @TableField("target_user_id")
+    private String targetUserId;
 
-    @TableField("credential_hash")
-    private String credentialHash;
+    @TableField("conflict_identity_type")
+    private String conflictIdentityType;
 
-    @TableField("salt")
-    private String salt;
+    @TableField("conflict_identity_hash")
+    private String conflictIdentityHash;
 
-    @TableField("hash_algorithm")
-    private String hashAlgorithm;
+    @TableField("apply_source")
+    private String applySource;
 
-    @TableField("password_set_time")
-    private Instant passwordSetTime;
+    @TableField("review_status")
+    private Integer reviewStatus;
 
-    @TableField("last_verify_time")
-    private Instant lastVerifyTime;
+    @TableField("reviewer")
+    private String reviewer;
 
-    @TableField("fail_count")
-    private Integer failCount;
+    @TableField("review_time")
+    private Instant reviewTime;
 
-    @TableField("locked_until")
-    private Instant lockedUntil;
+    @TableField("final_user_id")
+    private String finalUserId;
 
-    @TableField("credential_status")
-    private Integer credentialStatus;
+    @TableField("finish_time")
+    private Instant finishTime;
 
     @TableField("description")
     private String description;

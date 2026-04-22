@@ -3,7 +3,7 @@ package net.hwyz.iov.cloud.sec.ciam.service.application.mapper;
 import net.hwyz.iov.cloud.sec.ciam.service.controller.vo.UserVo;
 import net.hwyz.iov.cloud.sec.ciam.service.application.dto.UserDto;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.model.User;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamUserDo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.UserPo;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 import org.mapstruct.factory.Mappers;
@@ -19,12 +19,12 @@ public interface UserMapper {
     /**
      * DO -> Domain
      */
-    User toDomain(CiamUserDo entity);
+    User toDomain(UserPo entity);
     
     /**
      * Domain -> DO
      */
-    CiamUserDo toDo(User domain);
+    UserPo toDo(User domain);
 
     /**
      * Domain -> DTO

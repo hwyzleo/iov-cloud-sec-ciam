@@ -10,8 +10,8 @@ import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.TagStatus;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamOwnerCertStateRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserTagRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.service.TagDomainService;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamOwnerCertStateDo;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamUserTagDo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.OwnerCertStatePo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.UserTagPo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -55,8 +55,8 @@ class OwnerCertificationAppServiceTest {
                 certStateRepository, tagDomainService, auditLogger);
     }
 
-    private CiamOwnerCertStateDo stubCertRecord(int certStatus) {
-        CiamOwnerCertStateDo record = new CiamOwnerCertStateDo();
+    private OwnerCertStatePo stubCertRecord(int certStatus) {
+        OwnerCertStatePo record = new OwnerCertStatePo();
         record.setOwnerCertId("cert-001");
         record.setUserId(USER_ID);
         record.setVin(VIN);
@@ -67,8 +67,8 @@ class OwnerCertificationAppServiceTest {
         return record;
     }
 
-    private CiamUserTagDo stubTag(int status) {
-        CiamUserTagDo tag = new CiamUserTagDo();
+    private UserTagPo stubTag(int status) {
+        UserTagPo tag = new UserTagPo();
         tag.setTagId("tag-001");
         tag.setUserId(USER_ID);
         tag.setTagCode("owner_verified");
@@ -93,10 +93,10 @@ class OwnerCertificationAppServiceTest {
             service.handleCertificationCallback(USER_ID, CertStatus.CERTIFIED.getCode(),
                     VIN, CERT_SOURCE);
 
-            ArgumentCaptor<CiamOwnerCertStateDo> captor =
-                    ArgumentCaptor.forClass(CiamOwnerCertStateDo.class);
+            ArgumentCaptor<OwnerCertStatePo> captor =
+                    ArgumentCaptor.forClass(OwnerCertStatePo.class);
             verify(certStateRepository).insert(captor.capture());
-            CiamOwnerCertStateDo created = captor.getValue();
+            OwnerCertStatePo created = captor.getValue();
             assertEquals(USER_ID, created.getUserId());
             assertEquals(CertStatus.CERTIFIED.getCode(), created.getCertStatus());
         }
@@ -109,7 +109,7 @@ class OwnerCertificationAppServiceTest {
 
         @Test
         void returnsAllRecordsForUser() {
-            CiamOwnerCertStateDo record = stubCertRecord(CertStatus.CERTIFIED.getCode());
+            OwnerCertStatePo record = stubCertRecord(CertStatus.CERTIFIED.getCode());
             when(certStateRepository.findByUserId(USER_ID)).thenReturn(List.of(record));
 
             List<OwnerCertificationDto> result = service.queryCertificationStatus(USER_ID);
@@ -135,7 +135,7 @@ class OwnerCertificationAppServiceTest {
 
         @Test
         void updatesLastQueryTimeForPendingRecords() {
-            CiamOwnerCertStateDo pending = stubCertRecord(CertStatus.CERTIFYING.getCode());
+            OwnerCertStatePo pending = stubCertRecord(CertStatus.CERTIFYING.getCode());
             when(certStateRepository.findByUserIdAndCertStatus(USER_ID,
                     CertStatus.CERTIFYING.getCode())).thenReturn(List.of(pending));
 

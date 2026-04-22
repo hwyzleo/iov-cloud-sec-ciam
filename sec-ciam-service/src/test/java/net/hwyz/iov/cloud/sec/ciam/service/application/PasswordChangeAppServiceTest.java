@@ -12,7 +12,7 @@ import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamSessionReposito
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserCredentialRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.service.CredentialDomainService;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.service.PasswordPolicyService;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamUserCredentialDo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.UserCredentialPo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -64,8 +64,8 @@ class PasswordChangeAppServiceTest {
                 credentialDomainService, sessionRepository, refreshTokenRepository, auditLogger);
     }
 
-    private CiamUserCredentialDo stubCredential(String rawPassword) {
-        CiamUserCredentialDo cred = new CiamUserCredentialDo();
+    private UserCredentialPo stubCredential(String rawPassword) {
+        UserCredentialPo cred = new UserCredentialPo();
         cred.setCredentialId("cred-001");
         cred.setUserId(USER_ID);
         cred.setCredentialType(CredentialType.EMAIL_PASSWORD.getCode());
@@ -88,7 +88,7 @@ class PasswordChangeAppServiceTest {
             service.changePasswordAndInvalidateSessions(USER_ID, OLD_PASSWORD, NEW_PASSWORD);
 
             // Verify password was updated
-            verify(credentialRepository).updateByCredentialId(any(CiamUserCredentialDo.class));
+            verify(credentialRepository).updateByCredentialId(any(UserCredentialPo.class));
             // Verify all sessions invalidated
             verify(sessionRepository).invalidateAllByUserId(USER_ID);
             // Verify all refresh tokens revoked
@@ -143,7 +143,7 @@ class PasswordChangeAppServiceTest {
             service.resetPasswordAndInvalidateSessions(USER_ID, NEW_PASSWORD);
 
             // Verify password was updated
-            verify(credentialRepository).updateByCredentialId(any(CiamUserCredentialDo.class));
+            verify(credentialRepository).updateByCredentialId(any(UserCredentialPo.class));
             // Verify all sessions invalidated
             verify(sessionRepository).invalidateAllByUserId(USER_ID);
             // Verify all refresh tokens revoked

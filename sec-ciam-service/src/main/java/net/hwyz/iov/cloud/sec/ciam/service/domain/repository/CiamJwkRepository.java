@@ -1,6 +1,6 @@
 package net.hwyz.iov.cloud.sec.ciam.service.domain.repository;
 
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamJwkDo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.JwkPo;
 
 import java.util.List;
 import java.util.Optional;
@@ -11,19 +11,19 @@ import java.util.Optional;
 public interface CiamJwkRepository {
 
     /** 根据密钥 ID 查询 */
-    Optional<CiamJwkDo> findByKeyId(String keyId);
+    Optional<JwkPo> findByKeyId(String keyId);
 
     /** 查询主密钥（用于签名新 token） */
-    Optional<CiamJwkDo> findPrimary();
+    Optional<JwkPo> findPrimary();
 
     /** 查询所有激活状态的密钥（用于验证 token 和 JWKS 端点） */
-    List<CiamJwkDo> findAllActive();
+    List<JwkPo> findAllActive();
 
     /** 插入密钥记录 */
-    int insert(CiamJwkDo entity);
+    int insert(JwkPo entity);
 
     /** 更新密钥 */
-    int update(CiamJwkDo entity);
+    int update(JwkPo entity);
 
     /** 撤销主密钥状态（将指定密钥设为非主密钥） */
     int revokePrimary();

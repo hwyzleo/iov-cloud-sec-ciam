@@ -14,7 +14,7 @@ import net.hwyz.iov.cloud.sec.ciam.service.common.util.UserIdGenerator;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.CertStatus;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamOwnerCertStateRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.service.TagDomainService;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamOwnerCertStateDo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.OwnerCertStatePo;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -62,10 +62,10 @@ public class OwnerCertificationAppService {
         CertStatus certStatus = CertStatus.fromCode(certResult);
 
         // Find existing record for this user+vin, or create new
-        Optional<CiamOwnerCertStateDo> existing = findExistingRecord(userId, vin);
+        Optional<OwnerCertStatePo> existing = findExistingRecord(userId, vin);
 
         if (existing.isPresent()) {
-            CiamOwnerCertStateDo record = existing.get();
+            OwnerCertStatePo record = existing.get();
             record.setCertStatus(certResult);
             record.setCertSource(certSource);
             record.setCallbackTime(DateTimeUtil.getNowInstant());
@@ -76,7 +76,7 @@ public class OwnerCertificationAppService {
             certStateRepository.updateByOwnerCertId(record);
             log.info("车主认证回调更新: userId={}, vin={}, certStatus={}", userId, vin, certStatus);
         } else {
-            CiamOwnerCertStateDo record = new CiamOwnerCertStateDo();
+            OwnerCertStatePo record = new OwnerCertStatePo();
             record.setOwnerCertId(UserIdGenerator.generate());
             record.setUserId(userId);
             record.setVin(vin);
@@ -110,7 +110,7 @@ public class OwnerCertificationAppService {
         if (userId == null || userId.isBlank()) {
             throw new BusinessException(CiamErrorCode.INVALID_PARAM, "userId 不能为空");
         }
-        List<CiamOwnerCertStateDo> records = certStateRepository.findByUserId(userId);
+        List<OwnerCertStatePo> records = certStateRepository.findByUserId(userId);
         logAudit(userId, AuditEventType.OWNER_CERT_QUERY, true);
         return records.stream()
                 .map(doObj -> OwnerCertificationMapper.INSTANCE.toDto(OwnerCertificationMapper.INSTANCE.toDomain(doObj)))
@@ -130,10 +130,10 @@ public class OwnerCertificationAppService {
         if (userId == null || userId.isBlank()) {
             throw new BusinessException(CiamErrorCode.INVALID_PARAM, "userId 不能为空");
         }
-        List<CiamOwnerCertStateDo> pendingRecords =
+        List<OwnerCertStatePo> pendingRecords =
                 certStateRepository.findByUserIdAndCertStatus(userId, CertStatus.CERTIFYING.getCode());
 
-        for (CiamOwnerCertStateDo record : pendingRecords) {
+        for (OwnerCertStatePo record : pendingRecords) {
             record.setLastQueryTime(DateTimeUtil.getNowInstant());
             record.setModifyTime(DateTimeUtil.getNowInstant());
             certStateRepository.updateByOwnerCertId(record);
@@ -152,7 +152,7 @@ public class OwnerCertificationAppService {
     /**
      * Find existing cert record for user+vin combination.
      */
-    private Optional<CiamOwnerCertStateDo> findExistingRecord(String userId, String vin) {
+    private Optional<OwnerCertStatePo> findExistingRecord(String userId, String vin) {
         return certStateRepository.findByUserId(userId).stream()
                 .filter(r -> vin != null && vin.equals(r.getVin()))
                 .findFirst();

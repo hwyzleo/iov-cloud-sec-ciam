@@ -20,8 +20,8 @@ import net.hwyz.iov.cloud.sec.ciam.service.domain.service.PasswordVerifyResult;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.service.RiskAssessmentResult;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.service.VerificationCodeService;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.service.VerificationCodeStore;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamSessionDo;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamUserCredentialDo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.SessionPo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.UserCredentialPo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -135,8 +135,8 @@ class SecurityAndPerformanceTest {
             credentialDomainService = new CredentialDomainService(credentialRepository, passwordEncoder, passwordPolicyService);
         }
 
-        private CiamUserCredentialDo cred(String userId, int failCount, Instant lockedUntil) {
-            CiamUserCredentialDo c = new CiamUserCredentialDo();
+        private UserCredentialPo cred(String userId, int failCount, Instant lockedUntil) {
+            UserCredentialPo c = new UserCredentialPo();
             c.setCredentialId("cred-001");
             c.setUserId(userId);
             c.setCredentialType(CredentialType.EMAIL_PASSWORD.getCode());
@@ -294,8 +294,8 @@ class SecurityAndPerformanceTest {
             credentialDomainService = new CredentialDomainService(credentialRepository, passwordEncoder, passwordPolicyService);
         }
 
-        private CiamUserCredentialDo cred(String userId, int failCount, Instant lockedUntil) {
-            CiamUserCredentialDo c = new CiamUserCredentialDo();
+        private UserCredentialPo cred(String userId, int failCount, Instant lockedUntil) {
+            UserCredentialPo c = new UserCredentialPo();
             c.setCredentialId("cred-l1");
             c.setUserId(userId);
             c.setCredentialType(CredentialType.EMAIL_PASSWORD.getCode());
@@ -456,9 +456,9 @@ class SecurityAndPerformanceTest {
         @DisplayName("单用户多会话查询应能处理大量会话记录")
         void manySessionsQuery() {
             String uid = "u-s1";
-            List<CiamSessionDo> sessions = new ArrayList<>();
+            List<SessionPo> sessions = new ArrayList<>();
             for (int i = 0; i < 100; i++) {
-                CiamSessionDo s = new CiamSessionDo();
+                SessionPo s = new SessionPo();
                 s.setSessionId("s-" + i);
                 s.setUserId(uid);
                 s.setClientType("app");
@@ -469,7 +469,7 @@ class SecurityAndPerformanceTest {
                 sessions.add(s);
             }
             when(sessionRepository.findByUserIdAndStatus(uid, SessionStatus.ACTIVE.getCode())).thenReturn(sessions);
-            List<CiamSessionDo> result = sessionRepository.findByUserIdAndStatus(uid, SessionStatus.ACTIVE.getCode());
+            List<SessionPo> result = sessionRepository.findByUserIdAndStatus(uid, SessionStatus.ACTIVE.getCode());
             assertEquals(100, result.size());
             assertTrue(result.stream().allMatch(s -> uid.equals(s.getUserId())));
             assertTrue(result.stream().allMatch(s -> s.getSessionStatus() == SessionStatus.ACTIVE.getCode()));
@@ -480,9 +480,9 @@ class SecurityAndPerformanceTest {
         void sessionCreationPerf() {
             long start = System.nanoTime();
             int n = 50_000;
-            List<CiamSessionDo> list = new ArrayList<>(n);
+            List<SessionPo> list = new ArrayList<>(n);
             for (int i = 0; i < n; i++) {
-                CiamSessionDo s = new CiamSessionDo();
+                SessionPo s = new SessionPo();
                 s.setSessionId("s-" + i);
                 s.setUserId("u-" + (i % 1000));
                 s.setClientType("app");

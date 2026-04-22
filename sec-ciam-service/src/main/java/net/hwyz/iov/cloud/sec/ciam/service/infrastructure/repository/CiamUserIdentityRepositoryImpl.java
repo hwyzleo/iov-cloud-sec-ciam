@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 import net.hwyz.iov.cloud.sec.ciam.service.common.security.FieldEncryptor;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserIdentityRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.CiamUserIdentityMapper;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamUserIdentityDo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.UserIdentityPo;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -19,74 +19,74 @@ public class CiamUserIdentityRepositoryImpl implements CiamUserIdentityRepositor
     private final CiamUserIdentityMapper mapper;
 
     @Override
-    public Optional<CiamUserIdentityDo> findByTypeAndHash(String identityType, String identityHash) {
+    public Optional<UserIdentityPo> findByTypeAndHash(String identityType, String identityHash) {
         return Optional.ofNullable(mapper.selectOne(
-                new LambdaQueryWrapper<CiamUserIdentityDo>()
-                        .eq(CiamUserIdentityDo::getIdentityType, identityType)
-                        .eq(CiamUserIdentityDo::getIdentityHash, identityHash)
-                        .eq(CiamUserIdentityDo::getRowValid, 1)));
+                new LambdaQueryWrapper<UserIdentityPo>()
+                        .eq(UserIdentityPo::getIdentityType, identityType)
+                        .eq(UserIdentityPo::getIdentityHash, identityHash)
+                        .eq(UserIdentityPo::getRowValid, 1)));
     }
 
     @Override
-    public Optional<CiamUserIdentityDo> findByTypeAndValue(String identityType, String identityValue) {
+    public Optional<UserIdentityPo> findByTypeAndValue(String identityType, String identityValue) {
         String identityHash = FieldEncryptor.hash(identityValue);
         return Optional.ofNullable(mapper.selectOne(
-                new LambdaQueryWrapper<CiamUserIdentityDo>()
-                        .eq(CiamUserIdentityDo::getIdentityType, identityType)
-                        .eq(CiamUserIdentityDo::getIdentityHash, identityHash)
-                        .eq(CiamUserIdentityDo::getRowValid, 1)));
+                new LambdaQueryWrapper<UserIdentityPo>()
+                        .eq(UserIdentityPo::getIdentityType, identityType)
+                        .eq(UserIdentityPo::getIdentityHash, identityHash)
+                        .eq(UserIdentityPo::getRowValid, 1)));
     }
 
     @Override
-    public List<CiamUserIdentityDo> findByUserId(String userId) {
+    public List<UserIdentityPo> findByUserId(String userId) {
         return mapper.selectList(
-                new LambdaQueryWrapper<CiamUserIdentityDo>()
-                        .eq(CiamUserIdentityDo::getUserId, userId)
-                        .eq(CiamUserIdentityDo::getRowValid, 1));
+                new LambdaQueryWrapper<UserIdentityPo>()
+                        .eq(UserIdentityPo::getUserId, userId)
+                        .eq(UserIdentityPo::getRowValid, 1));
     }
 
     @Override
-    public Optional<CiamUserIdentityDo> findByIdentityId(String identityId) {
+    public Optional<UserIdentityPo> findByIdentityId(String identityId) {
         return Optional.ofNullable(mapper.selectOne(
-                new LambdaQueryWrapper<CiamUserIdentityDo>()
-                        .eq(CiamUserIdentityDo::getIdentityId, identityId)));
+                new LambdaQueryWrapper<UserIdentityPo>()
+                        .eq(UserIdentityPo::getIdentityId, identityId)));
     }
 
     @Override
-    public int insert(CiamUserIdentityDo entity) {
+    public int insert(UserIdentityPo entity) {
         return mapper.insert(entity);
     }
 
     @Override
-    public int updateByIdentityId(CiamUserIdentityDo entity) {
+    public int updateByIdentityId(UserIdentityPo entity) {
         return mapper.update(entity,
-                new LambdaUpdateWrapper<CiamUserIdentityDo>()
-                        .eq(CiamUserIdentityDo::getIdentityId, entity.getIdentityId()));
+                new LambdaUpdateWrapper<UserIdentityPo>()
+                        .eq(UserIdentityPo::getIdentityId, entity.getIdentityId()));
     }
 
     @Override
     public int updateIdentityValue(String userId, String identityType, String identityHash) {
         return mapper.update(null,
-                new LambdaUpdateWrapper<CiamUserIdentityDo>()
-                        .eq(CiamUserIdentityDo::getUserId, userId)
-                        .eq(CiamUserIdentityDo::getIdentityType, identityType)
-                        .set(CiamUserIdentityDo::getIdentityHash, identityHash));
+                new LambdaUpdateWrapper<UserIdentityPo>()
+                        .eq(UserIdentityPo::getUserId, userId)
+                        .eq(UserIdentityPo::getIdentityType, identityType)
+                        .set(UserIdentityPo::getIdentityHash, identityHash));
     }
 
     @Override
     public int updateIdentityValue(String userId, String identityType, String identityHash, String identityValue) {
         return mapper.update(null,
-                new LambdaUpdateWrapper<CiamUserIdentityDo>()
-                        .eq(CiamUserIdentityDo::getUserId, userId)
-                        .eq(CiamUserIdentityDo::getIdentityType, identityType)
-                        .set(CiamUserIdentityDo::getIdentityHash, identityHash)
-                        .set(CiamUserIdentityDo::getIdentityValue, identityValue));
+                new LambdaUpdateWrapper<UserIdentityPo>()
+                        .eq(UserIdentityPo::getUserId, userId)
+                        .eq(UserIdentityPo::getIdentityType, identityType)
+                        .set(UserIdentityPo::getIdentityHash, identityHash)
+                        .set(UserIdentityPo::getIdentityValue, identityValue));
     }
 
     @Override
     public int physicalDeleteByUserId(String userId) {
         return mapper.delete(
-                new LambdaQueryWrapper<CiamUserIdentityDo>()
-                        .eq(CiamUserIdentityDo::getUserId, userId));
+                new LambdaQueryWrapper<UserIdentityPo>()
+                        .eq(UserIdentityPo::getUserId, userId));
     }
 }

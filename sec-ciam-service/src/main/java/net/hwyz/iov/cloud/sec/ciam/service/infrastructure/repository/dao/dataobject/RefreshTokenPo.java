@@ -9,17 +9,17 @@ import lombok.Data;
 import java.time.Instant;
 
 /**
- * 审计日志表数据对象。
+ * 刷新令牌表数据对象。
  */
 @Data
-@TableName("ciam_audit_log")
-public class CiamAuditLogDo {
+@TableName("ciam_refresh_token")
+public class RefreshTokenPo {
 
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
-    @TableField("audit_id")
-    private String auditId;
+    @TableField("refresh_token_id")
+    private String refreshTokenId;
 
     @TableField("user_id")
     private String userId;
@@ -30,38 +30,26 @@ public class CiamAuditLogDo {
     @TableField("client_id")
     private String clientId;
 
-    @TableField("client_type")
-    private String clientType;
+    @TableField("token_fingerprint")
+    private String tokenFingerprint;
 
-    @TableField("event_type")
-    private String eventType;
+    @TableField("parent_token_id")
+    private String parentTokenId;
 
-    @TableField("event_name")
-    private String eventName;
+    @TableField("token_status")
+    private Integer tokenStatus;
 
-    @TableField("operation_result")
-    private Integer operationResult;
+    @TableField("issue_time")
+    private Instant issueTime;
 
-    @TableField("request_uri")
-    private String requestUri;
+    @TableField("used_time")
+    private Instant usedTime;
 
-    @TableField("request_method")
-    private String requestMethod;
+    @TableField("revoke_time")
+    private Instant revokeTime;
 
-    @TableField("response_code")
-    private String responseCode;
-
-    @TableField("ip_address")
-    private String ipAddress;
-
-    @TableField("trace_id")
-    private String traceId;
-
-    @TableField("request_snapshot")
-    private String requestSnapshot;
-
-    @TableField("event_time")
-    private Instant eventTime;
+    @TableField("expire_time")
+    private Instant expireTime;
 
     @TableField("description")
     private String description;

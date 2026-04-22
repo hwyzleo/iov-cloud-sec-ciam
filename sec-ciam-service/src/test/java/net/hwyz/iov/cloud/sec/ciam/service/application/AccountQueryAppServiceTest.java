@@ -69,16 +69,16 @@ class AccountQueryAppServiceTest {
 
     // ---- helpers ----
 
-    private CiamUserDo stubUser() {
-        CiamUserDo user = new CiamUserDo();
+    private UserPo stubUser() {
+        UserPo user = new UserPo();
         user.setUserId(USER_ID);
         user.setUserStatus(UserStatus.ACTIVE.getCode());
         user.setRowValid(1);
         return user;
     }
 
-    private CiamUserIdentityDo stubIdentity(String identityType) {
-        CiamUserIdentityDo identity = new CiamUserIdentityDo();
+    private UserIdentityPo stubIdentity(String identityType) {
+        UserIdentityPo identity = new UserIdentityPo();
         identity.setIdentityId("id-" + identityType);
         identity.setUserId(USER_ID);
         identity.setIdentityType(identityType);
@@ -86,8 +86,8 @@ class AccountQueryAppServiceTest {
         return identity;
     }
 
-    private CiamUserTagDo stubTag(String tagCode) {
-        CiamUserTagDo tag = new CiamUserTagDo();
+    private UserTagPo stubTag(String tagCode) {
+        UserTagPo tag = new UserTagPo();
         tag.setTagId("tag-" + tagCode);
         tag.setUserId(USER_ID);
         tag.setTagCode(tagCode);
@@ -95,8 +95,8 @@ class AccountQueryAppServiceTest {
         return tag;
     }
 
-    private CiamMergeRequestDo stubMergeRequest(String requestId) {
-        CiamMergeRequestDo req = new CiamMergeRequestDo();
+    private MergeRequestPo stubMergeRequest(String requestId) {
+        MergeRequestPo req = new MergeRequestPo();
         req.setMergeRequestId(requestId);
         req.setSourceUserId("source-001");
         req.setTargetUserId("target-001");
@@ -105,8 +105,8 @@ class AccountQueryAppServiceTest {
         return req;
     }
 
-    private CiamDeactivationRequestDo stubDeactivationRequest(String requestId) {
-        CiamDeactivationRequestDo req = new CiamDeactivationRequestDo();
+    private DeactivationRequestPo stubDeactivationRequest(String requestId) {
+        DeactivationRequestPo req = new DeactivationRequestPo();
         req.setDeactivationRequestId(requestId);
         req.setUserId(USER_ID);
         req.setReviewStatus(ReviewStatus.PENDING.getCode());
@@ -188,7 +188,7 @@ class AccountQueryAppServiceTest {
 
         @Test
         void returnsAllMergeRequests() {
-            List<CiamMergeRequestDo> all = List.of(
+            List<MergeRequestPo> all = List.of(
                     stubMergeRequest("mr-001"),
                     stubMergeRequest("mr-002"),
                     stubMergeRequest("mr-003"));
@@ -217,7 +217,7 @@ class AccountQueryAppServiceTest {
 
         @Test
         void returnsAllDeactivationRequests() {
-            List<CiamDeactivationRequestDo> all = List.of(
+            List<DeactivationRequestPo> all = List.of(
                     stubDeactivationRequest("dr-001"),
                     stubDeactivationRequest("dr-002"));
             when(deactivationRequestRepository.findByReviewStatus(ReviewStatus.PENDING.getCode())).thenReturn(all);

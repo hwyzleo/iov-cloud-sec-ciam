@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import lombok.RequiredArgsConstructor;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamMfaChallengeRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.CiamMfaChallengeMapper;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamMfaChallengeDo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.MfaChallengePo;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -18,30 +18,30 @@ public class CiamMfaChallengeRepositoryImpl implements CiamMfaChallengeRepositor
     private final CiamMfaChallengeMapper mapper;
 
     @Override
-    public Optional<CiamMfaChallengeDo> findByChallengeId(String challengeId) {
+    public Optional<MfaChallengePo> findByChallengeId(String challengeId) {
         return Optional.ofNullable(mapper.selectOne(
-                new LambdaQueryWrapper<CiamMfaChallengeDo>()
-                        .eq(CiamMfaChallengeDo::getChallengeId, challengeId)));
+                new LambdaQueryWrapper<MfaChallengePo>()
+                        .eq(MfaChallengePo::getChallengeId, challengeId)));
     }
 
     @Override
-    public List<CiamMfaChallengeDo> findByUserIdAndStatus(String userId, int challengeStatus) {
+    public List<MfaChallengePo> findByUserIdAndStatus(String userId, int challengeStatus) {
         return mapper.selectList(
-                new LambdaQueryWrapper<CiamMfaChallengeDo>()
-                        .eq(CiamMfaChallengeDo::getUserId, userId)
-                        .eq(CiamMfaChallengeDo::getChallengeStatus, challengeStatus)
-                        .eq(CiamMfaChallengeDo::getRowValid, 1));
+                new LambdaQueryWrapper<MfaChallengePo>()
+                        .eq(MfaChallengePo::getUserId, userId)
+                        .eq(MfaChallengePo::getChallengeStatus, challengeStatus)
+                        .eq(MfaChallengePo::getRowValid, 1));
     }
 
     @Override
-    public int insert(CiamMfaChallengeDo entity) {
+    public int insert(MfaChallengePo entity) {
         return mapper.insert(entity);
     }
 
     @Override
-    public int updateByChallengeId(CiamMfaChallengeDo entity) {
+    public int updateByChallengeId(MfaChallengePo entity) {
         return mapper.update(entity,
-                new LambdaUpdateWrapper<CiamMfaChallengeDo>()
-                        .eq(CiamMfaChallengeDo::getChallengeId, entity.getChallengeId()));
+                new LambdaUpdateWrapper<MfaChallengePo>()
+                        .eq(MfaChallengePo::getChallengeId, entity.getChallengeId()));
     }
 }

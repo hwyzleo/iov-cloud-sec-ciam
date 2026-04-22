@@ -9,7 +9,7 @@ import net.hwyz.iov.cloud.sec.ciam.service.common.util.UserIdGenerator;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.CredentialStatus;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.CredentialType;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserCredentialRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamUserCredentialDo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.UserCredentialPo;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -45,11 +45,11 @@ public class CredentialDomainService {
      * @param rawPassword 原始密码
      * @return 新创建的凭据数据对象
      */
-    public CiamUserCredentialDo setPassword(String userId, String rawPassword) {
+    public UserCredentialPo setPassword(String userId, String rawPassword) {
         passwordPolicyService.validate(rawPassword);
 
         // 检查是否已存在有效凭据
-        Optional<CiamUserCredentialDo> existing = credentialRepository.findByUserIdAndType(
+        Optional<UserCredentialPo> existing = credentialRepository.findByUserIdAndType(
                 userId, CredentialType.EMAIL_PASSWORD.getCode());
         if (existing.isPresent() && existing.get().getCredentialStatus() == CredentialStatus.VALID.getCode()) {
             throw new BusinessException(CiamErrorCode.CREDENTIAL_ALREADY_EXISTS);
@@ -57,7 +57,7 @@ public class CredentialDomainService {
 
         String hash = passwordEncoder.encode(rawPassword);
 
-        CiamUserCredentialDo credential = new CiamUserCredentialDo();
+        UserCredentialPo credential = new UserCredentialPo();
         credential.setCredentialId(UserIdGenerator.generate());
         credential.setUserId(userId);
         credential.setCredentialType(CredentialType.EMAIL_PASSWORD.getCode());
@@ -90,7 +90,7 @@ public class CredentialDomainService {
      * @throws BusinessException 凭据不存在时抛出 CREDENTIAL_INVALID；账号锁定时抛出 ACCOUNT_LOCKED
      */
     public PasswordVerifyResult verifyPassword(String userId, String rawPassword) {
-        CiamUserCredentialDo credential = findActiveCredential(userId);
+        UserCredentialPo credential = findActiveCredential(userId);
 
         // 检查是否处于锁定期
         if (isLocked(credential)) {
@@ -137,7 +137,7 @@ public class CredentialDomainService {
     public void changePassword(String userId, String oldRawPassword, String newRawPassword) {
         passwordPolicyService.validate(newRawPassword);
 
-        CiamUserCredentialDo credential = findActiveCredential(userId);
+        UserCredentialPo credential = findActiveCredential(userId);
 
         if (!passwordEncoder.matches(oldRawPassword, credential.getCredentialHash())) {
             throw new BusinessException(CiamErrorCode.CREDENTIAL_INVALID);
@@ -162,7 +162,7 @@ public class CredentialDomainService {
     public void resetPassword(String userId, String newRawPassword) {
         passwordPolicyService.validate(newRawPassword);
 
-        CiamUserCredentialDo credential = findActiveCredential(userId);
+        UserCredentialPo credential = findActiveCredential(userId);
 
         String newHash = passwordEncoder.encode(newRawPassword);
         credential.setCredentialHash(newHash);
@@ -180,19 +180,19 @@ public class CredentialDomainService {
      * @param userId 用户业务唯一标识
      * @return 凭据记录（如存在）
      */
-    public Optional<CiamUserCredentialDo> findActiveCredential(String userId, CredentialType type) {
+    public Optional<UserCredentialPo> findActiveCredential(String userId, CredentialType type) {
         return credentialRepository.findByUserIdAndType(userId, type.getCode())
                 .filter(c -> c.getCredentialStatus() == CredentialStatus.VALID.getCode());
     }
 
     // ---- 内部方法 ----
 
-    private boolean isLocked(CiamUserCredentialDo credential) {
+    private boolean isLocked(UserCredentialPo credential) {
         Instant lockedUntil = credential.getLockedUntil();
         return lockedUntil != null && DateTimeUtil.getNowInstant().isBefore(lockedUntil);
     }
 
-    private CiamUserCredentialDo findActiveCredential(String userId) {
+    private UserCredentialPo findActiveCredential(String userId) {
         return credentialRepository.findByUserIdAndType(userId, CredentialType.EMAIL_PASSWORD.getCode())
                 .filter(c -> c.getCredentialStatus() == CredentialStatus.VALID.getCode())
                 .orElseThrow(() -> new BusinessException(CiamErrorCode.CREDENTIAL_INVALID));

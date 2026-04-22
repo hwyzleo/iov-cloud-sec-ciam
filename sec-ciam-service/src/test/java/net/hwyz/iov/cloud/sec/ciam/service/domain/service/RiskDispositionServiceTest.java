@@ -16,8 +16,8 @@ import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamMfaChallengeRep
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamRefreshTokenRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamRiskEventRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamSessionRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamRiskEventDo;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamSessionDo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.RiskEventPo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.SessionPo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -85,8 +85,8 @@ class RiskDispositionServiceTest {
                 .build();
     }
 
-    private CiamSessionDo activeSession(String sessionId) {
-        CiamSessionDo session = new CiamSessionDo();
+    private SessionPo activeSession(String sessionId) {
+        SessionPo session = new SessionPo();
         session.setSessionId(sessionId);
         session.setUserId(USER_ID);
         session.setSessionStatus(SessionStatus.ACTIVE.getCode());
@@ -132,7 +132,7 @@ class RiskDispositionServiceTest {
 
         @Test
         void block_invalidatesSessionAndLogsAudit() {
-            CiamSessionDo session = activeSession(SESSION_ID);
+            SessionPo session = activeSession(SESSION_ID);
             when(sessionRepository.findBySessionId(SESSION_ID)).thenReturn(Optional.of(session));
 
             RiskAssessmentResult result = buildResult(DecisionResult.BLOCK);
@@ -155,8 +155,8 @@ class RiskDispositionServiceTest {
 
         @Test
         void kickout_invalidatesAllUserSessionsAndLogsAudit() {
-            CiamSessionDo s1 = activeSession("s1");
-            CiamSessionDo s2 = activeSession("s2");
+            SessionPo s1 = activeSession("s1");
+            SessionPo s2 = activeSession("s2");
             when(sessionRepository.findByUserIdAndStatus(USER_ID, SessionStatus.ACTIVE.getCode()))
                     .thenReturn(List.of(s1, s2));
             when(sessionRepository.findBySessionId("s1")).thenReturn(Optional.of(s1));
@@ -200,7 +200,7 @@ class RiskDispositionServiceTest {
 
         @Test
         void forceReAuthentication_invalidatesSessionAndLogsAudit() {
-            CiamSessionDo session = activeSession(SESSION_ID);
+            SessionPo session = activeSession(SESSION_ID);
             when(sessionRepository.findBySessionId(SESSION_ID)).thenReturn(Optional.of(session));
 
             service.forceReAuthentication(SESSION_ID);
@@ -226,7 +226,7 @@ class RiskDispositionServiceTest {
 
         @Test
         void markRiskEventHandled_updatesHandledFlag() {
-            CiamRiskEventDo event = new CiamRiskEventDo();
+            RiskEventPo event = new RiskEventPo();
             event.setRiskEventId(RISK_EVENT_ID);
             event.setHandledFlag(0);
             when(riskEventRepository.findByRiskEventId(RISK_EVENT_ID)).thenReturn(Optional.of(event));

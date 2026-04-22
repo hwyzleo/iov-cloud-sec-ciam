@@ -3,7 +3,7 @@ package net.hwyz.iov.cloud.sec.ciam.service.domain.service;
 import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
 import net.hwyz.iov.cloud.sec.ciam.service.common.exception.CiamErrorCode;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamOAuthClientRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamOAuthClientDo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.OAuthClientPo;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.store.InMemoryVerificationCodeStore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -31,8 +31,8 @@ class DeviceAuthorizationServiceTest {
         service = new DeviceAuthorizationService(clientRepository, store);
     }
 
-    private CiamOAuthClientDo stubEnabledClient() {
-        CiamOAuthClientDo client = new CiamOAuthClientDo();
+    private OAuthClientPo stubEnabledClient() {
+        OAuthClientPo client = new OAuthClientPo();
         client.setClientId(CLIENT_ID);
         client.setClientName("Vehicle App");
         client.setClientType("public");
@@ -81,7 +81,7 @@ class DeviceAuthorizationServiceTest {
 
         @Test
         void initiate_failsWhenClientDisabled() {
-            CiamOAuthClientDo client = stubEnabledClient();
+            OAuthClientPo client = stubEnabledClient();
             client.setClientStatus(0);
             when(clientRepository.findByClientId(CLIENT_ID)).thenReturn(Optional.of(client));
 

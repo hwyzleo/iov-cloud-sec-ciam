@@ -7,7 +7,7 @@ import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.SessionStatus;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamSessionRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.CiamSessionMapper;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamSessionDo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.SessionPo;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -21,58 +21,58 @@ public class CiamSessionRepositoryImpl implements CiamSessionRepository {
     private final CiamSessionMapper mapper;
 
     @Override
-    public Optional<CiamSessionDo> findBySessionId(String sessionId) {
+    public Optional<SessionPo> findBySessionId(String sessionId) {
         return Optional.ofNullable(mapper.selectOne(
-                new LambdaQueryWrapper<CiamSessionDo>()
-                        .eq(CiamSessionDo::getSessionId, sessionId)));
+                new LambdaQueryWrapper<SessionPo>()
+                        .eq(SessionPo::getSessionId, sessionId)));
     }
 
     @Override
-    public List<CiamSessionDo> findByUserIdAndStatus(String userId, int sessionStatus) {
+    public List<SessionPo> findByUserIdAndStatus(String userId, int sessionStatus) {
         return mapper.selectList(
-                new LambdaQueryWrapper<CiamSessionDo>()
-                        .eq(CiamSessionDo::getUserId, userId)
-                        .eq(CiamSessionDo::getSessionStatus, sessionStatus)
-                        .eq(CiamSessionDo::getRowValid, 1));
+                new LambdaQueryWrapper<SessionPo>()
+                        .eq(SessionPo::getUserId, userId)
+                        .eq(SessionPo::getSessionStatus, sessionStatus)
+                        .eq(SessionPo::getRowValid, 1));
     }
 
     @Override
-    public List<CiamSessionDo> findByDeviceId(String deviceId) {
+    public List<SessionPo> findByDeviceId(String deviceId) {
         return mapper.selectList(
-                new LambdaQueryWrapper<CiamSessionDo>()
-                        .eq(CiamSessionDo::getDeviceId, deviceId)
-                        .eq(CiamSessionDo::getRowValid, 1));
+                new LambdaQueryWrapper<SessionPo>()
+                        .eq(SessionPo::getDeviceId, deviceId)
+                        .eq(SessionPo::getRowValid, 1));
     }
 
     @Override
-    public List<CiamSessionDo> findByDeviceIdAndStatus(String deviceId, int sessionStatus) {
+    public List<SessionPo> findByDeviceIdAndStatus(String deviceId, int sessionStatus) {
         return mapper.selectList(
-                new LambdaQueryWrapper<CiamSessionDo>()
-                        .eq(CiamSessionDo::getDeviceId, deviceId)
-                        .eq(CiamSessionDo::getSessionStatus, sessionStatus)
-                        .eq(CiamSessionDo::getRowValid, 1));
+                new LambdaQueryWrapper<SessionPo>()
+                        .eq(SessionPo::getDeviceId, deviceId)
+                        .eq(SessionPo::getSessionStatus, sessionStatus)
+                        .eq(SessionPo::getRowValid, 1));
     }
 
     @Override
-    public int insert(CiamSessionDo entity) {
+    public int insert(SessionPo entity) {
         return mapper.insert(entity);
     }
 
     @Override
-    public int updateBySessionId(CiamSessionDo entity) {
+    public int updateBySessionId(SessionPo entity) {
         return mapper.update(entity,
-                new LambdaUpdateWrapper<CiamSessionDo>()
-                        .eq(CiamSessionDo::getSessionId, entity.getSessionId()));
+                new LambdaUpdateWrapper<SessionPo>()
+                        .eq(SessionPo::getSessionId, entity.getSessionId()));
     }
 
     @Override
     public int invalidateAllByUserId(String userId) {
-        CiamSessionDo update = new CiamSessionDo();
+        SessionPo update = new SessionPo();
         update.setSessionStatus(SessionStatus.INVALID.getCode());
         update.setLogoutTime(DateTimeUtil.getNowInstant());
         return mapper.update(update,
-                new LambdaUpdateWrapper<CiamSessionDo>()
-                        .eq(CiamSessionDo::getUserId, userId)
-                        .eq(CiamSessionDo::getSessionStatus, SessionStatus.ACTIVE.getCode()));
+                new LambdaUpdateWrapper<SessionPo>()
+                        .eq(SessionPo::getUserId, userId)
+                        .eq(SessionPo::getSessionStatus, SessionStatus.ACTIVE.getCode()));
     }
 }

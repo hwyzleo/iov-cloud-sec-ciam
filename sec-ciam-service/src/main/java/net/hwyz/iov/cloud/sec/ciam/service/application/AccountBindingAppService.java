@@ -18,8 +18,8 @@ import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.IdentityType;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.ReviewStatus;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamMergeRequestRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.service.IdentityDomainService;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamMergeRequestDo;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamUserIdentityDo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.MergeRequestPo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.UserIdentityPo;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -69,7 +69,7 @@ public class AccountBindingAppService {
                                            String identityValue, String countryCode,
                                            String bindSource) {
         // 冲突检测：检查标识是否已被其他用户绑定
-        Optional<CiamUserIdentityDo> conflict = identityDomainService.checkConflictDetail(
+        Optional<UserIdentityPo> conflict = identityDomainService.checkConflictDetail(
                 identityType, identityValue, userId);
 
         if (conflict.isPresent()) {
@@ -87,7 +87,7 @@ public class AccountBindingAppService {
         }
 
         // 无冲突，执行绑定
-        CiamUserIdentityDo result = identityDomainService.bindIdentity(
+        UserIdentityPo result = identityDomainService.bindIdentity(
                 userId, identityType, identityValue, countryCode, bindSource);
 
         logAudit(userId, AuditEventType.BIND, true);
@@ -132,7 +132,7 @@ public class AccountBindingAppService {
                                                  String conflictIdentityType,
                                                  String conflictIdentityHash,
                                                  String applySource) {
-        CiamMergeRequestDo request = new CiamMergeRequestDo();
+        MergeRequestPo request = new MergeRequestPo();
         request.setMergeRequestId(UserIdGenerator.generate());
         request.setSourceUserId(sourceUserId);
         request.setTargetUserId(targetUserId);
@@ -161,7 +161,7 @@ public class AccountBindingAppService {
      * @param reviewer       审核人
      */
     public void approveMergeRequest(String mergeRequestId, String reviewer) {
-        CiamMergeRequestDo request = mergeRequestRepository.findByMergeRequestId(mergeRequestId)
+        MergeRequestPo request = mergeRequestRepository.findByMergeRequestId(mergeRequestId)
                 .orElseThrow(() -> new BusinessException(CiamErrorCode.INVALID_PARAM, "合并申请不存在"));
 
         request.setReviewStatus(ReviewStatus.APPROVED.getCode());
@@ -183,7 +183,7 @@ public class AccountBindingAppService {
      * @param reviewer       审核人
      */
     public void rejectMergeRequest(String mergeRequestId, String reviewer) {
-        CiamMergeRequestDo request = mergeRequestRepository.findByMergeRequestId(mergeRequestId)
+        MergeRequestPo request = mergeRequestRepository.findByMergeRequestId(mergeRequestId)
                 .orElseThrow(() -> new BusinessException(CiamErrorCode.INVALID_PARAM, "合并申请不存在"));
 
         request.setReviewStatus(ReviewStatus.REJECTED.getCode());
@@ -207,7 +207,7 @@ public class AccountBindingAppService {
      * @param finalUserId    最终保留的用户业务标识（由用户选择）
      */
     public void executeMerge(String mergeRequestId, String finalUserId) {
-        CiamMergeRequestDo request = mergeRequestRepository.findByMergeRequestId(mergeRequestId)
+        MergeRequestPo request = mergeRequestRepository.findByMergeRequestId(mergeRequestId)
                 .orElseThrow(() -> new BusinessException(CiamErrorCode.INVALID_PARAM, "合并申请不存在"));
 
         if (request.getReviewStatus() != ReviewStatus.APPROVED.getCode()) {
@@ -226,10 +226,10 @@ public class AccountBindingAppService {
         }
 
         // 迁移非最终用户的所有已绑定标识到最终用户
-        List<CiamUserIdentityDo> identitiesToMigrate =
+        List<UserIdentityPo> identitiesToMigrate =
                 identityDomainService.findByUserId(nonFinalUserId);
 
-        for (CiamUserIdentityDo identity : identitiesToMigrate) {
+        for (UserIdentityPo identity : identitiesToMigrate) {
             // 解绑旧用户的标识
             identityDomainService.unbindIdentity(nonFinalUserId,
                     IdentityType.fromCode(identity.getIdentityType()),

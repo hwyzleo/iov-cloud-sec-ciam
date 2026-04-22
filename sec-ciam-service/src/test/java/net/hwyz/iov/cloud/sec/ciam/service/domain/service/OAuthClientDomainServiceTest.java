@@ -6,7 +6,7 @@ import net.hwyz.iov.cloud.sec.ciam.service.common.security.PasswordEncoder;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.ClientStatus;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.OAuthClientType;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamOAuthClientRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamOAuthClientDo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.OAuthClientPo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -32,9 +32,9 @@ class OAuthClientDomainServiceTest {
         service = new OAuthClientDomainService(clientRepository, passwordEncoder);
     }
 
-    private CiamOAuthClientDo stubClient(String clientId, OAuthClientType type,
+    private OAuthClientPo stubClient(String clientId, OAuthClientType type,
                                          String rawSecret, int status) {
-        CiamOAuthClientDo client = new CiamOAuthClientDo();
+        OAuthClientPo client = new OAuthClientPo();
         client.setClientId(clientId);
         client.setClientName("Test App");
         client.setClientType(type.getCode());
@@ -119,11 +119,11 @@ class OAuthClientDomainServiceTest {
 
         @Test
         void findByClientId_returnsClient() {
-            CiamOAuthClientDo client = stubClient("cid-001", OAuthClientType.CONFIDENTIAL,
+            OAuthClientPo client = stubClient("cid-001", OAuthClientType.CONFIDENTIAL,
                     "secret123", ClientStatus.ENABLED.getCode());
             when(clientRepository.findByClientId("cid-001")).thenReturn(Optional.of(client));
 
-            Optional<CiamOAuthClientDo> result = service.findByClientId("cid-001");
+            Optional<OAuthClientPo> result = service.findByClientId("cid-001");
 
             assertTrue(result.isPresent());
             assertEquals("cid-001", result.get().getClientId());
@@ -133,7 +133,7 @@ class OAuthClientDomainServiceTest {
         void findByClientId_returnsEmptyWhenNotFound() {
             when(clientRepository.findByClientId("nonexistent")).thenReturn(Optional.empty());
 
-            Optional<CiamOAuthClientDo> result = service.findByClientId("nonexistent");
+            Optional<OAuthClientPo> result = service.findByClientId("nonexistent");
 
             assertFalse(result.isPresent());
         }
@@ -147,7 +147,7 @@ class OAuthClientDomainServiceTest {
         @Test
         void validateClient_successForConfidentialClient() {
             String rawSecret = "my-secret";
-            CiamOAuthClientDo client = stubClient("cid-001", OAuthClientType.CONFIDENTIAL,
+            OAuthClientPo client = stubClient("cid-001", OAuthClientType.CONFIDENTIAL,
                     rawSecret, ClientStatus.ENABLED.getCode());
             when(clientRepository.findByClientId("cid-001")).thenReturn(Optional.of(client));
 
@@ -156,7 +156,7 @@ class OAuthClientDomainServiceTest {
 
         @Test
         void validateClient_failsWithWrongSecret() {
-            CiamOAuthClientDo client = stubClient("cid-001", OAuthClientType.CONFIDENTIAL,
+            OAuthClientPo client = stubClient("cid-001", OAuthClientType.CONFIDENTIAL,
                     "correct-secret", ClientStatus.ENABLED.getCode());
             when(clientRepository.findByClientId("cid-001")).thenReturn(Optional.of(client));
 
@@ -174,7 +174,7 @@ class OAuthClientDomainServiceTest {
 
         @Test
         void validateClient_throwsWhenClientDisabled() {
-            CiamOAuthClientDo client = stubClient("cid-001", OAuthClientType.CONFIDENTIAL,
+            OAuthClientPo client = stubClient("cid-001", OAuthClientType.CONFIDENTIAL,
                     "secret", ClientStatus.DISABLED.getCode());
             when(clientRepository.findByClientId("cid-001")).thenReturn(Optional.of(client));
 
@@ -185,7 +185,7 @@ class OAuthClientDomainServiceTest {
 
         @Test
         void validateClient_returnsFalseForPublicClient() {
-            CiamOAuthClientDo client = stubClient("cid-pub", OAuthClientType.PUBLIC,
+            OAuthClientPo client = stubClient("cid-pub", OAuthClientType.PUBLIC,
                     null, ClientStatus.ENABLED.getCode());
             when(clientRepository.findByClientId("cid-pub")).thenReturn(Optional.of(client));
 
@@ -200,7 +200,7 @@ class OAuthClientDomainServiceTest {
 
         @Test
         void validateRedirectUri_matchesRegisteredUri() {
-            CiamOAuthClientDo client = stubClient("cid-001", OAuthClientType.CONFIDENTIAL,
+            OAuthClientPo client = stubClient("cid-001", OAuthClientType.CONFIDENTIAL,
                     "secret", ClientStatus.ENABLED.getCode());
             when(clientRepository.findByClientId("cid-001")).thenReturn(Optional.of(client));
 
@@ -210,7 +210,7 @@ class OAuthClientDomainServiceTest {
 
         @Test
         void validateRedirectUri_rejectsUnregisteredUri() {
-            CiamOAuthClientDo client = stubClient("cid-001", OAuthClientType.CONFIDENTIAL,
+            OAuthClientPo client = stubClient("cid-001", OAuthClientType.CONFIDENTIAL,
                     "secret", ClientStatus.ENABLED.getCode());
             when(clientRepository.findByClientId("cid-001")).thenReturn(Optional.of(client));
 
@@ -228,7 +228,7 @@ class OAuthClientDomainServiceTest {
 
         @Test
         void validateRedirectUri_returnsFalseWhenNoUrisConfigured() {
-            CiamOAuthClientDo client = stubClient("cid-001", OAuthClientType.INTERNAL,
+            OAuthClientPo client = stubClient("cid-001", OAuthClientType.INTERNAL,
                     "secret", ClientStatus.ENABLED.getCode());
             client.setRedirectUris(null);
             when(clientRepository.findByClientId("cid-001")).thenReturn(Optional.of(client));
@@ -244,7 +244,7 @@ class OAuthClientDomainServiceTest {
 
         @Test
         void disableClient_setsStatusToDisabled() {
-            CiamOAuthClientDo client = stubClient("cid-001", OAuthClientType.CONFIDENTIAL,
+            OAuthClientPo client = stubClient("cid-001", OAuthClientType.CONFIDENTIAL,
                     "secret", ClientStatus.ENABLED.getCode());
             when(clientRepository.findByClientId("cid-001")).thenReturn(Optional.of(client));
 
@@ -258,7 +258,7 @@ class OAuthClientDomainServiceTest {
 
         @Test
         void enableClient_setsStatusToEnabled() {
-            CiamOAuthClientDo client = stubClient("cid-001", OAuthClientType.CONFIDENTIAL,
+            OAuthClientPo client = stubClient("cid-001", OAuthClientType.CONFIDENTIAL,
                     "secret", ClientStatus.DISABLED.getCode());
             when(clientRepository.findByClientId("cid-001")).thenReturn(Optional.of(client));
 
@@ -296,7 +296,7 @@ class OAuthClientDomainServiceTest {
 
         @Test
         void updateClient_updatesSpecifiedFields() {
-            CiamOAuthClientDo client = stubClient("cid-001", OAuthClientType.CONFIDENTIAL,
+            OAuthClientPo client = stubClient("cid-001", OAuthClientType.CONFIDENTIAL,
                     "secret", ClientStatus.ENABLED.getCode());
             when(clientRepository.findByClientId("cid-001")).thenReturn(Optional.of(client));
 

@@ -24,8 +24,8 @@ import net.hwyz.iov.cloud.sec.ciam.service.domain.service.PasswordPolicyService;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.service.VerificationCodeService;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.service.VerificationCodeStore;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.service.VerificationCodeType;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamUserCredentialDo;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamUserIdentityDo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.UserCredentialPo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.UserIdentityPo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -112,8 +112,8 @@ class PasswordResetAppServiceTest {
                 new SecurityEventLogger());
     }
 
-    private CiamUserIdentityDo stubMobileIdentity() {
-        CiamUserIdentityDo identity = new CiamUserIdentityDo();
+    private UserIdentityPo stubMobileIdentity() {
+        UserIdentityPo identity = new UserIdentityPo();
         identity.setIdentityId("identity-001");
         identity.setUserId(USER_ID);
         identity.setIdentityType(IdentityType.MOBILE.getCode());
@@ -123,8 +123,8 @@ class PasswordResetAppServiceTest {
         return identity;
     }
 
-    private CiamUserIdentityDo stubEmailIdentity() {
-        CiamUserIdentityDo identity = new CiamUserIdentityDo();
+    private UserIdentityPo stubEmailIdentity() {
+        UserIdentityPo identity = new UserIdentityPo();
         identity.setIdentityId("identity-002");
         identity.setUserId(USER_ID);
         identity.setIdentityType(IdentityType.EMAIL.getCode());
@@ -134,8 +134,8 @@ class PasswordResetAppServiceTest {
         return identity;
     }
 
-    private CiamUserCredentialDo stubCredential() {
-        CiamUserCredentialDo cred = new CiamUserCredentialDo();
+    private UserCredentialPo stubCredential() {
+        UserCredentialPo cred = new UserCredentialPo();
         cred.setCredentialId("cred-001");
         cred.setUserId(USER_ID);
         cred.setCredentialType(CredentialType.EMAIL_PASSWORD.getCode());
@@ -175,7 +175,7 @@ class PasswordResetAppServiceTest {
 
         @Test
         void throwsWhenMobileUnbound() {
-            CiamUserIdentityDo unbound = stubMobileIdentity();
+            UserIdentityPo unbound = stubMobileIdentity();
             unbound.setIdentityStatus(IdentityStatus.UNBOUND.getCode());
             when(identityRepository.findByTypeAndHash(IdentityType.MOBILE.getCode(), MOBILE_HASH))
                     .thenReturn(Optional.of(unbound));
@@ -257,7 +257,7 @@ class PasswordResetAppServiceTest {
 
             service.resetPassword(USER_ID, NEW_PASSWORD);
 
-            verify(credentialRepository).updateByCredentialId(any(CiamUserCredentialDo.class));
+            verify(credentialRepository).updateByCredentialId(any(UserCredentialPo.class));
             verify(sessionRepository).invalidateAllByUserId(USER_ID);
             verify(refreshTokenRepository).revokeAllByUserId(USER_ID);
 

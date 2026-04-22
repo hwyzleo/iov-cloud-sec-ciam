@@ -8,8 +8,8 @@ import net.hwyz.iov.cloud.sec.ciam.service.common.security.TokenDigest;
 import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamAuthCodeRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamOAuthClientRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamAuthCodeDo;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamOAuthClientDo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.AuthCodePo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.OAuthClientPo;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
@@ -59,7 +59,7 @@ public class OAuthAuthorizationService {
                                           String codeChallenge,
                                           String challengeMethod) {
         // 校验客户端存在且启用
-        CiamOAuthClientDo client = findEnabledClient(clientId);
+        OAuthClientPo client = findEnabledClient(clientId);
 
         // 校验回调地址已注册
         if (!isRedirectUriRegistered(client, redirectUri)) {
@@ -78,7 +78,7 @@ public class OAuthAuthorizationService {
         String codeHash = TokenDigest.fingerprint(rawCode);
 
         Instant now = DateTimeUtil.getNowInstant();
-        CiamAuthCodeDo entity = new CiamAuthCodeDo();
+        AuthCodePo entity = new AuthCodePo();
         entity.setAuthCodeId(UUID.randomUUID().toString());
         entity.setClientId(clientId);
         entity.setUserId(userId);
@@ -116,7 +116,7 @@ public class OAuthAuthorizationService {
                                                String codeVerifier) {
         // 根据 code hash 查找授权码记录
         String codeHash = TokenDigest.fingerprint(code);
-        CiamAuthCodeDo authCode = authCodeRepository.findByCodeHash(codeHash)
+        AuthCodePo authCode = authCodeRepository.findByCodeHash(codeHash)
                 .orElseThrow(() -> new BusinessException(CiamErrorCode.AUTH_CODE_INVALID));
 
         // 校验未过期
@@ -150,7 +150,7 @@ public class OAuthAuthorizationService {
         }
 
         // 机密客户端校验 client_secret
-        CiamOAuthClientDo client = findEnabledClient(clientId);
+        OAuthClientPo client = findEnabledClient(clientId);
         if (client.getClientSecretHash() != null && !client.getClientSecretHash().isBlank()) {
             if (clientSecret == null || !passwordEncoder.matches(clientSecret, client.getClientSecretHash())) {
                 throw new BusinessException(CiamErrorCode.CLIENT_SECRET_INVALID);
@@ -182,7 +182,7 @@ public class OAuthAuthorizationService {
                                                           String clientSecret,
                                                           String scope) {
         // 校验客户端存在且启用
-        CiamOAuthClientDo client = findEnabledClient(clientId);
+        OAuthClientPo client = findEnabledClient(clientId);
 
         // 仅 confidential / internal 客户端允许使用 client_credentials
         if (client.getClientSecretHash() == null || client.getClientSecretHash().isBlank()) {
@@ -224,8 +224,8 @@ public class OAuthAuthorizationService {
         return requestedScope;
     }
 
-    private CiamOAuthClientDo findEnabledClient(String clientId) {
-        CiamOAuthClientDo client = clientRepository.findByClientId(clientId)
+    private OAuthClientPo findEnabledClient(String clientId) {
+        OAuthClientPo client = clientRepository.findByClientId(clientId)
                 .orElseThrow(() -> new BusinessException(CiamErrorCode.CLIENT_NOT_FOUND));
         if (client.getClientStatus() == null || client.getClientStatus() != 1) {
             throw new BusinessException(CiamErrorCode.CLIENT_DISABLED);
@@ -233,7 +233,7 @@ public class OAuthAuthorizationService {
         return client;
     }
 
-    private boolean isRedirectUriRegistered(CiamOAuthClientDo client, String redirectUri) {
+    private boolean isRedirectUriRegistered(OAuthClientPo client, String redirectUri) {
         if (client.getRedirectUris() == null || client.getRedirectUris().isBlank()) {
             return false;
         }
@@ -245,7 +245,7 @@ public class OAuthAuthorizationService {
         return false;
     }
 
-    private void markCodeAsUsed(CiamAuthCodeDo authCode) {
+    private void markCodeAsUsed(AuthCodePo authCode) {
         authCode.setUsedFlag(1);
         authCode.setUsedTime(DateTimeUtil.getNowInstant());
         authCode.setModifyTime(DateTimeUtil.getNowInstant());

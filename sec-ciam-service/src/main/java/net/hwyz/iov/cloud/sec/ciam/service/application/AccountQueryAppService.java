@@ -48,14 +48,14 @@ public class AccountQueryAppService {
     private final FieldEncryptor fieldEncryptor;
 
     public UserDetail queryUser(String userId) {
-        CiamUserDo user = userRepository.findByUserId(userId)
+        UserPo user = userRepository.findByUserId(userId)
                 .orElseThrow(() -> new BusinessException(CiamErrorCode.USER_NOT_FOUND));
 
         String identityType = null;
         String identityValue = null;
 
-        List<CiamUserIdentityDo> identities = identityRepository.findByUserId(userId);
-        for (CiamUserIdentityDo identity : identities) {
+        List<UserIdentityPo> identities = identityRepository.findByUserId(userId);
+        for (UserIdentityPo identity : identities) {
             if (IdentityType.fromCode(identity.getIdentityType()) == IdentityType.MOBILE ||
                     IdentityType.fromCode(identity.getIdentityType()) == IdentityType.EMAIL) {
                 identityType = identity.getIdentityType();
@@ -70,7 +70,7 @@ public class AccountQueryAppService {
 
         String nickname = null;
         Integer gender = null;
-        Optional<CiamUserProfileDo> profileOpt = profileRepository.findByUserId(userId);
+        Optional<UserProfilePo> profileOpt = profileRepository.findByUserId(userId);
         if (profileOpt.isPresent()) {
             nickname = profileOpt.get().getNickname();
             gender = profileOpt.get().getGender();
@@ -97,7 +97,7 @@ public class AccountQueryAppService {
      * 检索用户列表
      */
     public List<UserSearchDocument> queryUserList(UserQuery query) {
-        List<CiamUserDo> userList = userRepository.search(query);
+        List<UserPo> userList = userRepository.search(query);
 
         // 使用 PageUtil.convert 确保分页元数据透传
         return PageUtil.convert(userList, user -> {
@@ -111,8 +111,8 @@ public class AccountQueryAppService {
                     .build();
 
             // 补充关联字段
-            List<CiamUserIdentityDo> identities = identityRepository.findByUserId(user.getUserId());
-            for (CiamUserIdentityDo identity : identities) {
+            List<UserIdentityPo> identities = identityRepository.findByUserId(user.getUserId());
+            for (UserIdentityPo identity : identities) {
                 if (IdentityType.fromCode(identity.getIdentityType()) == IdentityType.MOBILE ||
                         IdentityType.fromCode(identity.getIdentityType()) == IdentityType.EMAIL) {
                     doc.setIdentityType(identity.getIdentityType());
@@ -141,12 +141,12 @@ public class AccountQueryAppService {
     }
 
     public List<MergeRequestDto> queryMergeRequests(int reviewStatus) {
-        List<CiamMergeRequestDo> all = mergeRequestRepository.findByReviewStatus(reviewStatus);
+        List<MergeRequestPo> all = mergeRequestRepository.findByReviewStatus(reviewStatus);
         return PageUtil.convert(all, doObj -> MergeRequestMapper.INSTANCE.toDto(MergeRequestMapper.INSTANCE.toDomain(doObj)));
     }
 
     public List<DeactivationRequestDto> queryDeactivationRequests(int reviewStatus) {
-        List<CiamDeactivationRequestDo> all = deactivationRequestRepository.findByReviewStatus(reviewStatus);
+        List<DeactivationRequestPo> all = deactivationRequestRepository.findByReviewStatus(reviewStatus);
         return PageUtil.convert(all, doObj -> DeactivationRequestMapper.INSTANCE.toDto(DeactivationRequestMapper.INSTANCE.toDomain(doObj)));
     }
 

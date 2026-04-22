@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.RequiredArgsConstructor;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamInvitationRelationRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.CiamInvitationRelationMapper;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamInvitationRelationDo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.InvitationRelationPo;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -17,38 +17,38 @@ public class CiamInvitationRelationRepositoryImpl implements CiamInvitationRelat
     private final CiamInvitationRelationMapper mapper;
 
     @Override
-    public Optional<CiamInvitationRelationDo> findByRelationId(String relationId) {
+    public Optional<InvitationRelationPo> findByRelationId(String relationId) {
         return Optional.ofNullable(mapper.selectOne(
-                new LambdaQueryWrapper<CiamInvitationRelationDo>()
-                        .eq(CiamInvitationRelationDo::getRelationId, relationId)));
+                new LambdaQueryWrapper<InvitationRelationPo>()
+                        .eq(InvitationRelationPo::getRelationId, relationId)));
     }
 
     @Override
-    public Optional<CiamInvitationRelationDo> findByInviteeUserId(String inviteeUserId) {
+    public Optional<InvitationRelationPo> findByInviteeUserId(String inviteeUserId) {
         return Optional.ofNullable(mapper.selectOne(
-                new LambdaQueryWrapper<CiamInvitationRelationDo>()
-                        .eq(CiamInvitationRelationDo::getInviteeUserId, inviteeUserId)
-                        .eq(CiamInvitationRelationDo::getRowValid, 1)));
+                new LambdaQueryWrapper<InvitationRelationPo>()
+                        .eq(InvitationRelationPo::getInviteeUserId, inviteeUserId)
+                        .eq(InvitationRelationPo::getRowValid, 1)));
     }
 
     @Override
-    public List<CiamInvitationRelationDo> findByInviterUserId(String inviterUserId) {
+    public List<InvitationRelationPo> findByInviterUserId(String inviterUserId) {
         return mapper.selectList(
-                new LambdaQueryWrapper<CiamInvitationRelationDo>()
-                        .eq(CiamInvitationRelationDo::getInviterUserId, inviterUserId)
-                        .eq(CiamInvitationRelationDo::getRowValid, 1));
+                new LambdaQueryWrapper<InvitationRelationPo>()
+                        .eq(InvitationRelationPo::getInviterUserId, inviterUserId)
+                        .eq(InvitationRelationPo::getRowValid, 1));
     }
 
     @Override
-    public List<CiamInvitationRelationDo> findByInviteChannelCode(String inviteChannelCode) {
+    public List<InvitationRelationPo> findByInviteChannelCode(String inviteChannelCode) {
         return mapper.selectList(
-                new LambdaQueryWrapper<CiamInvitationRelationDo>()
-                        .eq(CiamInvitationRelationDo::getInviteChannelCode, inviteChannelCode)
-                        .eq(CiamInvitationRelationDo::getRowValid, 1));
+                new LambdaQueryWrapper<InvitationRelationPo>()
+                        .eq(InvitationRelationPo::getInviteChannelCode, inviteChannelCode)
+                        .eq(InvitationRelationPo::getRowValid, 1));
     }
 
     @Override
-    public int insert(CiamInvitationRelationDo entity) {
+    public int insert(InvitationRelationPo entity) {
         return mapper.insert(entity);
     }
 }

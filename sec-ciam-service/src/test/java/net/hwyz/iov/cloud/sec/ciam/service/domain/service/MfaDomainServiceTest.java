@@ -10,7 +10,7 @@ import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.ChallengeScene;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.ChallengeStatus;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.ChallengeType;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamMfaChallengeRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamMfaChallengeDo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.MfaChallengePo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -64,9 +64,9 @@ class MfaDomainServiceTest {
             assertNotNull(challengeId);
             assertEquals(32, challengeId.length());
 
-            ArgumentCaptor<CiamMfaChallengeDo> captor = ArgumentCaptor.forClass(CiamMfaChallengeDo.class);
+            ArgumentCaptor<MfaChallengePo> captor = ArgumentCaptor.forClass(MfaChallengePo.class);
             verify(challengeRepository).insert(captor.capture());
-            CiamMfaChallengeDo saved = captor.getValue();
+            MfaChallengePo saved = captor.getValue();
 
             assertEquals("user-001", saved.getUserId());
             assertEquals("session-001", saved.getSessionId());
@@ -96,9 +96,9 @@ class MfaDomainServiceTest {
 
             assertNotNull(challengeId);
 
-            ArgumentCaptor<CiamMfaChallengeDo> captor = ArgumentCaptor.forClass(CiamMfaChallengeDo.class);
+            ArgumentCaptor<MfaChallengePo> captor = ArgumentCaptor.forClass(MfaChallengePo.class);
             verify(challengeRepository).insert(captor.capture());
-            CiamMfaChallengeDo saved = captor.getValue();
+            MfaChallengePo saved = captor.getValue();
 
             assertEquals(ChallengeType.EMAIL.getCode(), saved.getChallengeType());
             assertEquals(ChallengeScene.GEO_CHANGE.getCode(), saved.getChallengeScene());
@@ -118,7 +118,7 @@ class MfaDomainServiceTest {
 
             assertNotNull(challengeId);
 
-            ArgumentCaptor<CiamMfaChallengeDo> captor = ArgumentCaptor.forClass(CiamMfaChallengeDo.class);
+            ArgumentCaptor<MfaChallengePo> captor = ArgumentCaptor.forClass(MfaChallengePo.class);
             verify(challengeRepository).insert(captor.capture());
             assertEquals(ChallengeScene.HIGH_RISK.getCode(), captor.getValue().getChallengeScene());
         }
@@ -155,9 +155,9 @@ class MfaDomainServiceTest {
                     ChallengeType.SMS, ChallengeScene.NEW_DEVICE,
                     "138****1234", null);
 
-            ArgumentCaptor<CiamMfaChallengeDo> captor = ArgumentCaptor.forClass(CiamMfaChallengeDo.class);
+            ArgumentCaptor<MfaChallengePo> captor = ArgumentCaptor.forClass(MfaChallengePo.class);
             verify(challengeRepository).insert(captor.capture());
-            CiamMfaChallengeDo saved = captor.getValue();
+            MfaChallengePo saved = captor.getValue();
 
             long diffMinutes = java.time.Duration.between(saved.getSendTime(), saved.getExpireTime()).toMinutes();
             assertEquals(MfaDomainService.SMS_TTL_MINUTES, diffMinutes);
@@ -169,9 +169,9 @@ class MfaDomainServiceTest {
                     ChallengeType.EMAIL, ChallengeScene.NEW_DEVICE,
                     "t***@example.com", null);
 
-            ArgumentCaptor<CiamMfaChallengeDo> captor = ArgumentCaptor.forClass(CiamMfaChallengeDo.class);
+            ArgumentCaptor<MfaChallengePo> captor = ArgumentCaptor.forClass(MfaChallengePo.class);
             verify(challengeRepository).insert(captor.capture());
-            CiamMfaChallengeDo saved = captor.getValue();
+            MfaChallengePo saved = captor.getValue();
 
             long diffMinutes = java.time.Duration.between(saved.getSendTime(), saved.getExpireTime()).toMinutes();
             assertEquals(MfaDomainService.EMAIL_TTL_MINUTES, diffMinutes);
@@ -183,8 +183,8 @@ class MfaDomainServiceTest {
     @Nested
     class VerifyChallengeTests {
 
-        private CiamMfaChallengeDo pendingChallenge(String code) {
-            CiamMfaChallengeDo c = new CiamMfaChallengeDo();
+        private MfaChallengePo pendingChallenge(String code) {
+            MfaChallengePo c = new MfaChallengePo();
             c.setChallengeId("ch-001");
             c.setUserId("user-001");
             c.setChallengeType(ChallengeType.SMS.getCode());
@@ -198,7 +198,7 @@ class MfaDomainServiceTest {
 
         @Test
         void verifyChallenge_returnsTrueOnCorrectCode() {
-            CiamMfaChallengeDo challenge = pendingChallenge("123456");
+            MfaChallengePo challenge = pendingChallenge("123456");
             when(challengeRepository.findByChallengeId("ch-001")).thenReturn(Optional.of(challenge));
 
             boolean result = service.verifyChallenge("ch-001", "123456");
@@ -211,7 +211,7 @@ class MfaDomainServiceTest {
 
         @Test
         void verifyChallenge_returnsFalseOnWrongCode() {
-            CiamMfaChallengeDo challenge = pendingChallenge("123456");
+            MfaChallengePo challenge = pendingChallenge("123456");
             when(challengeRepository.findByChallengeId("ch-001")).thenReturn(Optional.of(challenge));
 
             boolean result = service.verifyChallenge("ch-001", "999999");
@@ -233,7 +233,7 @@ class MfaDomainServiceTest {
 
         @Test
         void verifyChallenge_throwsWhenExpired() {
-            CiamMfaChallengeDo challenge = pendingChallenge("123456");
+            MfaChallengePo challenge = pendingChallenge("123456");
             challenge.setExpireTime(Instant.now().minusSeconds(1 * 60)); // already expired
             when(challengeRepository.findByChallengeId("ch-001")).thenReturn(Optional.of(challenge));
 
@@ -246,7 +246,7 @@ class MfaDomainServiceTest {
 
         @Test
         void verifyChallenge_throwsWhenAlreadyPassed() {
-            CiamMfaChallengeDo challenge = pendingChallenge("123456");
+            MfaChallengePo challenge = pendingChallenge("123456");
             challenge.setChallengeStatus(ChallengeStatus.PASSED.getCode());
             when(challengeRepository.findByChallengeId("ch-001")).thenReturn(Optional.of(challenge));
 
@@ -257,7 +257,7 @@ class MfaDomainServiceTest {
 
         @Test
         void verifyChallenge_throwsWhenAlreadyFailed() {
-            CiamMfaChallengeDo challenge = pendingChallenge("123456");
+            MfaChallengePo challenge = pendingChallenge("123456");
             challenge.setChallengeStatus(ChallengeStatus.FAILED.getCode());
             when(challengeRepository.findByChallengeId("ch-001")).thenReturn(Optional.of(challenge));
 
@@ -268,7 +268,7 @@ class MfaDomainServiceTest {
 
         @Test
         void verifyChallenge_throwsWhenAlreadyCancelled() {
-            CiamMfaChallengeDo challenge = pendingChallenge("123456");
+            MfaChallengePo challenge = pendingChallenge("123456");
             challenge.setChallengeStatus(ChallengeStatus.CANCELLED.getCode());
             when(challengeRepository.findByChallengeId("ch-001")).thenReturn(Optional.of(challenge));
 
@@ -285,7 +285,7 @@ class MfaDomainServiceTest {
 
         @Test
         void cancelChallenge_setsCancelledStatus() {
-            CiamMfaChallengeDo challenge = new CiamMfaChallengeDo();
+            MfaChallengePo challenge = new MfaChallengePo();
             challenge.setChallengeId("ch-001");
             challenge.setChallengeStatus(ChallengeStatus.PENDING.getCode());
             when(challengeRepository.findByChallengeId("ch-001")).thenReturn(Optional.of(challenge));
@@ -308,7 +308,7 @@ class MfaDomainServiceTest {
 
         @Test
         void cancelChallenge_throwsWhenAlreadyPassed() {
-            CiamMfaChallengeDo challenge = new CiamMfaChallengeDo();
+            MfaChallengePo challenge = new MfaChallengePo();
             challenge.setChallengeId("ch-001");
             challenge.setChallengeStatus(ChallengeStatus.PASSED.getCode());
             when(challengeRepository.findByChallengeId("ch-001")).thenReturn(Optional.of(challenge));
@@ -320,7 +320,7 @@ class MfaDomainServiceTest {
 
         @Test
         void cancelChallenge_throwsWhenAlreadyCancelled() {
-            CiamMfaChallengeDo challenge = new CiamMfaChallengeDo();
+            MfaChallengePo challenge = new MfaChallengePo();
             challenge.setChallengeId("ch-001");
             challenge.setChallengeStatus(ChallengeStatus.CANCELLED.getCode());
             when(challengeRepository.findByChallengeId("ch-001")).thenReturn(Optional.of(challenge));

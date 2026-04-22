@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
 import net.hwyz.iov.cloud.sec.ciam.service.common.exception.CiamErrorCode;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamJwkDo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.JwkPo;
 import org.springframework.stereotype.Service;
 
 import java.security.interfaces.RSAPrivateKey;
@@ -129,7 +129,7 @@ public class JwtTokenService {
      * @return JWKS 结构的 Map
      */
     public Map<String, Object> getJwks() {
-        List<CiamJwkDo> activeKeys = jwkDomainService.getAllActiveKeys();
+        List<JwkPo> activeKeys = jwkDomainService.getAllActiveKeys();
         List<Map<String, Object>> keys = activeKeys.stream()
                 .map(this::convertToJwk)
                 .toList();
@@ -175,9 +175,9 @@ public class JwtTokenService {
     }
 
     /**
-     * 将 CiamJwkDo 转换为 JWK 格式。
+     * 将 JwkPo 转换为 JWK 格式。
      */
-    private Map<String, Object> convertToJwk(CiamJwkDo entity) {
+    private Map<String, Object> convertToJwk(JwkPo entity) {
         Map<String, Object> jwk = new LinkedHashMap<>();
         jwk.put("kty", "RSA");
         jwk.put("use", "sig");

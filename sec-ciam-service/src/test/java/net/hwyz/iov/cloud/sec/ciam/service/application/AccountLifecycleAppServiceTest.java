@@ -118,16 +118,16 @@ class AccountLifecycleAppServiceTest {
                 securityEventLogger);
     }
 
-    private CiamUserDo stubUser(UserStatus status) {
-        CiamUserDo user = new CiamUserDo();
+    private UserPo stubUser(UserStatus status) {
+        UserPo user = new UserPo();
         user.setUserId(USER_ID);
         user.setUserStatus(status.getCode());
         user.setRowValid(1);
         return user;
     }
 
-    private CiamDeactivationRequestDo stubDeactivationRequest(String requestId) {
-        CiamDeactivationRequestDo req = new CiamDeactivationRequestDo();
+    private DeactivationRequestPo stubDeactivationRequest(String requestId) {
+        DeactivationRequestPo req = new DeactivationRequestPo();
         req.setDeactivationRequestId(requestId);
         req.setUserId(USER_ID);
         req.setCheckStatus(CheckStatus.PENDING.getCode());
@@ -180,7 +180,7 @@ class AccountLifecycleAppServiceTest {
             String storedCode = codeStore.getCode(codeKey).orElseThrow();
 
             // Stub identity lookup
-            CiamUserIdentityDo identity = new CiamUserIdentityDo();
+            UserIdentityPo identity = new UserIdentityPo();
             identity.setUserId(USER_ID);
             identity.setIdentityType(IdentityType.EMAIL.getCode());
             identity.setIdentityHash(emailHash);
@@ -189,7 +189,7 @@ class AccountLifecycleAppServiceTest {
                     .thenReturn(Optional.of(identity));
 
             // Stub credential for password reset
-            CiamUserCredentialDo cred = new CiamUserCredentialDo();
+            UserCredentialPo cred = new UserCredentialPo();
             cred.setCredentialId("cred-001");
             cred.setUserId(USER_ID);
             cred.setCredentialType(CredentialType.EMAIL_PASSWORD.getCode());
@@ -239,7 +239,7 @@ class AccountLifecycleAppServiceTest {
             when(userRepository.findByUserId(USER_ID)).thenReturn(Optional.of(stubUser(UserStatus.ACTIVE)));
             service.adminLockAccount(USER_ID, ADMIN_ID);
 
-            ArgumentCaptor<CiamUserDo> captor = ArgumentCaptor.forClass(CiamUserDo.class);
+            ArgumentCaptor<UserPo> captor = ArgumentCaptor.forClass(UserPo.class);
             verify(userRepository).updateByUserId(captor.capture());
             assertEquals(UserStatus.LOCKED.getCode(), captor.getValue().getUserStatus());
 
@@ -276,7 +276,7 @@ class AccountLifecycleAppServiceTest {
             when(userRepository.findByUserId(USER_ID)).thenReturn(Optional.of(stubUser(UserStatus.LOCKED)));
             service.adminUnlockAccount(USER_ID, ADMIN_ID);
 
-            ArgumentCaptor<CiamUserDo> captor = ArgumentCaptor.forClass(CiamUserDo.class);
+            ArgumentCaptor<UserPo> captor = ArgumentCaptor.forClass(UserPo.class);
             verify(userRepository).updateByUserId(captor.capture());
             assertEquals(UserStatus.ACTIVE.getCode(), captor.getValue().getUserStatus());
 
@@ -291,7 +291,7 @@ class AccountLifecycleAppServiceTest {
             when(userRepository.findByUserId(USER_ID)).thenReturn(Optional.of(stubUser(UserStatus.ACTIVE)));
             service.adminDisableAccount(USER_ID, ADMIN_ID);
 
-            ArgumentCaptor<CiamUserDo> captor = ArgumentCaptor.forClass(CiamUserDo.class);
+            ArgumentCaptor<UserPo> captor = ArgumentCaptor.forClass(UserPo.class);
             verify(userRepository).updateByUserId(captor.capture());
             assertEquals(UserStatus.DISABLED.getCode(), captor.getValue().getUserStatus());
 
@@ -327,7 +327,7 @@ class AccountLifecycleAppServiceTest {
             when(userRepository.findByUserId(USER_ID)).thenReturn(Optional.of(stubUser(UserStatus.DISABLED)));
             service.adminEnableAccount(USER_ID, ADMIN_ID);
 
-            ArgumentCaptor<CiamUserDo> captor = ArgumentCaptor.forClass(CiamUserDo.class);
+            ArgumentCaptor<UserPo> captor = ArgumentCaptor.forClass(UserPo.class);
             verify(userRepository).updateByUserId(captor.capture());
             assertEquals(UserStatus.ACTIVE.getCode(), captor.getValue().getUserStatus());
 
@@ -394,15 +394,15 @@ class AccountLifecycleAppServiceTest {
             String requestId = service.submitDeactivationRequest(USER_ID, "app", "不再使用");
 
             assertNotNull(requestId);
-            ArgumentCaptor<CiamDeactivationRequestDo> captor = ArgumentCaptor.forClass(CiamDeactivationRequestDo.class);
+            ArgumentCaptor<DeactivationRequestPo> captor = ArgumentCaptor.forClass(DeactivationRequestPo.class);
             verify(deactivationRequestRepository).insert(captor.capture());
-            CiamDeactivationRequestDo saved = captor.getValue();
+            DeactivationRequestPo saved = captor.getValue();
             assertEquals(USER_ID, saved.getUserId());
             assertEquals(CheckStatus.PENDING.getCode(), saved.getCheckStatus());
             assertEquals(ReviewStatus.PENDING.getCode(), saved.getReviewStatus());
             assertEquals(ExecuteStatus.PENDING.getCode(), saved.getExecuteStatus());
 
-            ArgumentCaptor<CiamUserDo> userCaptor = ArgumentCaptor.forClass(CiamUserDo.class);
+            ArgumentCaptor<UserPo> userCaptor = ArgumentCaptor.forClass(UserPo.class);
             verify(userRepository).updateByUserId(userCaptor.capture());
             assertEquals(UserStatus.DEACTIVATING.getCode(), userCaptor.getValue().getUserStatus());
         }
@@ -415,7 +415,7 @@ class AccountLifecycleAppServiceTest {
 
             service.approveDeactivation(requestId, "reviewer-001");
 
-            ArgumentCaptor<CiamDeactivationRequestDo> captor = ArgumentCaptor.forClass(CiamDeactivationRequestDo.class);
+            ArgumentCaptor<DeactivationRequestPo> captor = ArgumentCaptor.forClass(DeactivationRequestPo.class);
             verify(deactivationRequestRepository).updateByDeactivationRequestId(captor.capture());
             assertEquals(ReviewStatus.APPROVED.getCode(), captor.getValue().getReviewStatus());
             assertEquals("reviewer-001", captor.getValue().getReviewer());
@@ -435,7 +435,7 @@ class AccountLifecycleAppServiceTest {
 
             service.checkDeactivationPrerequisites(requestId);
 
-            ArgumentCaptor<CiamDeactivationRequestDo> captor = ArgumentCaptor.forClass(CiamDeactivationRequestDo.class);
+            ArgumentCaptor<DeactivationRequestPo> captor = ArgumentCaptor.forClass(DeactivationRequestPo.class);
             verify(deactivationRequestRepository).updateByDeactivationRequestId(captor.capture());
             assertEquals(CheckStatus.PASSED.getCode(), captor.getValue().getCheckStatus());
         }
@@ -461,7 +461,7 @@ class AccountLifecycleAppServiceTest {
             verify(profileRepository).physicalDeleteByUserId(USER_ID);
             verify(userRepository).physicalDeleteByUserId(USER_ID);
 
-            ArgumentCaptor<CiamDeactivationRequestDo> captor = ArgumentCaptor.forClass(CiamDeactivationRequestDo.class);
+            ArgumentCaptor<DeactivationRequestPo> captor = ArgumentCaptor.forClass(DeactivationRequestPo.class);
             verify(deactivationRequestRepository).updateByDeactivationRequestId(captor.capture());
             assertEquals(ExecuteStatus.EXECUTED.getCode(), captor.getValue().getExecuteStatus());
             assertNotNull(captor.getValue().getExecuteTime());

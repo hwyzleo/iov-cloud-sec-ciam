@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import lombok.RequiredArgsConstructor;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserTagRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.CiamUserTagMapper;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamUserTagDo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.UserTagPo;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -18,38 +18,38 @@ public class CiamUserTagRepositoryImpl implements CiamUserTagRepository {
     private final CiamUserTagMapper mapper;
 
     @Override
-    public Optional<CiamUserTagDo> findByUserIdAndTagCode(String userId, String tagCode) {
+    public Optional<UserTagPo> findByUserIdAndTagCode(String userId, String tagCode) {
         return Optional.ofNullable(mapper.selectOne(
-                new LambdaQueryWrapper<CiamUserTagDo>()
-                        .eq(CiamUserTagDo::getUserId, userId)
-                        .eq(CiamUserTagDo::getTagCode, tagCode)
-                        .eq(CiamUserTagDo::getRowValid, 1)));
+                new LambdaQueryWrapper<UserTagPo>()
+                        .eq(UserTagPo::getUserId, userId)
+                        .eq(UserTagPo::getTagCode, tagCode)
+                        .eq(UserTagPo::getRowValid, 1)));
     }
 
     @Override
-    public List<CiamUserTagDo> findByUserId(String userId) {
+    public List<UserTagPo> findByUserId(String userId) {
         return mapper.selectList(
-                new LambdaQueryWrapper<CiamUserTagDo>()
-                        .eq(CiamUserTagDo::getUserId, userId)
-                        .eq(CiamUserTagDo::getRowValid, 1));
+                new LambdaQueryWrapper<UserTagPo>()
+                        .eq(UserTagPo::getUserId, userId)
+                        .eq(UserTagPo::getRowValid, 1));
     }
 
     @Override
-    public Optional<CiamUserTagDo> findByTagId(String tagId) {
+    public Optional<UserTagPo> findByTagId(String tagId) {
         return Optional.ofNullable(mapper.selectOne(
-                new LambdaQueryWrapper<CiamUserTagDo>()
-                        .eq(CiamUserTagDo::getTagId, tagId)));
+                new LambdaQueryWrapper<UserTagPo>()
+                        .eq(UserTagPo::getTagId, tagId)));
     }
 
     @Override
-    public int insert(CiamUserTagDo entity) {
+    public int insert(UserTagPo entity) {
         return mapper.insert(entity);
     }
 
     @Override
-    public int updateByTagId(CiamUserTagDo entity) {
+    public int updateByTagId(UserTagPo entity) {
         return mapper.update(entity,
-                new LambdaUpdateWrapper<CiamUserTagDo>()
-                        .eq(CiamUserTagDo::getTagId, entity.getTagId()));
+                new LambdaUpdateWrapper<UserTagPo>()
+                        .eq(UserTagPo::getTagId, entity.getTagId()));
     }
 }

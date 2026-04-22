@@ -9,38 +9,56 @@ import lombok.Data;
 import java.time.Instant;
 
 /**
- * 认证标签表数据对象。
+ * 风险事件表数据对象。
  */
 @Data
-@TableName("ciam_user_tag")
-public class CiamUserTagDo {
+@TableName("ciam_risk_event")
+public class RiskEventPo {
 
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
-    @TableField("tag_id")
-    private String tagId;
+    @TableField("risk_event_id")
+    private String riskEventId;
 
     @TableField("user_id")
     private String userId;
 
-    @TableField("tag_code")
-    private String tagCode;
+    @TableField("session_id")
+    private String sessionId;
 
-    @TableField("tag_name")
-    private String tagName;
+    @TableField("device_id")
+    private String deviceId;
 
-    @TableField("tag_status")
-    private Integer tagStatus;
+    @TableField("risk_scene")
+    private String riskScene;
 
-    @TableField("tag_source")
-    private String tagSource;
+    @TableField("risk_type")
+    private String riskType;
 
-    @TableField("effective_time")
-    private Instant effectiveTime;
+    @TableField("risk_level")
+    private Integer riskLevel;
 
-    @TableField("expire_time")
-    private Instant expireTime;
+    @TableField("client_type")
+    private String clientType;
+
+    @TableField("ip_address")
+    private String ipAddress;
+
+    @TableField("region_code")
+    private String regionCode;
+
+    @TableField("decision_result")
+    private String decisionResult;
+
+    @TableField("hit_rules")
+    private String hitRules;
+
+    @TableField("event_time")
+    private Instant eventTime;
+
+    @TableField("handled_flag")
+    private Integer handledFlag;
 
     @TableField("description")
     private String description;

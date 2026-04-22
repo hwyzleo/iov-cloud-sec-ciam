@@ -9,7 +9,7 @@ import net.hwyz.iov.cloud.sec.ciam.service.common.util.UserIdGenerator;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.IdentityStatus;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.IdentityType;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserIdentityRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamUserIdentityDo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.UserIdentityPo;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -42,13 +42,13 @@ public class IdentityDomainService {
      * @param bindSource    绑定来源
      * @return 新创建的标识数据对象
      */
-    public CiamUserIdentityDo bindIdentity(String userId, IdentityType identityType,
+    public UserIdentityPo bindIdentity(String userId, IdentityType identityType,
                                            String identityValue, String countryCode,
                                            String bindSource) {
         String identityHash = FieldEncryptor.hash(identityValue);
 
         // 唯一性校验：检查该标识是否已被绑定
-        Optional<CiamUserIdentityDo> existing = identityRepository.findByTypeAndHash(
+        Optional<UserIdentityPo> existing = identityRepository.findByTypeAndHash(
                 identityType.getCode(), identityHash);
         if (existing.isPresent() && existing.get().getIdentityStatus() == IdentityStatus.BOUND.getCode()) {
             if (!existing.get().getUserId().equals(userId)) {
@@ -60,7 +60,7 @@ public class IdentityDomainService {
 
         String encryptedValue = fieldEncryptor.encrypt(identityValue);
 
-        CiamUserIdentityDo identity = new CiamUserIdentityDo();
+        UserIdentityPo identity = new UserIdentityPo();
         identity.setIdentityId(UserIdGenerator.generate());
         identity.setUserId(userId);
         identity.setIdentityType(identityType.getCode());
@@ -88,7 +88,7 @@ public class IdentityDomainService {
      * @param identityHash 标识哈希值
      */
     public void unbindIdentity(String userId, IdentityType identityType, String identityHash) {
-        CiamUserIdentityDo identity = identityRepository.findByTypeAndHash(
+        UserIdentityPo identity = identityRepository.findByTypeAndHash(
                         identityType.getCode(), identityHash)
                 .orElseThrow(() -> new BusinessException(CiamErrorCode.USER_NOT_FOUND));
 
@@ -109,7 +109,7 @@ public class IdentityDomainService {
      * @param identityHash 标识哈希值
      * @return 标识记录（如存在）
      */
-    public Optional<CiamUserIdentityDo> findByTypeAndHash(IdentityType identityType, String identityHash) {
+    public Optional<UserIdentityPo> findByTypeAndHash(IdentityType identityType, String identityHash) {
         return identityRepository.findByTypeAndHash(identityType.getCode(), identityHash);
     }
 
@@ -119,7 +119,7 @@ public class IdentityDomainService {
      * @param userId 用户业务唯一标识
      * @return 已绑定标识列表
      */
-    public List<CiamUserIdentityDo> findByUserId(String userId) {
+    public List<UserIdentityPo> findByUserId(String userId) {
         return identityRepository.findByUserId(userId).stream()
                 .filter(i -> i.getIdentityStatus() == IdentityStatus.BOUND.getCode())
                 .collect(Collectors.toList());
@@ -136,7 +136,7 @@ public class IdentityDomainService {
         String identityHash = FieldEncryptor.hash(identityValue);
         return identityRepository.findByTypeAndHash(identityType.getCode(), identityHash)
                 .filter(i -> i.getIdentityStatus() == IdentityStatus.BOUND.getCode())
-                .map(CiamUserIdentityDo::getUserId);
+                .map(UserIdentityPo::getUserId);
     }
 
     /**
@@ -146,7 +146,7 @@ public class IdentityDomainService {
      * @param identityValue 标识原值（如手机号、邮箱）
      * @return 标识记录（如存在）
      */
-    public Optional<CiamUserIdentityDo> findByTypeAndValue(IdentityType identityType, String identityValue) {
+    public Optional<UserIdentityPo> findByTypeAndValue(IdentityType identityType, String identityValue) {
         String identityHash = FieldEncryptor.hash(identityValue);
         return identityRepository.findByTypeAndHash(identityType.getCode(), identityHash);
     }
@@ -159,7 +159,7 @@ public class IdentityDomainService {
      * @param identityHash 标识哈希值
      */
     public void markVerified(String userId, IdentityType identityType, String identityHash) {
-        CiamUserIdentityDo identity = identityRepository.findByTypeAndHash(
+        UserIdentityPo identity = identityRepository.findByTypeAndHash(
                         identityType.getCode(), identityHash)
                 .orElseThrow(() -> new BusinessException(CiamErrorCode.USER_NOT_FOUND));
 
@@ -195,7 +195,7 @@ public class IdentityDomainService {
      * @param excludeUserId 排除的用户 ID（当前用户自身）
      * @return 冲突的标识记录（如存在），否则返回 empty
      */
-    public Optional<CiamUserIdentityDo> checkConflictDetail(IdentityType identityType,
+    public Optional<UserIdentityPo> checkConflictDetail(IdentityType identityType,
                                                             String identityValue,
                                                             String excludeUserId) {
         String identityHash = FieldEncryptor.hash(identityValue);

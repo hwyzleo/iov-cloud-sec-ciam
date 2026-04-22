@@ -5,8 +5,8 @@ import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.IdentityStatus;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.IdentityType;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserIdentityRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserProfileRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamUserIdentityDo;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamUserProfileDo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.UserIdentityPo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.UserProfilePo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -43,8 +43,8 @@ class OidcServiceTest {
         service = new OidcService(profileRepository, identityDomainService, fieldEncryptor);
     }
 
-    private CiamUserProfileDo stubProfile() {
-        CiamUserProfileDo profile = new CiamUserProfileDo();
+    private UserProfilePo stubProfile() {
+        UserProfilePo profile = new UserProfilePo();
         profile.setUserId(USER_ID);
         profile.setNickname("张三");
         profile.setAvatarUrl("https://cdn.openiov.com/avatar/001.jpg");
@@ -53,8 +53,8 @@ class OidcServiceTest {
         return profile;
     }
 
-    private CiamUserIdentityDo stubEmailIdentity() {
-        CiamUserIdentityDo identity = new CiamUserIdentityDo();
+    private UserIdentityPo stubEmailIdentity() {
+        UserIdentityPo identity = new UserIdentityPo();
         identity.setUserId(USER_ID);
         identity.setIdentityType(IdentityType.EMAIL.getCode());
         identity.setIdentityValue(fieldEncryptor.encrypt("zhangsan@example.com"));
@@ -62,8 +62,8 @@ class OidcServiceTest {
         return identity;
     }
 
-    private CiamUserIdentityDo stubMobileIdentity() {
-        CiamUserIdentityDo identity = new CiamUserIdentityDo();
+    private UserIdentityPo stubMobileIdentity() {
+        UserIdentityPo identity = new UserIdentityPo();
         identity.setUserId(USER_ID);
         identity.setIdentityType(IdentityType.MOBILE.getCode());
         identity.setIdentityValue(fieldEncryptor.encrypt("+8613800138000"));
@@ -111,7 +111,7 @@ class OidcServiceTest {
 
         @Test
         void getUserInfo_femaleGender() {
-            CiamUserProfileDo profile = stubProfile();
+            UserProfilePo profile = stubProfile();
             profile.setGender(2);
             when(profileRepository.findByUserId(USER_ID)).thenReturn(Optional.of(profile));
             when(identityRepository.findByUserId(USER_ID)).thenReturn(Collections.emptyList());
@@ -123,7 +123,7 @@ class OidcServiceTest {
 
         @Test
         void getUserInfo_unknownGender() {
-            CiamUserProfileDo profile = stubProfile();
+            UserProfilePo profile = stubProfile();
             profile.setGender(0);
             when(profileRepository.findByUserId(USER_ID)).thenReturn(Optional.of(profile));
             when(identityRepository.findByUserId(USER_ID)).thenReturn(Collections.emptyList());

@@ -37,10 +37,10 @@ import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserIdentityRep
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserProfileRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.service.*;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamOAuthClientDo;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamSessionDo;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamUserDo;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamUserIdentityDo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.OAuthClientPo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.SessionPo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.UserPo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.UserIdentityPo;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.store.InMemoryVerificationCodeStore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -114,7 +114,7 @@ class ClientIntegrationTest {
     OpenOAuthController oAuthController;
 
     // ---- 模拟会话存储 ----
-    final Map<String, CiamSessionDo> sessionStore = new ConcurrentHashMap<>();
+    final Map<String, SessionPo> sessionStore = new ConcurrentHashMap<>();
     final Map<String, Device> deviceStore = new ConcurrentHashMap<>();
 
     @BeforeEach
@@ -185,10 +185,10 @@ class ClientIntegrationTest {
 
     private void setupSessionRepositoryMocks() {
         doAnswer(inv -> {
-            CiamSessionDo s = inv.getArgument(0);
+            SessionPo s = inv.getArgument(0);
             sessionStore.put(s.getSessionId(), s);
             return 1;
-        }).when(sessionRepository).insert(any(CiamSessionDo.class));
+        }).when(sessionRepository).insert(any(SessionPo.class));
 
         when(sessionRepository.findBySessionId(anyString())).thenAnswer(inv -> {
             String sid = inv.getArgument(0);
@@ -196,10 +196,10 @@ class ClientIntegrationTest {
         });
 
         doAnswer(inv -> {
-            CiamSessionDo s = inv.getArgument(0);
+            SessionPo s = inv.getArgument(0);
             sessionStore.put(s.getSessionId(), s);
             return 1;
-        }).when(sessionRepository).updateBySessionId(any(CiamSessionDo.class));
+        }).when(sessionRepository).updateBySessionId(any(SessionPo.class));
 
         when(sessionRepository.findByUserIdAndStatus(anyString(), anyInt())).thenAnswer(inv -> {
             String userId = inv.getArgument(0);
@@ -247,8 +247,8 @@ class ClientIntegrationTest {
 
     // ---- 辅助方法 ----
 
-    private CiamUserIdentityDo stubIdentity(String userId, String type, String value) {
-        CiamUserIdentityDo identity = new CiamUserIdentityDo();
+    private UserIdentityPo stubIdentity(String userId, String type, String value) {
+        UserIdentityPo identity = new UserIdentityPo();
         identity.setIdentityId("id-" + userId + "-" + type);
         identity.setUserId(userId);
         identity.setIdentityType(type);
@@ -259,16 +259,16 @@ class ClientIntegrationTest {
         return identity;
     }
 
-    private CiamUserDo stubUser(String userId, int status) {
-        CiamUserDo user = new CiamUserDo();
+    private UserPo stubUser(String userId, int status) {
+        UserPo user = new UserPo();
         user.setUserId(userId);
         user.setUserStatus(status);
         user.setRowValid(1);
         return user;
     }
 
-    private CiamOAuthClientDo stubClient(String clientId) {
-        CiamOAuthClientDo client = new CiamOAuthClientDo();
+    private OAuthClientPo stubClient(String clientId) {
+        OAuthClientPo client = new OAuthClientPo();
         client.setClientId(clientId);
         client.setClientName("Test Client");
         client.setClientType("public");
@@ -284,8 +284,8 @@ class ClientIntegrationTest {
     }
 
     private void stubExistingUser(String userId, String mobile) {
-        CiamUserIdentityDo identity = stubIdentity(userId, "mobile", mobile);
-        CiamUserDo user = stubUser(userId, UserStatus.ACTIVE.getCode());
+        UserIdentityPo identity = stubIdentity(userId, "mobile", mobile);
+        UserPo user = stubUser(userId, UserStatus.ACTIVE.getCode());
 
         when(identityRepository.findByTypeAndHash(eq("mobile"), eq(FieldEncryptor.hash(mobile))))
                 .thenReturn(Optional.of(identity));
@@ -293,9 +293,9 @@ class ClientIntegrationTest {
                 .thenReturn(Optional.of(user));
     }
 
-    private CiamSessionDo createActiveSession(String userId, String sessionId,
+    private SessionPo createActiveSession(String userId, String sessionId,
                                                String clientType, String deviceId) {
-        CiamSessionDo session = new CiamSessionDo();
+        SessionPo session = new SessionPo();
         session.setSessionId(sessionId);
         session.setUserId(userId);
         session.setClientType(clientType);
@@ -508,13 +508,13 @@ class ClientIntegrationTest {
             sessionService.logout("session-app", userId);
 
             // 验证 App 会话已下线
-            CiamSessionDo appSession = sessionStore.get("session-app");
+            SessionPo appSession = sessionStore.get("session-app");
             assertEquals(SessionStatus.KICKED.getCode(), appSession.getSessionStatus(),
                     "App 会话应已下线");
 
             // 验证其他端会话仍然活跃
             for (String clientType : new String[]{"mini_program", "web", "vehicle"}) {
-                CiamSessionDo session = sessionStore.get("session-" + clientType);
+                SessionPo session = sessionStore.get("session-" + clientType);
                 assertEquals(SessionStatus.ACTIVE.getCode(), session.getSessionStatus(),
                         clientType + " 会话应仍然活跃");
             }
@@ -641,7 +641,7 @@ class ClientIntegrationTest {
                 createActiveSession(userId, "session-c-" + clientType, clientType, "device-c-" + clientType);
             }
 
-            List<CiamSessionDo> activeSessions = sessionService.findUserSessions(userId);
+            List<SessionPo> activeSessions = sessionService.findUserSessions(userId);
             assertEquals(CLIENT_TYPES.length, activeSessions.size(),
                     "用户应在所有客户端类型上拥有活跃会话");
 
@@ -678,7 +678,7 @@ class ClientIntegrationTest {
                     sessionStore.get("session-iso-vehicle").getSessionStatus());
 
             // 剩余活跃会话数量为 3
-            List<CiamSessionDo> remaining = sessionService.findUserSessions(userId);
+            List<SessionPo> remaining = sessionService.findUserSessions(userId);
             assertEquals(3, remaining.size());
         }
 
@@ -735,7 +735,7 @@ class ClientIntegrationTest {
             createActiveSession(userId, "session-app-phone2", "app", "device-phone2");
             createActiveSession(userId, "session-web-1", "web", "device-web-1");
 
-            List<CiamSessionDo> sessions = sessionService.findUserSessions(userId);
+            List<SessionPo> sessions = sessionService.findUserSessions(userId);
             assertEquals(3, sessions.size(), "应有 3 个活跃会话");
 
             long appSessions = sessions.stream()

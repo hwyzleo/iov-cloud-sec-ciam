@@ -1,6 +1,6 @@
 package net.hwyz.iov.cloud.sec.ciam.service.domain.repository;
 
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamDeactivationRequestDo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.DeactivationRequestPo;
 
 import java.util.List;
 import java.util.Optional;
@@ -11,20 +11,20 @@ import java.util.Optional;
 public interface CiamDeactivationRequestRepository {
 
     /** 根据业务 ID 查询 */
-    Optional<CiamDeactivationRequestDo> findByDeactivationRequestId(String deactivationRequestId);
+    Optional<DeactivationRequestPo> findByDeactivationRequestId(String deactivationRequestId);
 
     /** 根据用户 ID 和审核状态查询 */
-    List<CiamDeactivationRequestDo> findByUserIdAndReviewStatus(String userId, int reviewStatus);
+    List<DeactivationRequestPo> findByUserIdAndReviewStatus(String userId, int reviewStatus);
 
     /** 根据审核状态查询 */
-    List<CiamDeactivationRequestDo> findByReviewStatus(int reviewStatus);
+    List<DeactivationRequestPo> findByReviewStatus(int reviewStatus);
 
     /** 根据执行状态查询 */
-    List<CiamDeactivationRequestDo> findByExecuteStatus(int executeStatus);
+    List<DeactivationRequestPo> findByExecuteStatus(int executeStatus);
 
     /** 插入注销申请记录 */
-    int insert(CiamDeactivationRequestDo entity);
+    int insert(DeactivationRequestPo entity);
 
     /** 根据业务 ID 更新 */
-    int updateByDeactivationRequestId(CiamDeactivationRequestDo entity);
+    int updateByDeactivationRequestId(DeactivationRequestPo entity);
 }

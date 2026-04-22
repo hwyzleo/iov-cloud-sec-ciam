@@ -13,7 +13,7 @@ import net.hwyz.iov.cloud.sec.ciam.service.common.exception.CiamErrorCode;
 import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
 import net.hwyz.iov.cloud.sec.ciam.service.common.util.UserIdGenerator;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserProfileRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamUserProfileDo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.UserProfilePo;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -54,7 +54,7 @@ public class UserProfileAppService {
      * @return 用户资料数据对象
      */
     public UserProfileDto getProfile(String userId) {
-        CiamUserProfileDo ciamUserProfileDo = profileRepository.findByUserId(userId)
+        UserProfilePo ciamUserProfileDo = profileRepository.findByUserId(userId)
                 .orElseThrow(() -> new BusinessException(CiamErrorCode.PROFILE_NOT_FOUND));
         if (StrUtil.isBlank(ciamUserProfileDo.getAvatarUrl())) {
             ciamUserProfileDo.setAvatarUrl(defaultAvatar);
@@ -79,7 +79,7 @@ public class UserProfileAppService {
     public void updateProfile(String userId, String nickname, String avatarUrl,
                               Integer gender, LocalDate birthday,
                               String regionCode, String regionName) {
-        CiamUserProfileDo profile = profileRepository.findByUserId(userId)
+        UserProfilePo profile = profileRepository.findByUserId(userId)
                 .orElseThrow(() -> new BusinessException(CiamErrorCode.PROFILE_NOT_FOUND));
 
         if (nickname != null) {
@@ -128,7 +128,7 @@ public class UserProfileAppService {
             throw new BusinessException(CiamErrorCode.SENSITIVE_FIELD_VERIFICATION_REQUIRED);
         }
 
-        CiamUserProfileDo profile = profileRepository.findByUserId(userId)
+        UserProfilePo profile = profileRepository.findByUserId(userId)
                 .orElseThrow(() -> new BusinessException(CiamErrorCode.PROFILE_NOT_FOUND));
 
         if ("realName".equals(field)) {
@@ -153,7 +153,7 @@ public class UserProfileAppService {
             return;
         }
 
-        CiamUserProfileDo profile = new CiamUserProfileDo();
+        UserProfilePo profile = new UserProfilePo();
         profile.setProfileId(UserIdGenerator.generate());
         profile.setUserId(userId);
         profile.setGender(0);

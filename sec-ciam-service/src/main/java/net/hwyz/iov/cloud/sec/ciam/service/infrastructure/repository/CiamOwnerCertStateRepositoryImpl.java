@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import lombok.RequiredArgsConstructor;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamOwnerCertStateRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.CiamOwnerCertStateMapper;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamOwnerCertStateDo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.OwnerCertStatePo;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -18,38 +18,38 @@ public class CiamOwnerCertStateRepositoryImpl implements CiamOwnerCertStateRepos
     private final CiamOwnerCertStateMapper mapper;
 
     @Override
-    public Optional<CiamOwnerCertStateDo> findByOwnerCertId(String ownerCertId) {
+    public Optional<OwnerCertStatePo> findByOwnerCertId(String ownerCertId) {
         return Optional.ofNullable(mapper.selectOne(
-                new LambdaQueryWrapper<CiamOwnerCertStateDo>()
-                        .eq(CiamOwnerCertStateDo::getOwnerCertId, ownerCertId)));
+                new LambdaQueryWrapper<OwnerCertStatePo>()
+                        .eq(OwnerCertStatePo::getOwnerCertId, ownerCertId)));
     }
 
     @Override
-    public List<CiamOwnerCertStateDo> findByUserIdAndCertStatus(String userId, int certStatus) {
+    public List<OwnerCertStatePo> findByUserIdAndCertStatus(String userId, int certStatus) {
         return mapper.selectList(
-                new LambdaQueryWrapper<CiamOwnerCertStateDo>()
-                        .eq(CiamOwnerCertStateDo::getUserId, userId)
-                        .eq(CiamOwnerCertStateDo::getCertStatus, certStatus)
-                        .eq(CiamOwnerCertStateDo::getRowValid, 1));
+                new LambdaQueryWrapper<OwnerCertStatePo>()
+                        .eq(OwnerCertStatePo::getUserId, userId)
+                        .eq(OwnerCertStatePo::getCertStatus, certStatus)
+                        .eq(OwnerCertStatePo::getRowValid, 1));
     }
 
     @Override
-    public List<CiamOwnerCertStateDo> findByUserId(String userId) {
+    public List<OwnerCertStatePo> findByUserId(String userId) {
         return mapper.selectList(
-                new LambdaQueryWrapper<CiamOwnerCertStateDo>()
-                        .eq(CiamOwnerCertStateDo::getUserId, userId)
-                        .eq(CiamOwnerCertStateDo::getRowValid, 1));
+                new LambdaQueryWrapper<OwnerCertStatePo>()
+                        .eq(OwnerCertStatePo::getUserId, userId)
+                        .eq(OwnerCertStatePo::getRowValid, 1));
     }
 
     @Override
-    public int insert(CiamOwnerCertStateDo entity) {
+    public int insert(OwnerCertStatePo entity) {
         return mapper.insert(entity);
     }
 
     @Override
-    public int updateByOwnerCertId(CiamOwnerCertStateDo entity) {
+    public int updateByOwnerCertId(OwnerCertStatePo entity) {
         return mapper.update(entity,
-                new LambdaUpdateWrapper<CiamOwnerCertStateDo>()
-                        .eq(CiamOwnerCertStateDo::getOwnerCertId, entity.getOwnerCertId()));
+                new LambdaUpdateWrapper<OwnerCertStatePo>()
+                        .eq(OwnerCertStatePo::getOwnerCertId, entity.getOwnerCertId()));
     }
 }

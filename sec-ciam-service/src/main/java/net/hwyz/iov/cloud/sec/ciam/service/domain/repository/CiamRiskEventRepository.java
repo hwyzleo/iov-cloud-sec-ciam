@@ -1,6 +1,6 @@
 package net.hwyz.iov.cloud.sec.ciam.service.domain.repository;
 
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamRiskEventDo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.RiskEventPo;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -12,17 +12,17 @@ import java.util.Optional;
 public interface CiamRiskEventRepository {
 
     /** 根据业务 ID 查询 */
-    Optional<CiamRiskEventDo> findByRiskEventId(String riskEventId);
+    Optional<RiskEventPo> findByRiskEventId(String riskEventId);
 
     /** 根据用户 ID 和时间范围查询 */
-    List<CiamRiskEventDo> findByUserIdAndTimeRange(String userId, LocalDateTime startTime, LocalDateTime endTime);
+    List<RiskEventPo> findByUserIdAndTimeRange(String userId, LocalDateTime startTime, LocalDateTime endTime);
 
     /** 根据风险等级查询 */
-    List<CiamRiskEventDo> findByRiskLevel(int riskLevel);
+    List<RiskEventPo> findByRiskLevel(int riskLevel);
 
     /** 插入风险事件记录 */
-    int insert(CiamRiskEventDo entity);
+    int insert(RiskEventPo entity);
 
     /** 根据业务 ID 更新 */
-    int updateByRiskEventId(CiamRiskEventDo entity);
+    int updateByRiskEventId(RiskEventPo entity);
 }

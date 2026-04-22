@@ -3,7 +3,7 @@ package net.hwyz.iov.cloud.sec.ciam.service.application.mapper;
 import net.hwyz.iov.cloud.sec.ciam.service.controller.vo.RefreshTokenVo;
 import net.hwyz.iov.cloud.sec.ciam.service.application.dto.RefreshTokenDto;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.model.RefreshToken;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamRefreshTokenDo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.RefreshTokenPo;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 import org.mapstruct.factory.Mappers;
@@ -19,12 +19,12 @@ public interface RefreshTokenMapper {
     /**
      * DO -> Domain
      */
-    RefreshToken toDomain(CiamRefreshTokenDo entity);
+    RefreshToken toDomain(RefreshTokenPo entity);
     
     /**
      * Domain -> DO
      */
-    CiamRefreshTokenDo toDo(RefreshToken domain);
+    RefreshTokenPo toDo(RefreshToken domain);
 
     /**
      * Domain -> DTO

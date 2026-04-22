@@ -6,7 +6,7 @@ import net.hwyz.iov.cloud.sec.ciam.service.common.security.FieldEncryptor;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.IdentityStatus;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.IdentityType;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserIdentityRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamUserIdentityDo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.UserIdentityPo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -37,8 +37,8 @@ class IdentityDomainServiceTest {
         service = new IdentityDomainService(identityRepository, fieldEncryptor);
     }
 
-    private CiamUserIdentityDo stubIdentity(String userId, IdentityType type, String value, int status) {
-        CiamUserIdentityDo identity = new CiamUserIdentityDo();
+    private UserIdentityPo stubIdentity(String userId, IdentityType type, String value, int status) {
+        UserIdentityPo identity = new UserIdentityPo();
         identity.setIdentityId("id-001");
         identity.setUserId(userId);
         identity.setIdentityType(type.getCode());
@@ -59,7 +59,7 @@ class IdentityDomainServiceTest {
             when(identityRepository.findByTypeAndHash(eq("mobile"), anyString()))
                     .thenReturn(Optional.empty());
 
-            CiamUserIdentityDo result = service.bindIdentity(
+            UserIdentityPo result = service.bindIdentity(
                     "user-001", IdentityType.MOBILE, "13800138000", "+86", "app");
 
             assertNotNull(result.getIdentityId());
@@ -79,12 +79,12 @@ class IdentityDomainServiceTest {
             assertNotNull(result.getModifyTime());
             // identity_value should be encrypted (not plaintext)
             assertNotEquals("13800138000", result.getIdentityValue());
-            verify(identityRepository).insert(any(CiamUserIdentityDo.class));
+            verify(identityRepository).insert(any(UserIdentityPo.class));
         }
 
         @Test
         void bindIdentity_throwsConflictWhenBoundToOtherUser() {
-            CiamUserIdentityDo existing = stubIdentity("other-user", IdentityType.EMAIL,
+            UserIdentityPo existing = stubIdentity("other-user", IdentityType.EMAIL,
                     "test@example.com", IdentityStatus.BOUND.getCode());
             when(identityRepository.findByTypeAndHash(eq("email"), anyString()))
                     .thenReturn(Optional.of(existing));
@@ -98,12 +98,12 @@ class IdentityDomainServiceTest {
 
         @Test
         void bindIdentity_returnsExistingWhenAlreadyBoundToSameUser() {
-            CiamUserIdentityDo existing = stubIdentity("user-001", IdentityType.MOBILE,
+            UserIdentityPo existing = stubIdentity("user-001", IdentityType.MOBILE,
                     "13800138000", IdentityStatus.BOUND.getCode());
             when(identityRepository.findByTypeAndHash(eq("mobile"), anyString()))
                     .thenReturn(Optional.of(existing));
 
-            CiamUserIdentityDo result = service.bindIdentity(
+            UserIdentityPo result = service.bindIdentity(
                     "user-001", IdentityType.MOBILE, "13800138000", "+86", "app");
 
             assertEquals("id-001", result.getIdentityId());
@@ -112,16 +112,16 @@ class IdentityDomainServiceTest {
 
         @Test
         void bindIdentity_allowsRebindWhenPreviouslyUnbound() {
-            CiamUserIdentityDo existing = stubIdentity("other-user", IdentityType.WECHAT,
+            UserIdentityPo existing = stubIdentity("other-user", IdentityType.WECHAT,
                     "wx-openid-123", IdentityStatus.UNBOUND.getCode());
             when(identityRepository.findByTypeAndHash(eq("wechat"), anyString()))
                     .thenReturn(Optional.of(existing));
 
-            CiamUserIdentityDo result = service.bindIdentity(
+            UserIdentityPo result = service.bindIdentity(
                     "user-002", IdentityType.WECHAT, "wx-openid-123", null, "wechat");
 
             assertNotNull(result);
-            verify(identityRepository).insert(any(CiamUserIdentityDo.class));
+            verify(identityRepository).insert(any(UserIdentityPo.class));
         }
 
         @Test
@@ -130,7 +130,7 @@ class IdentityDomainServiceTest {
                     .thenReturn(Optional.empty());
 
             for (IdentityType type : IdentityType.values()) {
-                CiamUserIdentityDo result = service.bindIdentity(
+                UserIdentityPo result = service.bindIdentity(
                         "user-001", type, "value-" + type.getCode(), null, "test");
                 assertEquals(type.getCode(), result.getIdentityType());
             }
@@ -145,14 +145,14 @@ class IdentityDomainServiceTest {
         @Test
         void unbindIdentity_setsStatusToUnbound() {
             String hash = FieldEncryptor.hash("13800138000");
-            CiamUserIdentityDo existing = stubIdentity("user-001", IdentityType.MOBILE,
+            UserIdentityPo existing = stubIdentity("user-001", IdentityType.MOBILE,
                     "13800138000", IdentityStatus.BOUND.getCode());
             when(identityRepository.findByTypeAndHash("mobile", hash))
                     .thenReturn(Optional.of(existing));
 
             service.unbindIdentity("user-001", IdentityType.MOBILE, hash);
 
-            ArgumentCaptor<CiamUserIdentityDo> captor = ArgumentCaptor.forClass(CiamUserIdentityDo.class);
+            ArgumentCaptor<UserIdentityPo> captor = ArgumentCaptor.forClass(UserIdentityPo.class);
             verify(identityRepository).updateByIdentityId(captor.capture());
             assertEquals(IdentityStatus.UNBOUND.getCode(), captor.getValue().getIdentityStatus());
             assertNotNull(captor.getValue().getUnbindTime());
@@ -173,7 +173,7 @@ class IdentityDomainServiceTest {
         @Test
         void unbindIdentity_throwsWhenUserIdMismatch() {
             String hash = FieldEncryptor.hash("test@example.com");
-            CiamUserIdentityDo existing = stubIdentity("other-user", IdentityType.EMAIL,
+            UserIdentityPo existing = stubIdentity("other-user", IdentityType.EMAIL,
                     "test@example.com", IdentityStatus.BOUND.getCode());
             when(identityRepository.findByTypeAndHash("email", hash))
                     .thenReturn(Optional.of(existing));
@@ -192,12 +192,12 @@ class IdentityDomainServiceTest {
 
         @Test
         void findByTypeAndHash_returnsIdentityWhenExists() {
-            CiamUserIdentityDo existing = stubIdentity("user-001", IdentityType.APPLE,
+            UserIdentityPo existing = stubIdentity("user-001", IdentityType.APPLE,
                     "apple-sub-123", IdentityStatus.BOUND.getCode());
             when(identityRepository.findByTypeAndHash("apple", existing.getIdentityHash()))
                     .thenReturn(Optional.of(existing));
 
-            Optional<CiamUserIdentityDo> result = service.findByTypeAndHash(
+            Optional<UserIdentityPo> result = service.findByTypeAndHash(
                     IdentityType.APPLE, existing.getIdentityHash());
 
             assertTrue(result.isPresent());
@@ -209,7 +209,7 @@ class IdentityDomainServiceTest {
             when(identityRepository.findByTypeAndHash(anyString(), anyString()))
                     .thenReturn(Optional.empty());
 
-            Optional<CiamUserIdentityDo> result = service.findByTypeAndHash(
+            Optional<UserIdentityPo> result = service.findByTypeAndHash(
                     IdentityType.GOOGLE, "nonexistent-hash");
 
             assertTrue(result.isEmpty());
@@ -223,13 +223,13 @@ class IdentityDomainServiceTest {
 
         @Test
         void findByUserId_returnsOnlyBoundIdentities() {
-            CiamUserIdentityDo bound = stubIdentity("user-001", IdentityType.MOBILE,
+            UserIdentityPo bound = stubIdentity("user-001", IdentityType.MOBILE,
                     "13800138000", IdentityStatus.BOUND.getCode());
-            CiamUserIdentityDo unbound = stubIdentity("user-001", IdentityType.EMAIL,
+            UserIdentityPo unbound = stubIdentity("user-001", IdentityType.EMAIL,
                     "test@example.com", IdentityStatus.UNBOUND.getCode());
             when(identityRepository.findByUserId("user-001")).thenReturn(List.of(bound, unbound));
 
-            List<CiamUserIdentityDo> result = service.findByUserId("user-001");
+            List<UserIdentityPo> result = service.findByUserId("user-001");
 
             assertEquals(1, result.size());
             assertEquals("mobile", result.get(0).getIdentityType());
@@ -239,7 +239,7 @@ class IdentityDomainServiceTest {
         void findByUserId_returnsEmptyWhenNoIdentities() {
             when(identityRepository.findByUserId("user-001")).thenReturn(Collections.emptyList());
 
-            List<CiamUserIdentityDo> result = service.findByUserId("user-001");
+            List<UserIdentityPo> result = service.findByUserId("user-001");
 
             assertTrue(result.isEmpty());
         }
@@ -252,7 +252,7 @@ class IdentityDomainServiceTest {
 
         @Test
         void checkConflict_returnsUserIdWhenConflictExists() {
-            CiamUserIdentityDo existing = stubIdentity("user-001", IdentityType.MOBILE,
+            UserIdentityPo existing = stubIdentity("user-001", IdentityType.MOBILE,
                     "13800138000", IdentityStatus.BOUND.getCode());
             when(identityRepository.findByTypeAndHash(eq("mobile"), anyString()))
                     .thenReturn(Optional.of(existing));
@@ -275,7 +275,7 @@ class IdentityDomainServiceTest {
 
         @Test
         void checkConflict_returnsEmptyWhenExistingIsUnbound() {
-            CiamUserIdentityDo existing = stubIdentity("user-001", IdentityType.EMAIL,
+            UserIdentityPo existing = stubIdentity("user-001", IdentityType.EMAIL,
                     "test@example.com", IdentityStatus.UNBOUND.getCode());
             when(identityRepository.findByTypeAndHash(eq("email"), anyString()))
                     .thenReturn(Optional.of(existing));
@@ -293,12 +293,12 @@ class IdentityDomainServiceTest {
 
         @Test
         void findByTypeAndValue_returnsIdentityWhenExists() {
-            CiamUserIdentityDo existing = stubIdentity("user-001", IdentityType.MOBILE,
+            UserIdentityPo existing = stubIdentity("user-001", IdentityType.MOBILE,
                     "13800138000", IdentityStatus.BOUND.getCode());
             when(identityRepository.findByTypeAndHash(eq("mobile"), eq(FieldEncryptor.hash("13800138000"))))
                     .thenReturn(Optional.of(existing));
 
-            Optional<CiamUserIdentityDo> result = service.findByTypeAndValue(
+            Optional<UserIdentityPo> result = service.findByTypeAndValue(
                     IdentityType.MOBILE, "13800138000");
 
             assertTrue(result.isPresent());
@@ -310,7 +310,7 @@ class IdentityDomainServiceTest {
             when(identityRepository.findByTypeAndHash(anyString(), anyString()))
                     .thenReturn(Optional.empty());
 
-            Optional<CiamUserIdentityDo> result = service.findByTypeAndValue(
+            Optional<UserIdentityPo> result = service.findByTypeAndValue(
                     IdentityType.EMAIL, "nonexistent@example.com");
 
             assertTrue(result.isEmpty());
@@ -325,14 +325,14 @@ class IdentityDomainServiceTest {
         @Test
         void markVerified_setsVerifiedFlagToOne() {
             String hash = FieldEncryptor.hash("13800138000");
-            CiamUserIdentityDo existing = stubIdentity("user-001", IdentityType.MOBILE,
+            UserIdentityPo existing = stubIdentity("user-001", IdentityType.MOBILE,
                     "13800138000", IdentityStatus.BOUND.getCode());
             when(identityRepository.findByTypeAndHash("mobile", hash))
                     .thenReturn(Optional.of(existing));
 
             service.markVerified("user-001", IdentityType.MOBILE, hash);
 
-            ArgumentCaptor<CiamUserIdentityDo> captor = ArgumentCaptor.forClass(CiamUserIdentityDo.class);
+            ArgumentCaptor<UserIdentityPo> captor = ArgumentCaptor.forClass(UserIdentityPo.class);
             verify(identityRepository).updateByIdentityId(captor.capture());
             assertEquals(1, captor.getValue().getVerifiedFlag());
             assertNotNull(captor.getValue().getModifyTime());
@@ -350,7 +350,7 @@ class IdentityDomainServiceTest {
         @Test
         void markVerified_throwsWhenUserIdMismatch() {
             String hash = FieldEncryptor.hash("test@example.com");
-            CiamUserIdentityDo existing = stubIdentity("other-user", IdentityType.EMAIL,
+            UserIdentityPo existing = stubIdentity("other-user", IdentityType.EMAIL,
                     "test@example.com", IdentityStatus.BOUND.getCode());
             when(identityRepository.findByTypeAndHash("email", hash))
                     .thenReturn(Optional.of(existing));
@@ -367,9 +367,9 @@ class IdentityDomainServiceTest {
 
         @Test
         void countBoundIdentities_countsOnlyBound() {
-            CiamUserIdentityDo bound = stubIdentity("user-001", IdentityType.MOBILE,
+            UserIdentityPo bound = stubIdentity("user-001", IdentityType.MOBILE,
                     "13800138000", IdentityStatus.BOUND.getCode());
-            CiamUserIdentityDo unbound = stubIdentity("user-001", IdentityType.EMAIL,
+            UserIdentityPo unbound = stubIdentity("user-001", IdentityType.EMAIL,
                     "test@example.com", IdentityStatus.UNBOUND.getCode());
             when(identityRepository.findByUserId("user-001")).thenReturn(List.of(bound, unbound));
 
@@ -395,12 +395,12 @@ class IdentityDomainServiceTest {
 
         @Test
         void checkConflictDetail_returnsConflictingIdentity() {
-            CiamUserIdentityDo existing = stubIdentity("other-user", IdentityType.MOBILE,
+            UserIdentityPo existing = stubIdentity("other-user", IdentityType.MOBILE,
                     "13800138000", IdentityStatus.BOUND.getCode());
             when(identityRepository.findByTypeAndHash(eq("mobile"), anyString()))
                     .thenReturn(Optional.of(existing));
 
-            Optional<CiamUserIdentityDo> result = service.checkConflictDetail(
+            Optional<UserIdentityPo> result = service.checkConflictDetail(
                     IdentityType.MOBILE, "13800138000", "user-001");
 
             assertTrue(result.isPresent());
@@ -409,12 +409,12 @@ class IdentityDomainServiceTest {
 
         @Test
         void checkConflictDetail_returnsEmptyWhenSameUser() {
-            CiamUserIdentityDo existing = stubIdentity("user-001", IdentityType.MOBILE,
+            UserIdentityPo existing = stubIdentity("user-001", IdentityType.MOBILE,
                     "13800138000", IdentityStatus.BOUND.getCode());
             when(identityRepository.findByTypeAndHash(eq("mobile"), anyString()))
                     .thenReturn(Optional.of(existing));
 
-            Optional<CiamUserIdentityDo> result = service.checkConflictDetail(
+            Optional<UserIdentityPo> result = service.checkConflictDetail(
                     IdentityType.MOBILE, "13800138000", "user-001");
 
             assertTrue(result.isEmpty());
@@ -422,12 +422,12 @@ class IdentityDomainServiceTest {
 
         @Test
         void checkConflictDetail_returnsEmptyWhenUnbound() {
-            CiamUserIdentityDo existing = stubIdentity("other-user", IdentityType.EMAIL,
+            UserIdentityPo existing = stubIdentity("other-user", IdentityType.EMAIL,
                     "test@example.com", IdentityStatus.UNBOUND.getCode());
             when(identityRepository.findByTypeAndHash(eq("email"), anyString()))
                     .thenReturn(Optional.of(existing));
 
-            Optional<CiamUserIdentityDo> result = service.checkConflictDetail(
+            Optional<UserIdentityPo> result = service.checkConflictDetail(
                     IdentityType.EMAIL, "test@example.com", "user-001");
 
             assertTrue(result.isEmpty());
@@ -438,7 +438,7 @@ class IdentityDomainServiceTest {
             when(identityRepository.findByTypeAndHash(anyString(), anyString()))
                     .thenReturn(Optional.empty());
 
-            Optional<CiamUserIdentityDo> result = service.checkConflictDetail(
+            Optional<UserIdentityPo> result = service.checkConflictDetail(
                     IdentityType.GOOGLE, "google-sub-123", "user-001");
 
             assertTrue(result.isEmpty());

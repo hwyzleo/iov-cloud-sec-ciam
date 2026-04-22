@@ -13,7 +13,7 @@ import java.time.Instant;
  */
 @Data
 @TableName("ciam_jwk")
-public class CiamJwkDo {
+public class JwkPo {
 
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;

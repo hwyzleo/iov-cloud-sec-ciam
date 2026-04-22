@@ -9,50 +9,35 @@ import lombok.Data;
 import java.time.Instant;
 
 /**
- * 会话表数据对象。
+ * 认证标签表数据对象。
  */
 @Data
-@TableName("ciam_session")
-public class CiamSessionDo {
+@TableName("ciam_user_tag")
+public class UserTagPo {
 
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
-    @TableField("session_id")
-    private String sessionId;
+    @TableField("tag_id")
+    private String tagId;
 
     @TableField("user_id")
     private String userId;
 
-    @TableField("device_id")
-    private String deviceId;
+    @TableField("tag_code")
+    private String tagCode;
 
-    @TableField("client_id")
-    private String clientId;
+    @TableField("tag_name")
+    private String tagName;
 
-    @TableField("client_type")
-    private String clientType;
+    @TableField("tag_status")
+    private Integer tagStatus;
 
-    @TableField("login_ip")
-    private String loginIp;
+    @TableField("tag_source")
+    private String tagSource;
 
-    @TableField("login_region")
-    private String loginRegion;
-
-    @TableField("risk_level")
-    private Integer riskLevel;
-
-    @TableField("session_status")
-    private Integer sessionStatus;
-
-    @TableField("login_time")
-    private Instant loginTime;
-
-    @TableField("last_active_time")
-    private Instant lastActiveTime;
-
-    @TableField("logout_time")
-    private Instant logoutTime;
+    @TableField("effective_time")
+    private Instant effectiveTime;
 
     @TableField("expire_time")
     private Instant expireTime;

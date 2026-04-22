@@ -9,17 +9,20 @@ import lombok.Data;
 import java.time.Instant;
 
 /**
- * 风险事件表数据对象。
+ * 授权码记录表数据对象。
  */
 @Data
-@TableName("ciam_risk_event")
-public class CiamRiskEventDo {
+@TableName("ciam_auth_code")
+public class AuthCodePo {
 
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
-    @TableField("risk_event_id")
-    private String riskEventId;
+    @TableField("auth_code_id")
+    private String authCodeId;
+
+    @TableField("client_id")
+    private String clientId;
 
     @TableField("user_id")
     private String userId;
@@ -27,38 +30,29 @@ public class CiamRiskEventDo {
     @TableField("session_id")
     private String sessionId;
 
-    @TableField("device_id")
-    private String deviceId;
+    @TableField("code_hash")
+    private String codeHash;
 
-    @TableField("risk_scene")
-    private String riskScene;
+    @TableField("redirect_uri")
+    private String redirectUri;
 
-    @TableField("risk_type")
-    private String riskType;
+    @TableField("scope")
+    private String scope;
 
-    @TableField("risk_level")
-    private Integer riskLevel;
+    @TableField("code_challenge")
+    private String codeChallenge;
 
-    @TableField("client_type")
-    private String clientType;
+    @TableField("challenge_method")
+    private String challengeMethod;
 
-    @TableField("ip_address")
-    private String ipAddress;
+    @TableField("expire_time")
+    private Instant expireTime;
 
-    @TableField("region_code")
-    private String regionCode;
+    @TableField("used_flag")
+    private Integer usedFlag;
 
-    @TableField("decision_result")
-    private String decisionResult;
-
-    @TableField("hit_rules")
-    private String hitRules;
-
-    @TableField("event_time")
-    private Instant eventTime;
-
-    @TableField("handled_flag")
-    private Integer handledFlag;
+    @TableField("used_time")
+    private Instant usedTime;
 
     @TableField("description")
     private String description;

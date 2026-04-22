@@ -3,7 +3,7 @@ package net.hwyz.iov.cloud.sec.ciam.service.common.audit;
 import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamAuditLogRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamAuditLogDo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.AuditLogPo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
@@ -49,7 +49,7 @@ public class PersistentAuditLogger implements AuditLogger {
 
         // 持久化到数据库
         try {
-            CiamAuditLogDo logDo = mapToDataObject(event);
+            AuditLogPo logDo = mapToDataObject(event);
             auditLogRepository.insert(logDo);
         } catch (Exception e) {
             log.warn("[AUDIT] 审计日志持久化失败，已降级为仅日志记录: {}", e.getMessage());
@@ -57,10 +57,10 @@ public class PersistentAuditLogger implements AuditLogger {
     }
 
     /**
-     * 将 AuditEvent 映射为 CiamAuditLogDo。
+     * 将 AuditEvent 映射为 AuditLogPo。
      */
-    CiamAuditLogDo mapToDataObject(AuditEvent event) {
-        CiamAuditLogDo logDo = new CiamAuditLogDo();
+    AuditLogPo mapToDataObject(AuditEvent event) {
+        AuditLogPo logDo = new AuditLogPo();
         logDo.setAuditId(generateAuditId());
         logDo.setUserId(event.getUserId());
         logDo.setSessionId(event.getSessionId());

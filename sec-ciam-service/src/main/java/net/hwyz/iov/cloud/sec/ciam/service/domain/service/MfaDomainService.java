@@ -13,7 +13,7 @@ import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.ChallengeScene;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.ChallengeStatus;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.ChallengeType;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamMfaChallengeRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamMfaChallengeDo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.MfaChallengePo;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
@@ -67,7 +67,7 @@ public class MfaDomainService {
         int ttlMinutes = challengeType == ChallengeType.SMS ? SMS_TTL_MINUTES : EMAIL_TTL_MINUTES;
         Instant expireTime = now.plusSeconds(ttlMinutes * 60L);
 
-        CiamMfaChallengeDo challenge = new CiamMfaChallengeDo();
+        MfaChallengePo challenge = new MfaChallengePo();
         challenge.setChallengeId(challengeId);
         challenge.setUserId(userId);
         challenge.setSessionId(sessionId);
@@ -99,7 +99,7 @@ public class MfaDomainService {
      * @return true 表示验证通过，false 表示验证失败
      */
     public boolean verifyChallenge(String challengeId, String code) {
-        CiamMfaChallengeDo challenge = challengeRepository.findByChallengeId(challengeId)
+        MfaChallengePo challenge = challengeRepository.findByChallengeId(challengeId)
                 .orElseThrow(() -> new BusinessException(CiamErrorCode.MFA_CHALLENGE_NOT_FOUND));
 
         if (challenge.getChallengeStatus() != ChallengeStatus.PENDING.getCode()) {
@@ -132,7 +132,7 @@ public class MfaDomainService {
      * @param challengeId 挑战业务唯一标识
      */
     public void cancelChallenge(String challengeId) {
-        CiamMfaChallengeDo challenge = challengeRepository.findByChallengeId(challengeId)
+        MfaChallengePo challenge = challengeRepository.findByChallengeId(challengeId)
                 .orElseThrow(() -> new BusinessException(CiamErrorCode.MFA_CHALLENGE_NOT_FOUND));
 
         if (challenge.getChallengeStatus() != ChallengeStatus.PENDING.getCode()) {

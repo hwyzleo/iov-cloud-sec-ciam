@@ -32,9 +32,9 @@ import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamRefreshTokenRep
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamSessionRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamDeviceRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.service.*;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamUserCredentialDo;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamUserDo;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamUserIdentityDo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.UserCredentialPo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.UserPo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.UserIdentityPo;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.store.InMemoryVerificationCodeStore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -196,7 +196,7 @@ class AuthenticationAppServiceTest {
         void registersNewUserWhenIdentityNotFound() {
             String code = seedVerificationCode();
             // 使用 ArgumentCaptor 捕获 bindIdentity 插入的记录，供 markVerified 查询使用
-            ArgumentCaptor<CiamUserIdentityDo> identityCaptor = ArgumentCaptor.forClass(CiamUserIdentityDo.class);
+            ArgumentCaptor<UserIdentityPo> identityCaptor = ArgumentCaptor.forClass(UserIdentityPo.class);
             // 调用顺序：
             // 1. findByTypeAndValue → findByTypeAndHash → empty
             // 2. bindIdentity → findByTypeAndHash → empty
@@ -212,7 +212,7 @@ class AuthenticationAppServiceTest {
             // activate 需要查到用户
             when(userRepository.findByUserId(anyString())).thenAnswer(inv -> {
                 String uid = inv.getArgument(0);
-                CiamUserDo user = new CiamUserDo();
+                UserPo user = new UserPo();
                 user.setUserId(uid);
                 user.setUserStatus(UserStatus.PENDING.getCode());
                 return Optional.of(user);
@@ -226,13 +226,13 @@ class AuthenticationAppServiceTest {
             assertNull(result.getSessionId());
 
             // 验证用户创建
-            verify(userRepository).insert(any(CiamUserDo.class));
+            verify(userRepository).insert(any(UserPo.class));
             // 验证标识绑定
-            verify(identityRepository).insert(any(CiamUserIdentityDo.class));
+            verify(identityRepository).insert(any(UserIdentityPo.class));
             // 验证标识标记已验证
-            verify(identityRepository).updateByIdentityId(any(CiamUserIdentityDo.class));
+            verify(identityRepository).updateByIdentityId(any(UserIdentityPo.class));
             // 验证用户激活
-            verify(userRepository).updateByUserId(any(CiamUserDo.class));
+            verify(userRepository).updateByUserId(any(UserPo.class));
 
             // 验证审计日志 - REGISTER_SUCCESS
             ArgumentCaptor<AuditEvent> captor = ArgumentCaptor.forClass(AuditEvent.class);
@@ -254,7 +254,7 @@ class AuthenticationAppServiceTest {
             String userId = "existing-user-001";
 
             // 手机号已绑定
-            CiamUserIdentityDo identity = stubBoundIdentity(userId);
+            UserIdentityPo identity = stubBoundIdentity(userId);
             when(identityRepository.findByTypeAndHash(eq("mobile"), anyString()))
                     .thenReturn(Optional.of(identity));
             // 用户状态正常
@@ -307,7 +307,7 @@ class AuthenticationAppServiceTest {
             String code = seedVerificationCode();
             String userId = "locked-user";
 
-            CiamUserIdentityDo identity = stubBoundIdentity(userId);
+            UserIdentityPo identity = stubBoundIdentity(userId);
             when(identityRepository.findByTypeAndHash(eq("mobile"), anyString()))
                     .thenReturn(Optional.of(identity));
             when(userRepository.findByUserId(userId))
@@ -327,7 +327,7 @@ class AuthenticationAppServiceTest {
             String code = seedVerificationCode();
             String userId = "disabled-user";
 
-            CiamUserIdentityDo identity = stubBoundIdentity(userId);
+            UserIdentityPo identity = stubBoundIdentity(userId);
             when(identityRepository.findByTypeAndHash(eq("mobile"), anyString()))
                     .thenReturn(Optional.of(identity));
             when(userRepository.findByUserId(userId))
@@ -342,8 +342,8 @@ class AuthenticationAppServiceTest {
 
     // ---- 辅助方法 ----
 
-    private CiamUserIdentityDo stubBoundIdentity(String userId) {
-        CiamUserIdentityDo identity = new CiamUserIdentityDo();
+    private UserIdentityPo stubBoundIdentity(String userId) {
+        UserIdentityPo identity = new UserIdentityPo();
         identity.setIdentityId("identity-001");
         identity.setUserId(userId);
         identity.setIdentityType(IdentityType.MOBILE.getCode());
@@ -354,8 +354,8 @@ class AuthenticationAppServiceTest {
         return identity;
     }
 
-    private CiamUserDo stubUser(String userId, UserStatus status) {
-        CiamUserDo user = new CiamUserDo();
+    private UserPo stubUser(String userId, UserStatus status) {
+        UserPo user = new UserPo();
         user.setUserId(userId);
         user.setUserStatus(status.getCode());
         return user;
@@ -366,8 +366,8 @@ class AuthenticationAppServiceTest {
     @Nested
     class EmailPasswordLoginTests {
 
-        private CiamUserIdentityDo stubEmailIdentity(String userId) {
-            CiamUserIdentityDo identity = new CiamUserIdentityDo();
+        private UserIdentityPo stubEmailIdentity(String userId) {
+            UserIdentityPo identity = new UserIdentityPo();
             identity.setIdentityId("email-identity-001");
             identity.setUserId(userId);
             identity.setIdentityType(IdentityType.EMAIL.getCode());
@@ -378,8 +378,8 @@ class AuthenticationAppServiceTest {
             return identity;
         }
 
-        private CiamUserCredentialDo stubCredential(String userId, String rawPassword) {
-            CiamUserCredentialDo cred = new CiamUserCredentialDo();
+        private UserCredentialPo stubCredential(String userId, String rawPassword) {
+            UserCredentialPo cred = new UserCredentialPo();
             cred.setCredentialId("cred-001");
             cred.setUserId(userId);
             cred.setCredentialType(CredentialType.EMAIL_PASSWORD.getCode());
@@ -432,7 +432,7 @@ class AuthenticationAppServiceTest {
         @Test
         void returnsChallengeAfterThreeFailedAttempts() {
             String userId = "email-user-003";
-            CiamUserCredentialDo cred = stubCredential(userId, VALID_PASSWORD);
+            UserCredentialPo cred = stubCredential(userId, VALID_PASSWORD);
             cred.setFailCount(2); // already 2 failures, next will be 3rd
 
             when(identityRepository.findByTypeAndHash(eq("email"), anyString()))
@@ -509,8 +509,8 @@ class AuthenticationAppServiceTest {
             return code;
         }
 
-        private CiamUserIdentityDo stubEmailBoundIdentity(String userId) {
-            CiamUserIdentityDo identity = new CiamUserIdentityDo();
+        private UserIdentityPo stubEmailBoundIdentity(String userId) {
+            UserIdentityPo identity = new UserIdentityPo();
             identity.setIdentityId("email-identity-001");
             identity.setUserId(userId);
             identity.setIdentityType(IdentityType.EMAIL.getCode());
@@ -542,7 +542,7 @@ class AuthenticationAppServiceTest {
         void registersNewUserWhenEmailNotFound() {
             String code = seedEmailVerificationCode();
 
-            ArgumentCaptor<CiamUserIdentityDo> identityCaptor = ArgumentCaptor.forClass(CiamUserIdentityDo.class);
+            ArgumentCaptor<UserIdentityPo> identityCaptor = ArgumentCaptor.forClass(UserIdentityPo.class);
             when(identityRepository.findByTypeAndHash(eq("email"), anyString()))
                     .thenReturn(Optional.empty())   // findByTypeAndValue
                     .thenReturn(Optional.empty())   // bindIdentity conflict check
@@ -550,7 +550,7 @@ class AuthenticationAppServiceTest {
             when(identityRepository.insert(identityCaptor.capture())).thenReturn(1);
             when(userRepository.findByUserId(anyString())).thenAnswer(inv -> {
                 String uid = inv.getArgument(0);
-                CiamUserDo user = new CiamUserDo();
+                UserPo user = new UserPo();
                 user.setUserId(uid);
                 user.setUserStatus(UserStatus.PENDING.getCode());
                 return Optional.of(user);
@@ -561,8 +561,8 @@ class AuthenticationAppServiceTest {
 
             assertTrue(result.isNewUser());
             assertNotNull(result.getUserId());
-            verify(userRepository).insert(any(CiamUserDo.class));
-            verify(identityRepository).insert(any(CiamUserIdentityDo.class));
+            verify(userRepository).insert(any(UserPo.class));
+            verify(identityRepository).insert(any(UserIdentityPo.class));
 
             ArgumentCaptor<AuditEvent> captor = ArgumentCaptor.forClass(AuditEvent.class);
             verify(auditLogger).log(captor.capture());
@@ -586,7 +586,7 @@ class AuthenticationAppServiceTest {
             when(wechatLoginAdapter.getUserInfo(wechatCode)).thenReturn(userInfo);
 
             // subject 未绑定
-            ArgumentCaptor<CiamUserIdentityDo> identityCaptor = ArgumentCaptor.forClass(CiamUserIdentityDo.class);
+            ArgumentCaptor<UserIdentityPo> identityCaptor = ArgumentCaptor.forClass(UserIdentityPo.class);
             when(identityRepository.findByTypeAndHash(eq("wechat"), anyString()))
                     .thenReturn(Optional.empty())   // findByTypeAndValue
                     .thenReturn(Optional.empty());  // bindIdentity conflict check
@@ -594,7 +594,7 @@ class AuthenticationAppServiceTest {
             // activate 需要查到用户
             when(userRepository.findByUserId(anyString())).thenAnswer(inv -> {
                 String uid = inv.getArgument(0);
-                CiamUserDo user = new CiamUserDo();
+                UserPo user = new UserPo();
                 user.setUserId(uid);
                 user.setUserStatus(UserStatus.PENDING.getCode());
                 return Optional.of(user);
@@ -605,8 +605,8 @@ class AuthenticationAppServiceTest {
 
             assertTrue(result.isNewUser());
             assertNotNull(result.getUserId());
-            verify(userRepository).insert(any(CiamUserDo.class));
-            verify(identityRepository).insert(any(CiamUserIdentityDo.class));
+            verify(userRepository).insert(any(UserPo.class));
+            verify(identityRepository).insert(any(UserIdentityPo.class));
 
             ArgumentCaptor<AuditEvent> captor = ArgumentCaptor.forClass(AuditEvent.class);
             verify(auditLogger).log(captor.capture());
@@ -623,7 +623,7 @@ class AuthenticationAppServiceTest {
                     .build();
             when(wechatLoginAdapter.getUserInfo(wechatCode)).thenReturn(userInfo);
 
-            CiamUserIdentityDo identity = new CiamUserIdentityDo();
+            UserIdentityPo identity = new UserIdentityPo();
             identity.setIdentityId("wx-identity-001");
             identity.setUserId(userId);
             identity.setIdentityType(IdentityType.WECHAT.getCode());
@@ -665,11 +665,11 @@ class AuthenticationAppServiceTest {
             when(identityRepository.findByTypeAndHash(eq("email"), anyString()))
                     .thenReturn(Optional.empty());  // checkConflict for email
 
-            ArgumentCaptor<CiamUserIdentityDo> identityCaptor = ArgumentCaptor.forClass(CiamUserIdentityDo.class);
+            ArgumentCaptor<UserIdentityPo> identityCaptor = ArgumentCaptor.forClass(UserIdentityPo.class);
             when(identityRepository.insert(identityCaptor.capture())).thenReturn(1);
             when(userRepository.findByUserId(anyString())).thenAnswer(inv -> {
                 String uid = inv.getArgument(0);
-                CiamUserDo user = new CiamUserDo();
+                UserPo user = new UserPo();
                 user.setUserId(uid);
                 user.setUserStatus(UserStatus.PENDING.getCode());
                 return Optional.of(user);
@@ -699,7 +699,7 @@ class AuthenticationAppServiceTest {
                     .build();
             when(googleLoginAdapter.verifyIdToken(idToken)).thenReturn(userInfo);
 
-            CiamUserIdentityDo identity = new CiamUserIdentityDo();
+            UserIdentityPo identity = new UserIdentityPo();
             identity.setIdentityId("google-identity-001");
             identity.setUserId(userId);
             identity.setIdentityType(IdentityType.GOOGLE.getCode());
@@ -740,7 +740,7 @@ class AuthenticationAppServiceTest {
                     .thenReturn(Optional.empty());
 
             // email 已绑定到另一个用户 → 冲突
-            CiamUserIdentityDo conflictIdentity = new CiamUserIdentityDo();
+            UserIdentityPo conflictIdentity = new UserIdentityPo();
             conflictIdentity.setIdentityId("email-conflict-001");
             conflictIdentity.setUserId("other-user-999");
             conflictIdentity.setIdentityType(IdentityType.EMAIL.getCode());
@@ -769,7 +769,7 @@ class AuthenticationAppServiceTest {
             when(localMobileAuthAdapter.verifyToken(token)).thenReturn(MOBILE);
 
             // 手机号未绑定
-            ArgumentCaptor<CiamUserIdentityDo> identityCaptor = ArgumentCaptor.forClass(CiamUserIdentityDo.class);
+            ArgumentCaptor<UserIdentityPo> identityCaptor = ArgumentCaptor.forClass(UserIdentityPo.class);
             when(identityRepository.findByTypeAndHash(eq("mobile"), anyString()))
                     .thenReturn(Optional.empty())   // findByTypeAndValue
                     .thenReturn(Optional.empty())   // bindIdentity conflict check
@@ -777,7 +777,7 @@ class AuthenticationAppServiceTest {
             when(identityRepository.insert(identityCaptor.capture())).thenReturn(1);
             when(userRepository.findByUserId(anyString())).thenAnswer(inv -> {
                 String uid = inv.getArgument(0);
-                CiamUserDo user = new CiamUserDo();
+                UserPo user = new UserPo();
                 user.setUserId(uid);
                 user.setUserStatus(UserStatus.PENDING.getCode());
                 return Optional.of(user);
@@ -789,8 +789,8 @@ class AuthenticationAppServiceTest {
             assertTrue(result.isNewUser());
             assertNotNull(result.getUserId());
             assertFalse(result.isFallbackRequired());
-            verify(userRepository).insert(any(CiamUserDo.class));
-            verify(identityRepository).insert(any(CiamUserIdentityDo.class));
+            verify(userRepository).insert(any(UserPo.class));
+            verify(identityRepository).insert(any(UserIdentityPo.class));
 
             ArgumentCaptor<AuditEvent> captor = ArgumentCaptor.forClass(AuditEvent.class);
             verify(auditLogger).log(captor.capture());
@@ -804,7 +804,7 @@ class AuthenticationAppServiceTest {
             String userId = "existing-local-user";
             when(localMobileAuthAdapter.verifyToken(token)).thenReturn(MOBILE);
 
-            CiamUserIdentityDo identity = stubBoundIdentity(userId);
+            UserIdentityPo identity = stubBoundIdentity(userId);
             when(identityRepository.findByTypeAndHash(eq("mobile"), anyString()))
                     .thenReturn(Optional.of(identity));
             when(userRepository.findByUserId(userId))

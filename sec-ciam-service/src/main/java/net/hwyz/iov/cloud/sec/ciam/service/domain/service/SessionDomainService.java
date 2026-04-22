@@ -11,7 +11,7 @@ import net.hwyz.iov.cloud.sec.ciam.service.domain.model.Device;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamDeviceRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamRefreshTokenRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamSessionRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamSessionDo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.SessionPo;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -47,7 +47,7 @@ public class SessionDomainService {
      * @throws BusinessException SESSION_NOT_FOUND 会话不存在；FORBIDDEN 会话不属于该用户
      */
     public void logout(String sessionId, String userId) {
-        CiamSessionDo session = sessionRepository.findBySessionId(sessionId)
+        SessionPo session = sessionRepository.findBySessionId(sessionId)
                 .orElseThrow(() -> new BusinessException(CiamErrorCode.SESSION_NOT_FOUND));
 
         if (!userId.equals(session.getUserId())) {
@@ -80,7 +80,7 @@ public class SessionDomainService {
      * @throws BusinessException SESSION_NOT_FOUND 会话不存在
      */
     public void invalidateSession(String sessionId) {
-        CiamSessionDo session = sessionRepository.findBySessionId(sessionId)
+        SessionPo session = sessionRepository.findBySessionId(sessionId)
                 .orElseThrow(() -> new BusinessException(CiamErrorCode.SESSION_NOT_FOUND));
 
         if (session.getSessionStatus() != SessionStatus.ACTIVE.getCode()) {
@@ -104,7 +104,7 @@ public class SessionDomainService {
      * @param userId 用户业务唯一标识
      * @return 活跃会话列表
      */
-    public List<CiamSessionDo> findUserSessions(String userId) {
+    public List<SessionPo> findUserSessions(String userId) {
         return sessionRepository.findByUserIdAndStatus(userId, SessionStatus.ACTIVE.getCode());
     }
 
@@ -114,7 +114,7 @@ public class SessionDomainService {
      * @param sessionId 会话业务唯一标识
      * @return 会话数据对象（可能为空）
      */
-    public java.util.Optional<CiamSessionDo> findBySessionId(String sessionId) {
+    public java.util.Optional<SessionPo> findBySessionId(String sessionId) {
         return sessionRepository.findBySessionId(sessionId);
     }
 
@@ -159,9 +159,9 @@ public class SessionDomainService {
         }
 
         // 下线该设备上的所有活跃会话
-        List<CiamSessionDo> activeSessions = sessionRepository.findByDeviceIdAndStatus(
+        List<SessionPo> activeSessions = sessionRepository.findByDeviceIdAndStatus(
                 deviceId, SessionStatus.ACTIVE.getCode());
-        for (CiamSessionDo session : activeSessions) {
+        for (SessionPo session : activeSessions) {
             session.setSessionStatus(SessionStatus.KICKED.getCode());
             session.setLogoutTime(DateTimeUtil.getNowInstant());
             session.setModifyTime(DateTimeUtil.getNowInstant());

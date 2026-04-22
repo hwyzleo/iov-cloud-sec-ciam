@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import lombok.RequiredArgsConstructor;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamRiskEventRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.CiamRiskEventMapper;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamRiskEventDo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.RiskEventPo;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -19,39 +19,39 @@ public class CiamRiskEventRepositoryImpl implements CiamRiskEventRepository {
     private final CiamRiskEventMapper mapper;
 
     @Override
-    public Optional<CiamRiskEventDo> findByRiskEventId(String riskEventId) {
+    public Optional<RiskEventPo> findByRiskEventId(String riskEventId) {
         return Optional.ofNullable(mapper.selectOne(
-                new LambdaQueryWrapper<CiamRiskEventDo>()
-                        .eq(CiamRiskEventDo::getRiskEventId, riskEventId)));
+                new LambdaQueryWrapper<RiskEventPo>()
+                        .eq(RiskEventPo::getRiskEventId, riskEventId)));
     }
 
     @Override
-    public List<CiamRiskEventDo> findByUserIdAndTimeRange(String userId, LocalDateTime startTime, LocalDateTime endTime) {
+    public List<RiskEventPo> findByUserIdAndTimeRange(String userId, LocalDateTime startTime, LocalDateTime endTime) {
         return mapper.selectList(
-                new LambdaQueryWrapper<CiamRiskEventDo>()
-                        .eq(CiamRiskEventDo::getUserId, userId)
-                        .ge(CiamRiskEventDo::getEventTime, startTime)
-                        .le(CiamRiskEventDo::getEventTime, endTime)
-                        .eq(CiamRiskEventDo::getRowValid, 1));
+                new LambdaQueryWrapper<RiskEventPo>()
+                        .eq(RiskEventPo::getUserId, userId)
+                        .ge(RiskEventPo::getEventTime, startTime)
+                        .le(RiskEventPo::getEventTime, endTime)
+                        .eq(RiskEventPo::getRowValid, 1));
     }
 
     @Override
-    public List<CiamRiskEventDo> findByRiskLevel(int riskLevel) {
+    public List<RiskEventPo> findByRiskLevel(int riskLevel) {
         return mapper.selectList(
-                new LambdaQueryWrapper<CiamRiskEventDo>()
-                        .eq(CiamRiskEventDo::getRiskLevel, riskLevel)
-                        .eq(CiamRiskEventDo::getRowValid, 1));
+                new LambdaQueryWrapper<RiskEventPo>()
+                        .eq(RiskEventPo::getRiskLevel, riskLevel)
+                        .eq(RiskEventPo::getRowValid, 1));
     }
 
     @Override
-    public int insert(CiamRiskEventDo entity) {
+    public int insert(RiskEventPo entity) {
         return mapper.insert(entity);
     }
 
     @Override
-    public int updateByRiskEventId(CiamRiskEventDo entity) {
+    public int updateByRiskEventId(RiskEventPo entity) {
         return mapper.update(entity,
-                new LambdaUpdateWrapper<CiamRiskEventDo>()
-                        .eq(CiamRiskEventDo::getRiskEventId, entity.getRiskEventId()));
+                new LambdaUpdateWrapper<RiskEventPo>()
+                        .eq(RiskEventPo::getRiskEventId, entity.getRiskEventId()));
     }
 }

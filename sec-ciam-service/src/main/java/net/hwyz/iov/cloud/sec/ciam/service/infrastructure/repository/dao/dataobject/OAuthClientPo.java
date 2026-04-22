@@ -9,50 +9,47 @@ import lombok.Data;
 import java.time.Instant;
 
 /**
- * 登录标识表数据对象。
+ * 接入应用表数据对象。
  */
 @Data
-@TableName("ciam_user_identity")
-public class CiamUserIdentityDo {
+@TableName("ciam_oauth_client")
+public class OAuthClientPo {
 
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
-    @TableField("identity_id")
-    private String identityId;
+    @TableField("client_id")
+    private String clientId;
 
-    @TableField("user_id")
-    private String userId;
+    @TableField("client_name")
+    private String clientName;
 
-    @TableField("identity_type")
-    private String identityType;
+    @TableField("client_secret_hash")
+    private String clientSecretHash;
 
-    @TableField("identity_value")
-    private String identityValue;
+    @TableField("client_type")
+    private String clientType;
 
-    @TableField("identity_hash")
-    private String identityHash;
+    @TableField("redirect_uris")
+    private String redirectUris;
 
-    @TableField("country_code")
-    private String countryCode;
+    @TableField("grant_types")
+    private String grantTypes;
 
-    @TableField("verified_flag")
-    private Integer verifiedFlag;
+    @TableField("scopes")
+    private String scopes;
 
-    @TableField("primary_flag")
-    private Integer primaryFlag;
+    @TableField("pkce_required")
+    private Integer pkceRequired;
 
-    @TableField("bind_source")
-    private String bindSource;
+    @TableField("access_token_ttl")
+    private Integer accessTokenTtl;
 
-    @TableField("bind_time")
-    private Instant bindTime;
+    @TableField("refresh_token_ttl")
+    private Integer refreshTokenTtl;
 
-    @TableField("unbind_time")
-    private Instant unbindTime;
-
-    @TableField("identity_status")
-    private Integer identityStatus;
+    @TableField("client_status")
+    private Integer clientStatus;
 
     @TableField("description")
     private String description;

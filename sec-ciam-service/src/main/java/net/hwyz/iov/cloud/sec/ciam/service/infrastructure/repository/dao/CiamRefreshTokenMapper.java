@@ -1,7 +1,7 @@
 package net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamRefreshTokenDo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.RefreshTokenPo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
@@ -13,7 +13,7 @@ import java.util.List;
  * 刷新令牌表 Mapper。
  */
 @Mapper
-public interface CiamRefreshTokenMapper extends BaseMapper<CiamRefreshTokenDo> {
+public interface CiamRefreshTokenMapper extends BaseMapper<RefreshTokenPo> {
 
     /**
      * 极简原生 SQL 搜索（物理分页支持）
@@ -32,7 +32,7 @@ public interface CiamRefreshTokenMapper extends BaseMapper<CiamRefreshTokenDo> {
             "<if test='endTime != null'> AND issue_time &lt;= #{endTime} </if> " +
             "ORDER BY issue_time DESC" +
             "</script>")
-    List<CiamRefreshTokenDo> searchTokens(@Param("refreshTokenId") String refreshTokenId,
+    List<RefreshTokenPo> searchTokens(@Param("refreshTokenId") String refreshTokenId,
                                           @Param("userId") String userId,
                                           @Param("sessionId") String sessionId,
                                           @Param("clientId") String clientId,

@@ -10,7 +10,7 @@ import net.hwyz.iov.cloud.sec.ciam.service.application.mapper.RefreshTokenMapper
 import net.hwyz.iov.cloud.sec.ciam.service.common.exception.CiamErrorCode;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.query.TokenQuery;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamRefreshTokenRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamRefreshTokenDo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.RefreshTokenPo;
 import org.springframework.stereotype.Service;
 
 import java.time.OffsetDateTime;
@@ -28,13 +28,13 @@ public class TokenQueryAppService {
     private final CiamRefreshTokenRepository refreshTokenRepository;
 
     public List<TokenSearchResult> queryTokenList(TokenQuery query) {
-        List<CiamRefreshTokenDo> allTokens = refreshTokenRepository.search(query);
+        List<RefreshTokenPo> allTokens = refreshTokenRepository.search(query);
 
         return PageUtil.convert(allTokens, this::toTokenSearchResult);
     }
 
     public RefreshTokenDto queryToken(String refreshTokenId) {
-        CiamRefreshTokenDo token = refreshTokenRepository.findByRefreshTokenId(refreshTokenId)
+        RefreshTokenPo token = refreshTokenRepository.findByRefreshTokenId(refreshTokenId)
                 .orElseThrow(() -> new BusinessException(CiamErrorCode.TOKEN_INVALID));
         return RefreshTokenMapper.INSTANCE.toDto(RefreshTokenMapper.INSTANCE.toDomain(token));
     }
@@ -51,7 +51,7 @@ public class TokenQueryAppService {
                 .collect(Collectors.toList());
     }
 
-    private TokenSearchResult toTokenSearchResult(CiamRefreshTokenDo token) {
+    private TokenSearchResult toTokenSearchResult(RefreshTokenPo token) {
         return new TokenSearchResult(
                 token.getRefreshTokenId(),
                 token.getUserId(),

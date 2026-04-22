@@ -1,6 +1,6 @@
 package net.hwyz.iov.cloud.sec.ciam.service.domain.repository;
 
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamUserIdentityDo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.UserIdentityPo;
 
 import java.util.List;
 import java.util.Optional;
@@ -11,22 +11,22 @@ import java.util.Optional;
 public interface CiamUserIdentityRepository {
 
     /** 根据标识类型和哈希值查询有效记录（唯一性校验） */
-    Optional<CiamUserIdentityDo> findByTypeAndHash(String identityType, String identityHash);
+    Optional<UserIdentityPo> findByTypeAndHash(String identityType, String identityHash);
 
     /** 根据标识类型和原始值查询有效记录 */
-    Optional<CiamUserIdentityDo> findByTypeAndValue(String identityType, String identityValue);
+    Optional<UserIdentityPo> findByTypeAndValue(String identityType, String identityValue);
 
     /** 根据用户 ID 查询所有有效标识 */
-    List<CiamUserIdentityDo> findByUserId(String userId);
+    List<UserIdentityPo> findByUserId(String userId);
 
     /** 根据业务 ID 查询 */
-    Optional<CiamUserIdentityDo> findByIdentityId(String identityId);
+    Optional<UserIdentityPo> findByIdentityId(String identityId);
 
     /** 插入标识记录 */
-    int insert(CiamUserIdentityDo entity);
+    int insert(UserIdentityPo entity);
 
     /** 根据业务 ID 更新 */
-    int updateByIdentityId(CiamUserIdentityDo entity);
+    int updateByIdentityId(UserIdentityPo entity);
 
     /** 更新用户标识值 */
     int updateIdentityValue(String userId, String identityType, String identityHash);

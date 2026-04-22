@@ -6,7 +6,7 @@ import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditEvent;
 import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditLogger;
 import net.hwyz.iov.cloud.sec.ciam.service.common.exception.CiamErrorCode;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserConsentRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamUserConsentDo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.UserConsentPo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -56,7 +56,7 @@ class ConsentAppServiceTest {
             assertEquals("user_agreement", result.getConsentType());
             assertEquals(1, result.getConsentStatus());
 
-            verify(consentRepository).insert(any(CiamUserConsentDo.class));
+            verify(consentRepository).insert(any(UserConsentPo.class));
 
             ArgumentCaptor<AuditEvent> captor = ArgumentCaptor.forClass(AuditEvent.class);
             verify(auditLogger).log(captor.capture());
@@ -71,7 +71,7 @@ class ConsentAppServiceTest {
 
             assertNotNull(result);
             assertEquals("privacy_policy", result.getConsentType());
-            verify(consentRepository).insert(any(CiamUserConsentDo.class));
+            verify(consentRepository).insert(any(UserConsentPo.class));
         }
 
         @Test
@@ -81,7 +81,7 @@ class ConsentAppServiceTest {
 
             assertNotNull(result);
             assertEquals("marketing", result.getConsentType());
-            verify(consentRepository).insert(any(CiamUserConsentDo.class));
+            verify(consentRepository).insert(any(UserConsentPo.class));
         }
     }
 
@@ -92,13 +92,13 @@ class ConsentAppServiceTest {
 
         @Test
         void withdrawsMarketingConsentSuccessfully() {
-            CiamUserConsentDo activeConsent = stubConsent("marketing", 1);
+            UserConsentPo activeConsent = stubConsent("marketing", 1);
             when(consentRepository.findByUserIdAndConsentType(USER_ID, "marketing"))
                     .thenReturn(List.of(activeConsent));
 
             service.withdrawMarketingConsent(USER_ID, OPERATE_IP);
 
-            ArgumentCaptor<CiamUserConsentDo> captor = ArgumentCaptor.forClass(CiamUserConsentDo.class);
+            ArgumentCaptor<UserConsentPo> captor = ArgumentCaptor.forClass(UserConsentPo.class);
             verify(consentRepository).updateByConsentId(captor.capture());
             assertEquals(0, captor.getValue().getConsentStatus());
         }
@@ -111,7 +111,7 @@ class ConsentAppServiceTest {
 
         @Test
         void returnsAllConsentRecords() {
-            List<CiamUserConsentDo> records = List.of(
+            List<UserConsentPo> records = List.of(
                     stubConsent("user_agreement", 1),
                     stubConsent("privacy_policy", 1),
                     stubConsent("marketing", 1));
@@ -140,7 +140,7 @@ class ConsentAppServiceTest {
 
         @Test
         void returnsConsentByType() {
-            CiamUserConsentDo consent = stubConsent("marketing", 1);
+            UserConsentPo consent = stubConsent("marketing", 1);
             when(consentRepository.findByUserIdAndConsentType(USER_ID, "marketing"))
                     .thenReturn(List.of(consent));
 
@@ -185,8 +185,8 @@ class ConsentAppServiceTest {
 
     // ========== helpers ==========
 
-    private CiamUserConsentDo stubConsent(String consentType, int status) {
-        CiamUserConsentDo consent = new CiamUserConsentDo();
+    private UserConsentPo stubConsent(String consentType, int status) {
+        UserConsentPo consent = new UserConsentPo();
         consent.setConsentId("consent-" + consentType + "-" + status);
         consent.setUserId(USER_ID);
         consent.setConsentType(consentType);

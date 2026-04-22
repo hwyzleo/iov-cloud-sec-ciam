@@ -9,47 +9,53 @@ import lombok.Data;
 import java.time.Instant;
 
 /**
- * 接入应用表数据对象。
+ * 设备表数据对象。
  */
 @Data
-@TableName("ciam_oauth_client")
-public class CiamOAuthClientDo {
+@TableName("ciam_device")
+public class DevicePo {
 
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
-    @TableField("client_id")
-    private String clientId;
+    @TableField("device_id")
+    private String deviceId;
 
-    @TableField("client_name")
-    private String clientName;
-
-    @TableField("client_secret_hash")
-    private String clientSecretHash;
+    @TableField("user_id")
+    private String userId;
 
     @TableField("client_type")
     private String clientType;
 
-    @TableField("redirect_uris")
-    private String redirectUris;
+    @TableField("client_id")
+    private String clientId;
 
-    @TableField("grant_types")
-    private String grantTypes;
+    @TableField("device_name")
+    private String deviceName;
 
-    @TableField("scopes")
-    private String scopes;
+    @TableField("device_os")
+    private String deviceOs;
 
-    @TableField("pkce_required")
-    private Integer pkceRequired;
+    @TableField("app_version")
+    private String appVersion;
 
-    @TableField("access_token_ttl")
-    private Integer accessTokenTtl;
+    @TableField("device_fingerprint")
+    private String deviceFingerprint;
 
-    @TableField("refresh_token_ttl")
-    private Integer refreshTokenTtl;
+    @TableField("language")
+    private String language;
 
-    @TableField("client_status")
-    private Integer clientStatus;
+    @TableField("trusted_flag")
+    private Integer trustedFlag;
+
+    @TableField("first_login_time")
+    private Instant firstLoginTime;
+
+    @TableField("last_login_time")
+    private Instant lastLoginTime;
+
+    @TableField("device_status")
+    private Integer deviceStatus;
 
     @TableField("description")
     private String description;

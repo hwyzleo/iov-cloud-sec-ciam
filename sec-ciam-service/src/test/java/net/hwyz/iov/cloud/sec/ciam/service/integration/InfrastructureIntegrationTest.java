@@ -19,10 +19,10 @@ import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.CiamAud
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.CiamSessionMapper;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.CiamUserIdentityMapper;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.CiamUserMapper;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamAuditLogDo;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamSessionDo;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamUserDo;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamUserIdentityDo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.AuditLogPo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.SessionPo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.UserPo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.UserIdentityPo;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.search.StubSearchService;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.search.document.AuditLogSearchDocument;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.search.document.RiskEventSearchDocument;
@@ -75,14 +75,14 @@ class InfrastructureIntegrationTest {
         @Test
         @DisplayName("插入用户后可通过 userId 查询")
         void insertAndFindByUserId() {
-            CiamUserDo user = buildUser("U001", 1, "mobile");
+            UserPo user = buildUser("U001", 1, "mobile");
             when(mapper.insert(user)).thenReturn(1);
             when(mapper.selectOne(any(LambdaQueryWrapper.class))).thenReturn(user);
 
             int rows = repository.insert(user);
             assertEquals(1, rows);
 
-            Optional<CiamUserDo> found = repository.findByUserId("U001");
+            Optional<UserPo> found = repository.findByUserId("U001");
             assertTrue(found.isPresent());
             assertEquals("U001", found.get().getUserId());
             assertEquals(1, found.get().getUserStatus());
@@ -93,25 +93,25 @@ class InfrastructureIntegrationTest {
         void findByUserId_notFound() {
             when(mapper.selectOne(any(LambdaQueryWrapper.class))).thenReturn(null);
 
-            Optional<CiamUserDo> found = repository.findByUserId("NONEXISTENT");
+            Optional<UserPo> found = repository.findByUserId("NONEXISTENT");
             assertTrue(found.isEmpty());
         }
 
         @Test
         @DisplayName("按用户状态查询列表")
         void findByUserStatus() {
-            CiamUserDo u1 = buildUser("U001", 1, "mobile");
-            CiamUserDo u2 = buildUser("U002", 1, "email");
+            UserPo u1 = buildUser("U001", 1, "mobile");
+            UserPo u2 = buildUser("U002", 1, "email");
             when(mapper.selectList(any(LambdaQueryWrapper.class))).thenReturn(List.of(u1, u2));
 
-            List<CiamUserDo> result = repository.findByUserStatus(1);
+            List<UserPo> result = repository.findByUserStatus(1);
             assertEquals(2, result.size());
         }
 
         @Test
         @DisplayName("更新用户状态")
         void updateByUserId() {
-            CiamUserDo user = buildUser("U001", 2, "mobile");
+            UserPo user = buildUser("U001", 2, "mobile");
             when(mapper.update(any(), any(LambdaUpdateWrapper.class))).thenReturn(1);
 
             int rows = repository.updateByUserId(user);
@@ -129,8 +129,8 @@ class InfrastructureIntegrationTest {
             verify(mapper).delete(any(LambdaQueryWrapper.class));
         }
 
-        private CiamUserDo buildUser(String userId, int status, String source) {
-            CiamUserDo user = new CiamUserDo();
+        private UserPo buildUser(String userId, int status, String source) {
+            UserPo user = new UserPo();
             user.setUserId(userId);
             user.setUserStatus(status);
             user.setBrandCode("OPENIOV");
@@ -159,10 +159,10 @@ class InfrastructureIntegrationTest {
         @Test
         @DisplayName("通过标识类型和哈希值查询唯一标识")
         void findByTypeAndHash() {
-            CiamUserIdentityDo identity = buildIdentity("ID001", "U001", "mobile", "hash123");
+            UserIdentityPo identity = buildIdentity("ID001", "U001", "mobile", "hash123");
             when(mapper.selectOne(any(LambdaQueryWrapper.class))).thenReturn(identity);
 
-            Optional<CiamUserIdentityDo> found = repository.findByTypeAndHash("mobile", "hash123");
+            Optional<UserIdentityPo> found = repository.findByTypeAndHash("mobile", "hash123");
             assertTrue(found.isPresent());
             assertEquals("mobile", found.get().getIdentityType());
             assertEquals("hash123", found.get().getIdentityHash());
@@ -171,11 +171,11 @@ class InfrastructureIntegrationTest {
         @Test
         @DisplayName("查询用户所有有效标识")
         void findByUserId() {
-            CiamUserIdentityDo mobile = buildIdentity("ID001", "U001", "mobile", "mhash");
-            CiamUserIdentityDo email = buildIdentity("ID002", "U001", "email", "ehash");
+            UserIdentityPo mobile = buildIdentity("ID001", "U001", "mobile", "mhash");
+            UserIdentityPo email = buildIdentity("ID002", "U001", "email", "ehash");
             when(mapper.selectList(any(LambdaQueryWrapper.class))).thenReturn(List.of(mobile, email));
 
-            List<CiamUserIdentityDo> identities = repository.findByUserId("U001");
+            List<UserIdentityPo> identities = repository.findByUserId("U001");
             assertEquals(2, identities.size());
         }
 
@@ -184,7 +184,7 @@ class InfrastructureIntegrationTest {
         void findByTypeAndHash_notFound() {
             when(mapper.selectOne(any(LambdaQueryWrapper.class))).thenReturn(null);
 
-            Optional<CiamUserIdentityDo> found = repository.findByTypeAndHash("wechat", "wxhash");
+            Optional<UserIdentityPo> found = repository.findByTypeAndHash("wechat", "wxhash");
             assertTrue(found.isEmpty());
         }
 
@@ -197,9 +197,9 @@ class InfrastructureIntegrationTest {
             assertEquals(3, rows);
         }
 
-        private CiamUserIdentityDo buildIdentity(String identityId, String userId,
+        private UserIdentityPo buildIdentity(String identityId, String userId,
                                                    String type, String hash) {
-            CiamUserIdentityDo identity = new CiamUserIdentityDo();
+            UserIdentityPo identity = new UserIdentityPo();
             identity.setIdentityId(identityId);
             identity.setUserId(userId);
             identity.setIdentityType(type);
@@ -233,12 +233,12 @@ class InfrastructureIntegrationTest {
         @Test
         @DisplayName("插入会话后可通过 sessionId 查询")
         void insertAndFindBySessionId() {
-            CiamSessionDo session = buildSession("S001", "U001", "D001");
+            SessionPo session = buildSession("S001", "U001", "D001");
             when(mapper.insert(session)).thenReturn(1);
             when(mapper.selectOne(any(LambdaQueryWrapper.class))).thenReturn(session);
 
             repository.insert(session);
-            Optional<CiamSessionDo> found = repository.findBySessionId("S001");
+            Optional<SessionPo> found = repository.findBySessionId("S001");
 
             assertTrue(found.isPresent());
             assertEquals("S001", found.get().getSessionId());
@@ -248,11 +248,11 @@ class InfrastructureIntegrationTest {
         @Test
         @DisplayName("按用户和状态查询有效会话列表")
         void findByUserIdAndStatus() {
-            CiamSessionDo s1 = buildSession("S001", "U001", "D001");
-            CiamSessionDo s2 = buildSession("S002", "U001", "D002");
+            SessionPo s1 = buildSession("S001", "U001", "D001");
+            SessionPo s2 = buildSession("S002", "U001", "D002");
             when(mapper.selectList(any(LambdaQueryWrapper.class))).thenReturn(List.of(s1, s2));
 
-            List<CiamSessionDo> sessions = repository.findByUserIdAndStatus("U001", SessionStatus.ACTIVE.getCode());
+            List<SessionPo> sessions = repository.findByUserIdAndStatus("U001", SessionStatus.ACTIVE.getCode());
             assertEquals(2, sessions.size());
         }
 
@@ -264,7 +264,7 @@ class InfrastructureIntegrationTest {
             int rows = repository.invalidateAllByUserId("U001");
             assertEquals(3, rows);
 
-            ArgumentCaptor<CiamSessionDo> captor = ArgumentCaptor.forClass(CiamSessionDo.class);
+            ArgumentCaptor<SessionPo> captor = ArgumentCaptor.forClass(SessionPo.class);
             verify(mapper).update(captor.capture(), any(LambdaUpdateWrapper.class));
             assertEquals(SessionStatus.INVALID.getCode(), captor.getValue().getSessionStatus());
             assertNotNull(captor.getValue().getLogoutTime());
@@ -273,16 +273,16 @@ class InfrastructureIntegrationTest {
         @Test
         @DisplayName("按设备 ID 查询会话")
         void findByDeviceId() {
-            CiamSessionDo session = buildSession("S001", "U001", "D001");
+            SessionPo session = buildSession("S001", "U001", "D001");
             when(mapper.selectList(any(LambdaQueryWrapper.class))).thenReturn(List.of(session));
 
-            List<CiamSessionDo> sessions = repository.findByDeviceId("D001");
+            List<SessionPo> sessions = repository.findByDeviceId("D001");
             assertEquals(1, sessions.size());
             assertEquals("D001", sessions.get(0).getDeviceId());
         }
 
-        private CiamSessionDo buildSession(String sessionId, String userId, String deviceId) {
-            CiamSessionDo session = new CiamSessionDo();
+        private SessionPo buildSession(String sessionId, String userId, String deviceId) {
+            SessionPo session = new SessionPo();
             session.setSessionId(sessionId);
             session.setUserId(userId);
             session.setDeviceId(deviceId);
@@ -316,12 +316,12 @@ class InfrastructureIntegrationTest {
         @Test
         @DisplayName("插入审计日志并按 auditId 查询")
         void insertAndFindByAuditId() {
-            CiamAuditLogDo log = buildAuditLog("A001", "U001", "LOGIN", "登录成功");
+            AuditLogPo log = buildAuditLog("A001", "U001", "LOGIN", "登录成功");
             when(mapper.insert(log)).thenReturn(1);
             when(mapper.selectOne(any(LambdaQueryWrapper.class))).thenReturn(log);
 
             repository.insert(log);
-            Optional<CiamAuditLogDo> found = repository.findByAuditId("A001");
+            Optional<AuditLogPo> found = repository.findByAuditId("A001");
 
             assertTrue(found.isPresent());
             assertEquals("LOGIN", found.get().getEventType());
@@ -330,13 +330,13 @@ class InfrastructureIntegrationTest {
         @Test
         @DisplayName("按用户和时间范围查询审计日志")
         void findByUserIdAndTimeRange() {
-            CiamAuditLogDo log1 = buildAuditLog("A001", "U001", "LOGIN", "登录成功");
-            CiamAuditLogDo log2 = buildAuditLog("A002", "U001", "LOGOUT", "退出登录");
+            AuditLogPo log1 = buildAuditLog("A001", "U001", "LOGIN", "登录成功");
+            AuditLogPo log2 = buildAuditLog("A002", "U001", "LOGOUT", "退出登录");
             when(mapper.selectList(any(LambdaQueryWrapper.class))).thenReturn(List.of(log1, log2));
 
             LocalDateTime start = LocalDateTime.of(2026, 1, 1, 0, 0, 0);
             LocalDateTime end = LocalDateTime.of(2026, 12, 31, 23, 59, 0);
-            List<CiamAuditLogDo> logs = repository.findByUserIdAndTimeRange("U001", start, end);
+            List<AuditLogPo> logs = repository.findByUserIdAndTimeRange("U001", start, end);
 
             assertEquals(2, logs.size());
         }
@@ -344,18 +344,18 @@ class InfrastructureIntegrationTest {
         @Test
         @DisplayName("按 traceId 查询审计日志")
         void findByTraceId() {
-            CiamAuditLogDo log = buildAuditLog("A001", "U001", "LOGIN", "登录成功");
+            AuditLogPo log = buildAuditLog("A001", "U001", "LOGIN", "登录成功");
             log.setTraceId("TRACE001");
             when(mapper.selectList(any(LambdaQueryWrapper.class))).thenReturn(List.of(log));
 
-            List<CiamAuditLogDo> logs = repository.findByTraceId("TRACE001");
+            List<AuditLogPo> logs = repository.findByTraceId("TRACE001");
             assertEquals(1, logs.size());
             assertEquals("TRACE001", logs.get(0).getTraceId());
         }
 
-        private CiamAuditLogDo buildAuditLog(String auditId, String userId,
+        private AuditLogPo buildAuditLog(String auditId, String userId,
                                                String eventType, String eventName) {
-            CiamAuditLogDo log = new CiamAuditLogDo();
+            AuditLogPo log = new AuditLogPo();
             log.setAuditId(auditId);
             log.setUserId(userId);
             log.setEventType(eventType);

@@ -69,8 +69,8 @@ class CoreDomainLogicTest {
             userService = new UserDomainService(userRepository, userProfileRepository);
         }
 
-        private CiamUserDo stubUser(UserStatus status) {
-            CiamUserDo user = new CiamUserDo();
+        private UserPo stubUser(UserStatus status) {
+            UserPo user = new UserPo();
             user.setUserId("u-edge");
             user.setUserStatus(status.getCode());
             return user;
@@ -352,7 +352,7 @@ class CoreDomainLogicTest {
         @Test
         @DisplayName("解绑后再绑定同一标识到新用户应成功")
         void rebindAfterUnbind_succeeds() {
-            var unbound = new CiamUserIdentityDo();
+            var unbound = new UserIdentityPo();
             unbound.setIdentityId("id-old");
             unbound.setUserId("old-user");
             unbound.setIdentityType("email");
@@ -374,11 +374,11 @@ class CoreDomainLogicTest {
         @Test
         @DisplayName("countBoundIdentities 只统计 BOUND 状态的标识")
         void countBoundIdentities_excludesUnbound() {
-            var bound = new CiamUserIdentityDo();
+            var bound = new UserIdentityPo();
             bound.setIdentityStatus(IdentityStatus.BOUND.getCode());
-            var unbound = new CiamUserIdentityDo();
+            var unbound = new UserIdentityPo();
             unbound.setIdentityStatus(IdentityStatus.UNBOUND.getCode());
-            var bound2 = new CiamUserIdentityDo();
+            var bound2 = new UserIdentityPo();
             bound2.setIdentityStatus(IdentityStatus.BOUND.getCode());
 
             when(identityRepository.findByUserId("user-001"))
@@ -407,9 +407,9 @@ class CoreDomainLogicTest {
             tokenService = new RefreshTokenDomainService(refreshTokenRepository);
         }
 
-        private CiamRefreshTokenDo stubToken(String rawToken, TokenStatus status,
+        private RefreshTokenPo stubToken(String rawToken, TokenStatus status,
                                               Instant expireTime, String clientId) {
-            CiamRefreshTokenDo token = new CiamRefreshTokenDo();
+            RefreshTokenPo token = new RefreshTokenPo();
             token.setRefreshTokenId("rt-" + System.nanoTime());
             token.setUserId("user-001");
             token.setSessionId("session-001");
@@ -427,7 +427,7 @@ class CoreDomainLogicTest {
         @DisplayName("客户端不匹配时拒绝轮换")
         void rotate_rejectsClientMismatch() {
             String rawToken = "client-mismatch-token";
-            CiamRefreshTokenDo existing = stubToken(rawToken, TokenStatus.ACTIVE,
+            RefreshTokenPo existing = stubToken(rawToken, TokenStatus.ACTIVE,
                     Instant.now().plusSeconds(29L * 86400), "client-A");
             when(refreshTokenRepository.findByTokenFingerprint(TokenDigest.fingerprint(rawToken)))
                     .thenReturn(Optional.of(existing));
@@ -441,7 +441,7 @@ class CoreDomainLogicTest {
         @DisplayName("轮换后新令牌的 parentTokenId 指向旧令牌")
         void rotate_newTokenLinksToOldToken() {
             String rawToken = "linkage-test-token";
-            CiamRefreshTokenDo existing = stubToken(rawToken, TokenStatus.ACTIVE,
+            RefreshTokenPo existing = stubToken(rawToken, TokenStatus.ACTIVE,
                     Instant.now().plusSeconds(29L * 86400), "client-app");
             String oldTokenId = existing.getRefreshTokenId();
             when(refreshTokenRepository.findByTokenFingerprint(TokenDigest.fingerprint(rawToken)))
@@ -449,7 +449,7 @@ class CoreDomainLogicTest {
 
             tokenService.rotateRefreshToken(rawToken, "client-app");
 
-            ArgumentCaptor<CiamRefreshTokenDo> captor = ArgumentCaptor.forClass(CiamRefreshTokenDo.class);
+            ArgumentCaptor<RefreshTokenPo> captor = ArgumentCaptor.forClass(RefreshTokenPo.class);
             verify(refreshTokenRepository).insert(captor.capture());
             assertEquals(oldTokenId, captor.getValue().getParentTokenId());
             assertEquals(TokenStatus.ACTIVE.getCode(), captor.getValue().getTokenStatus());
@@ -471,7 +471,7 @@ class CoreDomainLogicTest {
         @DisplayName("已过期令牌的轮换应被拒绝且不签发新令牌")
         void rotate_expiredToken_noNewTokenIssued() {
             String rawToken = "expired-no-issue";
-            CiamRefreshTokenDo existing = stubToken(rawToken, TokenStatus.ACTIVE,
+            RefreshTokenPo existing = stubToken(rawToken, TokenStatus.ACTIVE,
                     Instant.now().minusSeconds(1 * 3600), "client-app");
             when(refreshTokenRepository.findByTokenFingerprint(TokenDigest.fingerprint(rawToken)))
                     .thenReturn(Optional.of(existing));
@@ -486,7 +486,7 @@ class CoreDomainLogicTest {
         @DisplayName("撤销已撤销的令牌应幂等（不重复更新）")
         void revoke_alreadyRevoked_isIdempotent() {
             String rawToken = "already-revoked-token";
-            CiamRefreshTokenDo existing = stubToken(rawToken, TokenStatus.REVOKED,
+            RefreshTokenPo existing = stubToken(rawToken, TokenStatus.REVOKED,
                     Instant.now().plusSeconds(29L * 86400), "client-app");
             when(refreshTokenRepository.findByTokenFingerprint(TokenDigest.fingerprint(rawToken)))
                     .thenReturn(Optional.of(existing));
@@ -500,7 +500,7 @@ class CoreDomainLogicTest {
         @DisplayName("clientId 为 null 时不做客户端匹配校验")
         void rotate_nullClientIdOnToken_skipsClientCheck() {
             String rawToken = "null-client-token";
-            CiamRefreshTokenDo existing = stubToken(rawToken, TokenStatus.ACTIVE,
+            RefreshTokenPo existing = stubToken(rawToken, TokenStatus.ACTIVE,
                     Instant.now().plusSeconds(29L * 86400), null);
             when(refreshTokenRepository.findByTokenFingerprint(TokenDigest.fingerprint(rawToken)))
                     .thenReturn(Optional.of(existing));
@@ -560,9 +560,9 @@ class CoreDomainLogicTest {
             riskService.assessLoginRisk(
                     "user-risk", "device-risk", "10.0.0.1", "JP", "mini_program", true, false);
 
-            ArgumentCaptor<CiamRiskEventDo> captor = ArgumentCaptor.forClass(CiamRiskEventDo.class);
+            ArgumentCaptor<RiskEventPo> captor = ArgumentCaptor.forClass(RiskEventPo.class);
             verify(riskEventRepository).insert(captor.capture());
-            CiamRiskEventDo event = captor.getValue();
+            RiskEventPo event = captor.getValue();
 
             assertNotNull(event.getRiskEventId());
             assertEquals("user-risk", event.getUserId());
@@ -589,7 +589,7 @@ class CoreDomainLogicTest {
             riskService.assessLoginRisk(
                     "user-001", "device-001", "1.2.3.4", "CN", "app", false, false);
 
-            ArgumentCaptor<CiamRiskEventDo> captor = ArgumentCaptor.forClass(CiamRiskEventDo.class);
+            ArgumentCaptor<RiskEventPo> captor = ArgumentCaptor.forClass(RiskEventPo.class);
             verify(riskEventRepository).insert(captor.capture());
             assertNull(captor.getValue().getHitRules());
             assertEquals("normal", captor.getValue().getRiskType());
@@ -643,8 +643,8 @@ class CoreDomainLogicTest {
                     credentialRepository, passwordEncoder, passwordPolicyService);
         }
 
-        private CiamUserCredentialDo stubCred(String userId, String rawPassword, int failCount) {
-            CiamUserCredentialDo cred = new CiamUserCredentialDo();
+        private UserCredentialPo stubCred(String userId, String rawPassword, int failCount) {
+            UserCredentialPo cred = new UserCredentialPo();
             cred.setCredentialId("cred-edge");
             cred.setUserId(userId);
             cred.setCredentialType(CredentialType.EMAIL_PASSWORD.getCode());
@@ -659,7 +659,7 @@ class CoreDomainLogicTest {
         @Test
         @DisplayName("failCount 为 null 时首次失败应设为 1")
         void verifyPassword_nullFailCount_incrementsToOne() {
-            CiamUserCredentialDo cred = stubCred("user-001", "Correct1!", 0);
+            UserCredentialPo cred = stubCred("user-001", "Correct1!", 0);
             cred.setFailCount(null);
             when(credentialRepository.findByUserIdAndType(eq("user-001"), eq("email_password")))
                     .thenReturn(Optional.of(cred));
@@ -673,7 +673,7 @@ class CoreDomainLogicTest {
         @Test
         @DisplayName("第 2 次失败不触发挑战")
         void verifyPassword_secondFailure_noChallengeYet() {
-            CiamUserCredentialDo cred = stubCred("user-001", "Correct1!", 1);
+            UserCredentialPo cred = stubCred("user-001", "Correct1!", 1);
             when(credentialRepository.findByUserIdAndType(eq("user-001"), eq("email_password")))
                     .thenReturn(Optional.of(cred));
 
@@ -687,7 +687,7 @@ class CoreDomainLogicTest {
         @Test
         @DisplayName("第 3 次失败触发挑战但不锁定")
         void verifyPassword_thirdFailure_challengeButNoLock() {
-            CiamUserCredentialDo cred = stubCred("user-001", "Correct1!", 2);
+            UserCredentialPo cred = stubCred("user-001", "Correct1!", 2);
             when(credentialRepository.findByUserIdAndType(eq("user-001"), eq("email_password")))
                     .thenReturn(Optional.of(cred));
 
@@ -702,7 +702,7 @@ class CoreDomainLogicTest {
         @Test
         @DisplayName("第 5 次失败触发锁定")
         void verifyPassword_fifthFailure_locked() {
-            CiamUserCredentialDo cred = stubCred("user-001", "Correct1!", 4);
+            UserCredentialPo cred = stubCred("user-001", "Correct1!", 4);
             when(credentialRepository.findByUserIdAndType(eq("user-001"), eq("email_password")))
                     .thenReturn(Optional.of(cred));
 
@@ -717,7 +717,7 @@ class CoreDomainLogicTest {
         @Test
         @DisplayName("锁定期间即使密码正确也拒绝登录")
         void verifyPassword_lockedPeriod_rejectsCorrectPassword() {
-            CiamUserCredentialDo cred = stubCred("user-001", "Correct1!", 5);
+            UserCredentialPo cred = stubCred("user-001", "Correct1!", 5);
             cred.setLockedUntil(Instant.now().plusSeconds(29 * 60));
             when(credentialRepository.findByUserIdAndType(eq("user-001"), eq("email_password")))
                     .thenReturn(Optional.of(cred));
@@ -730,7 +730,7 @@ class CoreDomainLogicTest {
         @Test
         @DisplayName("锁定过期后可以正常登录并重置计数")
         void verifyPassword_lockExpired_allowsLogin() {
-            CiamUserCredentialDo cred = stubCred("user-001", "Correct1!", 5);
+            UserCredentialPo cred = stubCred("user-001", "Correct1!", 5);
             cred.setLockedUntil(Instant.now().minusSeconds(1 * 60));
             when(credentialRepository.findByUserIdAndType(eq("user-001"), eq("email_password")))
                     .thenReturn(Optional.of(cred));
@@ -745,7 +745,7 @@ class CoreDomainLogicTest {
         @Test
         @DisplayName("重置密码清除锁定状态和失败计数")
         void resetPassword_clearsLockAndFailCount() {
-            CiamUserCredentialDo cred = stubCred("user-001", "OldPass1!", 5);
+            UserCredentialPo cred = stubCred("user-001", "OldPass1!", 5);
             cred.setLockedUntil(Instant.now().plusSeconds(30 * 60));
             when(credentialRepository.findByUserIdAndType(eq("user-001"), eq("email_password")))
                     .thenReturn(Optional.of(cred));

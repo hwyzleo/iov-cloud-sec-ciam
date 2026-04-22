@@ -1,6 +1,6 @@
 package net.hwyz.iov.cloud.sec.ciam.service.domain.repository;
 
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamUserProfileDo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.UserProfilePo;
 
 import java.util.Optional;
 
@@ -10,19 +10,19 @@ import java.util.Optional;
 public interface CiamUserProfileRepository {
 
     /** 根据用户 ID 查询有效资料 */
-    Optional<CiamUserProfileDo> findByUserId(String userId);
+    Optional<UserProfilePo> findByUserId(String userId);
 
     /** 根据业务 ID 查询 */
-    Optional<CiamUserProfileDo> findByProfileId(String profileId);
+    Optional<UserProfilePo> findByProfileId(String profileId);
 
     /** 插入资料记录 */
-    int insert(CiamUserProfileDo entity);
+    int insert(UserProfilePo entity);
 
     /** 根据业务 ID 更新 */
-    int updateByProfileId(CiamUserProfileDo entity);
+    int updateByProfileId(UserProfilePo entity);
 
     /** 根据用户 ID 更新 */
-    int updateByUserId(CiamUserProfileDo entity);
+    int updateByUserId(UserProfilePo entity);
 
     /** 物理删除用户资料记录（注销场景） */
     int physicalDeleteByUserId(String userId);

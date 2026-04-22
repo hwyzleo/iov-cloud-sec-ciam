@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import lombok.RequiredArgsConstructor;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamMergeRequestRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.CiamMergeRequestMapper;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamMergeRequestDo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.MergeRequestPo;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -18,45 +18,45 @@ public class CiamMergeRequestRepositoryImpl implements CiamMergeRequestRepositor
     private final CiamMergeRequestMapper mapper;
 
     @Override
-    public Optional<CiamMergeRequestDo> findByMergeRequestId(String mergeRequestId) {
+    public Optional<MergeRequestPo> findByMergeRequestId(String mergeRequestId) {
         return Optional.ofNullable(mapper.selectOne(
-                new LambdaQueryWrapper<CiamMergeRequestDo>()
-                        .eq(CiamMergeRequestDo::getMergeRequestId, mergeRequestId)));
+                new LambdaQueryWrapper<MergeRequestPo>()
+                        .eq(MergeRequestPo::getMergeRequestId, mergeRequestId)));
     }
 
     @Override
-    public List<CiamMergeRequestDo> findByReviewStatus(int reviewStatus) {
+    public List<MergeRequestPo> findByReviewStatus(int reviewStatus) {
         return mapper.selectList(
-                new LambdaQueryWrapper<CiamMergeRequestDo>()
-                        .eq(CiamMergeRequestDo::getReviewStatus, reviewStatus)
-                        .eq(CiamMergeRequestDo::getRowValid, 1));
+                new LambdaQueryWrapper<MergeRequestPo>()
+                        .eq(MergeRequestPo::getReviewStatus, reviewStatus)
+                        .eq(MergeRequestPo::getRowValid, 1));
     }
 
     @Override
-    public List<CiamMergeRequestDo> findBySourceUserId(String sourceUserId) {
+    public List<MergeRequestPo> findBySourceUserId(String sourceUserId) {
         return mapper.selectList(
-                new LambdaQueryWrapper<CiamMergeRequestDo>()
-                        .eq(CiamMergeRequestDo::getSourceUserId, sourceUserId)
-                        .eq(CiamMergeRequestDo::getRowValid, 1));
+                new LambdaQueryWrapper<MergeRequestPo>()
+                        .eq(MergeRequestPo::getSourceUserId, sourceUserId)
+                        .eq(MergeRequestPo::getRowValid, 1));
     }
 
     @Override
-    public List<CiamMergeRequestDo> findByTargetUserId(String targetUserId) {
+    public List<MergeRequestPo> findByTargetUserId(String targetUserId) {
         return mapper.selectList(
-                new LambdaQueryWrapper<CiamMergeRequestDo>()
-                        .eq(CiamMergeRequestDo::getTargetUserId, targetUserId)
-                        .eq(CiamMergeRequestDo::getRowValid, 1));
+                new LambdaQueryWrapper<MergeRequestPo>()
+                        .eq(MergeRequestPo::getTargetUserId, targetUserId)
+                        .eq(MergeRequestPo::getRowValid, 1));
     }
 
     @Override
-    public int insert(CiamMergeRequestDo entity) {
+    public int insert(MergeRequestPo entity) {
         return mapper.insert(entity);
     }
 
     @Override
-    public int updateByMergeRequestId(CiamMergeRequestDo entity) {
+    public int updateByMergeRequestId(MergeRequestPo entity) {
         return mapper.update(entity,
-                new LambdaUpdateWrapper<CiamMergeRequestDo>()
-                        .eq(CiamMergeRequestDo::getMergeRequestId, entity.getMergeRequestId()));
+                new LambdaUpdateWrapper<MergeRequestPo>()
+                        .eq(MergeRequestPo::getMergeRequestId, entity.getMergeRequestId()));
     }
 }

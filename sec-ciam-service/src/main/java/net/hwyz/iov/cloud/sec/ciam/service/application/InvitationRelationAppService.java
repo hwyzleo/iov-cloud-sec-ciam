@@ -10,7 +10,7 @@ import net.hwyz.iov.cloud.sec.ciam.service.common.exception.CiamErrorCode;
 import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
 import net.hwyz.iov.cloud.sec.ciam.service.common.util.UserIdGenerator;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamInvitationRelationRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamInvitationRelationDo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.InvitationRelationPo;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -47,7 +47,7 @@ public class InvitationRelationAppService {
      * @param channelName       渠道名称（可为 null）
      * @return 创建的邀请关系记录，若跳过则返回 null
      */
-    public CiamInvitationRelationDo recordInvitation(String userId,
+    public InvitationRelationPo recordInvitation(String userId,
                                                      String inviterUserId,
                                                      String invitationCode,
                                                      String channelCode,
@@ -63,14 +63,14 @@ public class InvitationRelationAppService {
         }
 
         // 不可变性校验：已存在则拒绝
-        Optional<CiamInvitationRelationDo> existing =
+        Optional<InvitationRelationPo> existing =
                 invitationRelationRepository.findByInviteeUserId(userId);
         if (existing.isPresent()) {
             log.warn("邀请关系已存在，拒绝重复写入: userId={}", userId);
             throw new BusinessException(CiamErrorCode.INVITATION_ALREADY_EXISTS);
         }
 
-        CiamInvitationRelationDo record = new CiamInvitationRelationDo();
+        InvitationRelationPo record = new InvitationRelationPo();
         record.setRelationId(UserIdGenerator.generate());
         record.setInviteeUserId(userId);
         record.setInviterUserId(inviterUserId);
@@ -99,7 +99,7 @@ public class InvitationRelationAppService {
      * @param userId 被邀请人用户 ID
      * @return 邀请关系记录（可能为空）
      */
-    public Optional<CiamInvitationRelationDo> getInvitationRelation(String userId) {
+    public Optional<InvitationRelationPo> getInvitationRelation(String userId) {
         if (userId == null || userId.isBlank()) {
             throw new BusinessException(CiamErrorCode.INVALID_PARAM, "userId 不能为空");
         }

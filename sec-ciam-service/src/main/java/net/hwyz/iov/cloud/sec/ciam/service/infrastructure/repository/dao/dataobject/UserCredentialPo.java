@@ -9,47 +9,47 @@ import lombok.Data;
 import java.time.Instant;
 
 /**
- * 刷新令牌表数据对象。
+ * 凭据表数据对象。
  */
 @Data
-@TableName("ciam_refresh_token")
-public class CiamRefreshTokenDo {
+@TableName("ciam_user_credential")
+public class UserCredentialPo {
 
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
-    @TableField("refresh_token_id")
-    private String refreshTokenId;
+    @TableField("credential_id")
+    private String credentialId;
 
     @TableField("user_id")
     private String userId;
 
-    @TableField("session_id")
-    private String sessionId;
+    @TableField("credential_type")
+    private String credentialType;
 
-    @TableField("client_id")
-    private String clientId;
+    @TableField("credential_hash")
+    private String credentialHash;
 
-    @TableField("token_fingerprint")
-    private String tokenFingerprint;
+    @TableField("salt")
+    private String salt;
 
-    @TableField("parent_token_id")
-    private String parentTokenId;
+    @TableField("hash_algorithm")
+    private String hashAlgorithm;
 
-    @TableField("token_status")
-    private Integer tokenStatus;
+    @TableField("password_set_time")
+    private Instant passwordSetTime;
 
-    @TableField("issue_time")
-    private Instant issueTime;
+    @TableField("last_verify_time")
+    private Instant lastVerifyTime;
 
-    @TableField("used_time")
-    private Instant usedTime;
+    @TableField("fail_count")
+    private Integer failCount;
 
-    @TableField("revoke_time")
-    private Instant revokeTime;
+    @TableField("locked_until")
+    private Instant lockedUntil;
 
-    @TableField("expire_time")
-    private Instant expireTime;
+    @TableField("credential_status")
+    private Integer credentialStatus;
 
     @TableField("description")
     private String description;

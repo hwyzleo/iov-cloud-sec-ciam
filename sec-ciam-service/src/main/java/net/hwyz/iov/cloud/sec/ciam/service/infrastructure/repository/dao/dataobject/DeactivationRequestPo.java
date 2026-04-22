@@ -9,50 +9,50 @@ import lombok.Data;
 import java.time.Instant;
 
 /**
- * MFA 挑战表数据对象。
+ * 注销申请表数据对象。
  */
 @Data
-@TableName("ciam_mfa_challenge")
-public class CiamMfaChallengeDo {
+@TableName("ciam_deactivation_request")
+public class DeactivationRequestPo {
 
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
-    @TableField("challenge_id")
-    private String challengeId;
+    @TableField("deactivation_request_id")
+    private String deactivationRequestId;
 
     @TableField("user_id")
     private String userId;
 
-    @TableField("session_id")
-    private String sessionId;
+    @TableField("request_source")
+    private String requestSource;
 
-    @TableField("challenge_type")
-    private String challengeType;
+    @TableField("request_reason")
+    private String requestReason;
 
-    @TableField("challenge_scene")
-    private String challengeScene;
+    @TableField("check_status")
+    private Integer checkStatus;
 
-    @TableField("receiver_mask")
-    private String receiverMask;
+    @TableField("review_status")
+    private Integer reviewStatus;
 
-    @TableField("verify_code_hash")
-    private String verifyCodeHash;
+    @TableField("execute_status")
+    private Integer executeStatus;
 
-    @TableField("send_time")
-    private Instant sendTime;
+    @TableField("requested_time")
+    private Instant requestedTime;
 
-    @TableField("expire_time")
-    private Instant expireTime;
+    @TableField("reviewer")
+    private String reviewer;
 
-    @TableField("verify_time")
-    private Instant verifyTime;
+    @TableField("review_time")
+    private Instant reviewTime;
 
-    @TableField("challenge_status")
-    private Integer challengeStatus;
+    @TableField("execute_time")
+    private Instant executeTime;
 
-    @TableField("risk_event_id")
-    private String riskEventId;
+    @TableField("retain_audit_only")
+    private Integer retainAuditOnly;
 
     @TableField("description")
     private String description;

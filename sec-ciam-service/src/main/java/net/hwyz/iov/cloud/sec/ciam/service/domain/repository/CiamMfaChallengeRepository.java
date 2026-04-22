@@ -1,6 +1,6 @@
 package net.hwyz.iov.cloud.sec.ciam.service.domain.repository;
 
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamMfaChallengeDo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.MfaChallengePo;
 
 import java.util.List;
 import java.util.Optional;
@@ -11,14 +11,14 @@ import java.util.Optional;
 public interface CiamMfaChallengeRepository {
 
     /** 根据业务 ID 查询 */
-    Optional<CiamMfaChallengeDo> findByChallengeId(String challengeId);
+    Optional<MfaChallengePo> findByChallengeId(String challengeId);
 
     /** 根据用户 ID 和挑战状态查询 */
-    List<CiamMfaChallengeDo> findByUserIdAndStatus(String userId, int challengeStatus);
+    List<MfaChallengePo> findByUserIdAndStatus(String userId, int challengeStatus);
 
     /** 插入挑战记录 */
-    int insert(CiamMfaChallengeDo entity);
+    int insert(MfaChallengePo entity);
 
     /** 根据业务 ID 更新 */
-    int updateByChallengeId(CiamMfaChallengeDo entity);
+    int updateByChallengeId(MfaChallengePo entity);
 }

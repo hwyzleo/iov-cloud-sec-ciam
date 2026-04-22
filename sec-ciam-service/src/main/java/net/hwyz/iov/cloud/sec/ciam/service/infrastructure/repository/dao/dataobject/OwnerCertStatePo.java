@@ -13,7 +13,7 @@ import java.time.Instant;
  */
 @Data
 @TableName("ciam_owner_cert_state")
-public class CiamOwnerCertStateDo {
+public class OwnerCertStatePo {
 
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;

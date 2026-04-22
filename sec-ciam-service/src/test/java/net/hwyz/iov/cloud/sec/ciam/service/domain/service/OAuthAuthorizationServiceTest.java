@@ -6,8 +6,8 @@ import net.hwyz.iov.cloud.sec.ciam.service.common.security.PasswordEncoder;
 import net.hwyz.iov.cloud.sec.ciam.service.common.security.TokenDigest;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamAuthCodeRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamOAuthClientRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamAuthCodeDo;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamOAuthClientDo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.AuthCodePo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.OAuthClientPo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -49,8 +49,8 @@ class OAuthAuthorizationServiceTest {
         service = new OAuthAuthorizationService(authCodeRepository, clientRepository, passwordEncoder);
     }
 
-    private CiamOAuthClientDo stubPublicClient(boolean pkceRequired) {
-        CiamOAuthClientDo client = new CiamOAuthClientDo();
+    private OAuthClientPo stubPublicClient(boolean pkceRequired) {
+        OAuthClientPo client = new OAuthClientPo();
         client.setClientId(CLIENT_ID);
         client.setClientName("Test App");
         client.setClientType("public");
@@ -67,17 +67,17 @@ class OAuthAuthorizationServiceTest {
         return client;
     }
 
-    private CiamOAuthClientDo stubConfidentialClient(boolean pkceRequired) {
-        CiamOAuthClientDo client = stubPublicClient(pkceRequired);
+    private OAuthClientPo stubConfidentialClient(boolean pkceRequired) {
+        OAuthClientPo client = stubPublicClient(pkceRequired);
         client.setClientType("confidential");
         client.setClientSecretHash(passwordEncoder.encode(CLIENT_SECRET));
         return client;
     }
 
-    private CiamAuthCodeDo stubAuthCode(String rawCode, String clientId, String redirectUri,
+    private AuthCodePo stubAuthCode(String rawCode, String clientId, String redirectUri,
                                         String codeChallenge, String challengeMethod,
                                         Instant expireTime, int usedFlag) {
-        CiamAuthCodeDo authCode = new CiamAuthCodeDo();
+        AuthCodePo authCode = new AuthCodePo();
         authCode.setAuthCodeId("ac-001");
         authCode.setClientId(clientId);
         authCode.setUserId(USER_ID);
@@ -164,7 +164,7 @@ class OAuthAuthorizationServiceTest {
 
         @Test
         void createCode_failsWhenClientDisabled() {
-            CiamOAuthClientDo client = stubPublicClient(false);
+            OAuthClientPo client = stubPublicClient(false);
             client.setClientStatus(0);
             when(clientRepository.findByClientId(CLIENT_ID)).thenReturn(Optional.of(client));
 
@@ -206,7 +206,7 @@ class OAuthAuthorizationServiceTest {
 
         @Test
         void exchangeCode_successfully() {
-            CiamAuthCodeDo authCode = stubAuthCode(RAW_CODE, CLIENT_ID, REDIRECT_URI,
+            AuthCodePo authCode = stubAuthCode(RAW_CODE, CLIENT_ID, REDIRECT_URI,
                     null, null, Instant.now().plusSeconds(5 * 60), 0);
             when(authCodeRepository.findByCodeHash(TokenDigest.fingerprint(RAW_CODE)))
                     .thenReturn(Optional.of(authCode));
@@ -232,7 +232,7 @@ class OAuthAuthorizationServiceTest {
             String codeVerifier = "dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk";
             String codeChallenge = computeS256Challenge(codeVerifier);
 
-            CiamAuthCodeDo authCode = stubAuthCode(RAW_CODE, CLIENT_ID, REDIRECT_URI,
+            AuthCodePo authCode = stubAuthCode(RAW_CODE, CLIENT_ID, REDIRECT_URI,
                     codeChallenge, "S256", Instant.now().plusSeconds(5 * 60), 0);
             when(authCodeRepository.findByCodeHash(TokenDigest.fingerprint(RAW_CODE)))
                     .thenReturn(Optional.of(authCode));
@@ -248,7 +248,7 @@ class OAuthAuthorizationServiceTest {
 
         @Test
         void exchangeCode_failsWhenExpired() {
-            CiamAuthCodeDo authCode = stubAuthCode(RAW_CODE, CLIENT_ID, REDIRECT_URI,
+            AuthCodePo authCode = stubAuthCode(RAW_CODE, CLIENT_ID, REDIRECT_URI,
                     null, null, Instant.now().minusSeconds(1 * 60), 0);
             when(authCodeRepository.findByCodeHash(TokenDigest.fingerprint(RAW_CODE)))
                     .thenReturn(Optional.of(authCode));
@@ -260,7 +260,7 @@ class OAuthAuthorizationServiceTest {
 
         @Test
         void exchangeCode_failsWhenAlreadyUsed() {
-            CiamAuthCodeDo authCode = stubAuthCode(RAW_CODE, CLIENT_ID, REDIRECT_URI,
+            AuthCodePo authCode = stubAuthCode(RAW_CODE, CLIENT_ID, REDIRECT_URI,
                     null, null, Instant.now().plusSeconds(5 * 60), 1);
             when(authCodeRepository.findByCodeHash(TokenDigest.fingerprint(RAW_CODE)))
                     .thenReturn(Optional.of(authCode));
@@ -272,7 +272,7 @@ class OAuthAuthorizationServiceTest {
 
         @Test
         void exchangeCode_failsWhenWrongRedirectUri() {
-            CiamAuthCodeDo authCode = stubAuthCode(RAW_CODE, CLIENT_ID, REDIRECT_URI,
+            AuthCodePo authCode = stubAuthCode(RAW_CODE, CLIENT_ID, REDIRECT_URI,
                     null, null, Instant.now().plusSeconds(5 * 60), 0);
             when(authCodeRepository.findByCodeHash(TokenDigest.fingerprint(RAW_CODE)))
                     .thenReturn(Optional.of(authCode));
@@ -284,7 +284,7 @@ class OAuthAuthorizationServiceTest {
 
         @Test
         void exchangeCode_failsWhenWrongClientId() {
-            CiamAuthCodeDo authCode = stubAuthCode(RAW_CODE, CLIENT_ID, REDIRECT_URI,
+            AuthCodePo authCode = stubAuthCode(RAW_CODE, CLIENT_ID, REDIRECT_URI,
                     null, null, Instant.now().plusSeconds(5 * 60), 0);
             when(authCodeRepository.findByCodeHash(TokenDigest.fingerprint(RAW_CODE)))
                     .thenReturn(Optional.of(authCode));
@@ -299,7 +299,7 @@ class OAuthAuthorizationServiceTest {
             String codeVerifier = "correct-verifier-value";
             String codeChallenge = computeS256Challenge(codeVerifier);
 
-            CiamAuthCodeDo authCode = stubAuthCode(RAW_CODE, CLIENT_ID, REDIRECT_URI,
+            AuthCodePo authCode = stubAuthCode(RAW_CODE, CLIENT_ID, REDIRECT_URI,
                     codeChallenge, "S256", Instant.now().plusSeconds(5 * 60), 0);
             when(authCodeRepository.findByCodeHash(TokenDigest.fingerprint(RAW_CODE)))
                     .thenReturn(Optional.of(authCode));
@@ -320,7 +320,7 @@ class OAuthAuthorizationServiceTest {
 
         @Test
         void exchangeCode_confidentialClient_failsWithWrongSecret() {
-            CiamAuthCodeDo authCode = stubAuthCode(RAW_CODE, CLIENT_ID, REDIRECT_URI,
+            AuthCodePo authCode = stubAuthCode(RAW_CODE, CLIENT_ID, REDIRECT_URI,
                     null, null, Instant.now().plusSeconds(5 * 60), 0);
             when(authCodeRepository.findByCodeHash(TokenDigest.fingerprint(RAW_CODE)))
                     .thenReturn(Optional.of(authCode));
@@ -374,7 +374,7 @@ class OAuthAuthorizationServiceTest {
 
         @Test
         void clientCredentialsGrant_failsWithDisabledClient() {
-            CiamOAuthClientDo client = stubConfidentialClient(false);
+            OAuthClientPo client = stubConfidentialClient(false);
             client.setClientStatus(0);
             when(clientRepository.findByClientId(CLIENT_ID)).thenReturn(Optional.of(client));
 
@@ -405,7 +405,7 @@ class OAuthAuthorizationServiceTest {
 
         @Test
         void clientCredentialsGrant_withInternalClient_successfully() {
-            CiamOAuthClientDo client = stubConfidentialClient(false);
+            OAuthClientPo client = stubConfidentialClient(false);
             client.setClientType("internal");
             when(clientRepository.findByClientId(CLIENT_ID)).thenReturn(Optional.of(client));
 
