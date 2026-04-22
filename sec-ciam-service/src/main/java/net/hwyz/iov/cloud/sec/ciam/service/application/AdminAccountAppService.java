@@ -13,13 +13,13 @@ import net.hwyz.iov.cloud.sec.ciam.service.common.util.UserIdGenerator;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.IdentityType;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.RegisterSource;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.UserStatus;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.model.User;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.model.UserIdentity;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.model.UserProfile;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserCredentialRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserIdentityRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserProfileRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.UserPo;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.UserIdentityPo;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.UserProfilePo;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -59,7 +59,7 @@ public class AdminAccountAppService {
     public String createAccount(String identityType, String identityValue, String password,
                                  String nickname, Integer gender, String registerSource,
                                  Boolean enabled, String remark, String adminId) {
-        Optional<UserIdentityPo> existing = identityRepository.findByTypeAndValue(
+        Optional<UserIdentity> existing = identityRepository.findByTypeAndValue(
                 identityType, identityValue);
         if (existing.isPresent()) {
             throw new BusinessException(CiamErrorCode.INVALID_PARAM, identityType + "已存在");
@@ -72,46 +72,31 @@ public class AdminAccountAppService {
         }
 
         String userId = UserIdGenerator.generate();
-        UserPo user = new UserPo();
-        user.setUserId(userId);
-        user.setUserStatus(UserStatus.PENDING.getCode());
-        user.setRegisterSource(registerSource);
-        user.setPrimaryIdentityType(identityType);
-        user.setDescription(remark);
-        user.setCreateTime(DateTimeUtil.getNowInstant());
-        user.setCreateBy(adminId);
-        user.setModifyTime(DateTimeUtil.getNowInstant());
-        user.setModifyBy(adminId);
-        user.setRowVersion(1);
-        user.setRowValid(1);
+        User user = User.builder()
+                .userId(userId)
+                .userStatus(UserStatus.PENDING.getCode())
+                .registerSource(registerSource)
+                .primaryIdentityType(identityType)
+                .description(remark)
+                .build();
         userRepository.insert(user);
 
-        UserIdentityPo identity = new UserIdentityPo();
-        identity.setIdentityId(UserIdGenerator.generate());
-        identity.setUserId(userId);
-        identity.setIdentityType(identityType);
-        identity.setIdentityValue(fieldEncryptor.encrypt(identityValue));
-        identity.setIdentityHash(FieldEncryptor.hash(identityValue));
-        identity.setVerifiedFlag(0);
-        identity.setCreateTime(DateTimeUtil.getNowInstant());
-        identity.setCreateBy(adminId);
-        identity.setModifyTime(DateTimeUtil.getNowInstant());
-        identity.setModifyBy(adminId);
-        identity.setRowVersion(1);
-        identity.setRowValid(1);
+        UserIdentity identity = UserIdentity.builder()
+                .identityId(UserIdGenerator.generate())
+                .userId(userId)
+                .identityType(identityType)
+                .identityValue(fieldEncryptor.encrypt(identityValue))
+                .identityHash(FieldEncryptor.hash(identityValue))
+                .verifiedFlag(0)
+                .build();
         identityRepository.insert(identity);
 
-        UserProfilePo profile = new UserProfilePo();
-        profile.setProfileId(UserIdGenerator.generate());
-        profile.setUserId(userId);
-        profile.setNickname(nickname);
-        profile.setGender(gender);
-        profile.setCreateTime(DateTimeUtil.getNowInstant());
-        profile.setCreateBy(adminId);
-        profile.setModifyTime(DateTimeUtil.getNowInstant());
-        profile.setModifyBy(adminId);
-        profile.setRowVersion(1);
-        profile.setRowValid(1);
+        UserProfile profile = UserProfile.builder()
+                .profileId(UserIdGenerator.generate())
+                .userId(userId)
+                .nickname(nickname)
+                .gender(gender)
+                .build();
         profileRepository.insert(profile);
 
         log.info("管理员创建账号: userId={}, identityType={}, identityValue={}, adminId={}",
@@ -126,7 +111,7 @@ public class AdminAccountAppService {
     public void updateAccount(String userId, String identityType, String identityValue,
                                String nickname, Integer gender, Boolean enabled,
                                String remark, String adminId) {
-        UserPo user = userRepository.findByUserId(userId)
+        User user = userRepository.findByUserId(userId)
                 .orElseThrow(() -> new BusinessException(CiamErrorCode.USER_NOT_FOUND));
 
         if (enabled != null) {
@@ -135,12 +120,10 @@ public class AdminAccountAppService {
         if (remark != null) {
             user.setDescription(remark);
         }
-        user.setModifyTime(DateTimeUtil.getNowInstant());
-        user.setModifyBy(adminId);
         userRepository.updateByUserId(user);
 
         if (identityType != null && identityValue != null) {
-            Optional<UserIdentityPo> existingIdentity = identityRepository.findByTypeAndValue(
+            Optional<UserIdentity> existingIdentity = identityRepository.findByTypeAndValue(
                     identityType, identityValue);
             if (existingIdentity.isPresent() && !existingIdentity.get().getUserId().equals(userId)) {
                 throw new BusinessException(CiamErrorCode.INVALID_PARAM, identityType + "已被其他用户使用");
@@ -150,17 +133,15 @@ public class AdminAccountAppService {
             identityRepository.updateIdentityValue(userId, identityType, hashedValue, encryptedValue);
         }
 
-        Optional<UserProfilePo> profileOpt = profileRepository.findByUserId(userId);
+        Optional<UserProfile> profileOpt = profileRepository.findByUserId(userId);
         if (profileOpt.isPresent()) {
-            UserProfilePo profile = profileOpt.get();
+            UserProfile profile = profileOpt.get();
             if (nickname != null) {
                 profile.setNickname(nickname);
             }
             if (gender != null) {
                 profile.setGender(gender);
             }
-            profile.setModifyTime(DateTimeUtil.getNowInstant());
-            profile.setModifyBy(adminId);
             profileRepository.updateByUserId(profile);
         }
 
@@ -175,7 +156,7 @@ public class AdminAccountAppService {
      */
     @Transactional(rollbackFor = Exception.class)
     public void deleteAccount(String userId, String adminId) {
-        UserPo user = userRepository.findByUserId(userId)
+        userRepository.findByUserId(userId)
                 .orElseThrow(() -> new BusinessException(CiamErrorCode.USER_NOT_FOUND));
 
         identityRepository.physicalDeleteByUserId(userId);

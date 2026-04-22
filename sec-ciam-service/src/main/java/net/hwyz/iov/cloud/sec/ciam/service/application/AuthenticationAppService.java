@@ -21,10 +21,10 @@ import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.IdentityStatus;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.IdentityType;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.RegisterSource;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.UserStatus;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.model.User;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.model.UserIdentity;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.service.*;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.UserPo;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.UserIdentityPo;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -100,12 +100,12 @@ public class AuthenticationAppService {
         }
 
         // 2. 查找手机号对应的登录标识
-        Optional<UserIdentityPo> identityOpt =
+        Optional<UserIdentity> identityOpt =
                 identityDomainService.findByTypeAndValue(IdentityType.MOBILE, mobile);
 
         try {
             if (identityOpt.isPresent()
-                    && identityOpt.get().getIdentityStatus() == IdentityStatus.BOUND.getCode()) {
+                    && identityOpt.get().getIdentityStatus().equals(net.hwyz.iov.cloud.sec.ciam.service.domain.enums.IdentityStatus.BOUND.getCode())) {
                 String userId = identityOpt.get().getUserId();
                 deviceDomainService.recordDevice(userId, deviceId, deviceInfo);
                 return handleExistingUserLogin(identityOpt.get(), deviceId, deviceInfo.getClientId());
@@ -113,7 +113,7 @@ public class AuthenticationAppService {
                 return handleNewUserRegistration(mobile, countryCode, deviceId, deviceInfo);
             }
         } catch (BusinessException e) {
-            logAudit(identityOpt.map(UserIdentityPo::getUserId).orElse(null),
+            logAudit(identityOpt.map(UserIdentity::getUserId).orElse(null),
                     deviceId, AuditEventType.LOGIN_FAIL, false);
             throw e;
         }
@@ -145,7 +145,7 @@ public class AuthenticationAppService {
     public LoginResultDto loginByEmailPassword(String email, String password, String clientId,
                                                String captchaId, String captchaAnswer) {
         // 1. 查找邮箱标识
-        Optional<UserIdentityPo> identityOpt =
+        Optional<UserIdentity> identityOpt =
                 identityDomainService.findByTypeAndValue(IdentityType.EMAIL, email);
 
         if (identityOpt.isEmpty()
@@ -154,11 +154,11 @@ public class AuthenticationAppService {
             throw new BusinessException(CiamErrorCode.CREDENTIAL_INVALID);
         }
 
-        UserIdentityPo identity = identityOpt.get();
+        UserIdentity identity = identityOpt.get();
         String userId = identity.getUserId();
 
         // 2. 校验账号状态
-        UserPo user = userRepository.findByUserId(userId)
+        User user = userRepository.findByUserId(userId)
                 .orElseThrow(() -> {
                     logAudit(userId, clientId, AuditEventType.LOGIN_FAIL, false);
                     return new BusinessException(CiamErrorCode.CREDENTIAL_INVALID);
@@ -234,18 +234,18 @@ public class AuthenticationAppService {
         }
 
         // 2. 查找邮箱标识
-        Optional<UserIdentityPo> identityOpt =
+        Optional<UserIdentity> identityOpt =
                 identityDomainService.findByTypeAndValue(IdentityType.EMAIL, email);
 
         try {
             if (identityOpt.isPresent()
-                    && identityOpt.get().getIdentityStatus() == IdentityStatus.BOUND.getCode()) {
+                    && identityOpt.get().getIdentityStatus().equals(net.hwyz.iov.cloud.sec.ciam.service.domain.enums.IdentityStatus.BOUND.getCode())) {
                 return handleExistingUserLogin(identityOpt.get(), clientId, null);
             } else {
                 return handleNewEmailUserRegistration(email, clientId);
             }
         } catch (BusinessException e) {
-            logAudit(identityOpt.map(UserIdentityPo::getUserId).orElse(null),
+            logAudit(identityOpt.map(UserIdentity::getUserId).orElse(null),
                     clientId, AuditEventType.LOGIN_FAIL, false);
             throw e;
         }
@@ -324,12 +324,12 @@ public class AuthenticationAppService {
         }
 
         // 3. 查找手机号对应的登录标识
-        Optional<UserIdentityPo> identityOpt =
+        Optional<UserIdentity> identityOpt =
                 identityDomainService.findByTypeAndValue(IdentityType.MOBILE, mobile);
 
         try {
             if (identityOpt.isPresent()
-                    && identityOpt.get().getIdentityStatus() == IdentityStatus.BOUND.getCode()) {
+                    && identityOpt.get().getIdentityStatus().equals(net.hwyz.iov.cloud.sec.ciam.service.domain.enums.IdentityStatus.BOUND.getCode())) {
                 String userId = identityOpt.get().getUserId();
                 deviceDomainService.recordDevice(userId, clientId, deviceInfo);
                 return handleExistingUserLogin(identityOpt.get(), clientId, deviceInfo.getClientId());
@@ -337,7 +337,7 @@ public class AuthenticationAppService {
                 return handleNewLocalMobileUserRegistration(mobile, clientId, deviceInfo);
             }
         } catch (BusinessException e) {
-            logAudit(identityOpt.map(UserIdentityPo::getUserId).orElse(null),
+            logAudit(identityOpt.map(UserIdentity::getUserId).orElse(null),
                     clientId, AuditEventType.LOGIN_FAIL, false);
             throw e;
         }
@@ -361,10 +361,10 @@ public class AuthenticationAppService {
 
     // ---- 内部方法 ----
 
-    private LoginResultDto handleExistingUserLogin(UserIdentityPo identity, String deviceId, String clientId) {
+    private LoginResultDto handleExistingUserLogin(UserIdentity identity, String deviceId, String clientId) {
         String userId = identity.getUserId();
 
-        UserPo user = userRepository.findByUserId(userId)
+        User user = userRepository.findByUserId(userId)
                 .orElseThrow(() -> new BusinessException(CiamErrorCode.USER_NOT_FOUND));
 
         UserStatus status = UserStatus.fromCode(user.getUserStatus());
@@ -395,10 +395,10 @@ public class AuthenticationAppService {
     }
 
     private LoginResultDto handleNewUserRegistration(String mobile, String countryCode, String deviceId, DeviceInfoDto deviceInfo) {
-        UserPo user = userDomainService.createUser(RegisterSource.MOBILE, null, null, IdentityType.MOBILE);
+        User user = userDomainService.createUser(RegisterSource.MOBILE, null, null, IdentityType.MOBILE);
         String userId = user.getUserId();
 
-        UserIdentityPo identity = identityDomainService.bindIdentity(
+        UserIdentity identity = identityDomainService.bindIdentity(
                 userId, IdentityType.MOBILE, mobile, countryCode, "mobile_code_login");
 
         identityDomainService.markVerified(userId, IdentityType.MOBILE, identity.getIdentityHash());
@@ -427,10 +427,10 @@ public class AuthenticationAppService {
     }
 
     private LoginResultDto handleNewEmailUserRegistration(String email, String clientId) {
-        UserPo user = userDomainService.createUser(RegisterSource.EMAIL, null, null, IdentityType.EMAIL);
+        User user = userDomainService.createUser(RegisterSource.EMAIL, null, null, IdentityType.EMAIL);
         String userId = user.getUserId();
 
-        UserIdentityPo identity = identityDomainService.bindIdentity(
+        UserIdentity identity = identityDomainService.bindIdentity(
                 userId, IdentityType.EMAIL, email, null, "email_code_login");
 
         identityDomainService.markVerified(userId, IdentityType.EMAIL, identity.getIdentityHash());
@@ -447,10 +447,10 @@ public class AuthenticationAppService {
     }
 
     private LoginResultDto handleNewLocalMobileUserRegistration(String mobile, String clientId, DeviceInfoDto deviceInfo) {
-        UserPo user = userDomainService.createUser(RegisterSource.LOCAL_MOBILE, null, null, IdentityType.MOBILE);
+        User user = userDomainService.createUser(RegisterSource.LOCAL_MOBILE, null, null, IdentityType.MOBILE);
         String userId = user.getUserId();
 
-        UserIdentityPo identity = identityDomainService.bindIdentity(
+        UserIdentity identity = identityDomainService.bindIdentity(
                 userId, IdentityType.MOBILE, mobile, null, "local_mobile_login");
 
         identityDomainService.markVerified(userId, IdentityType.MOBILE, identity.getIdentityHash());
@@ -491,11 +491,11 @@ public class AuthenticationAppService {
         String subject = userInfo.getSubject();
 
         // 1. 查找第三方主体标识是否已绑定
-        Optional<UserIdentityPo> identityOpt =
+        Optional<UserIdentity> identityOpt =
                 identityDomainService.findByTypeAndValue(type, subject);
 
         if (identityOpt.isPresent()
-                && identityOpt.get().getIdentityStatus() == IdentityStatus.BOUND.getCode()) {
+                && identityOpt.get().getIdentityStatus().equals(net.hwyz.iov.cloud.sec.ciam.service.domain.enums.IdentityStatus.BOUND.getCode())) {
             // 已绑定 → 直接登录
             return handleExistingUserLogin(identityOpt.get(), clientId, null);
         }
@@ -513,7 +513,7 @@ public class AuthenticationAppService {
         }
 
         // 3. 无冲突 → 自动注册新用户
-        UserPo user = userDomainService.createUser(RegisterSource.fromIdentityType(type), null, null, type);
+        User user = userDomainService.createUser(RegisterSource.fromIdentityType(type), null, null, type);
         String userId = user.getUserId();
 
         identityDomainService.bindIdentity(userId, type, subject, null, bindSource);
@@ -574,3 +574,4 @@ public class AuthenticationAppService {
         deviceDomainService.changeLanguage(userId, deviceId, language);
     }
 }
+

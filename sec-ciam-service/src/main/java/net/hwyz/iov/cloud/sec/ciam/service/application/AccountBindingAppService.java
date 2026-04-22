@@ -16,10 +16,10 @@ import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
 import net.hwyz.iov.cloud.sec.ciam.service.common.util.UserIdGenerator;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.IdentityType;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.ReviewStatus;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.model.UserIdentity;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamMergeRequestRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.service.IdentityDomainService;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.MergeRequestPo;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.UserIdentityPo;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -69,7 +69,7 @@ public class AccountBindingAppService {
                                            String identityValue, String countryCode,
                                            String bindSource) {
         // 冲突检测：检查标识是否已被其他用户绑定
-        Optional<UserIdentityPo> conflict = identityDomainService.checkConflictDetail(
+        Optional<UserIdentity> conflict = identityDomainService.checkConflictDetail(
                 identityType, identityValue, userId);
 
         if (conflict.isPresent()) {
@@ -87,13 +87,13 @@ public class AccountBindingAppService {
         }
 
         // 无冲突，执行绑定
-        UserIdentityPo result = identityDomainService.bindIdentity(
+        UserIdentity result = identityDomainService.bindIdentity(
                 userId, identityType, identityValue, countryCode, bindSource);
 
         logAudit(userId, AuditEventType.BIND, true);
 
         log.info("标识绑定成功: userId={}, identityType={}", userId, identityType.getCode());
-        return UserIdentityMapper.INSTANCE.toDto(UserIdentityMapper.INSTANCE.toDomain(result));
+        return UserIdentityMapper.INSTANCE.toDto(result);
     }
 
     /**
@@ -226,10 +226,10 @@ public class AccountBindingAppService {
         }
 
         // 迁移非最终用户的所有已绑定标识到最终用户
-        List<UserIdentityPo> identitiesToMigrate =
+        List<UserIdentity> identitiesToMigrate =
                 identityDomainService.findByUserId(nonFinalUserId);
 
-        for (UserIdentityPo identity : identitiesToMigrate) {
+        for (UserIdentity identity : identitiesToMigrate) {
             // 解绑旧用户的标识
             identityDomainService.unbindIdentity(nonFinalUserId,
                     IdentityType.fromCode(identity.getIdentityType()),

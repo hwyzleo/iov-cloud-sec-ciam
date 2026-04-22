@@ -14,11 +14,15 @@ import net.hwyz.iov.cloud.sec.ciam.service.application.mapper.UserIdentityMapper
 import net.hwyz.iov.cloud.sec.ciam.service.common.exception.CiamErrorCode;
 import net.hwyz.iov.cloud.sec.ciam.service.common.security.FieldEncryptor;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.IdentityType;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.*;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.model.User;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.model.UserIdentity;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.model.UserProfile;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.query.UserQuery;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.*;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.search.SearchResult;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.search.SearchService;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.*;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.MergeRequestPo;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.DeactivationRequestPo;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.search.document.AuditLogSearchDocument;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.search.document.RiskEventSearchDocument;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.search.document.UserSearchDocument;
@@ -48,14 +52,14 @@ public class AccountQueryAppService {
     private final FieldEncryptor fieldEncryptor;
 
     public UserDetail queryUser(String userId) {
-        UserPo user = userRepository.findByUserId(userId)
+        User user = userRepository.findByUserId(userId)
                 .orElseThrow(() -> new BusinessException(CiamErrorCode.USER_NOT_FOUND));
 
         String identityType = null;
         String identityValue = null;
 
-        List<UserIdentityPo> identities = identityRepository.findByUserId(userId);
-        for (UserIdentityPo identity : identities) {
+        List<UserIdentity> identities = identityRepository.findByUserId(userId);
+        for (UserIdentity identity : identities) {
             if (IdentityType.fromCode(identity.getIdentityType()) == IdentityType.MOBILE ||
                     IdentityType.fromCode(identity.getIdentityType()) == IdentityType.EMAIL) {
                 identityType = identity.getIdentityType();
@@ -70,7 +74,7 @@ public class AccountQueryAppService {
 
         String nickname = null;
         Integer gender = null;
-        Optional<UserProfilePo> profileOpt = profileRepository.findByUserId(userId);
+        Optional<UserProfile> profileOpt = profileRepository.findByUserId(userId);
         if (profileOpt.isPresent()) {
             nickname = profileOpt.get().getNickname();
             gender = profileOpt.get().getGender();
@@ -97,7 +101,7 @@ public class AccountQueryAppService {
      * 检索用户列表
      */
     public List<UserSearchDocument> queryUserList(UserQuery query) {
-        List<UserPo> userList = userRepository.search(query);
+        List<User> userList = userRepository.search(query);
 
         // 使用 PageUtil.convert 确保分页元数据透传
         return PageUtil.convert(userList, user -> {
@@ -111,8 +115,8 @@ public class AccountQueryAppService {
                     .build();
 
             // 补充关联字段
-            List<UserIdentityPo> identities = identityRepository.findByUserId(user.getUserId());
-            for (UserIdentityPo identity : identities) {
+            List<UserIdentity> identities = identityRepository.findByUserId(user.getUserId());
+            for (UserIdentity identity : identities) {
                 if (IdentityType.fromCode(identity.getIdentityType()) == IdentityType.MOBILE ||
                         IdentityType.fromCode(identity.getIdentityType()) == IdentityType.EMAIL) {
                     doc.setIdentityType(identity.getIdentityType());
@@ -136,7 +140,7 @@ public class AccountQueryAppService {
         userRepository.findByUserId(userId)
                 .orElseThrow(() -> new BusinessException(CiamErrorCode.USER_NOT_FOUND));
         return identityRepository.findByUserId(userId).stream()
-                .map(doObj -> UserIdentityMapper.INSTANCE.toDto(UserIdentityMapper.INSTANCE.toDomain(doObj)))
+                .map(UserIdentityMapper.INSTANCE::toDto)
                 .collect(Collectors.toList());
     }
 

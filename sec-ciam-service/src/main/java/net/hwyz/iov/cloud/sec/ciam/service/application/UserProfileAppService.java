@@ -12,8 +12,8 @@ import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditLogger;
 import net.hwyz.iov.cloud.sec.ciam.service.common.exception.CiamErrorCode;
 import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
 import net.hwyz.iov.cloud.sec.ciam.service.common.util.UserIdGenerator;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.model.UserProfile;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserProfileRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.UserProfilePo;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -54,12 +54,12 @@ public class UserProfileAppService {
      * @return 用户资料数据对象
      */
     public UserProfileDto getProfile(String userId) {
-        UserProfilePo ciamUserProfileDo = profileRepository.findByUserId(userId)
+        UserProfile userProfile = profileRepository.findByUserId(userId)
                 .orElseThrow(() -> new BusinessException(CiamErrorCode.PROFILE_NOT_FOUND));
-        if (StrUtil.isBlank(ciamUserProfileDo.getAvatarUrl())) {
-            ciamUserProfileDo.setAvatarUrl(defaultAvatar);
+        if (StrUtil.isBlank(userProfile.getAvatarUrl())) {
+            userProfile.setAvatarUrl(defaultAvatar);
         }
-        return UserProfileMapper.INSTANCE.toDto(UserProfileMapper.INSTANCE.toDomain(ciamUserProfileDo));
+        return UserProfileMapper.INSTANCE.toDto(userProfile);
     }
 
     /**
@@ -79,7 +79,7 @@ public class UserProfileAppService {
     public void updateProfile(String userId, String nickname, String avatarUrl,
                               Integer gender, LocalDate birthday,
                               String regionCode, String regionName) {
-        UserProfilePo profile = profileRepository.findByUserId(userId)
+        UserProfile profile = profileRepository.findByUserId(userId)
                 .orElseThrow(() -> new BusinessException(CiamErrorCode.PROFILE_NOT_FOUND));
 
         if (nickname != null) {
@@ -101,7 +101,6 @@ public class UserProfileAppService {
             profile.setRegionName(regionName);
         }
 
-        profile.setModifyTime(DateTimeUtil.getNowInstant());
         profileRepository.updateByProfileId(profile);
 
         logAudit(userId, AuditEventType.PROFILE_UPDATE, true);
@@ -128,14 +127,13 @@ public class UserProfileAppService {
             throw new BusinessException(CiamErrorCode.SENSITIVE_FIELD_VERIFICATION_REQUIRED);
         }
 
-        UserProfilePo profile = profileRepository.findByUserId(userId)
+        UserProfile profile = profileRepository.findByUserId(userId)
                 .orElseThrow(() -> new BusinessException(CiamErrorCode.PROFILE_NOT_FOUND));
 
         if ("realName".equals(field)) {
             profile.setRealName(value);
         }
 
-        profile.setModifyTime(DateTimeUtil.getNowInstant());
         profileRepository.updateByProfileId(profile);
 
         logAudit(userId, AuditEventType.PROFILE_SENSITIVE_UPDATE, true);
@@ -153,14 +151,11 @@ public class UserProfileAppService {
             return;
         }
 
-        UserProfilePo profile = new UserProfilePo();
-        profile.setProfileId(UserIdGenerator.generate());
-        profile.setUserId(userId);
-        profile.setGender(0);
-        profile.setRowVersion(1);
-        profile.setRowValid(1);
-        profile.setCreateTime(DateTimeUtil.getNowInstant());
-        profile.setModifyTime(DateTimeUtil.getNowInstant());
+        UserProfile profile = UserProfile.builder()
+                .profileId(UserIdGenerator.generate())
+                .userId(userId)
+                .gender(0)
+                .build();
         profileRepository.insert(profile);
 
         log.info("创建默认用户资料: userId={}", userId);

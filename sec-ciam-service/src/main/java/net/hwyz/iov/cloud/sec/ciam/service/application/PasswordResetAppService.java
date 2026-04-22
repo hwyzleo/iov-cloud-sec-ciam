@@ -11,13 +11,12 @@ import net.hwyz.iov.cloud.sec.ciam.service.common.exception.CiamErrorCode;
 import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.IdentityStatus;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.IdentityType;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamRefreshTokenRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamSessionRepository;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.model.UserIdentity;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.*;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.service.CredentialDomainService;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.service.IdentityDomainService;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.service.VerificationCodeService;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.service.VerificationCodeType;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.UserIdentityPo;
 import org.springframework.stereotype.Service;
 
 /**
@@ -59,7 +58,7 @@ public class PasswordResetAppService {
      * @return 关联的用户 ID
      */
     public String requestResetByMobile(String mobile, String countryCode, String clientId) {
-        UserIdentityPo identity = findBoundIdentity(IdentityType.MOBILE, mobile);
+        UserIdentity identity = findBoundIdentity(IdentityType.MOBILE, mobile);
         String userId = identity.getUserId();
 
         verificationCodeService.sendSmsCode(mobile, countryCode, userId, clientId);
@@ -79,7 +78,7 @@ public class PasswordResetAppService {
      * @return 关联的用户 ID
      */
     public String requestResetByEmail(String email, String clientId) {
-        UserIdentityPo identity = findBoundIdentity(IdentityType.EMAIL, email);
+        UserIdentity identity = findBoundIdentity(IdentityType.EMAIL, email);
         String userId = identity.getUserId();
 
         verificationCodeService.sendEmailCode(email, userId, clientId);
@@ -134,7 +133,7 @@ public class PasswordResetAppService {
     /**
      * 根据标识类型和原值查找已绑定的用户标识，未找到则抛出 USER_NOT_FOUND。
      */
-    private UserIdentityPo findBoundIdentity(IdentityType type, String identityValue) {
+    private UserIdentity findBoundIdentity(IdentityType type, String identityValue) {
         return identityDomainService.findByTypeAndValue(type, identityValue)
                 .filter(i -> i.getIdentityStatus() == IdentityStatus.BOUND.getCode())
                 .orElseThrow(() -> new BusinessException(CiamErrorCode.USER_NOT_FOUND));

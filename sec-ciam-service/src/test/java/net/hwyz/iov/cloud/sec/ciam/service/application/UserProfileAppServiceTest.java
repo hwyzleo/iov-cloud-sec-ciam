@@ -5,8 +5,8 @@ import net.hwyz.iov.cloud.sec.ciam.service.application.dto.UserProfileDto;
 import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditEvent;
 import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditLogger;
 import net.hwyz.iov.cloud.sec.ciam.service.common.exception.CiamErrorCode;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.model.UserProfile;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserProfileRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.UserProfilePo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -42,16 +42,14 @@ class UserProfileAppServiceTest {
         service = new UserProfileAppService(profileRepository, auditLogger);
     }
 
-    private UserProfilePo stubProfile() {
-        UserProfilePo profile = new UserProfilePo();
-        profile.setProfileId(PROFILE_ID);
-        profile.setUserId(USER_ID);
-        profile.setNickname("旧昵称");
-        profile.setAvatarUrl("https://example.com/old.png");
-        profile.setGender(0);
-        profile.setRowVersion(1);
-        profile.setRowValid(1);
-        return profile;
+    private UserProfile stubProfile() {
+        return UserProfile.builder()
+                .profileId(PROFILE_ID)
+                .userId(USER_ID)
+                .nickname("旧昵称")
+                .avatarUrl("https://example.com/old.png")
+                .gender(0)
+                .build();
     }
 
     // ---- getProfile ----
@@ -61,7 +59,7 @@ class UserProfileAppServiceTest {
 
         @Test
         void returnsProfileWhenExists() {
-            UserProfilePo expected = stubProfile();
+            UserProfile expected = stubProfile();
             when(profileRepository.findByUserId(USER_ID)).thenReturn(Optional.of(expected));
 
             UserProfileDto result = service.getProfile(USER_ID);
@@ -92,9 +90,9 @@ class UserProfileAppServiceTest {
             service.updateProfile(USER_ID, "新昵称", "https://example.com/new.png",
                     null, null, null, null);
 
-            ArgumentCaptor<UserProfilePo> captor = ArgumentCaptor.forClass(UserProfilePo.class);
+            ArgumentCaptor<UserProfile> captor = ArgumentCaptor.forClass(UserProfile.class);
             verify(profileRepository).updateByProfileId(captor.capture());
-            UserProfilePo updated = captor.getValue();
+            UserProfile updated = captor.getValue();
             assertEquals("新昵称", updated.getNickname());
             assertEquals("https://example.com/new.png", updated.getAvatarUrl());
         }
@@ -124,7 +122,7 @@ class UserProfileAppServiceTest {
 
             service.updateSensitiveField(USER_ID, "realName", "张三", "valid-token-123");
 
-            ArgumentCaptor<UserProfilePo> captor = ArgumentCaptor.forClass(UserProfilePo.class);
+            ArgumentCaptor<UserProfile> captor = ArgumentCaptor.forClass(UserProfile.class);
             verify(profileRepository).updateByProfileId(captor.capture());
             assertEquals("张三", captor.getValue().getRealName());
         }
@@ -141,9 +139,9 @@ class UserProfileAppServiceTest {
 
             service.createProfileIfNotExists(USER_ID);
 
-            ArgumentCaptor<UserProfilePo> captor = ArgumentCaptor.forClass(UserProfilePo.class);
+            ArgumentCaptor<UserProfile> captor = ArgumentCaptor.forClass(UserProfile.class);
             verify(profileRepository).insert(captor.capture());
-            UserProfilePo created = captor.getValue();
+            UserProfile created = captor.getValue();
             assertEquals(USER_ID, created.getUserId());
         }
     }

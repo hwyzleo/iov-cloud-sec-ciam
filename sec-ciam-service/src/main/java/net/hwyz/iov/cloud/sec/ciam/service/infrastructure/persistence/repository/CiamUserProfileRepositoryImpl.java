@@ -3,7 +3,9 @@ package net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.repositor
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import lombok.RequiredArgsConstructor;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.model.UserProfile;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserProfileRepository;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.converter.UserProfilePoConverter;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.mapper.CiamUserProfileMapper;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.UserProfilePo;
 import org.springframework.stereotype.Repository;
@@ -15,39 +17,44 @@ import java.util.Optional;
 public class CiamUserProfileRepositoryImpl implements CiamUserProfileRepository {
 
     private final CiamUserProfileMapper mapper;
+    private final UserProfilePoConverter userProfilePoConverter;
 
     @Override
-    public Optional<UserProfilePo> findByUserId(String userId) {
-        return Optional.ofNullable(mapper.selectOne(
+    public Optional<UserProfile> findByUserId(String userId) {
+        UserProfilePo po = mapper.selectOne(
                 new LambdaQueryWrapper<UserProfilePo>()
                         .eq(UserProfilePo::getUserId, userId)
-                        .eq(UserProfilePo::getRowValid, 1)));
+                        .eq(UserProfilePo::getRowValid, 1));
+        return Optional.ofNullable(userProfilePoConverter.toDomain(po));
     }
 
     @Override
-    public Optional<UserProfilePo> findByProfileId(String profileId) {
-        return Optional.ofNullable(mapper.selectOne(
+    public Optional<UserProfile> findByProfileId(String profileId) {
+        UserProfilePo po = mapper.selectOne(
                 new LambdaQueryWrapper<UserProfilePo>()
-                        .eq(UserProfilePo::getProfileId, profileId)));
+                        .eq(UserProfilePo::getProfileId, profileId));
+        return Optional.ofNullable(userProfilePoConverter.toDomain(po));
     }
 
     @Override
-    public int insert(UserProfilePo entity) {
-        return mapper.insert(entity);
+    public int insert(UserProfile entity) {
+        return mapper.insert(userProfilePoConverter.toPo(entity));
     }
 
     @Override
-    public int updateByProfileId(UserProfilePo entity) {
-        return mapper.update(entity,
+    public int updateByProfileId(UserProfile entity) {
+        UserProfilePo po = userProfilePoConverter.toPo(entity);
+        return mapper.update(po,
                 new LambdaUpdateWrapper<UserProfilePo>()
-                        .eq(UserProfilePo::getProfileId, entity.getProfileId()));
+                        .eq(UserProfilePo::getProfileId, po.getProfileId()));
     }
 
     @Override
-    public int updateByUserId(UserProfilePo entity) {
-        return mapper.update(entity,
+    public int updateByUserId(UserProfile entity) {
+        UserProfilePo po = userProfilePoConverter.toPo(entity);
+        return mapper.update(po,
                 new LambdaUpdateWrapper<UserProfilePo>()
-                        .eq(UserProfilePo::getUserId, entity.getUserId()));
+                        .eq(UserProfilePo::getUserId, po.getUserId()));
     }
 
     @Override

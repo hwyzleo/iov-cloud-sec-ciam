@@ -3,7 +3,9 @@ package net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.repositor
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import lombok.RequiredArgsConstructor;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.model.AuthCode;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamAuthCodeRepository;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.converter.AuthCodePoConverter;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.mapper.CiamAuthCodeMapper;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.AuthCodePo;
 import org.springframework.stereotype.Repository;
@@ -15,29 +17,32 @@ import java.util.Optional;
 public class CiamAuthCodeRepositoryImpl implements CiamAuthCodeRepository {
 
     private final CiamAuthCodeMapper mapper;
+    private final AuthCodePoConverter poConverter;
 
     @Override
-    public Optional<AuthCodePo> findByCodeHash(String codeHash) {
-        return Optional.ofNullable(mapper.selectOne(
+    public Optional<AuthCode> findByCodeHash(String codeHash) {
+        AuthCodePo po = mapper.selectOne(
                 new LambdaQueryWrapper<AuthCodePo>()
-                        .eq(AuthCodePo::getCodeHash, codeHash)));
+                        .eq(AuthCodePo::getCodeHash, codeHash));
+        return Optional.ofNullable(poConverter.toDomain(po));
     }
 
     @Override
-    public Optional<AuthCodePo> findByAuthCodeId(String authCodeId) {
-        return Optional.ofNullable(mapper.selectOne(
+    public Optional<AuthCode> findByAuthCodeId(String authCodeId) {
+        AuthCodePo po = mapper.selectOne(
                 new LambdaQueryWrapper<AuthCodePo>()
-                        .eq(AuthCodePo::getAuthCodeId, authCodeId)));
+                        .eq(AuthCodePo::getAuthCodeId, authCodeId));
+        return Optional.ofNullable(poConverter.toDomain(po));
     }
 
     @Override
-    public int insert(AuthCodePo entity) {
-        return mapper.insert(entity);
+    public int insert(AuthCode entity) {
+        return mapper.insert(poConverter.toPo(entity));
     }
 
     @Override
-    public int updateByAuthCodeId(AuthCodePo entity) {
-        return mapper.update(entity,
+    public int updateByAuthCodeId(AuthCode entity) {
+        return mapper.update(poConverter.toPo(entity),
                 new LambdaUpdateWrapper<AuthCodePo>()
                         .eq(AuthCodePo::getAuthCodeId, entity.getAuthCodeId()));
     }

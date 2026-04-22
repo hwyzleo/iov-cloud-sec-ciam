@@ -15,19 +15,13 @@ import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.CheckStatus;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.ExecuteStatus;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.IdentityType;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.ReviewStatus;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamDeactivationRequestRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamRefreshTokenRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamSessionRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserCredentialRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserIdentityRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserProfileRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserRepository;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.model.UserIdentity;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.*;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.service.IdentityDomainService;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.service.UserDomainService;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.service.VerificationCodeService;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.service.VerificationCodeType;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.DeactivationRequestPo;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.UserIdentityPo;
 import org.springframework.stereotype.Service;
 
 /**
@@ -95,7 +89,7 @@ public class AccountLifecycleAppService {
                 ? VerificationCodeType.SMS : VerificationCodeType.EMAIL;
         verificationCodeService.verifyCode(userKey, clientId, codeType, code);
 
-        UserIdentityPo identity = identityDomainService.findByTypeAndValue(identityType, identityValue)
+        UserIdentity identity = identityDomainService.findByTypeAndValue(identityType, identityValue)
                 .orElseThrow(() -> new BusinessException(CiamErrorCode.USER_NOT_FOUND));
 
         passwordChangeAppService.resetPasswordAndInvalidateSessions(identity.getUserId(), newPassword);

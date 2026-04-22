@@ -2,7 +2,9 @@ package net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.repositor
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.RequiredArgsConstructor;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.model.AuditLog;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamAuditLogRepository;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.converter.AuditLogPoConverter;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.mapper.CiamAuditLogMapper;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.AuditLogPo;
 import org.springframework.stereotype.Repository;
@@ -10,50 +12,56 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
 public class CiamAuditLogRepositoryImpl implements CiamAuditLogRepository {
 
     private final CiamAuditLogMapper mapper;
+    private final AuditLogPoConverter poConverter;
 
     @Override
-    public Optional<AuditLogPo> findByAuditId(String auditId) {
-        return Optional.ofNullable(mapper.selectOne(
+    public Optional<AuditLog> findByAuditId(String auditId) {
+        AuditLogPo po = mapper.selectOne(
                 new LambdaQueryWrapper<AuditLogPo>()
-                        .eq(AuditLogPo::getAuditId, auditId)));
+                        .eq(AuditLogPo::getAuditId, auditId));
+        return Optional.ofNullable(poConverter.toDomain(po));
     }
 
     @Override
-    public List<AuditLogPo> findByUserIdAndTimeRange(String userId, LocalDateTime startTime, LocalDateTime endTime) {
+    public List<AuditLog> findByUserIdAndTimeRange(String userId, LocalDateTime startTime, LocalDateTime endTime) {
         return mapper.selectList(
                 new LambdaQueryWrapper<AuditLogPo>()
                         .eq(AuditLogPo::getUserId, userId)
                         .ge(AuditLogPo::getEventTime, startTime)
                         .le(AuditLogPo::getEventTime, endTime)
-                        .eq(AuditLogPo::getRowValid, 1));
+                        .eq(AuditLogPo::getRowValid, 1))
+                .stream().map(poConverter::toDomain).collect(Collectors.toList());
     }
 
     @Override
-    public List<AuditLogPo> findByEventTypeAndTimeRange(String eventType, LocalDateTime startTime, LocalDateTime endTime) {
+    public List<AuditLog> findByEventTypeAndTimeRange(String eventType, LocalDateTime startTime, LocalDateTime endTime) {
         return mapper.selectList(
                 new LambdaQueryWrapper<AuditLogPo>()
                         .eq(AuditLogPo::getEventType, eventType)
                         .ge(AuditLogPo::getEventTime, startTime)
                         .le(AuditLogPo::getEventTime, endTime)
-                        .eq(AuditLogPo::getRowValid, 1));
+                        .eq(AuditLogPo::getRowValid, 1))
+                .stream().map(poConverter::toDomain).collect(Collectors.toList());
     }
 
     @Override
-    public List<AuditLogPo> findByTraceId(String traceId) {
+    public List<AuditLog> findByTraceId(String traceId) {
         return mapper.selectList(
                 new LambdaQueryWrapper<AuditLogPo>()
                         .eq(AuditLogPo::getTraceId, traceId)
-                        .eq(AuditLogPo::getRowValid, 1));
+                        .eq(AuditLogPo::getRowValid, 1))
+                .stream().map(poConverter::toDomain).collect(Collectors.toList());
     }
 
     @Override
-    public int insert(AuditLogPo entity) {
-        return mapper.insert(entity);
+    public int insert(AuditLog entity) {
+        return mapper.insert(poConverter.toPo(entity));
     }
 }

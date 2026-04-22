@@ -13,6 +13,7 @@ import java.time.Instant;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserProfile {
+    private String profileId;
     private String userId;
     private String nickname;
     private String avatarUrl;

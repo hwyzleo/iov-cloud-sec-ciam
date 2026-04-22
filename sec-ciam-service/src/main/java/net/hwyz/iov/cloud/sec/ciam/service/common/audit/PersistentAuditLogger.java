@@ -2,13 +2,12 @@ package net.hwyz.iov.cloud.sec.ciam.service.common.audit;
 
 import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.model.AuditLog;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamAuditLogRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.AuditLogPo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 /**
@@ -49,37 +48,34 @@ public class PersistentAuditLogger implements AuditLogger {
 
         // 持久化到数据库
         try {
-            AuditLogPo logDo = mapToDataObject(event);
-            auditLogRepository.insert(logDo);
+            AuditLog auditLog = mapToDomainModel(event);
+            auditLogRepository.insert(auditLog);
         } catch (Exception e) {
             log.warn("[AUDIT] 审计日志持久化失败，已降级为仅日志记录: {}", e.getMessage());
         }
     }
 
     /**
-     * 将 AuditEvent 映射为 AuditLogPo。
+     * 将 AuditEvent 映射为 AuditLog。
      */
-    AuditLogPo mapToDataObject(AuditEvent event) {
-        AuditLogPo logDo = new AuditLogPo();
-        logDo.setAuditId(generateAuditId());
-        logDo.setUserId(event.getUserId());
-        logDo.setSessionId(event.getSessionId());
-        logDo.setClientId(event.getClientId());
-        logDo.setClientType(event.getClientType());
-        logDo.setEventType(event.getEventType());
-        logDo.setEventName(event.getEventName());
-        logDo.setOperationResult(event.isSuccess() ? 1 : 0);
-        logDo.setRequestUri(event.getRequestUri());
-        logDo.setRequestMethod(event.getRequestMethod());
-        logDo.setResponseCode(event.getResponseCode());
-        logDo.setIpAddress(event.getIp());
-        logDo.setTraceId(event.getTraceId());
-        logDo.setRequestSnapshot(event.getRequestSnapshot());
-        logDo.setEventTime(event.getEventTime() != null ? event.getEventTime() : DateTimeUtil.getNowInstant());
-        logDo.setCreateTime(DateTimeUtil.getNowInstant());
-        logDo.setRowVersion(1);
-        logDo.setRowValid(1);
-        return logDo;
+    AuditLog mapToDomainModel(AuditEvent event) {
+        return AuditLog.builder()
+                .auditId(generateAuditId())
+                .userId(event.getUserId())
+                .sessionId(event.getSessionId())
+                .clientId(event.getClientId())
+                .clientType(event.getClientType())
+                .eventType(event.getEventType())
+                .eventName(event.getEventName())
+                .operationResult(event.isSuccess() ? 1 : 0)
+                .requestUri(event.getRequestUri())
+                .requestMethod(event.getRequestMethod())
+                .responseCode(event.getResponseCode())
+                .ipAddress(event.getIp())
+                .traceId(event.getTraceId())
+                .requestSnapshot(event.getRequestSnapshot())
+                .eventTime(event.getEventTime() != null ? event.getEventTime() : DateTimeUtil.getNowInstant())
+                .build();
     }
 
     private String generateAuditId() {

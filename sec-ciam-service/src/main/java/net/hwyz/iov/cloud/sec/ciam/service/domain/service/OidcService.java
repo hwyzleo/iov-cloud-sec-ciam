@@ -3,9 +3,9 @@ package net.hwyz.iov.cloud.sec.ciam.service.domain.service;
 import lombok.RequiredArgsConstructor;
 import net.hwyz.iov.cloud.sec.ciam.service.common.security.FieldEncryptor;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.IdentityType;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.model.UserIdentity;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.model.UserProfile;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserProfileRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.UserIdentityPo;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.UserProfilePo;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -52,7 +52,7 @@ public class OidcService {
             }
         });
 
-        List<UserIdentityPo> identities = identityDomainService.findByUserId(userId);
+        List<UserIdentity> identities = identityDomainService.findByUserId(userId);
         findIdentityValue(identities, IdentityType.EMAIL).ifPresent(builder::email);
         findIdentityValue(identities, IdentityType.MOBILE).ifPresent(builder::phoneNumber);
 
@@ -110,7 +110,7 @@ public class OidcService {
 
     // ---- 内部方法 ----
 
-    private Optional<String> findIdentityValue(List<UserIdentityPo> identities,
+    private Optional<String> findIdentityValue(List<UserIdentity> identities,
                                                IdentityType type) {
         return identities.stream()
                 .filter(i -> type.getCode().equals(i.getIdentityType()))

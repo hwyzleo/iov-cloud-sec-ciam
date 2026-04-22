@@ -6,9 +6,9 @@ import net.hwyz.iov.cloud.sec.ciam.service.common.exception.CiamErrorCode;
 import net.hwyz.iov.cloud.sec.ciam.service.common.security.PasswordEncoder;
 import net.hwyz.iov.cloud.sec.ciam.service.common.security.TokenDigest;
 import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.model.AuthCode;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamAuthCodeRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamOAuthClientRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.AuthCodePo;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.OAuthClientPo;
 import org.springframework.stereotype.Service;
 
@@ -78,7 +78,7 @@ public class OAuthAuthorizationService {
         String codeHash = TokenDigest.fingerprint(rawCode);
 
         Instant now = DateTimeUtil.getNowInstant();
-        AuthCodePo entity = new AuthCodePo();
+        AuthCode entity = new AuthCode();
         entity.setAuthCodeId(UUID.randomUUID().toString());
         entity.setClientId(clientId);
         entity.setUserId(userId);
@@ -116,7 +116,7 @@ public class OAuthAuthorizationService {
                                                String codeVerifier) {
         // 根据 code hash 查找授权码记录
         String codeHash = TokenDigest.fingerprint(code);
-        AuthCodePo authCode = authCodeRepository.findByCodeHash(codeHash)
+        AuthCode authCode = authCodeRepository.findByCodeHash(codeHash)
                 .orElseThrow(() -> new BusinessException(CiamErrorCode.AUTH_CODE_INVALID));
 
         // 校验未过期
@@ -245,7 +245,7 @@ public class OAuthAuthorizationService {
         return false;
     }
 
-    private void markCodeAsUsed(AuthCodePo authCode) {
+    private void markCodeAsUsed(AuthCode authCode) {
         authCode.setUsedFlag(1);
         authCode.setUsedTime(DateTimeUtil.getNowInstant());
         authCode.setModifyTime(DateTimeUtil.getNowInstant());

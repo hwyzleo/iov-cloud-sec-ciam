@@ -21,4 +21,6 @@ public class User {
     private Instant lastLoginTime;
     private Instant deactivatedTime;
     private String description;
+    private Instant createTime;
+    private Instant modifyTime;
 }

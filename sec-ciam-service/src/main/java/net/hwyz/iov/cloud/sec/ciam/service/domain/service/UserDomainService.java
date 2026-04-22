@@ -8,16 +8,16 @@ import net.hwyz.iov.cloud.sec.ciam.service.common.util.UserIdGenerator;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.IdentityType;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.RegisterSource;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.UserStatus;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.model.User;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.model.UserProfile;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserProfileRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.UserPo;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.UserProfilePo;
 import org.springframework.stereotype.Service;
 
 /**
  * 用户领域服务 — 封装用户主档创建逻辑。
  * <p>
- * 业务侧禁止直接拼装 {@link UserPo} 或 {@link UserProfilePo}，
+ * 业务侧禁止直接拼装 {@link User} 或 {@link UserProfile}，
  * 必须通过本服务完成用户创建，以保证：
  * <ul>
  *   <li>全局唯一 user_id 由 {@link UserIdGenerator} 统一生成</li>
@@ -41,7 +41,7 @@ public class UserDomainService {
      * @param primaryIdentityType   主要身份类型（可为 null）
      * @return 新创建的用户数据对象
      */
-    public UserPo createUser(RegisterSource registerSource,
+    public User createUser(RegisterSource registerSource,
                                  String registerChannel,
                                  String brandCode,
                                  IdentityType primaryIdentityType) {
@@ -50,28 +50,22 @@ public class UserDomainService {
                 ? "OPENIOV" : brandCode;
 
         // 构建用户主表记录
-        UserPo user = new UserPo();
-        user.setUserId(userId);
-        user.setUserStatus(UserStatus.PENDING.getCode());
-        user.setBrandCode(effectiveBrand);
-        user.setRegisterSource(registerSource.getCode());
-        user.setRegisterChannel(registerChannel);
-        user.setPrimaryIdentityType(primaryIdentityType != null ? primaryIdentityType.getCode() : null);
-        user.setRowVersion(1);
-        user.setRowValid(1);
-        user.setCreateTime(DateTimeUtil.getNowInstant());
-        user.setModifyTime(DateTimeUtil.getNowInstant());
+        User user = User.builder()
+                .userId(userId)
+                .userStatus(UserStatus.PENDING.getCode())
+                .brandCode(effectiveBrand)
+                .registerSource(registerSource.getCode())
+                .registerChannel(registerChannel)
+                .primaryIdentityType(primaryIdentityType != null ? primaryIdentityType.getCode() : null)
+                .build();
         userRepository.insert(user);
 
         // 同步创建用户资料扩展记录
-        UserProfilePo profile = new UserProfilePo();
-        profile.setProfileId(UserIdGenerator.generate());
-        profile.setUserId(userId);
-        profile.setGender(0); // 未知
-        profile.setRowVersion(1);
-        profile.setRowValid(1);
-        profile.setCreateTime(DateTimeUtil.getNowInstant());
-        profile.setModifyTime(DateTimeUtil.getNowInstant());
+        UserProfile profile = UserProfile.builder()
+                .profileId(UserIdGenerator.generate())
+                .userId(userId)
+                .gender(0) // 未知
+                .build();
         userProfileRepository.insert(profile);
 
         return user;
@@ -141,24 +135,23 @@ public class UserDomainService {
      * @param userId 用户业务唯一标识
      * @return 用户数据对象（可能为空）
      */
-    public java.util.Optional<UserPo> findByUserId(String userId) {
+    public java.util.Optional<User> findByUserId(String userId) {
         return userRepository.findByUserId(userId);
     }
 
 
     // ---- 内部方法 ----
 
-    private UserPo findUser(String userId) {
+    private User findUser(String userId) {
         return userRepository.findByUserId(userId)
                 .orElseThrow(() -> new BusinessException(CiamErrorCode.USER_NOT_FOUND));
     }
 
     private void transitStatus(String userId, UserStatus target) {
-        UserPo user = findUser(userId);
+        User user = findUser(userId);
         UserStatus current = UserStatus.fromCode(user.getUserStatus());
         UserStatusMachine.validateTransition(current, target);
         user.setUserStatus(target.getCode());
-        user.setModifyTime(DateTimeUtil.getNowInstant());
         userRepository.updateByUserId(user);
     }
 }

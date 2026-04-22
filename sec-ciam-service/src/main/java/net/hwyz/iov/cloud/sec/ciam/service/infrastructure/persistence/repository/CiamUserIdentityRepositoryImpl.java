@@ -4,7 +4,9 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import lombok.RequiredArgsConstructor;
 import net.hwyz.iov.cloud.sec.ciam.service.common.security.FieldEncryptor;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.model.UserIdentity;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserIdentityRepository;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.converter.UserIdentityPoConverter;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.mapper.CiamUserIdentityMapper;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.UserIdentityPo;
 import org.springframework.stereotype.Repository;
@@ -17,51 +19,57 @@ import java.util.Optional;
 public class CiamUserIdentityRepositoryImpl implements CiamUserIdentityRepository {
 
     private final CiamUserIdentityMapper mapper;
+    private final UserIdentityPoConverter userIdentityPoConverter;
 
     @Override
-    public Optional<UserIdentityPo> findByTypeAndHash(String identityType, String identityHash) {
-        return Optional.ofNullable(mapper.selectOne(
+    public Optional<UserIdentity> findByTypeAndHash(String identityType, String identityHash) {
+        UserIdentityPo po = mapper.selectOne(
                 new LambdaQueryWrapper<UserIdentityPo>()
                         .eq(UserIdentityPo::getIdentityType, identityType)
                         .eq(UserIdentityPo::getIdentityHash, identityHash)
-                        .eq(UserIdentityPo::getRowValid, 1)));
+                        .eq(UserIdentityPo::getRowValid, 1));
+        return Optional.ofNullable(userIdentityPoConverter.toDomain(po));
     }
 
     @Override
-    public Optional<UserIdentityPo> findByTypeAndValue(String identityType, String identityValue) {
+    public Optional<UserIdentity> findByTypeAndValue(String identityType, String identityValue) {
         String identityHash = FieldEncryptor.hash(identityValue);
-        return Optional.ofNullable(mapper.selectOne(
+        UserIdentityPo po = mapper.selectOne(
                 new LambdaQueryWrapper<UserIdentityPo>()
                         .eq(UserIdentityPo::getIdentityType, identityType)
                         .eq(UserIdentityPo::getIdentityHash, identityHash)
-                        .eq(UserIdentityPo::getRowValid, 1)));
+                        .eq(UserIdentityPo::getRowValid, 1));
+        return Optional.ofNullable(userIdentityPoConverter.toDomain(po));
     }
 
     @Override
-    public List<UserIdentityPo> findByUserId(String userId) {
-        return mapper.selectList(
+    public List<UserIdentity> findByUserId(String userId) {
+        List<UserIdentityPo> pos = mapper.selectList(
                 new LambdaQueryWrapper<UserIdentityPo>()
                         .eq(UserIdentityPo::getUserId, userId)
                         .eq(UserIdentityPo::getRowValid, 1));
+        return pos.stream().map(userIdentityPoConverter::toDomain).toList();
     }
 
     @Override
-    public Optional<UserIdentityPo> findByIdentityId(String identityId) {
-        return Optional.ofNullable(mapper.selectOne(
+    public Optional<UserIdentity> findByIdentityId(String identityId) {
+        UserIdentityPo po = mapper.selectOne(
                 new LambdaQueryWrapper<UserIdentityPo>()
-                        .eq(UserIdentityPo::getIdentityId, identityId)));
+                        .eq(UserIdentityPo::getIdentityId, identityId));
+        return Optional.ofNullable(userIdentityPoConverter.toDomain(po));
     }
 
     @Override
-    public int insert(UserIdentityPo entity) {
-        return mapper.insert(entity);
+    public int insert(UserIdentity entity) {
+        return mapper.insert(userIdentityPoConverter.toPo(entity));
     }
 
     @Override
-    public int updateByIdentityId(UserIdentityPo entity) {
-        return mapper.update(entity,
+    public int updateByIdentityId(UserIdentity entity) {
+        UserIdentityPo po = userIdentityPoConverter.toPo(entity);
+        return mapper.update(po,
                 new LambdaUpdateWrapper<UserIdentityPo>()
-                        .eq(UserIdentityPo::getIdentityId, entity.getIdentityId()));
+                        .eq(UserIdentityPo::getIdentityId, po.getIdentityId()));
     }
 
     @Override
