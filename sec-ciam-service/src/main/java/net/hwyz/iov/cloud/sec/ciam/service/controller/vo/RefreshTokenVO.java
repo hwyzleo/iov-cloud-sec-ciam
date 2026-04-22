@@ -16,7 +16,7 @@ import java.time.Instant;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class RefreshTokenVO {
+public class RefreshTokenVo {
 
     @JsonProperty("refresh_token_id")
     private String refreshTokenId;

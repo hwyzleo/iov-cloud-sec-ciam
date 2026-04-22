@@ -155,7 +155,7 @@ class CoreAuthenticationLoopVerificationTest {
         when(userRepository.insert(any())).thenReturn(1);
         when(identityRepository.insert(any())).thenReturn(1);
 
-        ApiResponse<LoginResultDTO> regResponse = authController.loginByMobile("client-001", "dev-001", "app", "iOS", "1.0",
+        ApiResponse<LoginResultDto> regResponse = authController.loginByMobile("client-001", "dev-001", "app", "iOS", "1.0",
                 MobileLoginRequest.builder().mobile(mobile).countryCode(countryCode).code(code).build());
 
         assertEquals("000000", regResponse.getCode());
@@ -174,7 +174,7 @@ class CoreAuthenticationLoopVerificationTest {
         idDo.setIdentityHash(FieldEncryptor.hash(mobile));
         when(identityRepository.findByTypeAndHash(eq(IdentityType.MOBILE.getCode()), anyString())).thenReturn(Optional.of(idDo));
 
-        ApiResponse<LoginResultDTO> loginResponse = authController.loginByMobile("client-001", "dev-001", "app", "iOS", "1.0",
+        ApiResponse<LoginResultDto> loginResponse = authController.loginByMobile("client-001", "dev-001", "app", "iOS", "1.0",
                 MobileLoginRequest.builder().mobile(mobile).countryCode(countryCode).code(code).build());
         assertEquals("000000", loginResponse.getCode());
 

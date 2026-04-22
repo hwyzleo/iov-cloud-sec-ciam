@@ -16,7 +16,7 @@ import java.time.Instant;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class OwnerCertificationVO {
+public class OwnerCertificationVo {
 
     @JsonProperty("owner_cert_id")
     private String ownerCertId;

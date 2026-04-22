@@ -1,7 +1,7 @@
 package net.hwyz.iov.cloud.sec.ciam.service.application;
 
 import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
-import net.hwyz.iov.cloud.sec.ciam.service.application.dto.OwnerCertificationDTO;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.OwnerCertificationDto;
 import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditEvent;
 import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditLogger;
 import net.hwyz.iov.cloud.sec.ciam.service.common.exception.CiamErrorCode;
@@ -112,7 +112,7 @@ class OwnerCertificationAppServiceTest {
             CiamOwnerCertStateDo record = stubCertRecord(CertStatus.CERTIFIED.getCode());
             when(certStateRepository.findByUserId(USER_ID)).thenReturn(List.of(record));
 
-            List<OwnerCertificationDTO> result = service.queryCertificationStatus(USER_ID);
+            List<OwnerCertificationDto> result = service.queryCertificationStatus(USER_ID);
 
             assertEquals(1, result.size());
             assertEquals(CertStatus.CERTIFIED.getCode(), result.get(0).getCertStatus());
@@ -122,7 +122,7 @@ class OwnerCertificationAppServiceTest {
         void returnsEmptyListWhenNoRecords() {
             when(certStateRepository.findByUserId(USER_ID)).thenReturn(Collections.emptyList());
 
-            List<OwnerCertificationDTO> result = service.queryCertificationStatus(USER_ID);
+            List<OwnerCertificationDto> result = service.queryCertificationStatus(USER_ID);
 
             assertTrue(result.isEmpty());
         }
@@ -139,7 +139,7 @@ class OwnerCertificationAppServiceTest {
             when(certStateRepository.findByUserIdAndCertStatus(USER_ID,
                     CertStatus.CERTIFYING.getCode())).thenReturn(List.of(pending));
 
-            List<OwnerCertificationDTO> result =
+            List<OwnerCertificationDto> result =
                     service.compensateCertificationStatus(USER_ID);
 
             assertEquals(1, result.size());
@@ -150,7 +150,7 @@ class OwnerCertificationAppServiceTest {
             when(certStateRepository.findByUserIdAndCertStatus(USER_ID,
                     CertStatus.CERTIFYING.getCode())).thenReturn(Collections.emptyList());
 
-            List<OwnerCertificationDTO> result =
+            List<OwnerCertificationDto> result =
                     service.compensateCertificationStatus(USER_ID);
 
             assertTrue(result.isEmpty());

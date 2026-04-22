@@ -15,7 +15,7 @@ import net.hwyz.iov.cloud.sec.ciam.service.domain.adapter.CaptchaChallenge;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class LoginResultDTO {
+public class LoginResultDto {
 
     /** 用户业务唯一标识 */
     private String userId;

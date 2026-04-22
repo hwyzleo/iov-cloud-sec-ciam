@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
 import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
 import net.hwyz.iov.cloud.framework.web.util.PageUtil;
-import net.hwyz.iov.cloud.sec.ciam.service.application.dto.DeviceInfoDTO;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.DeviceInfoDto;
 import net.hwyz.iov.cloud.sec.ciam.service.application.mapper.DeviceMapper;
 import net.hwyz.iov.cloud.sec.ciam.service.common.exception.CiamErrorCode;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.model.Device;
@@ -49,13 +49,13 @@ public class DeviceQueryAppService {
         ));
     }
 
-    public DeviceInfoDTO queryDevice(String deviceId) {
+    public DeviceInfoDto queryDevice(String deviceId) {
         Device device = deviceRepository.findByDeviceId(deviceId)
                 .orElseThrow(() -> new BusinessException(CiamErrorCode.DEVICE_NOT_FOUND));
         return DeviceMapper.INSTANCE.toDto(device);
     }
 
-    public List<DeviceInfoDTO> queryUserDevices(String userId) {
+    public List<DeviceInfoDto> queryUserDevices(String userId) {
         return deviceRepository.findByUserId(userId).stream()
                 .map(DeviceMapper.INSTANCE::toDto)
                 .collect(Collectors.toList());

@@ -2,7 +2,7 @@ package net.hwyz.iov.cloud.sec.ciam.service.application;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.hwyz.iov.cloud.sec.ciam.service.application.dto.RiskEventDTO;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.RiskEventDto;
 import net.hwyz.iov.cloud.sec.ciam.service.application.mapper.RiskEventMapper;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamRiskEventRepository;
 import org.springframework.stereotype.Service;
@@ -24,7 +24,7 @@ public class RiskEventAppService {
     /**
      * 查询用户在指定时间范围内的风险事件
      */
-    public List<RiskEventDTO> queryUserRiskEvents(String userId, LocalDateTime startTime, LocalDateTime endTime) {
+    public List<RiskEventDto> queryUserRiskEvents(String userId, LocalDateTime startTime, LocalDateTime endTime) {
         log.info("查询用户风险事件: userId={}, startTime={}, endTime={}", userId, startTime, endTime);
         return riskEventRepository.findByUserIdAndTimeRange(userId, startTime, endTime).stream()
                 .map(doObj -> RiskEventMapper.INSTANCE.toDto(RiskEventMapper.INSTANCE.toDomain(doObj)))

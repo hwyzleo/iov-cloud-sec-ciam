@@ -16,7 +16,7 @@ import java.time.Instant;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class SessionVO {
+public class SessionVo {
 
     @JsonProperty("session_id")
     private String sessionId;

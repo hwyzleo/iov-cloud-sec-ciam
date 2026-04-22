@@ -1,7 +1,7 @@
 package net.hwyz.iov.cloud.sec.ciam.service.application.mapper;
 
-import net.hwyz.iov.cloud.sec.ciam.service.controller.vo.MergeRequestVO;
-import net.hwyz.iov.cloud.sec.ciam.service.application.dto.MergeRequestDTO;
+import net.hwyz.iov.cloud.sec.ciam.service.controller.vo.MergeRequestVo;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.MergeRequestDto;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.model.MergeRequest;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamMergeRequestDo;
 import org.mapstruct.Mapper;
@@ -29,15 +29,15 @@ public interface MergeRequestMapper {
     /**
      * Domain -> DTO
      */
-    MergeRequestDTO toDto(MergeRequest domain);
+    MergeRequestDto toDto(MergeRequest domain);
 
     /**
      * DTO -> Domain
      */
-    MergeRequest toEntity(MergeRequestDTO dto);
+    MergeRequest toEntity(MergeRequestDto dto);
 
     /**
      * DTO -> VO
      */
-    MergeRequestVO toVo(MergeRequestDTO dto);
+    MergeRequestVo toVo(MergeRequestDto dto);
 }

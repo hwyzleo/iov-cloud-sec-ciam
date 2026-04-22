@@ -16,7 +16,7 @@ import java.time.Instant;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class DeactivationRequestVO {
+public class DeactivationRequestVo {
 
     @JsonProperty("deactivation_request_id")
     private String deactivationRequestId;

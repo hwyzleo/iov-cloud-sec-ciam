@@ -1,7 +1,7 @@
 package net.hwyz.iov.cloud.sec.ciam.service.application.mapper;
 
-import net.hwyz.iov.cloud.sec.ciam.service.controller.vo.AuditLogVO;
-import net.hwyz.iov.cloud.sec.ciam.service.application.dto.AuditLogDTO;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.AuditLogDto;
+import net.hwyz.iov.cloud.sec.ciam.service.controller.vo.AuditLogVo;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.model.AuditLog;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamAuditLogDo;
 import org.mapstruct.Mapper;
@@ -29,15 +29,15 @@ public interface AuditLogMapper {
     /**
      * Domain -> DTO
      */
-    AuditLogDTO toDto(AuditLog domain);
+    AuditLogDto toDto(AuditLog domain);
 
     /**
      * DTO -> Domain
      */
-    AuditLog toEntity(AuditLogDTO dto);
+    AuditLog toEntity(AuditLogDto dto);
 
     /**
      * DTO -> VO
      */
-    AuditLogVO toVo(AuditLogDTO dto);
+    AuditLogVo toVo(AuditLogDto dto);
 }

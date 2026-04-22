@@ -11,7 +11,7 @@ import java.time.Instant;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserConsentDTO {
+public class UserConsentDto {
     private String consentId;
     private String userId;
     private String consentType;

@@ -11,16 +11,16 @@ import net.hwyz.iov.cloud.sec.ciam.service.application.AccountLifecycleAppServic
 import net.hwyz.iov.cloud.sec.ciam.service.application.AdminAccountAppService;
 import net.hwyz.iov.cloud.sec.ciam.service.application.AccountQueryAppService;
 import net.hwyz.iov.cloud.sec.ciam.service.application.StatisticsAppService;
-import net.hwyz.iov.cloud.sec.ciam.service.application.dto.StatisticsResultDTO;
-import net.hwyz.iov.cloud.sec.ciam.service.application.dto.DeactivationRequestDTO;
-import net.hwyz.iov.cloud.sec.ciam.service.application.dto.MergeRequestDTO;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.StatisticsResultDto;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.DeactivationRequestDto;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.MergeRequestDto;
 import net.hwyz.iov.cloud.sec.ciam.service.application.mapper.DeactivationRequestMapper;
 import net.hwyz.iov.cloud.sec.ciam.service.application.mapper.MergeRequestMapper;
 import net.hwyz.iov.cloud.sec.ciam.service.application.mapper.UserIdentityMapper;
 import net.hwyz.iov.cloud.sec.ciam.service.controller.mpt.vo.*;
-import net.hwyz.iov.cloud.sec.ciam.service.controller.vo.DeactivationRequestVO;
-import net.hwyz.iov.cloud.sec.ciam.service.controller.vo.MergeRequestVO;
-import net.hwyz.iov.cloud.sec.ciam.service.controller.vo.UserIdentityVO;
+import net.hwyz.iov.cloud.sec.ciam.service.controller.vo.DeactivationRequestVo;
+import net.hwyz.iov.cloud.sec.ciam.service.controller.vo.MergeRequestVo;
+import net.hwyz.iov.cloud.sec.ciam.service.controller.vo.UserIdentityVo;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.query.UserQuery;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.search.document.UserSearchDocument;
 import net.hwyz.iov.cloud.framework.security.util.SecurityUtils;
@@ -67,18 +67,18 @@ public class MptAccountController extends BaseController {
     }
 
     @GetMapping("/merge-requests")
-    public ApiResponse<PageResult<MergeRequestVO>> listMergeRequests(@RequestParam(required = false, defaultValue = "0") int reviewStatus) {
+    public ApiResponse<PageResult<MergeRequestVo>> listMergeRequests(@RequestParam(required = false, defaultValue = "0") int reviewStatus) {
         startPage();
-        List<MergeRequestDTO> list = adminQueryAppService.queryMergeRequests(reviewStatus);
-        List<MergeRequestVO> voList = list.stream().map(MergeRequestMapper.INSTANCE::toVo).collect(Collectors.toList());
+        List<MergeRequestDto> list = adminQueryAppService.queryMergeRequests(reviewStatus);
+        List<MergeRequestVo> voList = list.stream().map(MergeRequestMapper.INSTANCE::toVo).collect(Collectors.toList());
         return ApiResponse.ok(getPageResult(voList));
     }
 
     @GetMapping("/deactivation-requests")
-    public ApiResponse<PageResult<DeactivationRequestVO>> listDeactivationRequests(@RequestParam(required = false, defaultValue = "0") int reviewStatus) {
+    public ApiResponse<PageResult<DeactivationRequestVo>> listDeactivationRequests(@RequestParam(required = false, defaultValue = "0") int reviewStatus) {
         startPage();
-        List<DeactivationRequestDTO> list = adminQueryAppService.queryDeactivationRequests(reviewStatus);
-        List<DeactivationRequestVO> voList = list.stream().map(DeactivationRequestMapper.INSTANCE::toVo).collect(Collectors.toList());
+        List<DeactivationRequestDto> list = adminQueryAppService.queryDeactivationRequests(reviewStatus);
+        List<DeactivationRequestVo> voList = list.stream().map(DeactivationRequestMapper.INSTANCE::toVo).collect(Collectors.toList());
         return ApiResponse.ok(getPageResult(voList));
     }
 
@@ -90,8 +90,8 @@ public class MptAccountController extends BaseController {
     }
 
     @GetMapping("/accounts/bindings")
-    public ApiResponse<List<UserIdentityVO>> getUserBindings(@RequestParam String userId) {
-        List<UserIdentityVO> voList = adminQueryAppService.queryBindingRelations(userId).stream()
+    public ApiResponse<List<UserIdentityVo>> getUserBindings(@RequestParam String userId) {
+        List<UserIdentityVo> voList = adminQueryAppService.queryBindingRelations(userId).stream()
                 .map(UserIdentityMapper.INSTANCE::toVo)
                 .collect(Collectors.toList());
         return ApiResponse.ok(voList);

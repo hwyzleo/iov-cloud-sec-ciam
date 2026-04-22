@@ -1,7 +1,7 @@
 package net.hwyz.iov.cloud.sec.ciam.service.application.mapper;
 
-import net.hwyz.iov.cloud.sec.ciam.service.controller.vo.UserConsentVO;
-import net.hwyz.iov.cloud.sec.ciam.service.application.dto.UserConsentDTO;
+import net.hwyz.iov.cloud.sec.ciam.service.controller.vo.UserConsentVo;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.UserConsentDto;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.model.UserConsent;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamUserConsentDo;
 import org.mapstruct.Mapper;
@@ -29,15 +29,15 @@ public interface UserConsentMapper {
     /**
      * Domain -> DTO
      */
-    UserConsentDTO toDto(UserConsent domain);
+    UserConsentDto toDto(UserConsent domain);
 
     /**
      * DTO -> Domain
      */
-    UserConsent toEntity(UserConsentDTO dto);
+    UserConsent toEntity(UserConsentDto dto);
 
     /**
      * DTO -> VO
      */
-    UserConsentVO toVo(UserConsentDTO dto);
+    UserConsentVo toVo(UserConsentDto dto);
 }

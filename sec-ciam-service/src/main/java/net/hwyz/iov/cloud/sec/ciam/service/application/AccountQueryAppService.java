@@ -5,9 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
 import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
 import net.hwyz.iov.cloud.framework.web.util.PageUtil;
-import net.hwyz.iov.cloud.sec.ciam.service.application.dto.DeactivationRequestDTO;
-import net.hwyz.iov.cloud.sec.ciam.service.application.dto.MergeRequestDTO;
-import net.hwyz.iov.cloud.sec.ciam.service.application.dto.UserIdentityDTO;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.DeactivationRequestDto;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.MergeRequestDto;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.UserIdentityDto;
 import net.hwyz.iov.cloud.sec.ciam.service.application.mapper.DeactivationRequestMapper;
 import net.hwyz.iov.cloud.sec.ciam.service.application.mapper.MergeRequestMapper;
 import net.hwyz.iov.cloud.sec.ciam.service.application.mapper.UserIdentityMapper;
@@ -132,7 +132,7 @@ public class AccountQueryAppService {
         });
     }
 
-    public List<UserIdentityDTO> queryBindingRelations(String userId) {
+    public List<UserIdentityDto> queryBindingRelations(String userId) {
         userRepository.findByUserId(userId)
                 .orElseThrow(() -> new BusinessException(CiamErrorCode.USER_NOT_FOUND));
         return identityRepository.findByUserId(userId).stream()
@@ -140,12 +140,12 @@ public class AccountQueryAppService {
                 .collect(Collectors.toList());
     }
 
-    public List<MergeRequestDTO> queryMergeRequests(int reviewStatus) {
+    public List<MergeRequestDto> queryMergeRequests(int reviewStatus) {
         List<CiamMergeRequestDo> all = mergeRequestRepository.findByReviewStatus(reviewStatus);
         return PageUtil.convert(all, doObj -> MergeRequestMapper.INSTANCE.toDto(MergeRequestMapper.INSTANCE.toDomain(doObj)));
     }
 
-    public List<DeactivationRequestDTO> queryDeactivationRequests(int reviewStatus) {
+    public List<DeactivationRequestDto> queryDeactivationRequests(int reviewStatus) {
         List<CiamDeactivationRequestDo> all = deactivationRequestRepository.findByReviewStatus(reviewStatus);
         return PageUtil.convert(all, doObj -> DeactivationRequestMapper.INSTANCE.toDto(DeactivationRequestMapper.INSTANCE.toDomain(doObj)));
     }

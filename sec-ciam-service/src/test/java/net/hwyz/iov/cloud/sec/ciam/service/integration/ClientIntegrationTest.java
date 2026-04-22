@@ -2,7 +2,7 @@ package net.hwyz.iov.cloud.sec.ciam.service.integration;
 
 import net.hwyz.iov.cloud.framework.common.bean.ApiResponse;
 import net.hwyz.iov.cloud.sec.ciam.service.application.AuthenticationAppService;
-import net.hwyz.iov.cloud.sec.ciam.service.application.dto.LoginResultDTO;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.LoginResultDto;
 import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
 import static org.mockito.Mockito.*;
 import org.mockito.Mockito;
@@ -342,7 +342,7 @@ class ClientIntegrationTest {
             // 获取验证码
             String code = verificationCodeStore.getCode("sms:" + mobile).orElseThrow();
 
-            ApiResponse<LoginResultDTO> response = authController.loginByMobile("client-app", "device-001", "iOS", "iOS", "1.0.0", MobileLoginRequest.builder().mobile(mobile).countryCode("86").code(code).build());
+            ApiResponse<LoginResultDto> response = authController.loginByMobile("client-app", "device-001", "iOS", "iOS", "1.0.0", MobileLoginRequest.builder().mobile(mobile).countryCode("86").code(code).build());
 
             assertEquals("000000", response.getCode());
             assertNotNull(response.getData());
@@ -359,7 +359,7 @@ class ClientIntegrationTest {
             authController.sendMobileCode("client-mini", SendMobileCodeRequest.builder().mobile(mobile).countryCode("86").build());
             String code = verificationCodeStore.getCode("sms:" + mobile).orElseThrow();
 
-            ApiResponse<LoginResultDTO> response = authController.loginByMobile("client-mini", "device-002", "mini_program", "WeChat", "1.0.0", MobileLoginRequest.builder().mobile(mobile).countryCode("86").code(code).build());
+            ApiResponse<LoginResultDto> response = authController.loginByMobile("client-mini", "device-002", "mini_program", "WeChat", "1.0.0", MobileLoginRequest.builder().mobile(mobile).countryCode("86").code(code).build());
 
             assertEquals("000000", response.getCode());
             assertEquals(userId, response.getData().getUserId());
@@ -375,7 +375,7 @@ class ClientIntegrationTest {
             authController.sendMobileCode("client-web", SendMobileCodeRequest.builder().mobile(mobile).countryCode("86").build());
             String code = verificationCodeStore.getCode("sms:" + mobile).orElseThrow();
 
-            ApiResponse<LoginResultDTO> response = authController.loginByMobile("client-web", "device-003", "web", "Chrome", "1.0.0", MobileLoginRequest.builder().mobile(mobile).countryCode("86").code(code).build());
+            ApiResponse<LoginResultDto> response = authController.loginByMobile("client-web", "device-003", "web", "Chrome", "1.0.0", MobileLoginRequest.builder().mobile(mobile).countryCode("86").code(code).build());
 
             assertEquals("000000", response.getCode());
             assertEquals(userId, response.getData().getUserId());
@@ -392,7 +392,7 @@ class ClientIntegrationTest {
             for (String clientId : clientIds) {
                 authController.sendMobileCode(clientId, SendMobileCodeRequest.builder().mobile(mobile).countryCode("86").build());
                 String code = verificationCodeStore.getCode("sms:" + mobile).orElseThrow();
-                ApiResponse<LoginResultDTO> response = authController.loginByMobile(
+                ApiResponse<LoginResultDto> response = authController.loginByMobile(
                         clientId, "device-004", "multi", "multi", "1.0.0", MobileLoginRequest.builder().mobile(mobile).countryCode("86").code(code).build());
 
                 assertEquals("000000", response.getCode(), "登录失败: clientId=" + clientId);

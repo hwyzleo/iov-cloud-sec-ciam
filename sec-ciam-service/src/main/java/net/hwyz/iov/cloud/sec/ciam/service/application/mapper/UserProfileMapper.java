@@ -1,7 +1,7 @@
 package net.hwyz.iov.cloud.sec.ciam.service.application.mapper;
 
-import net.hwyz.iov.cloud.sec.ciam.service.controller.vo.UserProfileVO;
-import net.hwyz.iov.cloud.sec.ciam.service.application.dto.UserProfileDTO;
+import net.hwyz.iov.cloud.sec.ciam.service.controller.vo.UserProfileVo;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.UserProfileDto;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.model.UserProfile;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamUserProfileDo;
 import org.mapstruct.Mapper;
@@ -29,15 +29,15 @@ public interface UserProfileMapper {
     /**
      * Domain -> DTO
      */
-    UserProfileDTO toDto(UserProfile domain);
+    UserProfileDto toDto(UserProfile domain);
 
     /**
      * DTO -> Domain
      */
-    UserProfile toEntity(UserProfileDTO dto);
+    UserProfile toEntity(UserProfileDto dto);
 
     /**
      * DTO -> VO
      */
-    UserProfileVO toVo(UserProfileDTO dto);
+    UserProfileVo toVo(UserProfileDto dto);
 }

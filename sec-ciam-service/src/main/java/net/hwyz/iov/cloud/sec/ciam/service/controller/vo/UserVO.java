@@ -16,7 +16,7 @@ import java.time.Instant;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserVO {
+public class UserVo {
 
     @JsonProperty("user_id")
     private String userId;

@@ -1,7 +1,7 @@
 package net.hwyz.iov.cloud.sec.ciam.service.application;
 
 import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
-import net.hwyz.iov.cloud.sec.ciam.service.application.dto.DeviceInfoDTO;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.DeviceInfoDto;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.DeviceStatus;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.model.Device;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.query.DeviceQuery;
@@ -67,7 +67,7 @@ class DeviceQueryAppServiceTest {
         void returnsDeviceWhenExists() {
             when(deviceRepository.findByDeviceId(DEVICE_ID)).thenReturn(Optional.of(stubDevice(DEVICE_ID)));
 
-            DeviceInfoDTO result = service.queryDevice(DEVICE_ID);
+            DeviceInfoDto result = service.queryDevice(DEVICE_ID);
 
             assertNotNull(result);
             assertEquals(DEVICE_ID, result.getDeviceId());
@@ -207,7 +207,7 @@ class DeviceQueryAppServiceTest {
                     stubDevice("DEV-001"),
                     stubDevice("DEV-002")));
 
-            List<DeviceInfoDTO> result = service.queryUserDevices(USER_ID);
+            List<DeviceInfoDto> result = service.queryUserDevices(USER_ID);
 
             assertEquals(2, result.size());
             assertEquals("client-001", result.get(0).getClientId());
@@ -217,7 +217,7 @@ class DeviceQueryAppServiceTest {
         void returnsEmptyWhenUserHasNoDevices() {
             when(deviceRepository.findByUserId(USER_ID)).thenReturn(Collections.emptyList());
 
-            List<DeviceInfoDTO> result = service.queryUserDevices(USER_ID);
+            List<DeviceInfoDto> result = service.queryUserDevices(USER_ID);
 
             assertTrue(result.isEmpty());
         }

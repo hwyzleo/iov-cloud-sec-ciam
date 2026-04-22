@@ -1,7 +1,7 @@
 package net.hwyz.iov.cloud.sec.ciam.service.application.mapper;
 
-import net.hwyz.iov.cloud.sec.ciam.service.application.dto.DeviceInfoDTO;
-import net.hwyz.iov.cloud.sec.ciam.service.controller.vo.DeviceVO;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.DeviceInfoDto;
+import net.hwyz.iov.cloud.sec.ciam.service.controller.vo.DeviceVo;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.model.Device;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamDeviceDo;
 import org.mapstruct.Mapper;
@@ -29,15 +29,15 @@ public interface DeviceMapper {
     /**
      * Domain -> DTO
      */
-    DeviceInfoDTO toDto(Device domain);
+    DeviceInfoDto toDto(Device domain);
 
     /**
      * DTO -> Domain
      */
-    Device toEntity(DeviceInfoDTO dto);
+    Device toEntity(DeviceInfoDto dto);
 
     /**
      * DTO -> VO
      */
-    DeviceVO toVo(DeviceInfoDTO dto);
+    DeviceVo toVo(DeviceInfoDto dto);
 }

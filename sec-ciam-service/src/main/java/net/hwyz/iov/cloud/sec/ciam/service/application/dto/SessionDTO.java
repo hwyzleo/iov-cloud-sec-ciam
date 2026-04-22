@@ -11,7 +11,7 @@ import java.time.Instant;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class SessionDTO {
+public class SessionDto {
     private String sessionId;
     private String userId;
     private String deviceId;

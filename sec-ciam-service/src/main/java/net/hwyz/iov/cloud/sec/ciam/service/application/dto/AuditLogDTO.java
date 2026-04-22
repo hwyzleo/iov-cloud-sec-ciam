@@ -11,7 +11,7 @@ import java.time.Instant;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class AuditLogDTO {
+public class AuditLogDto {
     private String auditId;
     private String userId;
     private String sessionId;

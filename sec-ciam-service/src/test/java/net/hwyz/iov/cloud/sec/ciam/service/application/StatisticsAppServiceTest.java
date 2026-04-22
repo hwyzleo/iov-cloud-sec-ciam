@@ -1,6 +1,6 @@
 package net.hwyz.iov.cloud.sec.ciam.service.application;
 
-import net.hwyz.iov.cloud.sec.ciam.service.application.dto.StatisticsResultDTO;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.StatisticsResultDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -34,7 +34,7 @@ class StatisticsAppServiceTest {
 
         @Test
         void returnsEmptyResultWithTimeRangeAndChannel() {
-            StatisticsResultDTO result = service.getRegistrationStats(START, END, "app_store");
+            StatisticsResultDto result = service.getRegistrationStats(START, END, "app_store");
 
             assertEquals(0, result.getRegistrationCount());
             assertEquals(0.0, result.getConversionRate());
@@ -44,7 +44,7 @@ class StatisticsAppServiceTest {
 
         @Test
         void supportsNullFilters() {
-            StatisticsResultDTO result = service.getRegistrationStats(null, null, null);
+            StatisticsResultDto result = service.getRegistrationStats(null, null, null);
 
             assertEquals(0, result.getRegistrationCount());
             assertEquals(0.0, result.getConversionRate());
@@ -58,7 +58,7 @@ class StatisticsAppServiceTest {
 
         @Test
         void returnsEmptyResultWithTimeRangeAndClientType() {
-            StatisticsResultDTO result = service.getLoginStats(START, END, "app");
+            StatisticsResultDto result = service.getLoginStats(START, END, "app");
 
             assertEquals(0, result.getLoginSuccessCount());
             assertEquals(0, result.getLoginFailureCount());
@@ -67,7 +67,7 @@ class StatisticsAppServiceTest {
 
         @Test
         void supportsNullFilters() {
-            StatisticsResultDTO result = service.getLoginStats(null, null, null);
+            StatisticsResultDto result = service.getLoginStats(null, null, null);
 
             assertEquals(0, result.getLoginSuccessCount());
             assertEquals(0, result.getLoginFailureCount());
@@ -82,7 +82,7 @@ class StatisticsAppServiceTest {
 
         @Test
         void returnsEmptyDistribution() {
-            StatisticsResultDTO result = service.getChannelDistribution(START, END);
+            StatisticsResultDto result = service.getChannelDistribution(START, END);
 
             assertNotNull(result.getChannelDistribution());
             assertTrue(result.getChannelDistribution().isEmpty());
@@ -90,7 +90,7 @@ class StatisticsAppServiceTest {
 
         @Test
         void supportsNullTimeRange() {
-            StatisticsResultDTO result = service.getChannelDistribution(null, null);
+            StatisticsResultDto result = service.getChannelDistribution(null, null);
 
             assertNotNull(result.getChannelDistribution());
             assertEquals(Collections.emptyMap(), result.getChannelDistribution());
@@ -104,7 +104,7 @@ class StatisticsAppServiceTest {
 
         @Test
         void returnsEmptyDistribution() {
-            StatisticsResultDTO result = service.getThirdPartyLoginDistribution(START, END);
+            StatisticsResultDto result = service.getThirdPartyLoginDistribution(START, END);
 
             assertNotNull(result.getThirdPartyDistribution());
             assertTrue(result.getThirdPartyDistribution().isEmpty());
@@ -112,7 +112,7 @@ class StatisticsAppServiceTest {
 
         @Test
         void supportsNullTimeRange() {
-            StatisticsResultDTO result = service.getThirdPartyLoginDistribution(null, null);
+            StatisticsResultDto result = service.getThirdPartyLoginDistribution(null, null);
 
             assertNotNull(result.getThirdPartyDistribution());
             assertEquals(Collections.emptyMap(), result.getThirdPartyDistribution());
@@ -126,7 +126,7 @@ class StatisticsAppServiceTest {
 
         @Test
         void emptyResultHasZeroValues() {
-            StatisticsResultDTO empty = StatisticsResultDTO.empty();
+            StatisticsResultDto empty = StatisticsResultDto.empty();
 
             assertEquals(0, empty.getRegistrationCount());
             assertEquals(0.0, empty.getConversionRate());

@@ -1,9 +1,9 @@
 package net.hwyz.iov.cloud.sec.ciam.service.application;
 
 import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
-import net.hwyz.iov.cloud.sec.ciam.service.application.dto.DeactivationRequestDTO;
-import net.hwyz.iov.cloud.sec.ciam.service.application.dto.MergeRequestDTO;
-import net.hwyz.iov.cloud.sec.ciam.service.application.dto.UserIdentityDTO;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.DeactivationRequestDto;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.MergeRequestDto;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.UserIdentityDto;
 import net.hwyz.iov.cloud.sec.ciam.service.common.security.FieldEncryptor;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.ReviewStatus;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.UserStatus;
@@ -169,7 +169,7 @@ class AccountQueryAppServiceTest {
             when(identityRepository.findByUserId(USER_ID))
                     .thenReturn(List.of(stubIdentity("MOBILE"), stubIdentity("WECHAT")));
 
-            List<UserIdentityDTO> result = service.queryBindingRelations(USER_ID);
+            List<UserIdentityDto> result = service.queryBindingRelations(USER_ID);
 
             assertEquals(2, result.size());
         }
@@ -194,7 +194,7 @@ class AccountQueryAppServiceTest {
                     stubMergeRequest("mr-003"));
             when(mergeRequestRepository.findByReviewStatus(ReviewStatus.PENDING.getCode())).thenReturn(all);
 
-            List<MergeRequestDTO> result = service.queryMergeRequests(ReviewStatus.PENDING.getCode());
+            List<MergeRequestDto> result = service.queryMergeRequests(ReviewStatus.PENDING.getCode());
 
             assertEquals(3, result.size());
         }
@@ -204,7 +204,7 @@ class AccountQueryAppServiceTest {
             when(mergeRequestRepository.findByReviewStatus(ReviewStatus.APPROVED.getCode()))
                     .thenReturn(Collections.emptyList());
 
-            List<MergeRequestDTO> result = service.queryMergeRequests(ReviewStatus.APPROVED.getCode());
+            List<MergeRequestDto> result = service.queryMergeRequests(ReviewStatus.APPROVED.getCode());
 
             assertTrue(result.isEmpty());
         }
@@ -222,7 +222,7 @@ class AccountQueryAppServiceTest {
                     stubDeactivationRequest("dr-002"));
             when(deactivationRequestRepository.findByReviewStatus(ReviewStatus.PENDING.getCode())).thenReturn(all);
 
-            List<DeactivationRequestDTO> result = service.queryDeactivationRequests(ReviewStatus.PENDING.getCode());
+            List<DeactivationRequestDto> result = service.queryDeactivationRequests(ReviewStatus.PENDING.getCode());
 
             assertEquals(2, result.size());
         }

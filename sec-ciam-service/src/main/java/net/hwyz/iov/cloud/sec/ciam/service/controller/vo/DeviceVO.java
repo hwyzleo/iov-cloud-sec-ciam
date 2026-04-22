@@ -16,7 +16,7 @@ import java.time.Instant;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class DeviceVO {
+public class DeviceVo {
 
     @JsonProperty("device_id")
     private String deviceId;

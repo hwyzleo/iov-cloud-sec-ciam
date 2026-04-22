@@ -3,7 +3,7 @@ package net.hwyz.iov.cloud.sec.ciam.service.application;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
-import net.hwyz.iov.cloud.sec.ciam.service.application.dto.OwnerCertificationDTO;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.OwnerCertificationDto;
 import net.hwyz.iov.cloud.sec.ciam.service.application.mapper.OwnerCertificationMapper;
 import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditEvent;
 import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditEventType;
@@ -106,7 +106,7 @@ public class OwnerCertificationAppService {
      * @param userId 用户业务唯一标识
      * @return 该用户所有认证状态记录
      */
-    public List<OwnerCertificationDTO> queryCertificationStatus(String userId) {
+    public List<OwnerCertificationDto> queryCertificationStatus(String userId) {
         if (userId == null || userId.isBlank()) {
             throw new BusinessException(CiamErrorCode.INVALID_PARAM, "userId 不能为空");
         }
@@ -126,7 +126,7 @@ public class OwnerCertificationAppService {
      * @param userId 用户业务唯一标识
      * @return 需要补偿的认证中记录列表
      */
-    public List<OwnerCertificationDTO> compensateCertificationStatus(String userId) {
+    public List<OwnerCertificationDto> compensateCertificationStatus(String userId) {
         if (userId == null || userId.isBlank()) {
             throw new BusinessException(CiamErrorCode.INVALID_PARAM, "userId 不能为空");
         }

@@ -16,7 +16,7 @@ import java.time.Instant;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class RiskEventVO {
+public class RiskEventVo {
 
     @JsonProperty("risk_event_id")
     private String riskEventId;

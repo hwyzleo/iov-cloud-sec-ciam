@@ -16,7 +16,7 @@ import java.time.Instant;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class MergeRequestVO {
+public class MergeRequestVo {
 
     @JsonProperty("merge_request_id")
     private String mergeRequestId;

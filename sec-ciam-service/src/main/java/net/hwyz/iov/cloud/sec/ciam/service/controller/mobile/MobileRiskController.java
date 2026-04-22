@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import net.hwyz.iov.cloud.framework.common.bean.ApiResponse;
 import net.hwyz.iov.cloud.framework.web.context.SecurityContextHolder;
 import net.hwyz.iov.cloud.framework.web.controller.BaseController;
-import net.hwyz.iov.cloud.sec.ciam.service.controller.vo.RiskEventVO;
+import net.hwyz.iov.cloud.sec.ciam.service.controller.vo.RiskEventVo;
 import net.hwyz.iov.cloud.sec.ciam.service.application.RiskEventAppService;
 import net.hwyz.iov.cloud.sec.ciam.service.application.mapper.RiskEventMapper;
 import net.hwyz.iov.cloud.sec.ciam.service.controller.mobile.vo.TriggerMfaRequest;
@@ -59,11 +59,11 @@ public class MobileRiskController extends BaseController {
 
     /** 查询用户风险事件 */
     @GetMapping("/events")
-    public ApiResponse<List<RiskEventVO>> queryRiskEvents(
+    public ApiResponse<List<RiskEventVo>> queryRiskEvents(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startTime,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endTime) {
         String userId = SecurityContextHolder.getUserId();
-        List<RiskEventVO> voList = riskEventAppService.queryUserRiskEvents(userId, startTime, endTime).stream()
+        List<RiskEventVo> voList = riskEventAppService.queryUserRiskEvents(userId, startTime, endTime).stream()
             .map(riskEventMapper::toVo)
             .collect(Collectors.toList());
         return ApiResponse.ok(voList);

@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import net.hwyz.iov.cloud.framework.common.bean.ApiResponse;
 import net.hwyz.iov.cloud.framework.common.bean.PageResult;
 import net.hwyz.iov.cloud.framework.web.controller.BaseController;
-import net.hwyz.iov.cloud.sec.ciam.service.controller.vo.DeviceVO;
+import net.hwyz.iov.cloud.sec.ciam.service.controller.vo.DeviceVo;
 import net.hwyz.iov.cloud.sec.ciam.service.application.DeviceQueryAppService;
 import net.hwyz.iov.cloud.sec.ciam.service.application.mapper.DeviceMapper;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.query.DeviceQuery;
@@ -54,13 +54,13 @@ public class MptDeviceController extends BaseController {
     }
 
     @GetMapping("/devices/detail")
-    public ApiResponse<DeviceVO> getDeviceDetail(@RequestParam String deviceId) {
+    public ApiResponse<DeviceVo> getDeviceDetail(@RequestParam String deviceId) {
         return ApiResponse.ok(deviceMapper.toVo(deviceQueryAppService.queryDevice(deviceId)));
     }
 
     @GetMapping("/devices/user")
-    public ApiResponse<List<DeviceVO>> getUserDevices(@RequestParam String userId) {
-        List<DeviceVO> voList = deviceQueryAppService.queryUserDevices(userId).stream()
+    public ApiResponse<List<DeviceVo>> getUserDevices(@RequestParam String userId) {
+        List<DeviceVo> voList = deviceQueryAppService.queryUserDevices(userId).stream()
                 .map(deviceMapper::toVo)
                 .collect(Collectors.toList());
         return ApiResponse.ok(voList);

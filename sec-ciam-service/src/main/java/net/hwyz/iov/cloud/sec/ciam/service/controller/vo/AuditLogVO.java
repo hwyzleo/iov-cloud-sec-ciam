@@ -16,7 +16,7 @@ import java.time.Instant;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class AuditLogVO {
+public class AuditLogVo {
 
     @JsonProperty("audit_id")
     private String auditId;

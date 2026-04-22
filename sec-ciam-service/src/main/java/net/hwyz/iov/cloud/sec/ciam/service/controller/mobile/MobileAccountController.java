@@ -51,7 +51,7 @@ public class MobileAccountController {
 
     /** 查询用户资料 */
     @GetMapping("/profile")
-    public ApiResponse<UserProfileVO> getProfile() {
+    public ApiResponse<UserProfileVo> getProfile() {
         String userId = SecurityContextHolder.getUserId();
         return ApiResponse.ok(UserProfileMapper.INSTANCE.toVo(userProfileAppService.getProfile(userId)));
     }
@@ -76,9 +76,9 @@ public class MobileAccountController {
 
     /** 绑定登录标识 */
     @PostMapping("/binding")
-    public ApiResponse<UserIdentityVO> bindIdentity(@RequestBody @Valid BindIdentityRequest request) {
+    public ApiResponse<UserIdentityVo> bindIdentity(@RequestBody @Valid BindIdentityRequest request) {
         String userId = SecurityContextHolder.getUserId();
-        UserIdentityVO vo = UserIdentityMapper.INSTANCE.toVo(accountBindingAppService.bindIdentity(
+        UserIdentityVo vo = UserIdentityMapper.INSTANCE.toVo(accountBindingAppService.bindIdentity(
                 userId, IdentityType.fromCode(request.getIdentityType()), request.getIdentityValue(), request.getCountryCode(), request.getBindSource()));
         return ApiResponse.ok(vo);
     }
@@ -96,9 +96,9 @@ public class MobileAccountController {
 
     /** 查询用户活跃会话 */
     @GetMapping("/sessions")
-    public ApiResponse<List<SessionVO>> listSessions() {
+    public ApiResponse<List<SessionVo>> listSessions() {
         String userId = SecurityContextHolder.getUserId();
-        List<SessionVO> voList = sessionDomainService.findUserSessions(userId).stream()
+        List<SessionVo> voList = sessionDomainService.findUserSessions(userId).stream()
                 .map(doObj -> SessionMapper.INSTANCE.toVo(SessionMapper.INSTANCE.toDto(SessionMapper.INSTANCE.toDomain(doObj))))
                 .collect(Collectors.toList());
         return ApiResponse.ok(voList);
@@ -106,9 +106,9 @@ public class MobileAccountController {
 
     /** 查询用户活跃设备 */
     @GetMapping("/devices")
-    public ApiResponse<List<DeviceVO>> listDevices() {
+    public ApiResponse<List<DeviceVo>> listDevices() {
         String userId = SecurityContextHolder.getUserId();
-        List<DeviceVO> voList = sessionDomainService.findUserDevices(userId).stream()
+        List<DeviceVo> voList = sessionDomainService.findUserDevices(userId).stream()
                 .map(domain -> DeviceMapper.INSTANCE.toVo(DeviceMapper.INSTANCE.toDto(domain)))
                 .collect(Collectors.toList());
         return ApiResponse.ok(voList);
@@ -188,9 +188,9 @@ public class MobileAccountController {
 
     /** 授予同意 */
     @PostMapping("/consent")
-    public ApiResponse<UserConsentVO> grantConsent(@RequestBody @Valid GrantConsentRequest request) {
+    public ApiResponse<UserConsentVo> grantConsent(@RequestBody @Valid GrantConsentRequest request) {
         String userId = SecurityContextHolder.getUserId();
-        UserConsentVO vo = UserConsentMapper.INSTANCE.toVo(consentAppService.grantConsent(
+        UserConsentVo vo = UserConsentMapper.INSTANCE.toVo(consentAppService.grantConsent(
                 userId, request.getConsentType(), request.getPolicyVersion(), request.getSourceChannel(), request.getClientType(), request.getOperateIp()));
         return ApiResponse.ok(vo);
     }
@@ -205,9 +205,9 @@ public class MobileAccountController {
 
     /** 查询同意记录 */
     @GetMapping("/consent")
-    public ApiResponse<List<UserConsentVO>> getConsentRecords(@RequestParam(required = false) String consentType) {
+    public ApiResponse<List<UserConsentVo>> getConsentRecords(@RequestParam(required = false) String consentType) {
         String userId = SecurityContextHolder.getUserId();
-        List<UserConsentVO> voList;
+        List<UserConsentVo> voList;
         if (consentType != null && !consentType.isBlank()) {
             voList = consentAppService.getConsentByType(userId, consentType).stream()
                     .map(UserConsentMapper.INSTANCE::toVo)
@@ -240,9 +240,9 @@ public class MobileAccountController {
 
     /** 查询车主认证状态 */
     @GetMapping("/owner-certification")
-    public ApiResponse<List<OwnerCertificationVO>> getOwnerCertStatus() {
+    public ApiResponse<List<OwnerCertificationVo>> getOwnerCertStatus() {
         String userId = SecurityContextHolder.getUserId();
-        List<OwnerCertificationVO> voList = ownerCertificationAppService.queryCertificationStatus(userId).stream()
+        List<OwnerCertificationVo> voList = ownerCertificationAppService.queryCertificationStatus(userId).stream()
                 .map(OwnerCertificationMapper.INSTANCE::toVo)
                 .collect(Collectors.toList());
         return ApiResponse.ok(voList);

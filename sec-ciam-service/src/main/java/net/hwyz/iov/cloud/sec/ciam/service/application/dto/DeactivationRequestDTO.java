@@ -11,7 +11,7 @@ import java.time.Instant;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class DeactivationRequestDTO {
+public class DeactivationRequestDto {
     private String deactivationRequestId;
     private String userId;
     private Integer reviewStatus;

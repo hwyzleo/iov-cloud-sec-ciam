@@ -1,8 +1,8 @@
 package net.hwyz.iov.cloud.sec.ciam.service.application;
 
 import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
-import net.hwyz.iov.cloud.sec.ciam.service.application.dto.MergeRequestDTO;
-import net.hwyz.iov.cloud.sec.ciam.service.application.dto.UserIdentityDTO;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.MergeRequestDto;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.UserIdentityDto;
 import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditEvent;
 import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditLogger;
 import net.hwyz.iov.cloud.sec.ciam.service.common.exception.CiamErrorCode;
@@ -107,7 +107,7 @@ class AccountBindingAppServiceTest {
             when(identityRepository.findByTypeAndHash(IdentityType.MOBILE.getCode(), PHONE_HASH))
                     .thenReturn(Optional.empty());
 
-            UserIdentityDTO result = service.bindIdentity(
+            UserIdentityDto result = service.bindIdentity(
                     USER_ID, IdentityType.MOBILE, PHONE, COUNTRY_CODE, BIND_SOURCE);
 
             assertNotNull(result);
@@ -123,7 +123,7 @@ class AccountBindingAppServiceTest {
             when(identityRepository.findByTypeAndHash(IdentityType.MOBILE.getCode(), PHONE_HASH))
                     .thenReturn(Optional.of(existing));
 
-            UserIdentityDTO result = service.bindIdentity(
+            UserIdentityDto result = service.bindIdentity(
                     USER_ID, IdentityType.MOBILE, PHONE, COUNTRY_CODE, BIND_SOURCE);
 
             // Should return existing identity without creating a new one
@@ -138,7 +138,7 @@ class AccountBindingAppServiceTest {
 
         @Test
         void createsMergeRequestWithPendingStatus() {
-            MergeRequestDTO result = service.createMergeRequest(
+            MergeRequestDto result = service.createMergeRequest(
                     USER_ID, OTHER_USER_ID,
                     IdentityType.MOBILE.getCode(), PHONE_HASH, BIND_SOURCE);
 

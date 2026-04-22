@@ -3,7 +3,7 @@ package net.hwyz.iov.cloud.sec.ciam.service.application;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
-import net.hwyz.iov.cloud.sec.ciam.service.application.dto.UserConsentDTO;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.UserConsentDto;
 import net.hwyz.iov.cloud.sec.ciam.service.application.mapper.UserConsentMapper;
 import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditEvent;
 import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditEventType;
@@ -57,7 +57,7 @@ public class ConsentAppService {
      * @param operateIp     操作 IP
      * @return 创建的同意记录
      */
-    public UserConsentDTO grantConsent(String userId,
+    public UserConsentDto grantConsent(String userId,
                                           String consentType,
                                           String policyVersion,
                                           String sourceChannel,
@@ -133,7 +133,7 @@ public class ConsentAppService {
      * @param userId 用户 ID
      * @return 同意记录列表
      */
-    public List<UserConsentDTO> getConsentRecords(String userId) {
+    public List<UserConsentDto> getConsentRecords(String userId) {
         validateUserId(userId);
         return consentRepository.findByUserId(userId).stream()
                 .map(doObj -> UserConsentMapper.INSTANCE.toDto(UserConsentMapper.INSTANCE.toDomain(doObj)))
@@ -147,7 +147,7 @@ public class ConsentAppService {
      * @param consentType 同意类型
      * @return 同意记录列表
      */
-    public List<UserConsentDTO> getConsentByType(String userId, String consentType) {
+    public List<UserConsentDto> getConsentByType(String userId, String consentType) {
         validateUserId(userId);
         validateConsentType(consentType);
         return consentRepository.findByUserIdAndConsentType(userId, consentType).stream()

@@ -11,7 +11,7 @@ import java.time.Instant;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class RiskEventDTO {
+public class RiskEventDto {
     private String riskEventId;
     private String userId;
     private String sessionId;

@@ -16,7 +16,7 @@ import java.time.Instant;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserIdentityVO {
+public class UserIdentityVo {
     
     @JsonProperty("identity_id")
     private String identityId;

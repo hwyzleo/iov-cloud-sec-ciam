@@ -16,7 +16,7 @@ import java.time.Instant;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserConsentVO {
+public class UserConsentVo {
 
     @JsonProperty("consent_id")
     private String consentId;

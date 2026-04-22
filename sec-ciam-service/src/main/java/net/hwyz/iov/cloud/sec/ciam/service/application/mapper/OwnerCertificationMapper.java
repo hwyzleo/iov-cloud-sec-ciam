@@ -1,7 +1,7 @@
 package net.hwyz.iov.cloud.sec.ciam.service.application.mapper;
 
-import net.hwyz.iov.cloud.sec.ciam.service.controller.vo.OwnerCertificationVO;
-import net.hwyz.iov.cloud.sec.ciam.service.application.dto.OwnerCertificationDTO;
+import net.hwyz.iov.cloud.sec.ciam.service.controller.vo.OwnerCertificationVo;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.OwnerCertificationDto;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.model.OwnerCertification;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamOwnerCertStateDo;
 import org.mapstruct.Mapper;
@@ -29,15 +29,15 @@ public interface OwnerCertificationMapper {
     /**
      * Domain -> DTO
      */
-    OwnerCertificationDTO toDto(OwnerCertification domain);
+    OwnerCertificationDto toDto(OwnerCertification domain);
 
     /**
      * DTO -> Domain
      */
-    OwnerCertification toEntity(OwnerCertificationDTO dto);
+    OwnerCertification toEntity(OwnerCertificationDto dto);
 
     /**
      * DTO -> VO
      */
-    OwnerCertificationVO toVo(OwnerCertificationDTO dto);
+    OwnerCertificationVo toVo(OwnerCertificationDto dto);
 }

@@ -3,8 +3,8 @@ package net.hwyz.iov.cloud.sec.ciam.service.application;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
-import net.hwyz.iov.cloud.sec.ciam.service.application.dto.MergeRequestDTO;
-import net.hwyz.iov.cloud.sec.ciam.service.application.dto.UserIdentityDTO;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.MergeRequestDto;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.UserIdentityDto;
 import net.hwyz.iov.cloud.sec.ciam.service.application.mapper.MergeRequestMapper;
 import net.hwyz.iov.cloud.sec.ciam.service.application.mapper.UserIdentityMapper;
 import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditEvent;
@@ -65,7 +65,7 @@ public class AccountBindingAppService {
      * @param bindSource    绑定来源
      * @return 新创建的标识数据对象
      */
-    public UserIdentityDTO bindIdentity(String userId, IdentityType identityType,
+    public UserIdentityDto bindIdentity(String userId, IdentityType identityType,
                                            String identityValue, String countryCode,
                                            String bindSource) {
         // 冲突检测：检查标识是否已被其他用户绑定
@@ -128,7 +128,7 @@ public class AccountBindingAppService {
      * @param applySource          申请来源
      * @return 新创建的合并申请记录
      */
-    public MergeRequestDTO createMergeRequest(String sourceUserId, String targetUserId,
+    public MergeRequestDto createMergeRequest(String sourceUserId, String targetUserId,
                                                  String conflictIdentityType,
                                                  String conflictIdentityHash,
                                                  String applySource) {

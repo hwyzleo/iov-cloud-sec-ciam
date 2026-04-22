@@ -17,7 +17,7 @@ import java.util.Map;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class StatisticsResultDTO {
+public class StatisticsResultDto {
 
     /** 注册总数 */
     private long registrationCount;
@@ -43,8 +43,8 @@ public class StatisticsResultDTO {
     /**
      * 构建空统计结果。
      */
-    public static StatisticsResultDTO empty() {
-        return StatisticsResultDTO.builder()
+    public static StatisticsResultDto empty() {
+        return StatisticsResultDto.builder()
                 .registrationCount(0)
                 .conversionRate(0.0)
                 .loginSuccessCount(0)

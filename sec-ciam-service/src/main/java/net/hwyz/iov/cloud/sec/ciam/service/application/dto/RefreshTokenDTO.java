@@ -11,7 +11,7 @@ import java.time.Instant;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class RefreshTokenDTO {
+public class RefreshTokenDto {
     private String refreshTokenId;
     private String userId;
     private String sessionId;

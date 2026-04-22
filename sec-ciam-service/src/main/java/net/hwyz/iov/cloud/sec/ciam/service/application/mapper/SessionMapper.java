@@ -1,7 +1,7 @@
 package net.hwyz.iov.cloud.sec.ciam.service.application.mapper;
 
-import net.hwyz.iov.cloud.sec.ciam.service.controller.vo.SessionVO;
-import net.hwyz.iov.cloud.sec.ciam.service.application.dto.SessionDTO;
+import net.hwyz.iov.cloud.sec.ciam.service.controller.vo.SessionVo;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.SessionDto;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.model.Session;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.repository.dao.dataobject.CiamSessionDo;
 import org.mapstruct.Mapper;
@@ -29,15 +29,15 @@ public interface SessionMapper {
     /**
      * Domain -> DTO
      */
-    SessionDTO toDto(Session domain);
+    SessionDto toDto(Session domain);
 
     /**
      * DTO -> Domain
      */
-    Session toEntity(SessionDTO dto);
+    Session toEntity(SessionDto dto);
 
     /**
      * DTO -> VO
      */
-    SessionVO toVo(SessionDTO dto);
+    SessionVo toVo(SessionDto dto);
 }
