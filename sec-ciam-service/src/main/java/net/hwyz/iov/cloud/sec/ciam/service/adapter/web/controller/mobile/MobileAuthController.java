@@ -5,13 +5,11 @@ import lombok.RequiredArgsConstructor;
 import net.hwyz.iov.cloud.framework.common.bean.ApiResponse;
 import net.hwyz.iov.cloud.framework.common.constant.CustomHeaders;
 import net.hwyz.iov.cloud.framework.web.context.SecurityContextHolder;
-import net.hwyz.iov.cloud.sec.ciam.service.application.service.AuthenticationAppService;
-import net.hwyz.iov.cloud.sec.ciam.service.application.dto.cmd.LoginByMobileCodeCmd;
-import net.hwyz.iov.cloud.sec.ciam.service.application.dto.LoginResultDto;
-import net.hwyz.iov.cloud.sec.ciam.service.application.dto.DeviceInfoDto;
 import net.hwyz.iov.cloud.sec.ciam.service.adapter.web.controller.mobile.vo.*;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.service.CaptchaDomainService;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.service.VerificationCodeService;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.DeviceInfoDto;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.LoginResultDto;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.cmd.LoginByMobileCodeCmd;
+import net.hwyz.iov.cloud.sec.ciam.service.application.service.AuthenticationAppService;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -23,8 +21,6 @@ import org.springframework.web.bind.annotation.*;
 public class MobileAuthController {
 
     private final AuthenticationAppService authenticationAppService;
-    private final VerificationCodeService verificationCodeService;
-    private final CaptchaDomainService captchaDomainService;
 
 
     @PostMapping("/sms/send")
@@ -69,7 +65,7 @@ public class MobileAuthController {
 
     @PostMapping("/login/email-password")
     public ApiResponse<LoginResultDto> loginByEmailPassword(
-            @RequestHeader("X-Client-Id") String clientId,
+            @RequestHeader(CustomHeaders.CLIENT_ID) String clientId,
             @RequestBody @Valid EmailPasswordLoginRequest req) {
         LoginResultDto result = authenticationAppService.loginByEmailPassword(
                 req.getEmail(), req.getPassword(), clientId, req.getCaptchaId(), req.getCaptchaAnswer());
@@ -78,7 +74,7 @@ public class MobileAuthController {
 
     @PostMapping("/login/email-code")
     public ApiResponse<LoginResultDto> loginByEmailCode(
-            @RequestHeader("X-Client-Id") String clientId,
+            @RequestHeader(CustomHeaders.CLIENT_ID) String clientId,
             @RequestBody @Valid EmailCodeLoginRequest req) {
         LoginResultDto result = authenticationAppService.loginByEmailCode(req.getEmail(), req.getCode(), clientId);
         return ApiResponse.ok(result);
@@ -86,7 +82,7 @@ public class MobileAuthController {
 
     @PostMapping("/login/wechat")
     public ApiResponse<LoginResultDto> loginByWechat(
-            @RequestHeader("X-Client-Id") String clientId,
+            @RequestHeader(CustomHeaders.CLIENT_ID) String clientId,
             @RequestBody @Valid ThirdPartyLoginRequest req) {
         LoginResultDto result = authenticationAppService.loginByWechat(req.getToken(), clientId);
         return ApiResponse.ok(result);
@@ -94,7 +90,7 @@ public class MobileAuthController {
 
     @PostMapping("/login/apple")
     public ApiResponse<LoginResultDto> loginByApple(
-            @RequestHeader("X-Client-Id") String clientId,
+            @RequestHeader(CustomHeaders.CLIENT_ID) String clientId,
             @RequestBody @Valid ThirdPartyLoginRequest req) {
         LoginResultDto result = authenticationAppService.loginByApple(req.getToken(), clientId);
         return ApiResponse.ok(result);
@@ -102,7 +98,7 @@ public class MobileAuthController {
 
     @PostMapping("/login/google")
     public ApiResponse<LoginResultDto> loginByGoogle(
-            @RequestHeader("X-Client-Id") String clientId,
+            @RequestHeader(CustomHeaders.CLIENT_ID) String clientId,
             @RequestBody @Valid ThirdPartyLoginRequest req) {
         LoginResultDto result = authenticationAppService.loginByGoogle(req.getToken(), clientId);
         return ApiResponse.ok(result);
@@ -110,7 +106,7 @@ public class MobileAuthController {
 
     @PostMapping("/login/local-mobile")
     public ApiResponse<LoginResultDto> loginByLocalMobile(
-            @RequestHeader("X-Client-Id") String clientId,
+            @RequestHeader(CustomHeaders.CLIENT_ID) String clientId,
             @RequestBody @Valid LocalMobileLoginRequest req) {
         LoginResultDto result = authenticationAppService.loginByLocalMobile(req.getToken(), clientId, req.getDeviceInfo());
         return ApiResponse.ok(result);
@@ -118,7 +114,7 @@ public class MobileAuthController {
 
     @PostMapping("/logout")
     public ApiResponse<Void> logout(
-            @RequestHeader("X-Client-Id") String clientId,
+            @RequestHeader(CustomHeaders.CLIENT_ID) String clientId,
             @RequestBody @Valid LogoutRequest req) {
         authenticationAppService.logout(req.getSessionId(), req.getUserId(), clientId);
         return ApiResponse.ok();

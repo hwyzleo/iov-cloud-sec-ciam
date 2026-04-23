@@ -1,13 +1,13 @@
 package net.hwyz.iov.cloud.sec.ciam.service.application;
 import net.hwyz.iov.cloud.sec.ciam.service.application.service.*;
 
-import net.hwyz.iov.cloud.sec.ciam.service.application.dto.OwnerCertificationDto;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.OwnerCertStateDto;
 import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditLogger;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.CertStatus;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.model.OwnerCertState;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.OwnerCertStateRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.UserTagRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.service.TagDomainService;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.OwnerCertStatePo;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.UserTagPo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -52,28 +52,14 @@ class OwnerCertificationAppServiceTest {
                 certStateRepository, tagDomainService, auditLogger);
     }
 
-    private OwnerCertStatePo stubCertRecord(int certStatus) {
-        OwnerCertStatePo record = new OwnerCertStatePo();
-        record.setOwnerCertId("cert-001");
-        record.setUserId(USER_ID);
-        record.setVin(VIN);
-        record.setCertStatus(certStatus);
-        record.setCertSource(CERT_SOURCE);
-        record.setRowVersion(1);
-        record.setRowValid(1);
-        return record;
-    }
-
-    private UserTagPo stubTag(int status) {
-        UserTagPo tag = new UserTagPo();
-        tag.setTagId("tag-001");
-        tag.setUserId(USER_ID);
-        tag.setTagCode("owner_verified");
-        tag.setTagName("已车主认证");
-        tag.setTagStatus(status);
-        tag.setTagSource(CERT_SOURCE);
-        tag.setRowValid(1);
-        return tag;
+    private OwnerCertState stubCertRecord(int certStatus) {
+        return OwnerCertState.builder()
+                .ownerCertId("cert-001")
+                .userId(USER_ID)
+                .vin(VIN)
+                .certStatus(certStatus)
+                .certSource(CERT_SOURCE)
+                .build();
     }
 
     // ---- handleCertificationCallback ----
@@ -90,10 +76,10 @@ class OwnerCertificationAppServiceTest {
             service.handleCertificationCallback(USER_ID, CertStatus.CERTIFIED.getCode(),
                     VIN, CERT_SOURCE);
 
-            ArgumentCaptor<OwnerCertStatePo> captor =
-                    ArgumentCaptor.forClass(OwnerCertStatePo.class);
+            ArgumentCaptor<OwnerCertState> captor =
+                    ArgumentCaptor.forClass(OwnerCertState.class);
             verify(certStateRepository).insert(captor.capture());
-            OwnerCertStatePo created = captor.getValue();
+            OwnerCertState created = captor.getValue();
             assertEquals(USER_ID, created.getUserId());
             assertEquals(CertStatus.CERTIFIED.getCode(), created.getCertStatus());
         }
@@ -106,10 +92,10 @@ class OwnerCertificationAppServiceTest {
 
         @Test
         void returnsAllRecordsForUser() {
-            OwnerCertStatePo record = stubCertRecord(CertStatus.CERTIFIED.getCode());
+            OwnerCertState record = stubCertRecord(CertStatus.CERTIFIED.getCode());
             when(certStateRepository.findByUserId(USER_ID)).thenReturn(List.of(record));
 
-            List<OwnerCertificationDto> result = service.queryCertificationStatus(USER_ID);
+            List<OwnerCertStateDto> result = service.queryCertificationStatus(USER_ID);
 
             assertEquals(1, result.size());
             assertEquals(CertStatus.CERTIFIED.getCode(), result.get(0).getCertStatus());
@@ -119,7 +105,7 @@ class OwnerCertificationAppServiceTest {
         void returnsEmptyListWhenNoRecords() {
             when(certStateRepository.findByUserId(USER_ID)).thenReturn(Collections.emptyList());
 
-            List<OwnerCertificationDto> result = service.queryCertificationStatus(USER_ID);
+            List<OwnerCertStateDto> result = service.queryCertificationStatus(USER_ID);
 
             assertTrue(result.isEmpty());
         }
@@ -132,14 +118,16 @@ class OwnerCertificationAppServiceTest {
 
         @Test
         void updatesLastQueryTimeForPendingRecords() {
-            OwnerCertStatePo pending = stubCertRecord(CertStatus.CERTIFYING.getCode());
+            OwnerCertState pending = stubCertRecord(CertStatus.CERTIFYING.getCode());
             when(certStateRepository.findByUserIdAndCertStatus(USER_ID,
                     CertStatus.CERTIFYING.getCode())).thenReturn(List.of(pending));
 
-            List<OwnerCertificationDto> result =
+            List<OwnerCertStateDto> result =
                     service.compensateCertificationStatus(USER_ID);
 
             assertEquals(1, result.size());
+            assertNotNull(pending.getLastQueryTime());
+            verify(certStateRepository).updateByOwnerCertId(pending);
         }
 
         @Test
@@ -147,7 +135,7 @@ class OwnerCertificationAppServiceTest {
             when(certStateRepository.findByUserIdAndCertStatus(USER_ID,
                     CertStatus.CERTIFYING.getCode())).thenReturn(Collections.emptyList());
 
-            List<OwnerCertificationDto> result =
+            List<OwnerCertStateDto> result =
                     service.compensateCertificationStatus(USER_ID);
 
             assertTrue(result.isEmpty());

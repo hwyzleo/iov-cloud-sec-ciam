@@ -1,4 +1,4 @@
-package net.hwyz.iov.cloud.sec.ciam.service.domain.model;
+package net.hwyz.iov.cloud.sec.ciam.service.adapter.web.vo;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -7,21 +7,19 @@ import lombok.NoArgsConstructor;
 
 import java.time.Instant;
 
+/**
+ * 车主认证状态 VO
+ */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class OwnerCertification {
+public class OwnerCertStateVo {
     private String ownerCertId;
-    private String userId;
     private String vehicleId;
     private String vin;
     private Integer certStatus;
-    private String certSource;
-    private Instant callbackTime;
-    private Instant lastQueryTime;
     private Instant effectiveTime;
     private Instant expireTime;
     private String resultMessage;
-    private String description;
 }

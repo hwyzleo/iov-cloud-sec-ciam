@@ -3,8 +3,8 @@ package net.hwyz.iov.cloud.sec.ciam.service.application.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
-import net.hwyz.iov.cloud.sec.ciam.service.application.assembler.OwnerCertificationAssembler;
-import net.hwyz.iov.cloud.sec.ciam.service.application.dto.OwnerCertificationDto;
+import net.hwyz.iov.cloud.sec.ciam.service.application.assembler.OwnerCertStateAssembler;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.OwnerCertStateDto;
 import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditEvent;
 import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditEventType;
 import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditLogger;
@@ -12,9 +12,9 @@ import net.hwyz.iov.cloud.sec.ciam.service.common.exception.CiamErrorCode;
 import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
 import net.hwyz.iov.cloud.sec.ciam.service.common.util.UserIdGenerator;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.CertStatus;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.model.OwnerCertState;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.OwnerCertStateRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.service.TagDomainService;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.OwnerCertStatePo;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -62,35 +62,31 @@ public class OwnerCertificationAppService {
         CertStatus certStatus = CertStatus.fromCode(certResult);
 
         // Find existing record for this user+vin, or create new
-        Optional<OwnerCertStatePo> existing = findExistingRecord(userId, vin);
+        Optional<OwnerCertState> existing = findExistingRecord(userId, vin);
 
         if (existing.isPresent()) {
-            OwnerCertStatePo record = existing.get();
-            record.setCertStatus(certResult);
-            record.setCertSource(certSource);
-            record.setCallbackTime(DateTimeUtil.getNowInstant());
-            record.setModifyTime(DateTimeUtil.getNowInstant());
+            OwnerCertState domain = existing.get();
+            domain.setCertStatus(certResult);
+            domain.setCertSource(certSource);
+            domain.setCallbackTime(DateTimeUtil.getNowInstant());
             if (certStatus == CertStatus.CERTIFIED) {
-                record.setEffectiveTime(DateTimeUtil.getNowInstant());
+                domain.setEffectiveTime(DateTimeUtil.getNowInstant());
             }
-            certStateRepository.updateByOwnerCertId(record);
+            certStateRepository.updateByOwnerCertId(domain);
             log.info("车主认证回调更新: userId={}, vin={}, certStatus={}", userId, vin, certStatus);
         } else {
-            OwnerCertStatePo record = new OwnerCertStatePo();
-            record.setOwnerCertId(UserIdGenerator.generate());
-            record.setUserId(userId);
-            record.setVin(vin);
-            record.setCertStatus(certResult);
-            record.setCertSource(certSource);
-            record.setCallbackTime(DateTimeUtil.getNowInstant());
-            record.setRowVersion(1);
-            record.setRowValid(1);
-            record.setCreateTime(DateTimeUtil.getNowInstant());
-            record.setModifyTime(DateTimeUtil.getNowInstant());
+            OwnerCertState domain = OwnerCertState.builder()
+                    .ownerCertId(UserIdGenerator.generate())
+                    .userId(userId)
+                    .vin(vin)
+                    .certStatus(certResult)
+                    .certSource(certSource)
+                    .callbackTime(DateTimeUtil.getNowInstant())
+                    .build();
             if (certStatus == CertStatus.CERTIFIED) {
-                record.setEffectiveTime(DateTimeUtil.getNowInstant());
+                domain.setEffectiveTime(DateTimeUtil.getNowInstant());
             }
-            certStateRepository.insert(record);
+            certStateRepository.insert(domain);
             log.info("车主认证回调新建: userId={}, vin={}, certStatus={}", userId, vin, certStatus);
         }
 
@@ -106,14 +102,14 @@ public class OwnerCertificationAppService {
      * @param userId 用户业务唯一标识
      * @return 该用户所有认证状态记录
      */
-    public List<OwnerCertificationDto> queryCertificationStatus(String userId) {
+    public List<OwnerCertStateDto> queryCertificationStatus(String userId) {
         if (userId == null || userId.isBlank()) {
             throw new BusinessException(CiamErrorCode.INVALID_PARAM, "userId 不能为空");
         }
-        List<OwnerCertStatePo> records = certStateRepository.findByUserId(userId);
+        List<OwnerCertState> records = certStateRepository.findByUserId(userId);
         logAudit(userId, AuditEventType.OWNER_CERT_QUERY, true);
         return records.stream()
-                .map(doObj -> OwnerCertificationAssembler.INSTANCE.toDto(OwnerCertificationAssembler.INSTANCE.toDomain(doObj)))
+                .map(OwnerCertStateAssembler.INSTANCE::toDto)
                 .collect(Collectors.toList());
     }
 
@@ -126,17 +122,16 @@ public class OwnerCertificationAppService {
      * @param userId 用户业务唯一标识
      * @return 需要补偿的认证中记录列表
      */
-    public List<OwnerCertificationDto> compensateCertificationStatus(String userId) {
+    public List<OwnerCertStateDto> compensateCertificationStatus(String userId) {
         if (userId == null || userId.isBlank()) {
             throw new BusinessException(CiamErrorCode.INVALID_PARAM, "userId 不能为空");
         }
-        List<OwnerCertStatePo> pendingRecords =
+        List<OwnerCertState> pendingRecords =
                 certStateRepository.findByUserIdAndCertStatus(userId, CertStatus.CERTIFYING.getCode());
 
-        for (OwnerCertStatePo record : pendingRecords) {
-            record.setLastQueryTime(DateTimeUtil.getNowInstant());
-            record.setModifyTime(DateTimeUtil.getNowInstant());
-            certStateRepository.updateByOwnerCertId(record);
+        for (OwnerCertState domain : pendingRecords) {
+            domain.setLastQueryTime(DateTimeUtil.getNowInstant());
+            certStateRepository.updateByOwnerCertId(domain);
         }
 
         if (!pendingRecords.isEmpty()) {
@@ -145,14 +140,14 @@ public class OwnerCertificationAppService {
 
         logAudit(userId, AuditEventType.OWNER_CERT_COMPENSATE, true);
         return pendingRecords.stream()
-                .map(doObj -> OwnerCertificationAssembler.INSTANCE.toDto(OwnerCertificationAssembler.INSTANCE.toDomain(doObj)))
+                .map(OwnerCertStateAssembler.INSTANCE::toDto)
                 .collect(Collectors.toList());
     }
 
     /**
      * Find existing cert record for user+vin combination.
      */
-    private Optional<OwnerCertStatePo> findExistingRecord(String userId, String vin) {
+    private Optional<OwnerCertState> findExistingRecord(String userId, String vin) {
         return certStateRepository.findByUserId(userId).stream()
                 .filter(r -> vin != null && vin.equals(r.getVin()))
                 .findFirst();

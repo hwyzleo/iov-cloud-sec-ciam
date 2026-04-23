@@ -239,12 +239,13 @@ public class MobileAccountController {
     // ---- 车主认证状态 ----
 
     /** 查询车主认证状态 */
-    @GetMapping("/owner-certification")
-    public ApiResponse<List<OwnerCertificationVo>> getOwnerCertStatus() {
+    @GetMapping("/owner-cert/status")
+    public ApiResponse<List<OwnerCertStateVo>> getOwnerCertStatus() {
         String userId = SecurityContextHolder.getUserId();
-        List<OwnerCertificationVo> voList = ownerCertificationAppService.queryCertificationStatus(userId).stream()
-                .map(OwnerCertificationAssembler.INSTANCE::toVo)
+        List<OwnerCertStateVo> voList = ownerCertificationAppService.queryCertificationStatus(userId).stream()
+                .map(OwnerCertStateAssembler.INSTANCE::toVo)
                 .collect(Collectors.toList());
         return ApiResponse.ok(voList);
     }
+
 }
