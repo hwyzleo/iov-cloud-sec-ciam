@@ -2,9 +2,9 @@ package net.hwyz.iov.cloud.sec.ciam.service.adapter.web.controller.open;
 
 import lombok.RequiredArgsConstructor;
 import net.hwyz.iov.cloud.framework.common.bean.ApiResponse;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.service.JwtTokenService;
+import net.hwyz.iov.cloud.sec.ciam.service.application.service.OAuthAppService;
+import net.hwyz.iov.cloud.sec.ciam.service.application.service.TokenAppService;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.service.OidcDiscoveryDocument;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.service.OidcService;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.service.OidcUserInfo;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,27 +21,24 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class OpenOidcController {
 
-    private final OidcService oidcService;
-    private final JwtTokenService jwtTokenService;
+    private final OAuthAppService oAuthAppService;
+    private final TokenAppService tokenAppService;
 
     /** 获取 OIDC UserInfo */
     @GetMapping("/userinfo")
     public ApiResponse<OidcUserInfo> userInfo(@RequestParam String userId) {
-        OidcUserInfo info = oidcService.getUserInfo(userId);
-        return ApiResponse.ok(info);
+        return ApiResponse.ok(oAuthAppService.getUserInfo(userId));
     }
 
     /** 获取 OIDC Discovery Document */
     @GetMapping("/.well-known/openid-configuration")
     public ApiResponse<OidcDiscoveryDocument> discoveryDocument() {
-        OidcDiscoveryDocument doc = oidcService.getDiscoveryDocument();
-        return ApiResponse.ok(doc);
+        return ApiResponse.ok(oAuthAppService.getDiscoveryDocument());
     }
 
     /** 获取 JWKS */
     @GetMapping("/jwks")
     public ApiResponse<Map<String, Object>> jwks() {
-        Map<String, Object> jwks = jwtTokenService.getJwks();
-        return ApiResponse.ok(jwks);
+        return ApiResponse.ok(tokenAppService.getJwks());
     }
 }

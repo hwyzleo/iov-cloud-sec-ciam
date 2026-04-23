@@ -12,6 +12,8 @@ import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.CredentialType;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.DecisionResult;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.RiskLevel;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.SessionStatus;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.model.Session;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.model.UserCredential;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.SessionRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.UserCredentialRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.service.CredentialDomainService;
@@ -20,8 +22,6 @@ import net.hwyz.iov.cloud.sec.ciam.service.domain.service.PasswordVerifyResult;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.service.RiskAssessmentResult;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.service.VerificationCodeService;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.service.VerificationCodeStore;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.SessionPo;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.UserCredentialPo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -29,9 +29,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.mock.web.MockFilterChain;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -132,8 +132,8 @@ class SecurityAndPerformanceTest {
             credentialDomainService = new CredentialDomainService(credentialRepository, passwordEncoder, passwordPolicyService);
         }
 
-        private UserCredentialPo cred(String userId, int failCount, Instant lockedUntil) {
-            UserCredentialPo c = new UserCredentialPo();
+        private UserCredential cred(String userId, int failCount, Instant lockedUntil) {
+            UserCredential c = new UserCredential();
             c.setCredentialId("cred-001");
             c.setUserId(userId);
             c.setCredentialType(CredentialType.EMAIL_PASSWORD.getCode());
@@ -142,7 +142,6 @@ class SecurityAndPerformanceTest {
             c.setFailCount(failCount);
             c.setLockedUntil(lockedUntil);
             c.setCredentialStatus(CredentialStatus.VALID.getCode());
-            c.setRowValid(1);
             return c;
         }
 
@@ -291,8 +290,8 @@ class SecurityAndPerformanceTest {
             credentialDomainService = new CredentialDomainService(credentialRepository, passwordEncoder, passwordPolicyService);
         }
 
-        private UserCredentialPo cred(String userId, int failCount, Instant lockedUntil) {
-            UserCredentialPo c = new UserCredentialPo();
+        private UserCredential cred(String userId, int failCount, Instant lockedUntil) {
+            UserCredential c = new UserCredential();
             c.setCredentialId("cred-l1");
             c.setUserId(userId);
             c.setCredentialType(CredentialType.EMAIL_PASSWORD.getCode());
@@ -301,7 +300,6 @@ class SecurityAndPerformanceTest {
             c.setFailCount(failCount);
             c.setLockedUntil(lockedUntil);
             c.setCredentialStatus(CredentialStatus.VALID.getCode());
-            c.setRowValid(1);
             return c;
         }
 
@@ -453,9 +451,9 @@ class SecurityAndPerformanceTest {
         @DisplayName("单用户多会话查询应能处理大量会话记录")
         void manySessionsQuery() {
             String uid = "u-s1";
-            List<SessionPo> sessions = new ArrayList<>();
+            List<Session> sessions = new ArrayList<>();
             for (int i = 0; i < 100; i++) {
-                SessionPo s = new SessionPo();
+                Session s = new Session();
                 s.setSessionId("s-" + i);
                 s.setUserId(uid);
                 s.setClientType("app");
@@ -466,10 +464,10 @@ class SecurityAndPerformanceTest {
                 sessions.add(s);
             }
             when(sessionRepository.findByUserIdAndStatus(uid, SessionStatus.ACTIVE.getCode())).thenReturn(sessions);
-            List<SessionPo> result = sessionRepository.findByUserIdAndStatus(uid, SessionStatus.ACTIVE.getCode());
+            List<Session> result = sessionRepository.findByUserIdAndStatus(uid, SessionStatus.ACTIVE.getCode());
             assertEquals(100, result.size());
             assertTrue(result.stream().allMatch(s -> uid.equals(s.getUserId())));
-            assertTrue(result.stream().allMatch(s -> s.getSessionStatus() == SessionStatus.ACTIVE.getCode()));
+            assertTrue(result.stream().allMatch(s -> s.getSessionStatus().equals(SessionStatus.ACTIVE.getCode())));
         }
 
         @Test
@@ -477,9 +475,9 @@ class SecurityAndPerformanceTest {
         void sessionCreationPerf() {
             long start = System.nanoTime();
             int n = 50_000;
-            List<SessionPo> list = new ArrayList<>(n);
+            List<Session> list = new ArrayList<>(n);
             for (int i = 0; i < n; i++) {
-                SessionPo s = new SessionPo();
+                Session s = new Session();
                 s.setSessionId("s-" + i);
                 s.setUserId("u-" + (i % 1000));
                 s.setClientType("app");

@@ -6,13 +6,11 @@ import net.hwyz.iov.cloud.framework.common.bean.ApiResponse;
 import net.hwyz.iov.cloud.framework.web.context.SecurityContextHolder;
 import net.hwyz.iov.cloud.framework.web.controller.BaseController;
 import net.hwyz.iov.cloud.sec.ciam.service.adapter.web.vo.RiskEventVo;
+import net.hwyz.iov.cloud.sec.ciam.service.application.service.MfaAppService;
 import net.hwyz.iov.cloud.sec.ciam.service.application.service.RiskEventAppService;
 import net.hwyz.iov.cloud.sec.ciam.service.application.assembler.RiskEventAssembler;
 import net.hwyz.iov.cloud.sec.ciam.service.adapter.web.controller.mobile.vo.TriggerMfaRequest;
 import net.hwyz.iov.cloud.sec.ciam.service.adapter.web.controller.mobile.vo.VerifyMfaRequest;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.ChallengeScene;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.ChallengeType;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.service.MfaDomainService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -34,7 +32,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class MobileRiskController extends BaseController {
 
-    private final MfaDomainService mfaDomainService;
+    private final MfaAppService mfaAppService;
     private final RiskEventAppService riskEventAppService;
     
     private final RiskEventAssembler riskEventAssembler = RiskEventAssembler.INSTANCE;
@@ -42,10 +40,10 @@ public class MobileRiskController extends BaseController {
     /** 触发 MFA 挑战 */
     @PostMapping("/mfa/trigger")
     public ApiResponse<Map<String, String>> triggerMfa(@RequestBody @Valid TriggerMfaRequest request) {
-        String challengeId = mfaDomainService.createChallenge(
+        String challengeId = mfaAppService.triggerMfa(
                 request.getUserId(), request.getSessionId(),
-                ChallengeType.fromCode(request.getChallengeType()),
-                ChallengeScene.fromCode(request.getChallengeScene()),
+                request.getChallengeType(),
+                request.getChallengeScene(),
                 request.getReceiverMask(), request.getRiskEventId());
         return ApiResponse.ok(Map.of("challengeId", challengeId));
     }
@@ -53,7 +51,7 @@ public class MobileRiskController extends BaseController {
     /** 校验 MFA 挑战 */
     @PostMapping("/mfa/verify")
     public ApiResponse<Map<String, Boolean>> verifyMfa(@RequestBody @Valid VerifyMfaRequest request) {
-        boolean passed = mfaDomainService.verifyChallenge(request.getChallengeId(), request.getCode());
+        boolean passed = mfaAppService.verifyMfa(request.getChallengeId(), request.getCode());
         return ApiResponse.ok(Map.of("passed", passed));
     }
 

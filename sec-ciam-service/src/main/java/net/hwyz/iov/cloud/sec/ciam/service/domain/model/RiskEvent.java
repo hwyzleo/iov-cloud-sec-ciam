@@ -26,5 +26,6 @@ public class RiskEvent {
     private String hitRules;
     private Integer handledFlag;
     private Instant eventTime;
+    private Instant modifyTime;
     private String description;
 }

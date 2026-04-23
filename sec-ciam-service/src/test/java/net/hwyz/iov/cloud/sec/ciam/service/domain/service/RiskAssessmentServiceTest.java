@@ -2,8 +2,8 @@ package net.hwyz.iov.cloud.sec.ciam.service.domain.service;
 
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.DecisionResult;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.RiskLevel;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.model.RiskEvent;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.RiskEventRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.RiskEventPo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -33,7 +33,7 @@ class RiskAssessmentServiceTest {
         assertEquals(DecisionResult.ALLOW, result.getDecisionResult());
         assertTrue(result.getHitRules().isEmpty());
         assertNotNull(result.getRiskEventId());
-        verify(riskEventRepository).insert(any(RiskEventPo.class));
+        verify(riskEventRepository).insert(any(RiskEvent.class));
     }
 
     @Test
@@ -70,9 +70,9 @@ class RiskAssessmentServiceTest {
     void persistsRiskEvent() {
         service.assessLoginRisk("user-001", "device-001", "1.2.3.4", "CN", "web", true, false);
 
-        ArgumentCaptor<RiskEventPo> captor = ArgumentCaptor.forClass(RiskEventPo.class);
+        ArgumentCaptor<RiskEvent> captor = ArgumentCaptor.forClass(RiskEvent.class);
         verify(riskEventRepository).insert(captor.capture());
-        RiskEventPo saved = captor.getValue();
+        RiskEvent saved = captor.getValue();
 
         assertEquals("user-001", saved.getUserId());
         assertEquals("device-001", saved.getDeviceId());

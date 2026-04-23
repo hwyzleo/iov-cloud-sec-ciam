@@ -3,8 +3,8 @@ package net.hwyz.iov.cloud.sec.ciam.service.domain.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.model.Jwk;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.JwkRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.JwkPo;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -103,7 +103,7 @@ public class JwkDomainService {
     /**
      * 获取所有激活状态的公钥（用于 JWKS 端点）。
      */
-    public List<JwkPo> getAllActiveKeys() {
+    public List<Jwk> getAllActiveKeys() {
         return jwkRepository.findAllActive();
     }
 
@@ -119,7 +119,7 @@ public class JwkDomainService {
     /**
      * 生成新密钥并存储。
      */
-    public JwkPo generateAndStoreNewKey() {
+    public Jwk generateAndStoreNewKey() {
         return generateAndStoreNewKey(DEFAULT_KEY_SIZE, true);
     }
 
@@ -130,7 +130,7 @@ public class JwkDomainService {
      * @param setPrimary  是否设为主密钥
      * @return 存储的密钥记录
      */
-    public JwkPo generateAndStoreNewKey(int keySize, boolean setPrimary) {
+    public Jwk generateAndStoreNewKey(int keySize, boolean setPrimary) {
         KeyPair keyPair = generateRsaKeyPair(keySize);
         String keyId = UUID.randomUUID().toString().replace("-", "");
         Instant now = DateTimeUtil.getNowInstant();
@@ -142,19 +142,17 @@ public class JwkDomainService {
             jwkRepository.revokePrimary();
         }
 
-        JwkPo entity = new JwkPo();
-        entity.setKeyId(keyId);
-        entity.setPrivateKeyPem(encodePrivateKey((RSAPrivateKey) keyPair.getPrivate()));
-        entity.setPublicKeyPem(encodePublicKey((RSAPublicKey) keyPair.getPublic()));
-        entity.setAlgorithm(ALGORITHM_RSA);
-        entity.setKeySize(keySize);
-        entity.setStatus(KEY_STATUS_ACTIVE);
-        entity.setIssueTime(now);
-        entity.setExpireTime(expireTime);
-        entity.setIsPrimary(setPrimary ? 1 : 0);
-        entity.setCreateTime(now);
-        entity.setModifyTime(now);
-        entity.setRowVersion(1);
+        Jwk entity = Jwk.builder()
+                .keyId(keyId)
+                .privateKeyPem(encodePrivateKey((RSAPrivateKey) keyPair.getPrivate()))
+                .publicKeyPem(encodePublicKey((RSAPublicKey) keyPair.getPublic()))
+                .algorithm(ALGORITHM_RSA)
+                .keySize(keySize)
+                .status(KEY_STATUS_ACTIVE)
+                .issueTime(now)
+                .expireTime(expireTime)
+                .isPrimary(setPrimary ? 1 : 0)
+                .build();
 
         jwkRepository.insert(entity);
 
@@ -175,7 +173,7 @@ public class JwkDomainService {
      *
      * @return 新生成的密钥记录
      */
-    public JwkPo rotateKey() {
+    public Jwk rotateKey() {
         log.info("开始 JWK 密钥轮换");
         return generateAndStoreNewKey(DEFAULT_KEY_SIZE, true);
     }
@@ -186,7 +184,7 @@ public class JwkDomainService {
      * @param keyId 密钥 ID
      */
     public void revokeKey(String keyId) {
-        JwkPo entity = jwkRepository.findByKeyId(keyId)
+        Jwk entity = jwkRepository.findByKeyId(keyId)
                 .orElseThrow(() -> new NoSuchElementException("密钥不存在：keyId=" + keyId));
 
         if (entity.getIsPrimary() == 1) {
@@ -195,7 +193,6 @@ public class JwkDomainService {
         }
 
         entity.setStatus(KEY_STATUS_DISABLED);
-        entity.setModifyTime(DateTimeUtil.getNowInstant());
         jwkRepository.update(entity);
 
         log.info("JWK 密钥已撤销：keyId={}", keyId);
@@ -203,7 +200,7 @@ public class JwkDomainService {
 
     // ---- 内部方法 ----
 
-    private KeyPair loadKeyPair(JwkPo entity) {
+    private KeyPair loadKeyPair(Jwk entity) {
         try {
             java.security.KeyFactory keyFactory = java.security.KeyFactory.getInstance(ALGORITHM_RSA);
 
@@ -250,7 +247,7 @@ public class JwkDomainService {
                 .encodeToString(publicKey.getEncoded());
     }
 
-    private RSAPublicKey parsePublicKey(JwkPo entity) {
+    private RSAPublicKey parsePublicKey(Jwk entity) {
         try {
             java.security.KeyFactory keyFactory = java.security.KeyFactory.getInstance(ALGORITHM_RSA);
             byte[] publicKeyBytes = Base64.getMimeDecoder().decode(entity.getPublicKeyPem());

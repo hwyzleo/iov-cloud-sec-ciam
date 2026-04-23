@@ -23,6 +23,8 @@ public class Session {
     private Integer sessionStatus;
     private Instant loginTime;
     private Instant lastActiveTime;
+    private Instant logoutTime;
     private Instant expireTime;
+    private Instant modifyTime;
     private String description;
 }

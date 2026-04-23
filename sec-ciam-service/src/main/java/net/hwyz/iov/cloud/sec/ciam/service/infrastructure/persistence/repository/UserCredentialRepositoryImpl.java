@@ -3,7 +3,9 @@ package net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.repositor
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import lombok.RequiredArgsConstructor;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.model.UserCredential;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.UserCredentialRepository;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.converter.UserCredentialPoConverter;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.mapper.CiamUserCredentialMapper;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.UserCredentialPo;
 import org.springframework.stereotype.Repository;
@@ -17,31 +19,35 @@ public class UserCredentialRepositoryImpl implements UserCredentialRepository {
     private final CiamUserCredentialMapper mapper;
 
     @Override
-    public Optional<UserCredentialPo> findByUserIdAndType(String userId, String credentialType) {
+    public Optional<UserCredential> findByUserIdAndType(String userId, String credentialType) {
         return Optional.ofNullable(mapper.selectOne(
                 new LambdaQueryWrapper<UserCredentialPo>()
                         .eq(UserCredentialPo::getUserId, userId)
                         .eq(UserCredentialPo::getCredentialType, credentialType)
-                        .eq(UserCredentialPo::getRowValid, 1)));
+                        .eq(UserCredentialPo::getRowValid, 1)))
+                .map(UserCredentialPoConverter.INSTANCE::toDomain);
     }
 
     @Override
-    public Optional<UserCredentialPo> findByCredentialId(String credentialId) {
+    public Optional<UserCredential> findByCredentialId(String credentialId) {
         return Optional.ofNullable(mapper.selectOne(
                 new LambdaQueryWrapper<UserCredentialPo>()
-                        .eq(UserCredentialPo::getCredentialId, credentialId)));
+                        .eq(UserCredentialPo::getCredentialId, credentialId)
+                        .eq(UserCredentialPo::getRowValid, 1)))
+                .map(UserCredentialPoConverter.INSTANCE::toDomain);
     }
 
     @Override
-    public int insert(UserCredentialPo entity) {
-        return mapper.insert(entity);
+    public int insert(UserCredential entity) {
+        return mapper.insert(UserCredentialPoConverter.INSTANCE.toPo(entity));
     }
 
     @Override
-    public int updateByCredentialId(UserCredentialPo entity) {
-        return mapper.update(entity,
+    public int updateByCredentialId(UserCredential entity) {
+        UserCredentialPo po = UserCredentialPoConverter.INSTANCE.toPo(entity);
+        return mapper.update(po,
                 new LambdaUpdateWrapper<UserCredentialPo>()
-                        .eq(UserCredentialPo::getCredentialId, entity.getCredentialId()));
+                        .eq(UserCredentialPo::getCredentialId, po.getCredentialId()));
     }
 
     @Override

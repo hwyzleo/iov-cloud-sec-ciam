@@ -2,8 +2,8 @@ package net.hwyz.iov.cloud.sec.ciam.service.common.audit;
 
 import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.model.RiskEvent;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.RiskEventRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.RiskEventPo;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 
@@ -75,8 +75,8 @@ public class SecurityEventLogger {
         // 持久化到数据库
         if (riskEventRepository != null) {
             try {
-                RiskEventPo riskEventDo = mapToDataObject(event);
-                riskEventRepository.insert(riskEventDo);
+                RiskEvent riskEvent = mapToDomainModel(event);
+                riskEventRepository.insert(riskEvent);
             } catch (Exception e) {
                 log.warn("[SECURITY] 安全事件持久化失败，已降级为仅日志记录: {}", e.getMessage());
             }
@@ -84,31 +84,27 @@ public class SecurityEventLogger {
     }
 
     /**
-     * 将 SecurityEvent 映射为 RiskEventPo。
+     * 将 SecurityEvent 映射为 RiskEvent。
      */
-    RiskEventPo mapToDataObject(SecurityEvent event) {
+    RiskEvent mapToDomainModel(SecurityEvent event) {
         Instant now = DateTimeUtil.getNowInstant();
-        RiskEventPo riskEventDo = new RiskEventPo();
-        riskEventDo.setRiskEventId(generateRiskEventId());
-        riskEventDo.setUserId(event.getUserId());
-        riskEventDo.setSessionId(event.getSessionId());
-        riskEventDo.setDeviceId(event.getDeviceId());
-        riskEventDo.setRiskScene(event.getRiskScene() != null ? event.getRiskScene() : event.getEventType());
-        riskEventDo.setRiskType(event.getEventType());
-        riskEventDo.setRiskLevel(event.getRiskLevel() != null ? event.getRiskLevel() : 0);
-        riskEventDo.setClientType(event.getClientType());
-        riskEventDo.setIpAddress(event.getIpAddress());
-        riskEventDo.setRegionCode(event.getRegionCode());
-        riskEventDo.setDecisionResult(event.getDecisionResult() != null ? event.getDecisionResult() : "log");
-        riskEventDo.setHitRules(event.getHitRules());
-        riskEventDo.setEventTime(event.getEventTime() != null ? event.getEventTime() : now);
-        riskEventDo.setHandledFlag(0);
-        riskEventDo.setDescription(event.getDetail());
-        riskEventDo.setCreateTime(now);
-        riskEventDo.setModifyTime(now);
-        riskEventDo.setRowVersion(1);
-        riskEventDo.setRowValid(1);
-        return riskEventDo;
+        return RiskEvent.builder()
+                .riskEventId(generateRiskEventId())
+                .userId(event.getUserId())
+                .sessionId(event.getSessionId())
+                .deviceId(event.getDeviceId())
+                .riskScene(event.getRiskScene() != null ? event.getRiskScene() : event.getEventType())
+                .riskType(event.getEventType())
+                .riskLevel(event.getRiskLevel() != null ? event.getRiskLevel() : 0)
+                .clientType(event.getClientType())
+                .ipAddress(event.getIpAddress())
+                .regionCode(event.getRegionCode())
+                .decisionResult(event.getDecisionResult() != null ? event.getDecisionResult() : "log")
+                .hitRules(event.getHitRules())
+                .eventTime(event.getEventTime() != null ? event.getEventTime() : now)
+                .handledFlag(0)
+                .description(event.getDetail())
+                .build();
     }
 
     private void logToSlf4j(SecurityEvent event) {

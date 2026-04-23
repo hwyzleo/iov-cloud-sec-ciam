@@ -9,8 +9,8 @@ import net.hwyz.iov.cloud.sec.ciam.service.domain.gateway.SmsAdapter;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.ChallengeScene;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.ChallengeStatus;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.ChallengeType;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.model.MfaChallenge;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.MfaChallengeRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.MfaChallengePo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -61,9 +61,9 @@ class MfaDomainServiceTest {
             assertNotNull(challengeId);
             assertEquals(32, challengeId.length());
 
-            ArgumentCaptor<MfaChallengePo> captor = ArgumentCaptor.forClass(MfaChallengePo.class);
+            ArgumentCaptor<MfaChallenge> captor = ArgumentCaptor.forClass(MfaChallenge.class);
             verify(challengeRepository).insert(captor.capture());
-            MfaChallengePo saved = captor.getValue();
+            MfaChallenge saved = captor.getValue();
 
             assertEquals("user-001", saved.getUserId());
             assertEquals("session-001", saved.getSessionId());
@@ -77,8 +77,6 @@ class MfaDomainServiceTest {
             assertNotNull(saved.getSendTime());
             assertNotNull(saved.getExpireTime());
             assertTrue(saved.getExpireTime().isAfter(saved.getSendTime()));
-            assertEquals(1, saved.getRowVersion());
-            assertEquals(1, saved.getRowValid());
 
             verify(smsAdapter).sendVerificationCode(eq("138****1234"), eq("+86"), anyString());
             verify(emailAdapter, never()).sendVerificationCode(anyString(), anyString());
@@ -93,9 +91,9 @@ class MfaDomainServiceTest {
 
             assertNotNull(challengeId);
 
-            ArgumentCaptor<MfaChallengePo> captor = ArgumentCaptor.forClass(MfaChallengePo.class);
+            ArgumentCaptor<MfaChallenge> captor = ArgumentCaptor.forClass(MfaChallenge.class);
             verify(challengeRepository).insert(captor.capture());
-            MfaChallengePo saved = captor.getValue();
+            MfaChallenge saved = captor.getValue();
 
             assertEquals(ChallengeType.EMAIL.getCode(), saved.getChallengeType());
             assertEquals(ChallengeScene.GEO_CHANGE.getCode(), saved.getChallengeScene());
@@ -115,7 +113,7 @@ class MfaDomainServiceTest {
 
             assertNotNull(challengeId);
 
-            ArgumentCaptor<MfaChallengePo> captor = ArgumentCaptor.forClass(MfaChallengePo.class);
+            ArgumentCaptor<MfaChallenge> captor = ArgumentCaptor.forClass(MfaChallenge.class);
             verify(challengeRepository).insert(captor.capture());
             assertEquals(ChallengeScene.HIGH_RISK.getCode(), captor.getValue().getChallengeScene());
         }
@@ -152,9 +150,9 @@ class MfaDomainServiceTest {
                     ChallengeType.SMS, ChallengeScene.NEW_DEVICE,
                     "138****1234", null);
 
-            ArgumentCaptor<MfaChallengePo> captor = ArgumentCaptor.forClass(MfaChallengePo.class);
+            ArgumentCaptor<MfaChallenge> captor = ArgumentCaptor.forClass(MfaChallenge.class);
             verify(challengeRepository).insert(captor.capture());
-            MfaChallengePo saved = captor.getValue();
+            MfaChallenge saved = captor.getValue();
 
             long diffMinutes = java.time.Duration.between(saved.getSendTime(), saved.getExpireTime()).toMinutes();
             assertEquals(MfaDomainService.SMS_TTL_MINUTES, diffMinutes);
@@ -166,9 +164,9 @@ class MfaDomainServiceTest {
                     ChallengeType.EMAIL, ChallengeScene.NEW_DEVICE,
                     "t***@example.com", null);
 
-            ArgumentCaptor<MfaChallengePo> captor = ArgumentCaptor.forClass(MfaChallengePo.class);
+            ArgumentCaptor<MfaChallenge> captor = ArgumentCaptor.forClass(MfaChallenge.class);
             verify(challengeRepository).insert(captor.capture());
-            MfaChallengePo saved = captor.getValue();
+            MfaChallenge saved = captor.getValue();
 
             long diffMinutes = java.time.Duration.between(saved.getSendTime(), saved.getExpireTime()).toMinutes();
             assertEquals(MfaDomainService.EMAIL_TTL_MINUTES, diffMinutes);
@@ -180,22 +178,22 @@ class MfaDomainServiceTest {
     @Nested
     class VerifyChallengeTests {
 
-        private MfaChallengePo pendingChallenge(String code) {
-            MfaChallengePo c = new MfaChallengePo();
-            c.setChallengeId("ch-001");
-            c.setUserId("user-001");
-            c.setChallengeType(ChallengeType.SMS.getCode());
-            c.setChallengeScene(ChallengeScene.NEW_DEVICE.getCode());
-            c.setVerifyCodeHash(TokenDigest.fingerprint(code));
-            c.setSendTime(Instant.now().minusSeconds(1 * 60));
-            c.setExpireTime(Instant.now().plusSeconds(4 * 60));
-            c.setChallengeStatus(ChallengeStatus.PENDING.getCode());
-            return c;
+        private MfaChallenge pendingChallenge(String code) {
+            return MfaChallenge.builder()
+                    .challengeId("ch-001")
+                    .userId("user-001")
+                    .challengeType(ChallengeType.SMS.getCode())
+                    .challengeScene(ChallengeScene.NEW_DEVICE.getCode())
+                    .verifyCodeHash(TokenDigest.fingerprint(code))
+                    .sendTime(Instant.now().minusSeconds(1 * 60))
+                    .expireTime(Instant.now().plusSeconds(4 * 60))
+                    .challengeStatus(ChallengeStatus.PENDING.getCode())
+                    .build();
         }
 
         @Test
         void verifyChallenge_returnsTrueOnCorrectCode() {
-            MfaChallengePo challenge = pendingChallenge("123456");
+            MfaChallenge challenge = pendingChallenge("123456");
             when(challengeRepository.findByChallengeId("ch-001")).thenReturn(Optional.of(challenge));
 
             boolean result = service.verifyChallenge("ch-001", "123456");
@@ -208,7 +206,7 @@ class MfaDomainServiceTest {
 
         @Test
         void verifyChallenge_returnsFalseOnWrongCode() {
-            MfaChallengePo challenge = pendingChallenge("123456");
+            MfaChallenge challenge = pendingChallenge("123456");
             when(challengeRepository.findByChallengeId("ch-001")).thenReturn(Optional.of(challenge));
 
             boolean result = service.verifyChallenge("ch-001", "999999");
@@ -230,7 +228,7 @@ class MfaDomainServiceTest {
 
         @Test
         void verifyChallenge_throwsWhenExpired() {
-            MfaChallengePo challenge = pendingChallenge("123456");
+            MfaChallenge challenge = pendingChallenge("123456");
             challenge.setExpireTime(Instant.now().minusSeconds(1 * 60)); // already expired
             when(challengeRepository.findByChallengeId("ch-001")).thenReturn(Optional.of(challenge));
 
@@ -243,7 +241,7 @@ class MfaDomainServiceTest {
 
         @Test
         void verifyChallenge_throwsWhenAlreadyPassed() {
-            MfaChallengePo challenge = pendingChallenge("123456");
+            MfaChallenge challenge = pendingChallenge("123456");
             challenge.setChallengeStatus(ChallengeStatus.PASSED.getCode());
             when(challengeRepository.findByChallengeId("ch-001")).thenReturn(Optional.of(challenge));
 
@@ -254,7 +252,7 @@ class MfaDomainServiceTest {
 
         @Test
         void verifyChallenge_throwsWhenAlreadyFailed() {
-            MfaChallengePo challenge = pendingChallenge("123456");
+            MfaChallenge challenge = pendingChallenge("123456");
             challenge.setChallengeStatus(ChallengeStatus.FAILED.getCode());
             when(challengeRepository.findByChallengeId("ch-001")).thenReturn(Optional.of(challenge));
 
@@ -265,7 +263,7 @@ class MfaDomainServiceTest {
 
         @Test
         void verifyChallenge_throwsWhenAlreadyCancelled() {
-            MfaChallengePo challenge = pendingChallenge("123456");
+            MfaChallenge challenge = pendingChallenge("123456");
             challenge.setChallengeStatus(ChallengeStatus.CANCELLED.getCode());
             when(challengeRepository.findByChallengeId("ch-001")).thenReturn(Optional.of(challenge));
 
@@ -282,7 +280,7 @@ class MfaDomainServiceTest {
 
         @Test
         void cancelChallenge_setsCancelledStatus() {
-            MfaChallengePo challenge = new MfaChallengePo();
+            MfaChallenge challenge = new MfaChallenge();
             challenge.setChallengeId("ch-001");
             challenge.setChallengeStatus(ChallengeStatus.PENDING.getCode());
             when(challengeRepository.findByChallengeId("ch-001")).thenReturn(Optional.of(challenge));
@@ -290,7 +288,6 @@ class MfaDomainServiceTest {
             service.cancelChallenge("ch-001");
 
             assertEquals(ChallengeStatus.CANCELLED.getCode(), challenge.getChallengeStatus());
-            assertNotNull(challenge.getModifyTime());
             verify(challengeRepository).updateByChallengeId(any());
         }
 
@@ -305,7 +302,7 @@ class MfaDomainServiceTest {
 
         @Test
         void cancelChallenge_throwsWhenAlreadyPassed() {
-            MfaChallengePo challenge = new MfaChallengePo();
+            MfaChallenge challenge = new MfaChallenge();
             challenge.setChallengeId("ch-001");
             challenge.setChallengeStatus(ChallengeStatus.PASSED.getCode());
             when(challengeRepository.findByChallengeId("ch-001")).thenReturn(Optional.of(challenge));
@@ -317,7 +314,7 @@ class MfaDomainServiceTest {
 
         @Test
         void cancelChallenge_throwsWhenAlreadyCancelled() {
-            MfaChallengePo challenge = new MfaChallengePo();
+            MfaChallenge challenge = new MfaChallenge();
             challenge.setChallengeId("ch-001");
             challenge.setChallengeStatus(ChallengeStatus.CANCELLED.getCode());
             when(challengeRepository.findByChallengeId("ch-001")).thenReturn(Optional.of(challenge));

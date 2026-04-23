@@ -12,8 +12,8 @@ import net.hwyz.iov.cloud.sec.ciam.service.domain.gateway.SmsAdapter;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.ChallengeScene;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.ChallengeStatus;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.ChallengeType;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.model.MfaChallenge;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.MfaChallengeRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.MfaChallengePo;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
@@ -67,22 +67,19 @@ public class MfaDomainService {
         int ttlMinutes = challengeType == ChallengeType.SMS ? SMS_TTL_MINUTES : EMAIL_TTL_MINUTES;
         Instant expireTime = now.plusSeconds(ttlMinutes * 60L);
 
-        MfaChallengePo challenge = new MfaChallengePo();
-        challenge.setChallengeId(challengeId);
-        challenge.setUserId(userId);
-        challenge.setSessionId(sessionId);
-        challenge.setChallengeType(challengeType.getCode());
-        challenge.setChallengeScene(challengeScene.getCode());
-        challenge.setReceiverMask(receiverMask);
-        challenge.setVerifyCodeHash(TokenDigest.fingerprint(code));
-        challenge.setSendTime(now);
-        challenge.setExpireTime(expireTime);
-        challenge.setChallengeStatus(ChallengeStatus.PENDING.getCode());
-        challenge.setRiskEventId(riskEventId);
-        challenge.setRowVersion(1);
-        challenge.setRowValid(1);
-        challenge.setCreateTime(now);
-        challenge.setModifyTime(now);
+        MfaChallenge challenge = MfaChallenge.builder()
+                .challengeId(challengeId)
+                .userId(userId)
+                .sessionId(sessionId)
+                .challengeType(challengeType.getCode())
+                .challengeScene(challengeScene.getCode())
+                .receiverMask(receiverMask)
+                .verifyCodeHash(TokenDigest.fingerprint(code))
+                .sendTime(now)
+                .expireTime(expireTime)
+                .challengeStatus(ChallengeStatus.PENDING.getCode())
+                .riskEventId(riskEventId)
+                .build();
         challengeRepository.insert(challenge);
 
         // 发送验证码
@@ -99,7 +96,7 @@ public class MfaDomainService {
      * @return true 表示验证通过，false 表示验证失败
      */
     public boolean verifyChallenge(String challengeId, String code) {
-        MfaChallengePo challenge = challengeRepository.findByChallengeId(challengeId)
+        MfaChallenge challenge = challengeRepository.findByChallengeId(challengeId)
                 .orElseThrow(() -> new BusinessException(CiamErrorCode.MFA_CHALLENGE_NOT_FOUND));
 
         if (challenge.getChallengeStatus() != ChallengeStatus.PENDING.getCode()) {
@@ -109,7 +106,6 @@ public class MfaDomainService {
         Instant now = DateTimeUtil.getNowInstant();
         if (now.isAfter(challenge.getExpireTime())) {
             challenge.setChallengeStatus(ChallengeStatus.EXPIRED.getCode());
-            challenge.setModifyTime(now);
             challengeRepository.updateByChallengeId(challenge);
             throw new BusinessException(CiamErrorCode.MFA_CHALLENGE_EXPIRED);
         }
@@ -121,7 +117,6 @@ public class MfaDomainService {
         } else {
             challenge.setChallengeStatus(ChallengeStatus.FAILED.getCode());
         }
-        challenge.setModifyTime(now);
         challengeRepository.updateByChallengeId(challenge);
         return matched;
     }
@@ -132,7 +127,7 @@ public class MfaDomainService {
      * @param challengeId 挑战业务唯一标识
      */
     public void cancelChallenge(String challengeId) {
-        MfaChallengePo challenge = challengeRepository.findByChallengeId(challengeId)
+        MfaChallenge challenge = challengeRepository.findByChallengeId(challengeId)
                 .orElseThrow(() -> new BusinessException(CiamErrorCode.MFA_CHALLENGE_NOT_FOUND));
 
         if (challenge.getChallengeStatus() != ChallengeStatus.PENDING.getCode()) {
@@ -140,7 +135,6 @@ public class MfaDomainService {
         }
 
         challenge.setChallengeStatus(ChallengeStatus.CANCELLED.getCode());
-        challenge.setModifyTime(DateTimeUtil.getNowInstant());
         challengeRepository.updateByChallengeId(challenge);
     }
 

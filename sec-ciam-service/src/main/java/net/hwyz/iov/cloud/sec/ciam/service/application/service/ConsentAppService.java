@@ -11,8 +11,8 @@ import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditLogger;
 import net.hwyz.iov.cloud.sec.ciam.service.common.exception.CiamErrorCode;
 import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
 import net.hwyz.iov.cloud.sec.ciam.service.common.util.UserIdGenerator;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.model.UserConsent;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.UserConsentRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.UserConsentPo;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -66,29 +66,26 @@ public class ConsentAppService {
         validateUserId(userId);
         validateConsentType(consentType);
 
-        UserConsentPo record = new UserConsentPo();
-        record.setConsentId(UserIdGenerator.generate());
-        record.setUserId(userId);
-        record.setConsentType(consentType);
-        record.setConsentStatus(CONSENT_STATUS_AGREED);
-        record.setPolicyVersion(policyVersion);
-        record.setSourceChannel(sourceChannel);
-        record.setClientType(clientType);
-        record.setOperateIp(operateIp);
-        record.setOperateTime(DateTimeUtil.getNowInstant());
-        record.setRowVersion(1);
-        record.setRowValid(1);
-        record.setCreateTime(DateTimeUtil.getNowInstant());
-        record.setModifyTime(DateTimeUtil.getNowInstant());
+        UserConsent domain = UserConsent.builder()
+                .consentId(UserIdGenerator.generate())
+                .userId(userId)
+                .consentType(consentType)
+                .consentStatus(CONSENT_STATUS_AGREED)
+                .policyVersion(policyVersion)
+                .sourceChannel(sourceChannel)
+                .clientType(clientType)
+                .operateIp(operateIp)
+                .operateTime(DateTimeUtil.getNowInstant())
+                .build();
 
-        consentRepository.insert(record);
+        consentRepository.insert(domain);
 
         logAudit(userId, AuditEventType.CONSENT_GRANT, true,
                 "consentType=" + consentType + ",policyVersion=" + policyVersion);
         log.info("同意授予成功: userId={}, consentType={}, policyVersion={}",
                 userId, consentType, policyVersion);
 
-        return UserConsentAssembler.INSTANCE.toDto(UserConsentAssembler.INSTANCE.toDomain(record));
+        return UserConsentAssembler.INSTANCE.toDto(domain);
     }
 
     /**
@@ -102,10 +99,10 @@ public class ConsentAppService {
     public void withdrawMarketingConsent(String userId, String operateIp) {
         validateUserId(userId);
 
-        List<UserConsentPo> records =
+        List<UserConsent> records =
                 consentRepository.findByUserIdAndConsentType(userId, CONSENT_TYPE_MARKETING);
 
-        Optional<UserConsentPo> activeConsent = records.stream()
+        Optional<UserConsent> activeConsent = records.stream()
                 .filter(r -> r.getConsentStatus() != null && r.getConsentStatus() == CONSENT_STATUS_AGREED)
                 .findFirst();
 
@@ -114,11 +111,10 @@ public class ConsentAppService {
             throw new BusinessException(CiamErrorCode.INVALID_PARAM, "未找到有效的营销同意记录");
         }
 
-        UserConsentPo consent = activeConsent.get();
+        UserConsent consent = activeConsent.get();
         consent.setConsentStatus(CONSENT_STATUS_WITHDRAWN);
         consent.setOperateIp(operateIp);
         consent.setOperateTime(DateTimeUtil.getNowInstant());
-        consent.setModifyTime(DateTimeUtil.getNowInstant());
 
         consentRepository.updateByConsentId(consent);
 
@@ -136,7 +132,7 @@ public class ConsentAppService {
     public List<UserConsentDto> getConsentRecords(String userId) {
         validateUserId(userId);
         return consentRepository.findByUserId(userId).stream()
-                .map(doObj -> UserConsentAssembler.INSTANCE.toDto(UserConsentAssembler.INSTANCE.toDomain(doObj)))
+                .map(UserConsentAssembler.INSTANCE::toDto)
                 .collect(Collectors.toList());
     }
 
@@ -151,7 +147,7 @@ public class ConsentAppService {
         validateUserId(userId);
         validateConsentType(consentType);
         return consentRepository.findByUserIdAndConsentType(userId, consentType).stream()
-                .map(doObj -> UserConsentAssembler.INSTANCE.toDto(UserConsentAssembler.INSTANCE.toDomain(doObj)))
+                .map(UserConsentAssembler.INSTANCE::toDto)
                 .collect(Collectors.toList());
     }
 

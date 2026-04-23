@@ -27,7 +27,7 @@ public class RiskEventAppService {
     public List<RiskEventDto> queryUserRiskEvents(String userId, LocalDateTime startTime, LocalDateTime endTime) {
         log.info("查询用户风险事件: userId={}, startTime={}, endTime={}", userId, startTime, endTime);
         return riskEventRepository.findByUserIdAndTimeRange(userId, startTime, endTime).stream()
-                .map(doObj -> RiskEventAssembler.INSTANCE.toDto(RiskEventAssembler.INSTANCE.toDomain(doObj)))
+                .map(RiskEventAssembler.INSTANCE::toDto)
                 .collect(Collectors.toList());
     }
 }

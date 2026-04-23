@@ -1,6 +1,6 @@
 package net.hwyz.iov.cloud.sec.ciam.service.domain.repository;
 
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.MfaChallengePo;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.model.MfaChallenge;
 
 import java.util.List;
 import java.util.Optional;
@@ -11,14 +11,14 @@ import java.util.Optional;
 public interface MfaChallengeRepository {
 
     /** 根据业务 ID 查询 */
-    Optional<MfaChallengePo> findByChallengeId(String challengeId);
+    Optional<MfaChallenge> findByChallengeId(String challengeId);
 
     /** 根据用户 ID 和挑战状态查询 */
-    List<MfaChallengePo> findByUserIdAndStatus(String userId, int challengeStatus);
+    List<MfaChallenge> findByUserIdAndStatus(String userId, int challengeStatus);
 
     /** 插入挑战记录 */
-    int insert(MfaChallengePo entity);
+    int insert(MfaChallenge entity);
 
     /** 根据业务 ID 更新 */
-    int updateByChallengeId(MfaChallengePo entity);
+    int updateByChallengeId(MfaChallenge entity);
 }

@@ -1,6 +1,7 @@
 package net.hwyz.iov.cloud.sec.ciam.api.fallback;
 
 import lombok.extern.slf4j.Slf4j;
+import net.hwyz.iov.cloud.framework.common.bean.ApiResponse;
 import net.hwyz.iov.cloud.sec.ciam.api.service.CiamTokenService;
 import org.springframework.cloud.openfeign.FallbackFactory;
 import org.springframework.stereotype.Component;

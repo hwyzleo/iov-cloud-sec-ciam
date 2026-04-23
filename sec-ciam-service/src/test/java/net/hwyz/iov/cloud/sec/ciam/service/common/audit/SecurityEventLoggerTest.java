@@ -1,7 +1,7 @@
 package net.hwyz.iov.cloud.sec.ciam.service.common.audit;
 
+import net.hwyz.iov.cloud.sec.ciam.service.domain.model.RiskEvent;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.RiskEventRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.RiskEventPo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -36,9 +36,9 @@ class SecurityEventLoggerTest {
 
             logger.log(event);
 
-            ArgumentCaptor<RiskEventPo> captor = ArgumentCaptor.forClass(RiskEventPo.class);
+            ArgumentCaptor<RiskEvent> captor = ArgumentCaptor.forClass(RiskEvent.class);
             verify(riskEventRepository).insert(captor.capture());
-            RiskEventPo saved = captor.getValue();
+            RiskEvent saved = captor.getValue();
 
             assertEquals("user-001", saved.getUserId());
             assertEquals("session-001", saved.getSessionId());
@@ -53,12 +53,8 @@ class SecurityEventLoggerTest {
             assertEquals("new_device", saved.getHitRules());
             assertEquals("新设备登录触发MFA", saved.getDescription());
             assertEquals(0, saved.getHandledFlag());
-            assertEquals(1, saved.getRowValid());
-            assertEquals(1, saved.getRowVersion());
             assertNotNull(saved.getRiskEventId());
             assertEquals(32, saved.getRiskEventId().length());
-            assertNotNull(saved.getCreateTime());
-            assertNotNull(saved.getModifyTime());
         }
 
         @Test
@@ -77,9 +73,9 @@ class SecurityEventLoggerTest {
 
             logger.log(event);
 
-            ArgumentCaptor<RiskEventPo> captor = ArgumentCaptor.forClass(RiskEventPo.class);
+            ArgumentCaptor<RiskEvent> captor = ArgumentCaptor.forClass(RiskEvent.class);
             verify(riskEventRepository).insert(captor.capture());
-            RiskEventPo saved = captor.getValue();
+            RiskEvent saved = captor.getValue();
 
             assertEquals("ABNORMAL_LOGIN", saved.getRiskType());
             assertEquals("login", saved.getRiskScene());
@@ -101,9 +97,9 @@ class SecurityEventLoggerTest {
 
             logger.log(event);
 
-            ArgumentCaptor<RiskEventPo> captor = ArgumentCaptor.forClass(RiskEventPo.class);
+            ArgumentCaptor<RiskEvent> captor = ArgumentCaptor.forClass(RiskEvent.class);
             verify(riskEventRepository).insert(captor.capture());
-            RiskEventPo saved = captor.getValue();
+            RiskEvent saved = captor.getValue();
 
             assertEquals("CODE_ANTI_ABUSE", saved.getRiskType());
             assertEquals("code_verify", saved.getRiskScene());
@@ -124,9 +120,9 @@ class SecurityEventLoggerTest {
 
             logger.log(event);
 
-            ArgumentCaptor<RiskEventPo> captor = ArgumentCaptor.forClass(RiskEventPo.class);
+            ArgumentCaptor<RiskEvent> captor = ArgumentCaptor.forClass(RiskEvent.class);
             verify(riskEventRepository).insert(captor.capture());
-            RiskEventPo saved = captor.getValue();
+            RiskEvent saved = captor.getValue();
 
             assertEquals("HIGH_RISK_DISPOSITION", saved.getRiskType());
             assertEquals("kickout", saved.getDecisionResult());
@@ -158,7 +154,7 @@ class SecurityEventLoggerTest {
 
             logger.log(event);
 
-            ArgumentCaptor<RiskEventPo> captor = ArgumentCaptor.forClass(RiskEventPo.class);
+            ArgumentCaptor<RiskEvent> captor = ArgumentCaptor.forClass(RiskEvent.class);
             verify(riskEventRepository).insert(captor.capture());
             assertNotNull(captor.getValue().getEventTime());
         }
@@ -171,7 +167,7 @@ class SecurityEventLoggerTest {
 
             logger.log(event);
 
-            ArgumentCaptor<RiskEventPo> captor = ArgumentCaptor.forClass(RiskEventPo.class);
+            ArgumentCaptor<RiskEvent> captor = ArgumentCaptor.forClass(RiskEvent.class);
             verify(riskEventRepository).insert(captor.capture());
             assertEquals("MFA_TRIGGER", captor.getValue().getRiskScene());
         }
@@ -184,7 +180,7 @@ class SecurityEventLoggerTest {
 
             logger.log(event);
 
-            ArgumentCaptor<RiskEventPo> captor = ArgumentCaptor.forClass(RiskEventPo.class);
+            ArgumentCaptor<RiskEvent> captor = ArgumentCaptor.forClass(RiskEvent.class);
             verify(riskEventRepository).insert(captor.capture());
             assertEquals(0, captor.getValue().getRiskLevel());
         }
@@ -197,7 +193,7 @@ class SecurityEventLoggerTest {
 
             logger.log(event);
 
-            ArgumentCaptor<RiskEventPo> captor = ArgumentCaptor.forClass(RiskEventPo.class);
+            ArgumentCaptor<RiskEvent> captor = ArgumentCaptor.forClass(RiskEvent.class);
             verify(riskEventRepository).insert(captor.capture());
             assertEquals("log", captor.getValue().getDecisionResult());
         }
@@ -210,9 +206,9 @@ class SecurityEventLoggerTest {
         void log_simpleParams_persistsToDatabase() {
             logger.log("ACCOUNT_LOCK", "user-010", "10.0.0.1", "trace-abc", "管理员锁定账号");
 
-            ArgumentCaptor<RiskEventPo> captor = ArgumentCaptor.forClass(RiskEventPo.class);
+            ArgumentCaptor<RiskEvent> captor = ArgumentCaptor.forClass(RiskEvent.class);
             verify(riskEventRepository).insert(captor.capture());
-            RiskEventPo saved = captor.getValue();
+            RiskEvent saved = captor.getValue();
 
             assertEquals("user-010", saved.getUserId());
             assertEquals("ACCOUNT_LOCK", saved.getRiskType());
@@ -251,7 +247,7 @@ class SecurityEventLoggerTest {
     }
 
     @Nested
-    class MapToDataObject {
+    class MapToDomainModel {
 
         @Test
         void mapsAllFieldsCorrectly() {
@@ -272,7 +268,7 @@ class SecurityEventLoggerTest {
                     .detail("新设备登录触发MFA")
                     .build();
 
-            RiskEventPo result = logger.mapToDataObject(event);
+            RiskEvent result = logger.mapToDomainModel(event);
 
             assertEquals("user-100", result.getUserId());
             assertEquals("session-100", result.getSessionId());
@@ -289,11 +285,7 @@ class SecurityEventLoggerTest {
             assertEquals("新设备登录触发MFA", result.getDescription());
             assertNotNull(result.getRiskEventId());
             assertEquals(32, result.getRiskEventId().length());
-            assertNotNull(result.getCreateTime());
-            assertNotNull(result.getModifyTime());
             assertEquals(0, result.getHandledFlag());
-            assertEquals(1, result.getRowValid());
-            assertEquals(1, result.getRowVersion());
         }
 
         @Test
@@ -302,7 +294,7 @@ class SecurityEventLoggerTest {
                     .eventType("MFA_TRIGGER")
                     .build();
 
-            RiskEventPo result = logger.mapToDataObject(event);
+            RiskEvent result = logger.mapToDomainModel(event);
 
             assertNull(result.getUserId());
             assertNull(result.getSessionId());

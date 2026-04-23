@@ -3,7 +3,7 @@ package net.hwyz.iov.cloud.sec.ciam.service.adapter.web.controller.service;
 import lombok.RequiredArgsConstructor;
 import net.hwyz.iov.cloud.sec.ciam.api.service.CiamSessionService;
 import net.hwyz.iov.cloud.sec.ciam.api.vo.SessionValidateResult;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.service.SessionDomainService;
+import net.hwyz.iov.cloud.sec.ciam.service.application.service.SessionAppService;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -16,15 +16,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class ServiceSessionController implements CiamSessionService {
 
-    private final SessionDomainService sessionDomainService;
+    private final SessionAppService sessionAppService;
 
     @Override
     public SessionValidateResult validateSession(@RequestParam("sessionId") String sessionId) {
-        var session = sessionDomainService.findBySessionId(sessionId);
-        return SessionValidateResult.builder()
-                .valid(session.isPresent())
-                .sessionId(sessionId)
-                .userId(session.map(s -> s.getUserId()).orElse(null))
-                .build();
+        return sessionAppService.validateSession(sessionId);
     }
 }

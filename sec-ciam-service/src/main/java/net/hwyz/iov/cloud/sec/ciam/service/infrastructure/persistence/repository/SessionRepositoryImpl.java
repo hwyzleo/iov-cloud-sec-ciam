@@ -5,61 +5,68 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import lombok.RequiredArgsConstructor;
 import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.SessionStatus;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.model.Session;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.SessionRepository;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.converter.SessionPoConverter;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.mapper.CiamSessionMapper;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.SessionPo;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
 public class SessionRepositoryImpl implements SessionRepository {
 
     private final CiamSessionMapper mapper;
+    private final SessionPoConverter converter;
 
     @Override
-    public Optional<SessionPo> findBySessionId(String sessionId) {
+    public Optional<Session> findBySessionId(String sessionId) {
         return Optional.ofNullable(mapper.selectOne(
                 new LambdaQueryWrapper<SessionPo>()
-                        .eq(SessionPo::getSessionId, sessionId)));
+                        .eq(SessionPo::getSessionId, sessionId))).map(converter::toDomain);
     }
 
     @Override
-    public List<SessionPo> findByUserIdAndStatus(String userId, int sessionStatus) {
+    public List<Session> findByUserIdAndStatus(String userId, int sessionStatus) {
         return mapper.selectList(
                 new LambdaQueryWrapper<SessionPo>()
                         .eq(SessionPo::getUserId, userId)
                         .eq(SessionPo::getSessionStatus, sessionStatus)
-                        .eq(SessionPo::getRowValid, 1));
+                        .eq(SessionPo::getRowValid, 1))
+                .stream().map(converter::toDomain).collect(Collectors.toList());
     }
 
     @Override
-    public List<SessionPo> findByDeviceId(String deviceId) {
+    public List<Session> findByDeviceId(String deviceId) {
         return mapper.selectList(
                 new LambdaQueryWrapper<SessionPo>()
                         .eq(SessionPo::getDeviceId, deviceId)
-                        .eq(SessionPo::getRowValid, 1));
+                        .eq(SessionPo::getRowValid, 1))
+                .stream().map(converter::toDomain).collect(Collectors.toList());
     }
 
     @Override
-    public List<SessionPo> findByDeviceIdAndStatus(String deviceId, int sessionStatus) {
+    public List<Session> findByDeviceIdAndStatus(String deviceId, int sessionStatus) {
         return mapper.selectList(
                 new LambdaQueryWrapper<SessionPo>()
                         .eq(SessionPo::getDeviceId, deviceId)
                         .eq(SessionPo::getSessionStatus, sessionStatus)
-                        .eq(SessionPo::getRowValid, 1));
+                        .eq(SessionPo::getRowValid, 1))
+                .stream().map(converter::toDomain).collect(Collectors.toList());
     }
 
     @Override
-    public int insert(SessionPo entity) {
-        return mapper.insert(entity);
+    public int insert(Session entity) {
+        return mapper.insert(converter.toPo(entity));
     }
 
     @Override
-    public int updateBySessionId(SessionPo entity) {
-        return mapper.update(entity,
+    public int updateBySessionId(Session entity) {
+        return mapper.update(converter.toPo(entity),
                 new LambdaUpdateWrapper<SessionPo>()
                         .eq(SessionPo::getSessionId, entity.getSessionId()));
     }

@@ -8,8 +8,8 @@ import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
 import net.hwyz.iov.cloud.sec.ciam.service.common.util.UserIdGenerator;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.CredentialStatus;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.CredentialType;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.model.UserCredential;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.UserCredentialRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.UserCredentialPo;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -45,11 +45,11 @@ public class CredentialDomainService {
      * @param rawPassword 原始密码
      * @return 新创建的凭据数据对象
      */
-    public UserCredentialPo setPassword(String userId, String rawPassword) {
+    public UserCredential setPassword(String userId, String rawPassword) {
         passwordPolicyService.validate(rawPassword);
 
         // 检查是否已存在有效凭据
-        Optional<UserCredentialPo> existing = credentialRepository.findByUserIdAndType(
+        Optional<UserCredential> existing = credentialRepository.findByUserIdAndType(
                 userId, CredentialType.EMAIL_PASSWORD.getCode());
         if (existing.isPresent() && existing.get().getCredentialStatus() == CredentialStatus.VALID.getCode()) {
             throw new BusinessException(CiamErrorCode.CREDENTIAL_ALREADY_EXISTS);
@@ -57,21 +57,19 @@ public class CredentialDomainService {
 
         String hash = passwordEncoder.encode(rawPassword);
 
-        UserCredentialPo credential = new UserCredentialPo();
-        credential.setCredentialId(UserIdGenerator.generate());
-        credential.setUserId(userId);
-        credential.setCredentialType(CredentialType.EMAIL_PASSWORD.getCode());
-        credential.setCredentialHash(hash);
-        credential.setHashAlgorithm(PasswordEncoder.ALGORITHM);
-        credential.setPasswordSetTime(DateTimeUtil.getNowInstant());
-        credential.setFailCount(0);
-        credential.setCredentialStatus(CredentialStatus.VALID.getCode());
-        credential.setRowVersion(1);
-        credential.setRowValid(1);
-        credential.setCreateTime(DateTimeUtil.getNowInstant());
-        credential.setModifyTime(DateTimeUtil.getNowInstant());
-        credentialRepository.insert(credential);
-        return credential;
+        UserCredential domain = UserCredential.builder()
+                .credentialId(UserIdGenerator.generate())
+                .userId(userId)
+                .credentialType(CredentialType.EMAIL_PASSWORD.getCode())
+                .credentialHash(hash)
+                .hashAlgorithm(PasswordEncoder.ALGORITHM)
+                .passwordSetTime(DateTimeUtil.getNowInstant())
+                .failCount(0)
+                .credentialStatus(CredentialStatus.VALID.getCode())
+                .build();
+
+        credentialRepository.insert(domain);
+        return domain;
     }
 
     /**
@@ -90,7 +88,7 @@ public class CredentialDomainService {
      * @throws BusinessException 凭据不存在时抛出 CREDENTIAL_INVALID；账号锁定时抛出 ACCOUNT_LOCKED
      */
     public PasswordVerifyResult verifyPassword(String userId, String rawPassword) {
-        UserCredentialPo credential = findActiveCredential(userId);
+        UserCredential credential = findActiveCredential(userId);
 
         // 检查是否处于锁定期
         if (isLocked(credential)) {
@@ -102,7 +100,6 @@ public class CredentialDomainService {
             credential.setLastVerifyTime(DateTimeUtil.getNowInstant());
             credential.setFailCount(0);
             credential.setLockedUntil(null);
-            credential.setModifyTime(DateTimeUtil.getNowInstant());
             credentialRepository.updateByCredentialId(credential);
             return PasswordVerifyResult.success();
         }
@@ -110,7 +107,6 @@ public class CredentialDomainService {
         // 失败：递增计数
         int newFailCount = (credential.getFailCount() == null ? 0 : credential.getFailCount()) + 1;
         credential.setFailCount(newFailCount);
-        credential.setModifyTime(DateTimeUtil.getNowInstant());
 
         if (newFailCount >= LOCK_THRESHOLD) {
             credential.setLockedUntil(DateTimeUtil.getNowInstant().plusSeconds(LOCK_DURATION_MINUTES * 60L));
@@ -137,7 +133,7 @@ public class CredentialDomainService {
     public void changePassword(String userId, String oldRawPassword, String newRawPassword) {
         passwordPolicyService.validate(newRawPassword);
 
-        UserCredentialPo credential = findActiveCredential(userId);
+        UserCredential credential = findActiveCredential(userId);
 
         if (!passwordEncoder.matches(oldRawPassword, credential.getCredentialHash())) {
             throw new BusinessException(CiamErrorCode.CREDENTIAL_INVALID);
@@ -148,7 +144,6 @@ public class CredentialDomainService {
         credential.setHashAlgorithm(PasswordEncoder.ALGORITHM);
         credential.setPasswordSetTime(DateTimeUtil.getNowInstant());
         credential.setFailCount(0);
-        credential.setModifyTime(DateTimeUtil.getNowInstant());
         credentialRepository.updateByCredentialId(credential);
     }
 
@@ -162,7 +157,7 @@ public class CredentialDomainService {
     public void resetPassword(String userId, String newRawPassword) {
         passwordPolicyService.validate(newRawPassword);
 
-        UserCredentialPo credential = findActiveCredential(userId);
+        UserCredential credential = findActiveCredential(userId);
 
         String newHash = passwordEncoder.encode(newRawPassword);
         credential.setCredentialHash(newHash);
@@ -170,7 +165,6 @@ public class CredentialDomainService {
         credential.setPasswordSetTime(DateTimeUtil.getNowInstant());
         credential.setFailCount(0);
         credential.setLockedUntil(null);
-        credential.setModifyTime(DateTimeUtil.getNowInstant());
         credentialRepository.updateByCredentialId(credential);
     }
 
@@ -180,19 +174,19 @@ public class CredentialDomainService {
      * @param userId 用户业务唯一标识
      * @return 凭据记录（如存在）
      */
-    public Optional<UserCredentialPo> findActiveCredential(String userId, CredentialType type) {
+    public Optional<UserCredential> findActiveCredential(String userId, CredentialType type) {
         return credentialRepository.findByUserIdAndType(userId, type.getCode())
                 .filter(c -> c.getCredentialStatus() == CredentialStatus.VALID.getCode());
     }
 
     // ---- 内部方法 ----
 
-    private boolean isLocked(UserCredentialPo credential) {
+    private boolean isLocked(UserCredential credential) {
         Instant lockedUntil = credential.getLockedUntil();
         return lockedUntil != null && DateTimeUtil.getNowInstant().isBefore(lockedUntil);
     }
 
-    private UserCredentialPo findActiveCredential(String userId) {
+    private UserCredential findActiveCredential(String userId) {
         return credentialRepository.findByUserIdAndType(userId, CredentialType.EMAIL_PASSWORD.getCode())
                 .filter(c -> c.getCredentialStatus() == CredentialStatus.VALID.getCode())
                 .orElseThrow(() -> new BusinessException(CiamErrorCode.CREDENTIAL_INVALID));

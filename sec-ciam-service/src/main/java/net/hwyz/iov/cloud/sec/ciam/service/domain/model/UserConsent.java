@@ -16,8 +16,10 @@ public class UserConsent {
     private String userId;
     private String consentType;
     private Integer consentStatus;
-    private String consentScope;
-    private Instant consentTime;
-    private Instant withdrawTime;
+    private String policyVersion;
+    private String sourceChannel;
+    private String clientType;
+    private String operateIp;
+    private Instant operateTime;
     private String description;
 }

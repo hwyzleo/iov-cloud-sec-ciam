@@ -4,8 +4,8 @@ import net.hwyz.iov.cloud.sec.ciam.service.application.service.*;
 import net.hwyz.iov.cloud.sec.ciam.service.application.dto.UserConsentDto;
 import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditEvent;
 import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditLogger;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.model.UserConsent;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.UserConsentRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.UserConsentPo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -55,7 +55,7 @@ class ConsentAppServiceTest {
             assertEquals("user_agreement", result.getConsentType());
             assertEquals(1, result.getConsentStatus());
 
-            verify(consentRepository).insert(any(UserConsentPo.class));
+            verify(consentRepository).insert(any(UserConsent.class));
 
             ArgumentCaptor<AuditEvent> captor = ArgumentCaptor.forClass(AuditEvent.class);
             verify(auditLogger).log(captor.capture());
@@ -70,7 +70,7 @@ class ConsentAppServiceTest {
 
             assertNotNull(result);
             assertEquals("privacy_policy", result.getConsentType());
-            verify(consentRepository).insert(any(UserConsentPo.class));
+            verify(consentRepository).insert(any(UserConsent.class));
         }
 
         @Test
@@ -80,7 +80,7 @@ class ConsentAppServiceTest {
 
             assertNotNull(result);
             assertEquals("marketing", result.getConsentType());
-            verify(consentRepository).insert(any(UserConsentPo.class));
+            verify(consentRepository).insert(any(UserConsent.class));
         }
     }
 
@@ -91,13 +91,13 @@ class ConsentAppServiceTest {
 
         @Test
         void withdrawsMarketingConsentSuccessfully() {
-            UserConsentPo activeConsent = stubConsent("marketing", 1);
+            UserConsent activeConsent = stubConsent("marketing", 1);
             when(consentRepository.findByUserIdAndConsentType(USER_ID, "marketing"))
                     .thenReturn(List.of(activeConsent));
 
             service.withdrawMarketingConsent(USER_ID, OPERATE_IP);
 
-            ArgumentCaptor<UserConsentPo> captor = ArgumentCaptor.forClass(UserConsentPo.class);
+            ArgumentCaptor<UserConsent> captor = ArgumentCaptor.forClass(UserConsent.class);
             verify(consentRepository).updateByConsentId(captor.capture());
             assertEquals(0, captor.getValue().getConsentStatus());
         }
@@ -110,7 +110,7 @@ class ConsentAppServiceTest {
 
         @Test
         void returnsAllConsentRecords() {
-            List<UserConsentPo> records = List.of(
+            List<UserConsent> records = List.of(
                     stubConsent("user_agreement", 1),
                     stubConsent("privacy_policy", 1),
                     stubConsent("marketing", 1));
@@ -139,7 +139,7 @@ class ConsentAppServiceTest {
 
         @Test
         void returnsConsentByType() {
-            UserConsentPo consent = stubConsent("marketing", 1);
+            UserConsent consent = stubConsent("marketing", 1);
             when(consentRepository.findByUserIdAndConsentType(USER_ID, "marketing"))
                     .thenReturn(List.of(consent));
 
@@ -184,8 +184,8 @@ class ConsentAppServiceTest {
 
     // ========== helpers ==========
 
-    private UserConsentPo stubConsent(String consentType, int status) {
-        UserConsentPo consent = new UserConsentPo();
+    private UserConsent stubConsent(String consentType, int status) {
+        UserConsent consent = new UserConsent();
         consent.setConsentId("consent-" + consentType + "-" + status);
         consent.setUserId(USER_ID);
         consent.setConsentType(consentType);
@@ -193,7 +193,6 @@ class ConsentAppServiceTest {
         consent.setPolicyVersion("v1.0");
         consent.setSourceChannel("app");
         consent.setClientType("mobile");
-        consent.setRowValid(1);
         return consent;
     }
 }

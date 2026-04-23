@@ -6,7 +6,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 import org.mapstruct.factory.Mappers;
 
-@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
+@Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface RiskEventPoConverter {
     RiskEventPoConverter INSTANCE = Mappers.getMapper(RiskEventPoConverter.class);
     RiskEvent toDomain(RiskEventPo po);

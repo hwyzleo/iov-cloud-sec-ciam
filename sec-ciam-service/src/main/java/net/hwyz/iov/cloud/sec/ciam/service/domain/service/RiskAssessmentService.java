@@ -5,8 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.DecisionResult;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.RiskLevel;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.model.RiskEvent;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.RiskEventRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.RiskEventPo;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -63,24 +63,21 @@ public class RiskAssessmentService {
         String riskEventId = UUID.randomUUID().toString();
         Instant now = DateTimeUtil.getNowInstant();
 
-        RiskEventPo event = new RiskEventPo();
-        event.setRiskEventId(riskEventId);
-        event.setUserId(userId);
-        event.setDeviceId(deviceId);
-        event.setRiskScene("login");
-        event.setRiskType(hitRules.isEmpty() ? "normal" : String.join(",", hitRules));
-        event.setRiskLevel(riskLevel.getCode());
-        event.setClientType(clientType);
-        event.setIpAddress(ipAddress);
-        event.setRegionCode(regionCode);
-        event.setDecisionResult(decision.getCode());
-        event.setHitRules(hitRules.isEmpty() ? null : String.join(",", hitRules));
-        event.setEventTime(now);
-        event.setHandledFlag(0);
-        event.setRowVersion(1);
-        event.setRowValid(1);
-        event.setCreateTime(now);
-        event.setModifyTime(now);
+        RiskEvent event = RiskEvent.builder()
+                .riskEventId(riskEventId)
+                .userId(userId)
+                .deviceId(deviceId)
+                .riskScene("login")
+                .riskType(hitRules.isEmpty() ? "normal" : String.join(",", hitRules))
+                .riskLevel(riskLevel.getCode())
+                .clientType(clientType)
+                .ipAddress(ipAddress)
+                .regionCode(regionCode)
+                .decisionResult(decision.getCode())
+                .hitRules(hitRules.isEmpty() ? null : String.join(",", hitRules))
+                .eventTime(now)
+                .handledFlag(0)
+                .build();
         riskEventRepository.insert(event);
 
         log.info("登录风险评估完成: userId={}, riskLevel={}, decision={}, hitRules={}",

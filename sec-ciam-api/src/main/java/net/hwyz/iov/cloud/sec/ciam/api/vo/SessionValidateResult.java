@@ -22,4 +22,7 @@ public class SessionValidateResult {
 
     /** 用户业务唯一标识 */
     private String userId;
+
+    /** 客户端业务唯一标识 */
+    private String clientId;
 }

@@ -11,9 +11,9 @@ import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.CredentialType;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.RefreshTokenRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.SessionRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.UserCredentialRepository;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.model.UserCredential;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.service.CredentialDomainService;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.service.PasswordPolicyService;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.UserCredentialPo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -65,17 +65,16 @@ class PasswordChangeAppServiceTest {
                 credentialDomainService, sessionRepository, refreshTokenRepository, auditLogger);
     }
 
-    private UserCredentialPo stubCredential(String rawPassword) {
-        UserCredentialPo cred = new UserCredentialPo();
-        cred.setCredentialId("cred-001");
-        cred.setUserId(USER_ID);
-        cred.setCredentialType(CredentialType.EMAIL_PASSWORD.getCode());
-        cred.setCredentialHash(passwordEncoder.encode(rawPassword));
-        cred.setHashAlgorithm(PasswordEncoder.ALGORITHM);
-        cred.setFailCount(0);
-        cred.setCredentialStatus(CredentialStatus.VALID.getCode());
-        cred.setRowValid(1);
-        return cred;
+    private UserCredential stubCredential(String rawPassword) {
+        return UserCredential.builder()
+                .credentialId("cred-001")
+                .userId(USER_ID)
+                .credentialType(CredentialType.EMAIL_PASSWORD.getCode())
+                .credentialHash(passwordEncoder.encode(rawPassword))
+                .hashAlgorithm(PasswordEncoder.ALGORITHM)
+                .failCount(0)
+                .credentialStatus(CredentialStatus.VALID.getCode())
+                .build();
     }
 
     @Nested
@@ -89,7 +88,7 @@ class PasswordChangeAppServiceTest {
             service.changePasswordAndInvalidateSessions(USER_ID, OLD_PASSWORD, NEW_PASSWORD);
 
             // Verify password was updated
-            verify(credentialRepository).updateByCredentialId(any(UserCredentialPo.class));
+            verify(credentialRepository).updateByCredentialId(any(UserCredential.class));
             // Verify all sessions invalidated
             verify(sessionRepository).invalidateAllByUserId(USER_ID);
             // Verify all refresh tokens revoked
@@ -144,7 +143,7 @@ class PasswordChangeAppServiceTest {
             service.resetPasswordAndInvalidateSessions(USER_ID, NEW_PASSWORD);
 
             // Verify password was updated
-            verify(credentialRepository).updateByCredentialId(any(UserCredentialPo.class));
+            verify(credentialRepository).updateByCredentialId(any(UserCredential.class));
             // Verify all sessions invalidated
             verify(sessionRepository).invalidateAllByUserId(USER_ID);
             // Verify all refresh tokens revoked

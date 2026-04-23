@@ -4,13 +4,16 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import lombok.RequiredArgsConstructor;
 import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.model.Jwk;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.JwkRepository;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.converter.JwkPoConverter;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.mapper.CiamJwkMapper;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.JwkPo;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * JWK 密钥表仓储实现。
@@ -22,38 +25,42 @@ public class JwkRepositoryImpl implements JwkRepository {
     private final CiamJwkMapper mapper;
 
     @Override
-    public Optional<JwkPo> findByKeyId(String keyId) {
+    public Optional<Jwk> findByKeyId(String keyId) {
         return Optional.ofNullable(mapper.selectOne(
                 new LambdaQueryWrapper<JwkPo>()
-                        .eq(JwkPo::getKeyId, keyId)));
+                        .eq(JwkPo::getKeyId, keyId)))
+                .map(JwkPoConverter.INSTANCE::toDomain);
     }
 
     @Override
-    public Optional<JwkPo> findPrimary() {
+    public Optional<Jwk> findPrimary() {
         return Optional.ofNullable(mapper.selectOne(
                 new LambdaQueryWrapper<JwkPo>()
                         .eq(JwkPo::getIsPrimary, 1)
                         .eq(JwkPo::getStatus, 1)
                         .orderByDesc(JwkPo::getIssueTime)
-                        .last("LIMIT 1")));
+                        .last("LIMIT 1")))
+                .map(JwkPoConverter.INSTANCE::toDomain);
     }
 
     @Override
-    public List<JwkPo> findAllActive() {
+    public List<Jwk> findAllActive() {
         return mapper.selectList(
                 new LambdaQueryWrapper<JwkPo>()
-                        .eq(JwkPo::getStatus, 1));
+                        .eq(JwkPo::getStatus, 1))
+                .stream()
+                .map(JwkPoConverter.INSTANCE::toDomain)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public int insert(JwkPo entity) {
-        return mapper.insert(entity);
+    public int insert(Jwk entity) {
+        return mapper.insert(JwkPoConverter.INSTANCE.toPo(entity));
     }
 
     @Override
-    public int update(JwkPo entity) {
-        entity.setModifyTime(DateTimeUtil.getNowInstant());
-        return mapper.update(entity,
+    public int update(Jwk entity) {
+        return mapper.update(JwkPoConverter.INSTANCE.toPo(entity),
                 new LambdaUpdateWrapper<JwkPo>()
                         .eq(JwkPo::getKeyId, entity.getKeyId()));
     }
@@ -62,7 +69,6 @@ public class JwkRepositoryImpl implements JwkRepository {
     public int revokePrimary() {
         JwkPo update = new JwkPo();
         update.setIsPrimary(0);
-        update.setModifyTime(DateTimeUtil.getNowInstant());
         return mapper.update(update,
                 new LambdaUpdateWrapper<JwkPo>()
                         .eq(JwkPo::getIsPrimary, 1));

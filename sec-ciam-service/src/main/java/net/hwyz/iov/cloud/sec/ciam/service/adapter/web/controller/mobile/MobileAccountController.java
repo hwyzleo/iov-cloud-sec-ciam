@@ -99,7 +99,7 @@ public class MobileAccountController {
     public ApiResponse<List<SessionVo>> listSessions() {
         String userId = SecurityContextHolder.getUserId();
         List<SessionVo> voList = sessionDomainService.findUserSessions(userId).stream()
-                .map(doObj -> SessionAssembler.INSTANCE.toVo(SessionAssembler.INSTANCE.toDto(SessionAssembler.INSTANCE.toDomain(doObj))))
+                .map(domain -> SessionAssembler.INSTANCE.toVo(SessionAssembler.INSTANCE.toDto(domain)))
                 .collect(Collectors.toList());
         return ApiResponse.ok(voList);
     }
