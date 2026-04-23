@@ -3,6 +3,7 @@ package net.hwyz.iov.cloud.sec.ciam.service.adapter.web.controller.open;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import net.hwyz.iov.cloud.framework.common.bean.ApiResponse;
+import net.hwyz.iov.cloud.framework.web.controller.BaseController;
 import net.hwyz.iov.cloud.sec.ciam.service.common.exception.CiamErrorCode;
 import net.hwyz.iov.cloud.sec.ciam.service.adapter.web.controller.open.vo.*;
 import net.hwyz.iov.cloud.sec.ciam.service.application.service.OAuthAppService;
@@ -21,7 +22,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/open/oauth/v1")
 @RequiredArgsConstructor
-public class OpenOAuthController {
+public class OpenOAuthController extends BaseController {
 
     private final OAuthAppService oAuthAppService;
 

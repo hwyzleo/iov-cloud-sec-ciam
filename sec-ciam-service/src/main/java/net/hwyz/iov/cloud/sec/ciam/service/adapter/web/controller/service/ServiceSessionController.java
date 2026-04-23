@@ -1,6 +1,7 @@
 package net.hwyz.iov.cloud.sec.ciam.service.adapter.web.controller.service;
 
 import lombok.RequiredArgsConstructor;
+import net.hwyz.iov.cloud.framework.web.controller.BaseController;
 import net.hwyz.iov.cloud.sec.ciam.api.service.CiamSessionService;
 import net.hwyz.iov.cloud.sec.ciam.api.vo.SessionValidateResult;
 import net.hwyz.iov.cloud.sec.ciam.service.application.service.SessionAppService;
@@ -14,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/service/session/v1")
 @RequiredArgsConstructor
-public class ServiceSessionController implements CiamSessionService {
+public class ServiceSessionController extends BaseController implements CiamSessionService {
 
     private final SessionAppService sessionAppService;
 

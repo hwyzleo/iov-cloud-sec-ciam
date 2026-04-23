@@ -1,6 +1,7 @@
 package net.hwyz.iov.cloud.sec.ciam.service.adapter.web.controller.service;
 
 import lombok.RequiredArgsConstructor;
+import net.hwyz.iov.cloud.framework.web.controller.BaseController;
 import net.hwyz.iov.cloud.sec.ciam.api.service.CiamTokenService;
 import net.hwyz.iov.cloud.sec.ciam.api.vo.TokenVerifyResult;
 import net.hwyz.iov.cloud.sec.ciam.service.application.service.TokenAppService;
@@ -14,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/service/token/v1")
 @RequiredArgsConstructor
-public class ServiceTokenController implements CiamTokenService {
+public class ServiceTokenController extends BaseController implements CiamTokenService {
 
     private final TokenAppService tokenAppService;
 

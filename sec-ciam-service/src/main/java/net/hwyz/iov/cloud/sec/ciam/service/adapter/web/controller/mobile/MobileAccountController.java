@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import net.hwyz.iov.cloud.framework.common.bean.ApiResponse;
 import net.hwyz.iov.cloud.framework.web.context.SecurityContextHolder;
+import net.hwyz.iov.cloud.framework.web.controller.BaseController;
 import net.hwyz.iov.cloud.sec.ciam.service.adapter.web.vo.*;
 import net.hwyz.iov.cloud.sec.ciam.service.application.service.*;
 import net.hwyz.iov.cloud.sec.ciam.service.application.assembler.*;
@@ -21,7 +22,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/mobile/account/v1")
 @RequiredArgsConstructor
-public class MobileAccountController {
+public class MobileAccountController extends BaseController {
 
     private final UserProfileAppService userProfileAppService;
     private final AccountBindingAppService accountBindingAppService;

@@ -2,6 +2,7 @@ package net.hwyz.iov.cloud.sec.ciam.service.adapter.web.controller.open;
 
 import lombok.RequiredArgsConstructor;
 import net.hwyz.iov.cloud.framework.common.bean.ApiResponse;
+import net.hwyz.iov.cloud.framework.web.controller.BaseController;
 import net.hwyz.iov.cloud.sec.ciam.service.application.service.OAuthAppService;
 import net.hwyz.iov.cloud.sec.ciam.service.application.service.TokenAppService;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.service.OidcDiscoveryDocument;
@@ -19,7 +20,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/open/oidc/v1")
 @RequiredArgsConstructor
-public class OpenOidcController {
+public class OpenOidcController extends BaseController {
 
     private final OAuthAppService oAuthAppService;
     private final TokenAppService tokenAppService;

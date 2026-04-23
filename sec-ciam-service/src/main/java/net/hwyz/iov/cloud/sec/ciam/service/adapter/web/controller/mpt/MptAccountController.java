@@ -15,9 +15,11 @@ import net.hwyz.iov.cloud.sec.ciam.service.application.dto.*;
 import net.hwyz.iov.cloud.sec.ciam.service.application.assembler.DeactivationRequestAssembler;
 import net.hwyz.iov.cloud.sec.ciam.service.application.assembler.MergeRequestAssembler;
 import net.hwyz.iov.cloud.sec.ciam.service.application.assembler.UserIdentityAssembler;
+import net.hwyz.iov.cloud.sec.ciam.service.application.assembler.UserSearchAssembler;
 import net.hwyz.iov.cloud.sec.ciam.service.adapter.web.vo.DeactivationRequestVo;
 import net.hwyz.iov.cloud.sec.ciam.service.adapter.web.vo.MergeRequestVo;
 import net.hwyz.iov.cloud.sec.ciam.service.adapter.web.vo.UserIdentityVo;
+import net.hwyz.iov.cloud.sec.ciam.service.adapter.web.vo.UserSearchResponse;
 import net.hwyz.iov.cloud.sec.ciam.service.application.dto.query.UserQuery;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
@@ -40,11 +42,12 @@ public class MptAccountController extends BaseController {
     private final AccountBindingAppService accountBindingAppService;
     private final StatisticsAppService statisticsAppService;
     private final AdminAccountAppService adminAccountAppService;
+    private final UserSearchAssembler userSearchAssembler;
 
     // ---- 用户查询 ----
 
     @GetMapping("/accounts")
-    public ApiResponse<PageResult<UserSearchDto>> searchUsers(
+    public ApiResponse<PageResult<UserSearchResponse>> searchUsers(
             @RequestParam(required = false) String userId,
             @RequestParam(required = false) String identityType,
             @RequestParam(required = false) String identityValue,
@@ -57,7 +60,7 @@ public class MptAccountController extends BaseController {
         UserQuery query = UserQuery.builder().userId(userId).identityType(identityType).identityValue(identityValue).nickname(nickname).registerSource(registerSource).userStatus(userStatus).startTime(startTime).endTime(endTime).build();
         startPage();
         List<UserSearchDto> list = adminQueryAppService.queryUserList(query);
-        return ApiResponse.ok(getPageResult(list));
+        return ApiResponse.ok(getPageResult(userSearchAssembler.toVoList(list)));
     }
 
     @GetMapping("/merge-requests")

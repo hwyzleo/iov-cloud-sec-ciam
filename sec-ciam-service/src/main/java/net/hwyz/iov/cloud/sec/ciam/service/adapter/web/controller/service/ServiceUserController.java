@@ -1,6 +1,7 @@
 package net.hwyz.iov.cloud.sec.ciam.service.adapter.web.controller.service;
 
 import lombok.RequiredArgsConstructor;
+import net.hwyz.iov.cloud.framework.web.controller.BaseController;
 import net.hwyz.iov.cloud.sec.ciam.api.service.CiamUserService;
 import net.hwyz.iov.cloud.sec.ciam.api.vo.UserBasicInfo;
 import net.hwyz.iov.cloud.sec.ciam.service.application.service.AccountQueryAppService;
@@ -14,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/service/user/v1")
 @RequiredArgsConstructor
-public class ServiceUserController implements CiamUserService {
+public class ServiceUserController extends BaseController implements CiamUserService {
 
     private final AccountQueryAppService accountQueryAppService;
 

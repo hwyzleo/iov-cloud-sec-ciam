@@ -3,6 +3,7 @@ package net.hwyz.iov.cloud.sec.ciam.service.adapter.web.controller.idcm;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import net.hwyz.iov.cloud.framework.common.bean.ApiResponse;
+import net.hwyz.iov.cloud.framework.web.controller.BaseController;
 import net.hwyz.iov.cloud.sec.ciam.service.adapter.web.controller.idcm.vo.PollDeviceTokenRequest;
 import net.hwyz.iov.cloud.sec.ciam.service.adapter.web.controller.idcm.vo.VehicleDeviceAuthorizeRequest;
 import net.hwyz.iov.cloud.sec.ciam.service.application.service.VehicleAuthAppService;
@@ -18,7 +19,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/idcm/auth/v1")
 @RequiredArgsConstructor
-public class IdcmAuthController {
+public class IdcmAuthController extends BaseController {
 
     private final VehicleAuthAppService vehicleAuthAppService;
 
