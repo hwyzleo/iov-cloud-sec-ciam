@@ -1,6 +1,7 @@
 package net.hwyz.iov.cloud.sec.ciam.api.service;
 
-import net.hwyz.iov.cloud.sec.ciam.api.fallback.ServiceSessionApiFallbackFactory;
+import net.hwyz.iov.cloud.framework.common.constant.ServiceNameConstants;
+import net.hwyz.iov.cloud.sec.ciam.api.fallback.CiamSessionServiceFallbackFactory;
 import net.hwyz.iov.cloud.sec.ciam.api.vo.SessionValidateResult;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,9 +12,9 @@ import org.springframework.web.bind.annotation.RequestParam;
  * <p>
  * 外部服务引用 sec-ciam-api 依赖后，通过 OpenFeign 调用此接口完成会话校验。
  */
-@FeignClient(name = "sec-ciam", contextId = "ciamSessionService", path = "/api/v1/service",
-        fallbackFactory = ServiceSessionApiFallbackFactory.class)
-public interface ServiceSessionApi {
+@FeignClient(name = ServiceNameConstants.SEC_CIAM, contextId = "ciamSessionService", path = "/api/service/session/v1",
+        fallbackFactory = CiamSessionServiceFallbackFactory.class)
+public interface CiamSessionService {
 
     /**
      * 校验会话是否有效。

@@ -1,7 +1,7 @@
 package net.hwyz.iov.cloud.sec.ciam.api.fallback;
 
 import lombok.extern.slf4j.Slf4j;
-import net.hwyz.iov.cloud.sec.ciam.api.service.ServiceUserApi;
+import net.hwyz.iov.cloud.sec.ciam.api.service.CiamUserService;
 import org.springframework.cloud.openfeign.FallbackFactory;
 import org.springframework.stereotype.Component;
 
@@ -10,10 +10,10 @@ import org.springframework.stereotype.Component;
  */
 @Slf4j
 @Component
-public class ServiceUserApiFallbackFactory implements FallbackFactory<ServiceUserApi> {
+public class CiamUserServiceFallbackFactory implements FallbackFactory<CiamUserService> {
 
     @Override
-    public ServiceUserApi create(Throwable cause) {
+    public CiamUserService create(Throwable cause) {
         log.warn("[CIAM] CiamUserService 调用失败，进入降级: {}", cause.getMessage());
         return userId -> null;
     }

@@ -6,8 +6,8 @@ import net.hwyz.iov.cloud.sec.ciam.service.common.exception.CiamErrorCode;
 import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
 import net.hwyz.iov.cloud.sec.ciam.service.common.util.UserIdGenerator;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.TagStatus;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.model.UserTag;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.UserTagRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.UserTagPo;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -39,25 +39,22 @@ public class TagDomainService {
      * @param tagSource 标签来源
      * @return 新创建的标签数据对象
      */
-    public UserTagPo addTag(String userId, String tagCode, String tagName, String tagSource) {
+    public UserTag addTag(String userId, String tagCode, String tagName, String tagSource) {
         // 唯一性校验：同一用户同一 tagCode 仅允许一条有效记录
-        Optional<UserTagPo> existing = tagRepository.findByUserIdAndTagCode(userId, tagCode);
+        Optional<UserTag> existing = tagRepository.findByUserIdAndTagCode(userId, tagCode);
         if (existing.isPresent() && existing.get().getTagStatus() == TagStatus.VALID.getCode()) {
             throw new BusinessException(CiamErrorCode.TAG_ALREADY_EXISTS);
         }
 
-        UserTagPo tag = new UserTagPo();
-        tag.setTagId(UserIdGenerator.generate());
-        tag.setUserId(userId);
-        tag.setTagCode(tagCode);
-        tag.setTagName(tagName);
-        tag.setTagStatus(TagStatus.VALID.getCode());
-        tag.setTagSource(tagSource);
-        tag.setEffectiveTime(DateTimeUtil.getNowInstant());
-        tag.setRowVersion(1);
-        tag.setRowValid(1);
-        tag.setCreateTime(DateTimeUtil.getNowInstant());
-        tag.setModifyTime(DateTimeUtil.getNowInstant());
+        UserTag tag = UserTag.builder()
+                .tagId(UserIdGenerator.generate())
+                .userId(userId)
+                .tagCode(tagCode)
+                .tagName(tagName)
+                .tagStatus(TagStatus.VALID.getCode())
+                .tagSource(tagSource)
+                .effectiveTime(DateTimeUtil.getNowInstant())
+                .build();
         tagRepository.insert(tag);
         return tag;
     }
@@ -69,11 +66,10 @@ public class TagDomainService {
      * @param tagCode 标签编码
      */
     public void removeTag(String userId, String tagCode) {
-        UserTagPo tag = tagRepository.findByUserIdAndTagCode(userId, tagCode)
+        UserTag tag = tagRepository.findByUserIdAndTagCode(userId, tagCode)
                 .orElseThrow(() -> new BusinessException(CiamErrorCode.TAG_NOT_FOUND));
         tag.setTagStatus(TagStatus.INVALID.getCode());
         tag.setExpireTime(DateTimeUtil.getNowInstant());
-        tag.setModifyTime(DateTimeUtil.getNowInstant());
         tagRepository.updateByTagId(tag);
     }
 
@@ -83,7 +79,7 @@ public class TagDomainService {
      * @param userId 用户业务唯一标识
      * @return 有效标签列表
      */
-    public List<UserTagPo> getActiveTags(String userId) {
+    public List<UserTag> getActiveTags(String userId) {
         return tagRepository.findByUserId(userId).stream()
                 .filter(t -> t.getTagStatus() == TagStatus.VALID.getCode())
                 .collect(Collectors.toList());
@@ -113,10 +109,9 @@ public class TagDomainService {
         // 校验状态值合法性
         TagStatus.fromCode(newStatus);
 
-        UserTagPo tag = tagRepository.findByUserIdAndTagCode(userId, tagCode)
+        UserTag tag = tagRepository.findByUserIdAndTagCode(userId, tagCode)
                 .orElseThrow(() -> new BusinessException(CiamErrorCode.TAG_NOT_FOUND));
         tag.setTagStatus(newStatus);
-        tag.setModifyTime(DateTimeUtil.getNowInstant());
         if (newStatus == TagStatus.INVALID.getCode()) {
             tag.setExpireTime(DateTimeUtil.getNowInstant());
         }

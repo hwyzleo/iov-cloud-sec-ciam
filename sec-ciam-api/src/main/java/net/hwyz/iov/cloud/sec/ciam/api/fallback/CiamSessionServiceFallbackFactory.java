@@ -1,7 +1,7 @@
 package net.hwyz.iov.cloud.sec.ciam.api.fallback;
 
 import lombok.extern.slf4j.Slf4j;
-import net.hwyz.iov.cloud.sec.ciam.api.service.ServiceSessionApi;
+import net.hwyz.iov.cloud.sec.ciam.api.service.CiamSessionService;
 import net.hwyz.iov.cloud.sec.ciam.api.vo.SessionValidateResult;
 import org.springframework.cloud.openfeign.FallbackFactory;
 import org.springframework.stereotype.Component;
@@ -11,10 +11,10 @@ import org.springframework.stereotype.Component;
  */
 @Slf4j
 @Component
-public class ServiceSessionApiFallbackFactory implements FallbackFactory<ServiceSessionApi> {
+public class CiamSessionServiceFallbackFactory implements FallbackFactory<CiamSessionService> {
 
     @Override
-    public ServiceSessionApi create(Throwable cause) {
+    public CiamSessionService create(Throwable cause) {
         log.warn("[CIAM] CiamSessionService 调用失败，进入降级: {}", cause.getMessage());
         return sessionId -> SessionValidateResult.builder()
                 .valid(false)

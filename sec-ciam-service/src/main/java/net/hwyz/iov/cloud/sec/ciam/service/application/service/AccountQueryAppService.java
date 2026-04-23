@@ -16,10 +16,8 @@ import net.hwyz.iov.cloud.sec.ciam.service.application.dto.query.UserQuery;
 import net.hwyz.iov.cloud.sec.ciam.service.common.exception.CiamErrorCode;
 import net.hwyz.iov.cloud.sec.ciam.service.common.security.FieldEncryptor;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.IdentityType;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.model.User;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.model.UserIdentity;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.model.UserProfile;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.model.UserSearchCriteria;
+import net.hwyz.iov.cloud.sec.ciam.api.vo.UserBasicInfo;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.model.*;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.*;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.search.SearchResult;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.search.SearchService;
@@ -49,6 +47,25 @@ public class AccountQueryAppService {
     private final DeactivationRequestRepository deactivationRequestRepository;
     private final SearchService searchService;
     private final FieldEncryptor fieldEncryptor;
+
+    /**
+     * 获取用户基础信息（含标签）
+     */
+    public UserBasicInfo getUserBasicInfo(String userId) {
+        User user = userRepository.findByUserId(userId)
+                .orElseThrow(() -> new BusinessException(CiamErrorCode.USER_NOT_FOUND));
+
+        List<String> tags = tagRepository.findByUserId(userId).stream()
+                .filter(t -> t.getTagStatus() == 1)
+                .map(UserTag::getTagCode)
+                .toList();
+
+        return UserBasicInfo.builder()
+                .userId(user.getUserId())
+                .userStatus(user.getUserStatus())
+                .tags(tags)
+                .build();
+    }
 
     public UserDetail queryUser(String userId) {
         User user = userRepository.findByUserId(userId)

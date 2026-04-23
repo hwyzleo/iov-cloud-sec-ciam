@@ -3,8 +3,8 @@ package net.hwyz.iov.cloud.sec.ciam.service.domain.service;
 import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
 import net.hwyz.iov.cloud.sec.ciam.service.common.exception.CiamErrorCode;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.TagStatus;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.model.UserTag;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.UserTagRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.UserTagPo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -16,6 +16,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 class TagDomainServiceTest {
@@ -31,16 +32,15 @@ class TagDomainServiceTest {
         service = new TagDomainService(tagRepository);
     }
 
-    private UserTagPo stubTag(String userId, String tagCode, int status) {
-        UserTagPo tag = new UserTagPo();
-        tag.setTagId("tag-001");
-        tag.setUserId(userId);
-        tag.setTagCode(tagCode);
-        tag.setTagName("测试标签");
-        tag.setTagStatus(status);
-        tag.setTagSource("system");
-        tag.setRowValid(1);
-        return tag;
+    private UserTag stubTag(String userId, String tagCode, int status) {
+        return UserTag.builder()
+                .tagId("tag-001")
+                .userId(userId)
+                .tagCode(tagCode)
+                .tagName("测试标签")
+                .tagStatus(status)
+                .tagSource("system")
+                .build();
     }
 
     // ---- addTag ----
@@ -53,7 +53,7 @@ class TagDomainServiceTest {
             when(tagRepository.findByUserIdAndTagCode("u1", "real_name_verified"))
                     .thenReturn(Optional.empty());
 
-            UserTagPo result = service.addTag("u1", "real_name_verified", "已实名", "system");
+            UserTag result = service.addTag("u1", "real_name_verified", "已实名", "system");
 
             assertNotNull(result.getTagId());
             assertEquals(32, result.getTagId().length());
@@ -62,12 +62,8 @@ class TagDomainServiceTest {
             assertEquals("已实名", result.getTagName());
             assertEquals("system", result.getTagSource());
             assertEquals(TagStatus.VALID.getCode(), result.getTagStatus());
-            assertEquals(1, result.getRowValid());
-            assertEquals(1, result.getRowVersion());
-            assertNotNull(result.getCreateTime());
-            assertNotNull(result.getModifyTime());
             assertNotNull(result.getEffectiveTime());
-            verify(tagRepository).insert(any(UserTagPo.class));
+            verify(tagRepository).insert(any(UserTag.class));
         }
 
         @Test
@@ -86,10 +82,10 @@ class TagDomainServiceTest {
             when(tagRepository.findByUserIdAndTagCode("u1", "real_name_verified"))
                     .thenReturn(Optional.of(stubTag("u1", "real_name_verified", TagStatus.INVALID.getCode())));
 
-            UserTagPo result = service.addTag("u1", "real_name_verified", "已实名", "system");
+            UserTag result = service.addTag("u1", "real_name_verified", "已实名", "system");
 
             assertNotNull(result);
-            verify(tagRepository).insert(any(UserTagPo.class));
+            verify(tagRepository).insert(any(UserTag.class));
         }
 
         @Test
@@ -97,8 +93,8 @@ class TagDomainServiceTest {
             when(tagRepository.findByUserIdAndTagCode(anyString(), anyString()))
                     .thenReturn(Optional.empty());
 
-            UserTagPo tag1 = service.addTag("u1", "real_name_verified", "已实名", "system");
-            UserTagPo tag2 = service.addTag("u2", "owner_verified", "已车主认证", "callback");
+            UserTag tag1 = service.addTag("u1", "real_name_verified", "已实名", "system");
+            UserTag tag2 = service.addTag("u2", "owner_verified", "已车主认证", "callback");
 
             assertNotEquals(tag1.getTagId(), tag2.getTagId());
         }
@@ -111,17 +107,16 @@ class TagDomainServiceTest {
 
         @Test
         void removeTag_setsStatusToInvalid() {
-            UserTagPo existing = stubTag("u1", "real_name_verified", TagStatus.VALID.getCode());
+            UserTag existing = stubTag("u1", "real_name_verified", TagStatus.VALID.getCode());
             when(tagRepository.findByUserIdAndTagCode("u1", "real_name_verified"))
                     .thenReturn(Optional.of(existing));
 
             service.removeTag("u1", "real_name_verified");
 
-            ArgumentCaptor<UserTagPo> captor = ArgumentCaptor.forClass(UserTagPo.class);
+            ArgumentCaptor<UserTag> captor = ArgumentCaptor.forClass(UserTag.class);
             verify(tagRepository).updateByTagId(captor.capture());
             assertEquals(TagStatus.INVALID.getCode(), captor.getValue().getTagStatus());
             assertNotNull(captor.getValue().getExpireTime());
-            assertNotNull(captor.getValue().getModifyTime());
         }
 
         @Test
@@ -143,11 +138,11 @@ class TagDomainServiceTest {
 
         @Test
         void getActiveTags_returnsOnlyActiveTags() {
-            UserTagPo active = stubTag("u1", "real_name_verified", TagStatus.VALID.getCode());
-            UserTagPo inactive = stubTag("u1", "owner_verified", TagStatus.INVALID.getCode());
+            UserTag active = stubTag("u1", "real_name_verified", TagStatus.VALID.getCode());
+            UserTag inactive = stubTag("u1", "owner_verified", TagStatus.INVALID.getCode());
             when(tagRepository.findByUserId("u1")).thenReturn(List.of(active, inactive));
 
-            List<UserTagPo> result = service.getActiveTags("u1");
+            List<UserTag> result = service.getActiveTags("u1");
 
             assertEquals(1, result.size());
             assertEquals("real_name_verified", result.get(0).getTagCode());
@@ -157,7 +152,7 @@ class TagDomainServiceTest {
         void getActiveTags_returnsEmptyListWhenNoTags() {
             when(tagRepository.findByUserId("u1")).thenReturn(Collections.emptyList());
 
-            List<UserTagPo> result = service.getActiveTags("u1");
+            List<UserTag> result = service.getActiveTags("u1");
 
             assertTrue(result.isEmpty());
         }
@@ -200,13 +195,13 @@ class TagDomainServiceTest {
 
         @Test
         void updateTagStatus_updatesStatus() {
-            UserTagPo existing = stubTag("u1", "owner_verified", TagStatus.VALID.getCode());
+            UserTag existing = stubTag("u1", "owner_verified", TagStatus.VALID.getCode());
             when(tagRepository.findByUserIdAndTagCode("u1", "owner_verified"))
                     .thenReturn(Optional.of(existing));
 
             service.updateTagStatus("u1", "owner_verified", TagStatus.INVALID.getCode());
 
-            ArgumentCaptor<UserTagPo> captor = ArgumentCaptor.forClass(UserTagPo.class);
+            ArgumentCaptor<UserTag> captor = ArgumentCaptor.forClass(UserTag.class);
             verify(tagRepository).updateByTagId(captor.capture());
             assertEquals(TagStatus.INVALID.getCode(), captor.getValue().getTagStatus());
             assertNotNull(captor.getValue().getExpireTime());
@@ -214,14 +209,14 @@ class TagDomainServiceTest {
 
         @Test
         void updateTagStatus_setsExpireTimeOnlyWhenInvalid() {
-            UserTagPo existing = stubTag("u1", "owner_verified", TagStatus.INVALID.getCode());
+            UserTag existing = stubTag("u1", "owner_verified", TagStatus.INVALID.getCode());
             existing.setExpireTime(null);
             when(tagRepository.findByUserIdAndTagCode("u1", "owner_verified"))
                     .thenReturn(Optional.of(existing));
 
             service.updateTagStatus("u1", "owner_verified", TagStatus.VALID.getCode());
 
-            ArgumentCaptor<UserTagPo> captor = ArgumentCaptor.forClass(UserTagPo.class);
+            ArgumentCaptor<UserTag> captor = ArgumentCaptor.forClass(UserTag.class);
             verify(tagRepository).updateByTagId(captor.capture());
             assertEquals(TagStatus.VALID.getCode(), captor.getValue().getTagStatus());
             assertNull(captor.getValue().getExpireTime());

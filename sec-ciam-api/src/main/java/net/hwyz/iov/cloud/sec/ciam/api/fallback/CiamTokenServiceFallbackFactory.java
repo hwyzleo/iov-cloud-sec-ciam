@@ -1,7 +1,7 @@
 package net.hwyz.iov.cloud.sec.ciam.api.fallback;
 
 import lombok.extern.slf4j.Slf4j;
-import net.hwyz.iov.cloud.sec.ciam.api.service.ServiceTokenApi;
+import net.hwyz.iov.cloud.sec.ciam.api.service.CiamTokenService;
 import org.springframework.cloud.openfeign.FallbackFactory;
 import org.springframework.stereotype.Component;
 
@@ -10,10 +10,10 @@ import org.springframework.stereotype.Component;
  */
 @Slf4j
 @Component
-public class ServiceTokenApiFallbackFactory implements FallbackFactory<ServiceTokenApi> {
+public class CiamTokenServiceFallbackFactory implements FallbackFactory<CiamTokenService> {
 
     @Override
-    public ServiceTokenApi create(Throwable cause) {
+    public CiamTokenService create(Throwable cause) {
         log.warn("[CIAM] CiamTokenService 调用失败，进入降级: {}", cause.getMessage());
         return accessToken -> null;
     }

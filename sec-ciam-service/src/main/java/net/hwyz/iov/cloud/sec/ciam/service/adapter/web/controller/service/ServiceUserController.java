@@ -1,10 +1,9 @@
 package net.hwyz.iov.cloud.sec.ciam.service.adapter.web.controller.service;
 
 import lombok.RequiredArgsConstructor;
-import net.hwyz.iov.cloud.sec.ciam.api.service.ServiceUserApi;
+import net.hwyz.iov.cloud.sec.ciam.api.service.CiamUserService;
 import net.hwyz.iov.cloud.sec.ciam.api.vo.UserBasicInfo;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.service.TagDomainService;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.service.UserDomainService;
+import net.hwyz.iov.cloud.sec.ciam.service.application.service.AccountQueryAppService;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -15,24 +14,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/service/user/v1")
 @RequiredArgsConstructor
-public class ServiceUserController implements ServiceUserApi {
+public class ServiceUserController implements CiamUserService {
 
-    private final UserDomainService userDomainService;
-    private final TagDomainService tagDomainService;
+    private final AccountQueryAppService accountQueryAppService;
 
     @Override
     public UserBasicInfo getUserInfo(@RequestParam("userId") String userId) {
-        var user = userDomainService.findByUserId(userId);
-        if (user.isEmpty()) {
-            return null;
-        }
-        var u = user.get();
-        var tags = tagDomainService.getActiveTags(userId);
-        return UserBasicInfo.builder()
-                .userId(u.getUserId())
-                .userStatus(u.getUserStatus())
-                .nickname(null)
-                .tags(tags.stream().map(t -> t.getTagCode()).toList())
-                .build();
+        return accountQueryAppService.getUserBasicInfo(userId);
     }
 }
+

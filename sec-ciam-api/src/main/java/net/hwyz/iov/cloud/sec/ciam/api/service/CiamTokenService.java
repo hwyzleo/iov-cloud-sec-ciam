@@ -1,6 +1,6 @@
 package net.hwyz.iov.cloud.sec.ciam.api.service;
 
-import net.hwyz.iov.cloud.sec.ciam.api.fallback.ServiceTokenApiFallbackFactory;
+import net.hwyz.iov.cloud.sec.ciam.api.fallback.CiamTokenServiceFallbackFactory;
 import net.hwyz.iov.cloud.sec.ciam.api.vo.TokenVerifyResult;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -11,9 +11,9 @@ import org.springframework.web.bind.annotation.RequestParam;
  * <p>
  * 外部服务引用 sec-ciam-api 依赖后，通过 OpenFeign 调用此接口完成 Token 校验。
  */
-@FeignClient(name = "sec-ciam", contextId = "ciamTokenService", path = "/api/v1/service",
-        fallbackFactory = ServiceTokenApiFallbackFactory.class)
-public interface ServiceTokenApi {
+@FeignClient(name = "sec-ciam", contextId = "ciamTokenService", path = "/api/service/token/v1",
+        fallbackFactory = CiamTokenServiceFallbackFactory.class)
+public interface CiamTokenService {
 
     /**
      * 校验 Access Token 有效性并返回声明信息。

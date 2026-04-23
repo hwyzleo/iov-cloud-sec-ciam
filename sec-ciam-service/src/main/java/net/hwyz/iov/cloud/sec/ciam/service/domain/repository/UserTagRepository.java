@@ -1,6 +1,6 @@
 package net.hwyz.iov.cloud.sec.ciam.service.domain.repository;
 
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.UserTagPo;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.model.UserTag;
 
 import java.util.List;
 import java.util.Optional;
@@ -11,17 +11,17 @@ import java.util.Optional;
 public interface UserTagRepository {
 
     /** 根据用户 ID 和标签编码查询有效标签 */
-    Optional<UserTagPo> findByUserIdAndTagCode(String userId, String tagCode);
+    Optional<UserTag> findByUserIdAndTagCode(String userId, String tagCode);
 
     /** 根据用户 ID 查询所有有效标签 */
-    List<UserTagPo> findByUserId(String userId);
+    List<UserTag> findByUserId(String userId);
 
     /** 根据业务 ID 查询 */
-    Optional<UserTagPo> findByTagId(String tagId);
+    Optional<UserTag> findByTagId(String tagId);
 
     /** 插入标签记录 */
-    int insert(UserTagPo entity);
+    int insert(UserTag entity);
 
     /** 根据业务 ID 更新 */
-    int updateByTagId(UserTagPo entity);
+    int updateByTagId(UserTag entity);
 }
