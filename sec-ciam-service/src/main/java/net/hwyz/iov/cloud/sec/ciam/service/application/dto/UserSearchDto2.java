@@ -5,21 +5,21 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.Instant;
+import java.time.OffsetDateTime;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserIdentityDto {
-    private String identityId;
+public class UserSearchDto2 {
     private String userId;
+    private Integer userStatus;
+    private String registerSource;
+    private String registerChannel;
+    private OffsetDateTime lastLoginTime;
+    private OffsetDateTime createTime;
+    private String nickname;
+    private Integer gender;
     private String identityType;
     private String identityValue;
-    private String countryCode;
-    private Integer verifiedFlag;
-    private Integer primaryFlag;
-    private String bindSource;
-    private Instant bindTime;
-    private Integer identityStatus;
 }

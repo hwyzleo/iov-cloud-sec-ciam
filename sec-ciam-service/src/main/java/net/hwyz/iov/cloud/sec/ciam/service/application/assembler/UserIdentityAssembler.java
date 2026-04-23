@@ -1,7 +1,7 @@
 package net.hwyz.iov.cloud.sec.ciam.service.application.assembler;
 
 import net.hwyz.iov.cloud.sec.ciam.service.adapter.web.vo.UserIdentityVo;
-import net.hwyz.iov.cloud.sec.ciam.service.application.dto.UserIdentityDto;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.UserIdentityDto2;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.model.UserIdentity;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.UserIdentityPo;
 import org.mapstruct.Mapper;
@@ -29,15 +29,15 @@ public interface UserIdentityAssembler {
     /**
      * Domain -> DTO
      */
-    UserIdentityDto toDto(UserIdentity domain);
+    UserIdentityDto2 toDto(UserIdentity domain);
 
     /**
      * DTO -> Domain
      */
-    UserIdentity toEntity(UserIdentityDto dto);
+    UserIdentity toEntity(UserIdentityDto2 dto);
 
     /**
      * DTO -> VO
      */
-    UserIdentityVo toVo(UserIdentityDto dto);
+    UserIdentityVo toVo(UserIdentityDto2 dto);
 }

@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
 import net.hwyz.iov.cloud.framework.common.util.StrUtil;
 import net.hwyz.iov.cloud.sec.ciam.service.application.assembler.UserProfileAssembler;
-import net.hwyz.iov.cloud.sec.ciam.service.application.dto.UserProfileDto;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.UserProfileDto2;
 import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditEvent;
 import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditEventType;
 import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditLogger;
@@ -53,7 +53,7 @@ public class UserProfileAppService {
      * @param userId 用户业务唯一标识
      * @return 用户资料数据对象
      */
-    public UserProfileDto getProfile(String userId) {
+    public UserProfileDto2 getProfile(String userId) {
         UserProfile userProfile = profileRepository.findByUserId(userId)
                 .orElseThrow(() -> new BusinessException(CiamErrorCode.PROFILE_NOT_FOUND));
         if (StrUtil.isBlank(userProfile.getAvatarUrl())) {

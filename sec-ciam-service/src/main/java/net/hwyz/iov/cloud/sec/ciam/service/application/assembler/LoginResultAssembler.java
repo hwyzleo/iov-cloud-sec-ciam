@@ -1,14 +1,14 @@
 package net.hwyz.iov.cloud.sec.ciam.service.application.assembler;
 
 import net.hwyz.iov.cloud.sec.ciam.service.adapter.web.vo.LoginResultResponse;
-import net.hwyz.iov.cloud.sec.ciam.service.application.dto.LoginResultDto;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.LoginResultDto2;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.gateway.CaptchaChallenge;
 import org.springframework.stereotype.Component;
 
 @Component
 public class LoginResultAssembler {
 
-    public LoginResultResponse toVoWithCaptcha(LoginResultDto dto) {
+    public LoginResultResponse toVoWithCaptcha(LoginResultDto2 dto) {
         if (dto == null) {
             return null;
         }

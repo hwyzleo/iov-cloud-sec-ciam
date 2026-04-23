@@ -11,7 +11,7 @@ import java.time.Instant;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class MergeRequestDto {
+public class MergeRequestDto2 {
     private String mergeRequestId;
     private String sourceUserId;
     private String targetUserId;

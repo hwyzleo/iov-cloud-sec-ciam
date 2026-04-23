@@ -11,20 +11,21 @@ import java.time.Instant;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class RiskEventDto {
-    private String riskEventId;
+public class AuditLogDto2 {
+    private String auditId;
     private String userId;
     private String sessionId;
-    private String deviceId;
-    private String riskScene;
-    private String riskType;
-    private Integer riskLevel;
+    private String clientId;
     private String clientType;
+    private String eventType;
+    private String eventName;
+    private Integer operationResult;
+    private String requestUri;
+    private String requestMethod;
+    private String responseCode;
     private String ipAddress;
-    private String regionCode;
-    private String decisionResult;
-    private String hitRules;
-    private Integer handledFlag;
+    private String traceId;
+    private String requestSnapshot;
     private Instant eventTime;
     private String description;
 }

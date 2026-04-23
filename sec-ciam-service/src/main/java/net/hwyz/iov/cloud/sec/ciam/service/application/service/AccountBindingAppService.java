@@ -3,8 +3,8 @@ package net.hwyz.iov.cloud.sec.ciam.service.application.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
-import net.hwyz.iov.cloud.sec.ciam.service.application.dto.MergeRequestDto;
-import net.hwyz.iov.cloud.sec.ciam.service.application.dto.UserIdentityDto;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.MergeRequestDto2;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.UserIdentityDto2;
 import net.hwyz.iov.cloud.sec.ciam.service.application.assembler.MergeRequestAssembler;
 import net.hwyz.iov.cloud.sec.ciam.service.application.assembler.UserIdentityAssembler;
 import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditEvent;
@@ -64,9 +64,9 @@ public class AccountBindingAppService {
      * @param bindSource    绑定来源
      * @return 新创建的标识数据对象
      */
-    public UserIdentityDto bindIdentity(String userId, IdentityType identityType,
-                                           String identityValue, String countryCode,
-                                           String bindSource) {
+    public UserIdentityDto2 bindIdentity(String userId, IdentityType identityType,
+                                         String identityValue, String countryCode,
+                                         String bindSource) {
         // 冲突检测：检查标识是否已被其他用户绑定
         Optional<UserIdentity> conflict = identityDomainService.checkConflictDetail(
                 identityType, identityValue, userId);
@@ -127,10 +127,10 @@ public class AccountBindingAppService {
      * @param applySource          申请来源
      * @return 新创建的合并申请记录
      */
-    public MergeRequestDto createMergeRequest(String sourceUserId, String targetUserId,
-                                                 String conflictIdentityType,
-                                                 String conflictIdentityHash,
-                                                 String applySource) {
+    public MergeRequestDto2 createMergeRequest(String sourceUserId, String targetUserId,
+                                               String conflictIdentityType,
+                                               String conflictIdentityHash,
+                                               String applySource) {
         MergeRequest request = new MergeRequest();
         request.setMergeRequestId(UserIdGenerator.generate());
         request.setSourceUserId(sourceUserId);

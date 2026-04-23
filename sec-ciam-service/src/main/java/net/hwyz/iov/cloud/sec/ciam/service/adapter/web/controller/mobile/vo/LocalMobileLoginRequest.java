@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import net.hwyz.iov.cloud.sec.ciam.service.application.dto.DeviceInfoDto;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.DeviceInfoDto2;
 
 @Data
 @Builder
@@ -13,5 +13,5 @@ import net.hwyz.iov.cloud.sec.ciam.service.application.dto.DeviceInfoDto;
 @AllArgsConstructor
 public class LocalMobileLoginRequest {
     @NotBlank private String token;
-    private DeviceInfoDto deviceInfo;
+    private DeviceInfoDto2 deviceInfo;
 }

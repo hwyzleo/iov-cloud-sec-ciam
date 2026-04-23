@@ -1,7 +1,7 @@
 package net.hwyz.iov.cloud.sec.ciam.service.application.assembler;
 
 import net.hwyz.iov.cloud.sec.ciam.service.adapter.web.vo.RiskEventVo;
-import net.hwyz.iov.cloud.sec.ciam.service.application.dto.RiskEventDto;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.RiskEventDto2;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.model.RiskEvent;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.RiskEventPo;
 import org.mapstruct.Mapper;
@@ -29,15 +29,15 @@ public interface RiskEventAssembler {
     /**
      * Domain -> DTO
      */
-    RiskEventDto toDto(RiskEvent domain);
+    RiskEventDto2 toDto(RiskEvent domain);
 
     /**
      * DTO -> Domain
      */
-    RiskEvent toEntity(RiskEventDto dto);
+    RiskEvent toEntity(RiskEventDto2 dto);
 
     /**
      * DTO -> VO
      */
-    RiskEventVo toVo(RiskEventDto dto);
+    RiskEventVo toVo(RiskEventDto2 dto);
 }

@@ -1,7 +1,7 @@
 package net.hwyz.iov.cloud.sec.ciam.service.application.assembler;
 
 import net.hwyz.iov.cloud.sec.ciam.service.adapter.web.vo.UserSearchResponse;
-import net.hwyz.iov.cloud.sec.ciam.service.application.dto.UserSearchDto;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.UserSearchDto2;
 import org.springframework.stereotype.Component;
 
 import java.time.ZoneId;
@@ -10,7 +10,7 @@ import java.util.List;
 @Component
 public class UserSearchAssembler {
 
-    public UserSearchResponse toVo(UserSearchDto dto) {
+    public UserSearchResponse toVo(UserSearchDto2 dto) {
         if (dto == null) {
             return null;
         }
@@ -28,7 +28,7 @@ public class UserSearchAssembler {
                 .build();
     }
 
-    public List<UserSearchResponse> toVoList(List<UserSearchDto> dtoList) {
+    public List<UserSearchResponse> toVoList(List<UserSearchDto2> dtoList) {
         if (dtoList == null) {
             return null;
         }

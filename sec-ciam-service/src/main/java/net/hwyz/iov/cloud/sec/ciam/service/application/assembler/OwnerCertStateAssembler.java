@@ -1,7 +1,7 @@
 package net.hwyz.iov.cloud.sec.ciam.service.application.assembler;
 
 import net.hwyz.iov.cloud.sec.ciam.service.adapter.web.vo.OwnerCertStateVo;
-import net.hwyz.iov.cloud.sec.ciam.service.application.dto.OwnerCertStateDto;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.OwnerCertStateDto2;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.model.OwnerCertState;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
@@ -18,15 +18,15 @@ public interface OwnerCertStateAssembler {
     /**
      * Domain -> DTO
      */
-    OwnerCertStateDto toDto(OwnerCertState domain);
+    OwnerCertStateDto2 toDto(OwnerCertState domain);
 
     /**
      * DTO -> VO
      */
-    OwnerCertStateVo toVo(OwnerCertStateDto dto);
+    OwnerCertStateVo toVo(OwnerCertStateDto2 dto);
 
     /**
      * DTO -> Domain
      */
-    OwnerCertState toDomain(OwnerCertStateDto dto);
+    OwnerCertState toDomain(OwnerCertStateDto2 dto);
 }

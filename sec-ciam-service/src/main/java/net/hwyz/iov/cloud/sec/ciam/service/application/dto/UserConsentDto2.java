@@ -11,14 +11,13 @@ import java.time.Instant;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserDto {
+public class UserConsentDto2 {
+    private String consentId;
     private String userId;
-    private Integer userStatus;
-    private String brandCode;
-    private String registerSource;
-    private String registerChannel;
-    private String primaryIdentityType;
-    private Instant lastLoginTime;
-    private Instant deactivatedTime;
+    private String consentType;
+    private Integer consentStatus;
+    private String consentScope;
+    private Instant consentTime;
+    private Instant withdrawTime;
     private String description;
 }

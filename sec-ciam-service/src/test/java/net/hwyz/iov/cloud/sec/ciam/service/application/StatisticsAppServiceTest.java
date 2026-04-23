@@ -1,7 +1,7 @@
 package net.hwyz.iov.cloud.sec.ciam.service.application;
 import net.hwyz.iov.cloud.sec.ciam.service.application.service.*;
 
-import net.hwyz.iov.cloud.sec.ciam.service.application.dto.StatisticsResultDto;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.StatisticsResultDto2;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -35,7 +35,7 @@ class StatisticsAppServiceTest {
 
         @Test
         void returnsEmptyResultWithTimeRangeAndChannel() {
-            StatisticsResultDto result = service.getRegistrationStats(START, END, "app_store");
+            StatisticsResultDto2 result = service.getRegistrationStats(START, END, "app_store");
 
             assertEquals(0, result.getRegistrationCount());
             assertEquals(0.0, result.getConversionRate());
@@ -45,7 +45,7 @@ class StatisticsAppServiceTest {
 
         @Test
         void supportsNullFilters() {
-            StatisticsResultDto result = service.getRegistrationStats(null, null, null);
+            StatisticsResultDto2 result = service.getRegistrationStats(null, null, null);
 
             assertEquals(0, result.getRegistrationCount());
             assertEquals(0.0, result.getConversionRate());
@@ -59,7 +59,7 @@ class StatisticsAppServiceTest {
 
         @Test
         void returnsEmptyResultWithTimeRangeAndClientType() {
-            StatisticsResultDto result = service.getLoginStats(START, END, "app");
+            StatisticsResultDto2 result = service.getLoginStats(START, END, "app");
 
             assertEquals(0, result.getLoginSuccessCount());
             assertEquals(0, result.getLoginFailureCount());
@@ -68,7 +68,7 @@ class StatisticsAppServiceTest {
 
         @Test
         void supportsNullFilters() {
-            StatisticsResultDto result = service.getLoginStats(null, null, null);
+            StatisticsResultDto2 result = service.getLoginStats(null, null, null);
 
             assertEquals(0, result.getLoginSuccessCount());
             assertEquals(0, result.getLoginFailureCount());
@@ -83,7 +83,7 @@ class StatisticsAppServiceTest {
 
         @Test
         void returnsEmptyDistribution() {
-            StatisticsResultDto result = service.getChannelDistribution(START, END);
+            StatisticsResultDto2 result = service.getChannelDistribution(START, END);
 
             assertNotNull(result.getChannelDistribution());
             assertTrue(result.getChannelDistribution().isEmpty());
@@ -91,7 +91,7 @@ class StatisticsAppServiceTest {
 
         @Test
         void supportsNullTimeRange() {
-            StatisticsResultDto result = service.getChannelDistribution(null, null);
+            StatisticsResultDto2 result = service.getChannelDistribution(null, null);
 
             assertNotNull(result.getChannelDistribution());
             assertEquals(Collections.emptyMap(), result.getChannelDistribution());
@@ -105,7 +105,7 @@ class StatisticsAppServiceTest {
 
         @Test
         void returnsEmptyDistribution() {
-            StatisticsResultDto result = service.getThirdPartyLoginDistribution(START, END);
+            StatisticsResultDto2 result = service.getThirdPartyLoginDistribution(START, END);
 
             assertNotNull(result.getThirdPartyDistribution());
             assertTrue(result.getThirdPartyDistribution().isEmpty());
@@ -113,7 +113,7 @@ class StatisticsAppServiceTest {
 
         @Test
         void supportsNullTimeRange() {
-            StatisticsResultDto result = service.getThirdPartyLoginDistribution(null, null);
+            StatisticsResultDto2 result = service.getThirdPartyLoginDistribution(null, null);
 
             assertNotNull(result.getThirdPartyDistribution());
             assertEquals(Collections.emptyMap(), result.getThirdPartyDistribution());
@@ -127,7 +127,7 @@ class StatisticsAppServiceTest {
 
         @Test
         void emptyResultHasZeroValues() {
-            StatisticsResultDto empty = StatisticsResultDto.empty();
+            StatisticsResultDto2 empty = StatisticsResultDto2.empty();
 
             assertEquals(0, empty.getRegistrationCount());
             assertEquals(0.0, empty.getConversionRate());

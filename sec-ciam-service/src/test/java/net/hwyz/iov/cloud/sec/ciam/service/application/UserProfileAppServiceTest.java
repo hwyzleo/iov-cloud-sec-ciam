@@ -2,7 +2,7 @@ package net.hwyz.iov.cloud.sec.ciam.service.application;
 import net.hwyz.iov.cloud.sec.ciam.service.application.service.*;
 
 import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
-import net.hwyz.iov.cloud.sec.ciam.service.application.dto.UserProfileDto;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.UserProfileDto2;
 import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditEvent;
 import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditLogger;
 import net.hwyz.iov.cloud.sec.ciam.service.common.exception.CiamErrorCode;
@@ -62,7 +62,7 @@ class UserProfileAppServiceTest {
             UserProfile expected = stubProfile();
             when(profileRepository.findByUserId(USER_ID)).thenReturn(Optional.of(expected));
 
-            UserProfileDto result = service.getProfile(USER_ID);
+            UserProfileDto2 result = service.getProfile(USER_ID);
 
             assertEquals(USER_ID, result.getUserId());
             assertEquals("旧昵称", result.getNickname());

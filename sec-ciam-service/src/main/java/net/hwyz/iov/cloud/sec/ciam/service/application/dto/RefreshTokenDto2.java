@@ -11,18 +11,17 @@ import java.time.Instant;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class SessionDto {
-    private String sessionId;
+public class RefreshTokenDto2 {
+    private String refreshTokenId;
     private String userId;
-    private String deviceId;
+    private String sessionId;
     private String clientId;
-    private String clientType;
-    private String loginIp;
-    private String loginRegion;
-    private Integer riskLevel;
-    private Integer sessionStatus;
-    private Instant loginTime;
-    private Instant lastActiveTime;
+    private String tokenFingerprint;
+    private String parentTokenId;
+    private Integer tokenStatus;
+    private Instant issueTime;
+    private Instant usedTime;
+    private Instant revokeTime;
     private Instant expireTime;
     private String description;
 }

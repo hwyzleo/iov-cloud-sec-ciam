@@ -3,7 +3,7 @@ package net.hwyz.iov.cloud.sec.ciam.service.domain.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
-import net.hwyz.iov.cloud.sec.ciam.service.application.dto.DeviceInfoDto;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.DeviceInfoDto2;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.DeviceStatus;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.model.Device;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.DeviceRepository;
@@ -29,7 +29,7 @@ public class DeviceDomainService {
      * @param deviceInfo 设备信息对象
      * @return 设备业务唯一标识
      */
-    public String recordDevice(String userId, String deviceId, DeviceInfoDto deviceInfo) {
+    public String recordDevice(String userId, String deviceId, DeviceInfoDto2 deviceInfo) {
         if (deviceInfo == null || (deviceInfo.getDeviceId() == null && deviceInfo.getDeviceFingerprint() == null)) {
             log.warn("设备信息为空或缺少唯一标识，跳过记录：userId={}", userId);
             return null;

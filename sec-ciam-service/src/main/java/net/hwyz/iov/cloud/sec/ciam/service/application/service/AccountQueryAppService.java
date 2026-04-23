@@ -7,10 +7,10 @@ import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
 import net.hwyz.iov.cloud.framework.web.util.PageUtil;
 import net.hwyz.iov.cloud.sec.ciam.service.application.assembler.MergeRequestAssembler;
 import net.hwyz.iov.cloud.sec.ciam.service.application.assembler.UserIdentityAssembler;
-import net.hwyz.iov.cloud.sec.ciam.service.application.dto.DeactivationRequestDto;
-import net.hwyz.iov.cloud.sec.ciam.service.application.dto.MergeRequestDto;
-import net.hwyz.iov.cloud.sec.ciam.service.application.dto.UserIdentityDto;
-import net.hwyz.iov.cloud.sec.ciam.service.application.dto.UserSearchDto;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.DeactivationRequestDto2;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.MergeRequestDto2;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.UserIdentityDto2;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.UserSearchDto2;
 import net.hwyz.iov.cloud.sec.ciam.service.application.assembler.DeactivationRequestAssembler;
 import net.hwyz.iov.cloud.sec.ciam.service.application.dto.query.UserQuery;
 import net.hwyz.iov.cloud.sec.ciam.service.common.exception.CiamErrorCode;
@@ -116,7 +116,7 @@ public class AccountQueryAppService {
     /**
      * 检索用户列表
      */
-    public List<UserSearchDto> queryUserList(UserQuery query) {
+    public List<UserSearchDto2> queryUserList(UserQuery query) {
         UserSearchCriteria criteria = UserSearchCriteria.builder()
                 .userId(query.getUserId())
                 .identityType(query.getIdentityType())
@@ -131,7 +131,7 @@ public class AccountQueryAppService {
 
         // 使用 PageUtil.convert 确保分页元数据透传
         return PageUtil.convert(userList, user -> {
-            UserSearchDto dto = UserSearchDto.builder()
+            UserSearchDto2 dto = UserSearchDto2.builder()
                     .userId(user.getUserId())
                     .userStatus(user.getUserStatus())
                     .registerSource(user.getRegisterSource())
@@ -162,7 +162,7 @@ public class AccountQueryAppService {
         });
     }
 
-    public List<UserIdentityDto> queryBindingRelations(String userId) {
+    public List<UserIdentityDto2> queryBindingRelations(String userId) {
         userRepository.findByUserId(userId)
                 .orElseThrow(() -> new BusinessException(CiamErrorCode.USER_NOT_FOUND));
         return identityRepository.findByUserId(userId).stream()
@@ -170,11 +170,11 @@ public class AccountQueryAppService {
                 .collect(Collectors.toList());
     }
 
-    public List<MergeRequestDto> queryMergeRequests(int reviewStatus) {
+    public List<MergeRequestDto2> queryMergeRequests(int reviewStatus) {
         return PageUtil.convert(mergeRequestRepository.findByReviewStatus(reviewStatus), MergeRequestAssembler.INSTANCE::toDto);
     }
 
-    public List<DeactivationRequestDto> queryDeactivationRequests(int reviewStatus) {
+    public List<DeactivationRequestDto2> queryDeactivationRequests(int reviewStatus) {
         return PageUtil.convert(deactivationRequestRepository.findByReviewStatus(reviewStatus), DeactivationRequestAssembler.INSTANCE::toDto);
     }
 

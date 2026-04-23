@@ -6,7 +6,7 @@ import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
 import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
 import net.hwyz.iov.cloud.framework.web.util.PageUtil;
 import net.hwyz.iov.cloud.sec.ciam.service.application.assembler.RefreshTokenAssembler;
-import net.hwyz.iov.cloud.sec.ciam.service.application.dto.RefreshTokenDto;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.RefreshTokenDto2;
 import net.hwyz.iov.cloud.sec.ciam.service.application.dto.query.TokenQuery;
 import net.hwyz.iov.cloud.sec.ciam.service.common.exception.CiamErrorCode;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.model.RefreshToken;
@@ -43,19 +43,19 @@ public class TokenQueryAppService {
         return PageUtil.convert(allTokens, this::toTokenSearchResult);
     }
 
-    public RefreshTokenDto queryToken(String refreshTokenId) {
+    public RefreshTokenDto2 queryToken(String refreshTokenId) {
         RefreshToken token = refreshTokenRepository.findByRefreshTokenId(refreshTokenId)
                 .orElseThrow(() -> new BusinessException(CiamErrorCode.TOKEN_INVALID));
         return RefreshTokenAssembler.INSTANCE.toDto(token);
     }
 
-    public List<RefreshTokenDto> queryUserTokens(String userId) {
+    public List<RefreshTokenDto2> queryUserTokens(String userId) {
         return refreshTokenRepository.findByUserId(userId).stream()
                 .map(RefreshTokenAssembler.INSTANCE::toDto)
                 .collect(Collectors.toList());
     }
 
-    public List<RefreshTokenDto> querySessionTokens(String sessionId) {
+    public List<RefreshTokenDto2> querySessionTokens(String sessionId) {
         return refreshTokenRepository.findBySessionId(sessionId).stream()
                 .map(RefreshTokenAssembler.INSTANCE::toDto)
                 .collect(Collectors.toList());

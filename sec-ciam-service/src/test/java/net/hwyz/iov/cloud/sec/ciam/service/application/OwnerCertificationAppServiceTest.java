@@ -1,14 +1,13 @@
 package net.hwyz.iov.cloud.sec.ciam.service.application;
 import net.hwyz.iov.cloud.sec.ciam.service.application.service.*;
 
-import net.hwyz.iov.cloud.sec.ciam.service.application.dto.OwnerCertStateDto;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.OwnerCertStateDto2;
 import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditLogger;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.CertStatus;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.model.OwnerCertState;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.OwnerCertStateRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.UserTagRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.service.TagDomainService;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.UserTagPo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -95,7 +94,7 @@ class OwnerCertificationAppServiceTest {
             OwnerCertState record = stubCertRecord(CertStatus.CERTIFIED.getCode());
             when(certStateRepository.findByUserId(USER_ID)).thenReturn(List.of(record));
 
-            List<OwnerCertStateDto> result = service.queryCertificationStatus(USER_ID);
+            List<OwnerCertStateDto2> result = service.queryCertificationStatus(USER_ID);
 
             assertEquals(1, result.size());
             assertEquals(CertStatus.CERTIFIED.getCode(), result.get(0).getCertStatus());
@@ -105,7 +104,7 @@ class OwnerCertificationAppServiceTest {
         void returnsEmptyListWhenNoRecords() {
             when(certStateRepository.findByUserId(USER_ID)).thenReturn(Collections.emptyList());
 
-            List<OwnerCertStateDto> result = service.queryCertificationStatus(USER_ID);
+            List<OwnerCertStateDto2> result = service.queryCertificationStatus(USER_ID);
 
             assertTrue(result.isEmpty());
         }
@@ -122,7 +121,7 @@ class OwnerCertificationAppServiceTest {
             when(certStateRepository.findByUserIdAndCertStatus(USER_ID,
                     CertStatus.CERTIFYING.getCode())).thenReturn(List.of(pending));
 
-            List<OwnerCertStateDto> result =
+            List<OwnerCertStateDto2> result =
                     service.compensateCertificationStatus(USER_ID);
 
             assertEquals(1, result.size());
@@ -135,7 +134,7 @@ class OwnerCertificationAppServiceTest {
             when(certStateRepository.findByUserIdAndCertStatus(USER_ID,
                     CertStatus.CERTIFYING.getCode())).thenReturn(Collections.emptyList());
 
-            List<OwnerCertStateDto> result =
+            List<OwnerCertStateDto2> result =
                     service.compensateCertificationStatus(USER_ID);
 
             assertTrue(result.isEmpty());

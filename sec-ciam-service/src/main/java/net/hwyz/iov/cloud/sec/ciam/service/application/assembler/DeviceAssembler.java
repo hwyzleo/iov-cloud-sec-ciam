@@ -1,6 +1,6 @@
 package net.hwyz.iov.cloud.sec.ciam.service.application.assembler;
 
-import net.hwyz.iov.cloud.sec.ciam.service.application.dto.DeviceInfoDto;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.DeviceInfoDto2;
 import net.hwyz.iov.cloud.sec.ciam.service.adapter.web.vo.DeviceVo;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.model.Device;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.DevicePo;
@@ -29,15 +29,15 @@ public interface DeviceAssembler {
     /**
      * Domain -> DTO
      */
-    DeviceInfoDto toDto(Device domain);
+    DeviceInfoDto2 toDto(Device domain);
 
     /**
      * DTO -> Domain
      */
-    Device toEntity(DeviceInfoDto dto);
+    Device toEntity(DeviceInfoDto2 dto);
 
     /**
      * DTO -> VO
      */
-    DeviceVo toVo(DeviceInfoDto dto);
+    DeviceVo toVo(DeviceInfoDto2 dto);
 }

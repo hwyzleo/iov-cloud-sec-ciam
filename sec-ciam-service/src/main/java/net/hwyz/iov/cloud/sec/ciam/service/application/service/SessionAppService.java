@@ -4,8 +4,8 @@ import lombok.RequiredArgsConstructor;
 import net.hwyz.iov.cloud.sec.ciam.api.vo.SessionValidateResult;
 import net.hwyz.iov.cloud.sec.ciam.service.application.assembler.DeviceAssembler;
 import net.hwyz.iov.cloud.sec.ciam.service.application.assembler.SessionAssembler;
-import net.hwyz.iov.cloud.sec.ciam.service.application.dto.DeviceInfoDto;
-import net.hwyz.iov.cloud.sec.ciam.service.application.dto.SessionDto;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.DeviceInfoDto2;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.SessionDto2;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.SessionStatus;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.model.Session;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.service.SessionDomainService;
@@ -27,7 +27,7 @@ public class SessionAppService {
     /**
      * 查询用户活跃会话
      */
-    public List<SessionDto> findUserSessions(String userId) {
+    public List<SessionDto2> findUserSessions(String userId) {
         return sessionDomainService.findUserSessions(userId).stream()
                 .map(SessionAssembler.INSTANCE::toDto)
                 .collect(Collectors.toList());
@@ -36,7 +36,7 @@ public class SessionAppService {
     /**
      * 查询用户活跃设备
      */
-    public List<DeviceInfoDto> findUserDevices(String userId) {
+    public List<DeviceInfoDto2> findUserDevices(String userId) {
         return sessionDomainService.findUserDevices(userId).stream()
                 .map(DeviceAssembler.INSTANCE::toDto)
                 .collect(Collectors.toList());

@@ -5,22 +5,20 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
 import java.time.Instant;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserProfileDto {
+public class DeactivationRequestDto2 {
+    private String deactivationRequestId;
     private String userId;
-    private String nickname;
-    private String avatarUrl;
-    private String realName;
-    private Integer gender;
-    private LocalDate birthday;
-    private String regionCode;
-    private String regionName;
+    private Integer reviewStatus;
+    private String requestReason;
+    private String remark;
+    private Instant requestTime;
+    private Instant reviewTime;
+    private String reviewer;
     private String description;
-    private Instant lastLoginTime;
 }

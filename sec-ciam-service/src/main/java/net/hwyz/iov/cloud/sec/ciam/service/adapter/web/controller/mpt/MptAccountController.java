@@ -10,7 +10,7 @@ import net.hwyz.iov.cloud.sec.ciam.service.application.service.AccountLifecycleA
 import net.hwyz.iov.cloud.sec.ciam.service.application.service.AdminAccountAppService;
 import net.hwyz.iov.cloud.sec.ciam.service.application.service.AccountQueryAppService;
 import net.hwyz.iov.cloud.sec.ciam.service.application.service.StatisticsAppService;
-import net.hwyz.iov.cloud.sec.ciam.service.application.dto.DeactivationRequestDto;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.DeactivationRequestDto2;
 import net.hwyz.iov.cloud.sec.ciam.service.application.dto.*;
 import net.hwyz.iov.cloud.sec.ciam.service.application.assembler.DeactivationRequestAssembler;
 import net.hwyz.iov.cloud.sec.ciam.service.application.assembler.MergeRequestAssembler;
@@ -59,14 +59,14 @@ public class MptAccountController extends BaseController {
         
         UserQuery query = UserQuery.builder().userId(userId).identityType(identityType).identityValue(identityValue).nickname(nickname).registerSource(registerSource).userStatus(userStatus).startTime(startTime).endTime(endTime).build();
         startPage();
-        List<UserSearchDto> list = adminQueryAppService.queryUserList(query);
+        List<UserSearchDto2> list = adminQueryAppService.queryUserList(query);
         return ApiResponse.ok(getPageResult(userSearchAssembler.toVoList(list)));
     }
 
     @GetMapping("/merge-requests")
     public ApiResponse<PageResult<MergeRequestVo>> listMergeRequests(@RequestParam(required = false, defaultValue = "0") int reviewStatus) {
         startPage();
-        List<MergeRequestDto> list = adminQueryAppService.queryMergeRequests(reviewStatus);
+        List<MergeRequestDto2> list = adminQueryAppService.queryMergeRequests(reviewStatus);
         List<MergeRequestVo> voList = list.stream().map(MergeRequestAssembler.INSTANCE::toVo).collect(Collectors.toList());
         return ApiResponse.ok(getPageResult(voList));
     }
@@ -74,7 +74,7 @@ public class MptAccountController extends BaseController {
     @GetMapping("/deactivation-requests")
     public ApiResponse<PageResult<DeactivationRequestVo>> listDeactivationRequests(@RequestParam(required = false, defaultValue = "0") int reviewStatus) {
         startPage();
-        List<DeactivationRequestDto> list = adminQueryAppService.queryDeactivationRequests(reviewStatus);
+        List<DeactivationRequestDto2> list = adminQueryAppService.queryDeactivationRequests(reviewStatus);
         List<DeactivationRequestVo> voList = list.stream().map(DeactivationRequestAssembler.INSTANCE::toVo).collect(Collectors.toList());
         return ApiResponse.ok(getPageResult(voList));
     }

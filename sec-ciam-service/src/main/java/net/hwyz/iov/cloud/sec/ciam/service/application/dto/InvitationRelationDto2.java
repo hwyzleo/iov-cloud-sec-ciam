@@ -14,7 +14,7 @@ import java.time.Instant;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class InvitationRelationDto {
+public class InvitationRelationDto2 {
     private String relationId;
     private String inviterUserId;
     private String inviteeUserId;

@@ -7,7 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import net.hwyz.iov.cloud.sec.ciam.service.application.dto.DeviceInfoDto;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.DeviceInfoDto2;
 
 @Data
 @Builder
@@ -23,5 +23,5 @@ public class LoginByMobileCodeCmd {
     private String deviceId;
     @Valid
     @NotNull(message = "设备信息不能为空")
-    private DeviceInfoDto deviceInfo;
+    private DeviceInfoDto2 deviceInfo;
 }
