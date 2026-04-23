@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
 import net.hwyz.iov.cloud.sec.ciam.service.application.assembler.InvitationRelationAssembler;
-import net.hwyz.iov.cloud.sec.ciam.service.application.dto.InvitationRelationDto2;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.InvitationRelationDto;
 import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditEvent;
 import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditEventType;
 import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditLogger;
@@ -49,11 +49,11 @@ public class InvitationRelationAppService {
      * @param channelName       渠道名称（可为 null）
      * @return 创建的邀请关系记录，若跳过则返回 null
      */
-    public InvitationRelationDto2 recordInvitation(String userId,
-                                                   String inviterUserId,
-                                                   String invitationCode,
-                                                   String channelCode,
-                                                   String channelName) {
+    public InvitationRelationDto recordInvitation(String userId,
+                                                  String inviterUserId,
+                                                  String invitationCode,
+                                                  String channelCode,
+                                                  String channelName) {
         if (userId == null || userId.isBlank()) {
             throw new BusinessException(CiamErrorCode.INVALID_PARAM, "userId 不能为空");
         }
@@ -98,7 +98,7 @@ public class InvitationRelationAppService {
      * @param userId 被邀请人用户 ID
      * @return 邀请关系记录（可能为空）
      */
-    public Optional<InvitationRelationDto2> getInvitationRelation(String userId) {
+    public Optional<InvitationRelationDto> getInvitationRelation(String userId) {
         if (userId == null || userId.isBlank()) {
             throw new BusinessException(CiamErrorCode.INVALID_PARAM, "userId 不能为空");
         }

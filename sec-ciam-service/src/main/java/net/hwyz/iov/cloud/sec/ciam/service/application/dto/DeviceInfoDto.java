@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class DeviceInfoDto2 {
+public class DeviceInfoDto {
     private String clientType;
     private String clientId;
     private String appVersion;

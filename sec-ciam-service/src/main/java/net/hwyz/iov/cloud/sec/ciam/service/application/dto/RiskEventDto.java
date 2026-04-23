@@ -11,18 +11,20 @@ import java.time.Instant;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class SessionDto2 {
-    private String sessionId;
+public class RiskEventDto {
+    private String riskEventId;
     private String userId;
+    private String sessionId;
     private String deviceId;
-    private String clientId;
-    private String clientType;
-    private String loginIp;
-    private String loginRegion;
+    private String riskScene;
+    private String riskType;
     private Integer riskLevel;
-    private Integer sessionStatus;
-    private Instant loginTime;
-    private Instant lastActiveTime;
-    private Instant expireTime;
+    private String clientType;
+    private String ipAddress;
+    private String regionCode;
+    private String decisionResult;
+    private String hitRules;
+    private Integer handledFlag;
+    private Instant eventTime;
     private String description;
 }

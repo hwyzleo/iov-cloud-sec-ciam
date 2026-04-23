@@ -1,7 +1,7 @@
 package net.hwyz.iov.cloud.sec.ciam.service.application;
 
 import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
-import net.hwyz.iov.cloud.sec.ciam.service.application.dto.InvitationRelationDto2;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.InvitationRelationDto;
 import net.hwyz.iov.cloud.sec.ciam.service.application.service.InvitationRelationAppService;
 import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditEvent;
 import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditLogger;
@@ -55,7 +55,7 @@ class InvitationRelationAppServiceTest {
             when(invitationRelationRepository.findByInviteeUserId(USER_ID))
                     .thenReturn(Optional.empty());
 
-            InvitationRelationDto2 result = service.recordInvitation(
+            InvitationRelationDto result = service.recordInvitation(
                     USER_ID, INVITER_USER_ID, INVITATION_CODE, CHANNEL_CODE, CHANNEL_NAME);
 
             assertNotNull(result);
@@ -99,7 +99,7 @@ class InvitationRelationAppServiceTest {
 
         @Test
         void skipsWhenAllInvitationFieldsAreNull() {
-            InvitationRelationDto2 result = service.recordInvitation(
+            InvitationRelationDto result = service.recordInvitation(
                     USER_ID, null, null, null, null);
 
             assertNull(result);
@@ -110,7 +110,7 @@ class InvitationRelationAppServiceTest {
 
         @Test
         void skipsWhenAllInvitationFieldsAreBlank() {
-            InvitationRelationDto2 result = service.recordInvitation(
+            InvitationRelationDto result = service.recordInvitation(
                     USER_ID, "", "  ", "", "  ");
 
             assertNull(result);
@@ -123,7 +123,7 @@ class InvitationRelationAppServiceTest {
             when(invitationRelationRepository.findByInviteeUserId(USER_ID))
                     .thenReturn(Optional.empty());
 
-            InvitationRelationDto2 result = service.recordInvitation(
+            InvitationRelationDto result = service.recordInvitation(
                     USER_ID, null, null, CHANNEL_CODE, null);
 
             assertNotNull(result);
@@ -170,7 +170,7 @@ class InvitationRelationAppServiceTest {
             when(invitationRelationRepository.findByInviteeUserId(USER_ID))
                     .thenReturn(Optional.of(existing));
 
-            Optional<InvitationRelationDto2> result = service.getInvitationRelation(USER_ID);
+            Optional<InvitationRelationDto> result = service.getInvitationRelation(USER_ID);
 
             assertTrue(result.isPresent());
             assertEquals("rel-001", result.get().getRelationId());
@@ -182,7 +182,7 @@ class InvitationRelationAppServiceTest {
             when(invitationRelationRepository.findByInviteeUserId(USER_ID))
                     .thenReturn(Optional.empty());
 
-            Optional<InvitationRelationDto2> result = service.getInvitationRelation(USER_ID);
+            Optional<InvitationRelationDto> result = service.getInvitationRelation(USER_ID);
 
             assertTrue(result.isEmpty());
         }

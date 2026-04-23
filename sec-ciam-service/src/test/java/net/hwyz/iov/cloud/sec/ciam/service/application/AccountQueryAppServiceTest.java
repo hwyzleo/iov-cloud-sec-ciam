@@ -1,7 +1,7 @@
 package net.hwyz.iov.cloud.sec.ciam.service.application;
 
-import net.hwyz.iov.cloud.sec.ciam.service.application.dto.MergeRequestDto2;
-import net.hwyz.iov.cloud.sec.ciam.service.application.dto.UserSearchDto2;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.MergeRequestDto;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.UserSearchDto;
 import net.hwyz.iov.cloud.sec.ciam.service.application.service.AccountQueryAppService;
 import net.hwyz.iov.cloud.sec.ciam.service.common.security.FieldEncryptor;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.UserStatus;
@@ -74,7 +74,7 @@ class AccountQueryAppServiceTest {
         when(identityRepository.findByUserId(USER_ID)).thenReturn(List.of(stubIdentity()));
         when(profileRepository.findByUserId(USER_ID)).thenReturn(Optional.empty());
 
-        List<UserSearchDto2> result = service.queryUserList(UserQuery.builder().build());
+        List<UserSearchDto> result = service.queryUserList(UserQuery.builder().build());
         assertFalse(result.isEmpty());
         assertEquals(USER_ID, result.get(0).getUserId());
     }
@@ -83,7 +83,7 @@ class AccountQueryAppServiceTest {
     void queryMergeRequests_successfully() {
         MergeRequest request = MergeRequest.builder().mergeRequestId("m1").build();
         when(mergeRequestRepository.findByReviewStatus(anyInt())).thenReturn(List.of(request));
-        List<MergeRequestDto2> result = service.queryMergeRequests(0);
+        List<MergeRequestDto> result = service.queryMergeRequests(0);
         assertEquals(1, result.size());
     }
 }

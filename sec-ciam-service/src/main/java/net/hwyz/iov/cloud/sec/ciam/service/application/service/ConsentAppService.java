@@ -3,7 +3,7 @@ package net.hwyz.iov.cloud.sec.ciam.service.application.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
-import net.hwyz.iov.cloud.sec.ciam.service.application.dto.UserConsentDto2;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.UserConsentDto;
 import net.hwyz.iov.cloud.sec.ciam.service.application.assembler.UserConsentAssembler;
 import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditEvent;
 import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditEventType;
@@ -57,12 +57,12 @@ public class ConsentAppService {
      * @param operateIp     操作 IP
      * @return 创建的同意记录
      */
-    public UserConsentDto2 grantConsent(String userId,
-                                        String consentType,
-                                        String policyVersion,
-                                        String sourceChannel,
-                                        String clientType,
-                                        String operateIp) {
+    public UserConsentDto grantConsent(String userId,
+                                       String consentType,
+                                       String policyVersion,
+                                       String sourceChannel,
+                                       String clientType,
+                                       String operateIp) {
         validateUserId(userId);
         validateConsentType(consentType);
 
@@ -129,7 +129,7 @@ public class ConsentAppService {
      * @param userId 用户 ID
      * @return 同意记录列表
      */
-    public List<UserConsentDto2> getConsentRecords(String userId) {
+    public List<UserConsentDto> getConsentRecords(String userId) {
         validateUserId(userId);
         return consentRepository.findByUserId(userId).stream()
                 .map(UserConsentAssembler.INSTANCE::toDto)
@@ -143,7 +143,7 @@ public class ConsentAppService {
      * @param consentType 同意类型
      * @return 同意记录列表
      */
-    public List<UserConsentDto2> getConsentByType(String userId, String consentType) {
+    public List<UserConsentDto> getConsentByType(String userId, String consentType) {
         validateUserId(userId);
         validateConsentType(consentType);
         return consentRepository.findByUserIdAndConsentType(userId, consentType).stream()

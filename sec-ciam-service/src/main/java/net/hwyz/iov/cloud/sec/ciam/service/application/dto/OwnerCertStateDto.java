@@ -14,7 +14,7 @@ import java.time.Instant;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class OwnerCertStateDto2 {
+public class OwnerCertStateDto {
     private String ownerCertId;
     private String userId;
     private String vehicleId;

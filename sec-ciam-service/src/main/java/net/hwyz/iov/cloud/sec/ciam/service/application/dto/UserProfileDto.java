@@ -12,7 +12,7 @@ import java.time.Instant;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserProfileDto2 {
+public class UserProfileDto {
     private String userId;
     private String nickname;
     private String avatarUrl;

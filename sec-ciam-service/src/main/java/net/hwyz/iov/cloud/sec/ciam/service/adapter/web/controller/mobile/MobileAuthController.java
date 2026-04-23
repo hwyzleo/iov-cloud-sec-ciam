@@ -9,8 +9,8 @@ import net.hwyz.iov.cloud.framework.web.controller.BaseController;
 import net.hwyz.iov.cloud.sec.ciam.service.adapter.web.controller.mobile.vo.*;
 import net.hwyz.iov.cloud.sec.ciam.service.adapter.web.vo.LoginResultResponse;
 import net.hwyz.iov.cloud.sec.ciam.service.application.assembler.LoginResultAssembler;
-import net.hwyz.iov.cloud.sec.ciam.service.application.dto.DeviceInfoDto2;
-import net.hwyz.iov.cloud.sec.ciam.service.application.dto.LoginResultDto2;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.DeviceInfoDto;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.LoginResultDto;
 import net.hwyz.iov.cloud.sec.ciam.service.application.dto.cmd.LoginByMobileCodeCmd;
 import net.hwyz.iov.cloud.sec.ciam.service.application.service.AuthenticationAppService;
 import org.springframework.web.bind.annotation.*;
@@ -51,13 +51,13 @@ public class MobileAuthController extends BaseController {
             @RequestHeader(CustomHeaders.PLATFORM) String platform,
             @RequestHeader(CustomHeaders.APP_VERSION) String appVersion,
             @RequestBody @Valid MobileLoginRequest req) {
-        DeviceInfoDto2 deviceInfo = req.getDeviceInfo();
+        DeviceInfoDto deviceInfo = req.getDeviceInfo();
         deviceInfo.setDeviceId(deviceId);
         deviceInfo.setClientId(clientId);
         deviceInfo.setClientType(clientType);
         deviceInfo.setDeviceOs(platform);
         deviceInfo.setAppVersion(appVersion);
-        LoginResultDto2 result = authenticationAppService.loginByMobileCode(LoginByMobileCodeCmd.builder()
+        LoginResultDto result = authenticationAppService.loginByMobileCode(LoginByMobileCodeCmd.builder()
                 .mobile(req.getMobile())
                 .countryCode(req.getCountryCode())
                 .code(req.getCode())
@@ -71,7 +71,7 @@ public class MobileAuthController extends BaseController {
     public ApiResponse<LoginResultResponse> loginByEmailPassword(
             @RequestHeader(CustomHeaders.CLIENT_ID) String clientId,
             @RequestBody @Valid EmailPasswordLoginRequest req) {
-        LoginResultDto2 result = authenticationAppService.loginByEmailPassword(
+        LoginResultDto result = authenticationAppService.loginByEmailPassword(
                 req.getEmail(), req.getPassword(), clientId, req.getCaptchaId(), req.getCaptchaAnswer());
         return ApiResponse.ok(loginResultAssembler.toVoWithCaptcha(result));
     }
@@ -80,7 +80,7 @@ public class MobileAuthController extends BaseController {
     public ApiResponse<LoginResultResponse> loginByEmailCode(
             @RequestHeader(CustomHeaders.CLIENT_ID) String clientId,
             @RequestBody @Valid EmailCodeLoginRequest req) {
-        LoginResultDto2 result = authenticationAppService.loginByEmailCode(req.getEmail(), req.getCode(), clientId);
+        LoginResultDto result = authenticationAppService.loginByEmailCode(req.getEmail(), req.getCode(), clientId);
         return ApiResponse.ok(loginResultAssembler.toVoWithCaptcha(result));
     }
 
@@ -88,7 +88,7 @@ public class MobileAuthController extends BaseController {
     public ApiResponse<LoginResultResponse> loginByWechat(
             @RequestHeader(CustomHeaders.CLIENT_ID) String clientId,
             @RequestBody @Valid ThirdPartyLoginRequest req) {
-        LoginResultDto2 result = authenticationAppService.loginByWechat(req.getToken(), clientId);
+        LoginResultDto result = authenticationAppService.loginByWechat(req.getToken(), clientId);
         return ApiResponse.ok(loginResultAssembler.toVoWithCaptcha(result));
     }
 
@@ -96,7 +96,7 @@ public class MobileAuthController extends BaseController {
     public ApiResponse<LoginResultResponse> loginByApple(
             @RequestHeader(CustomHeaders.CLIENT_ID) String clientId,
             @RequestBody @Valid ThirdPartyLoginRequest req) {
-        LoginResultDto2 result = authenticationAppService.loginByApple(req.getToken(), clientId);
+        LoginResultDto result = authenticationAppService.loginByApple(req.getToken(), clientId);
         return ApiResponse.ok(loginResultAssembler.toVoWithCaptcha(result));
     }
 
@@ -104,7 +104,7 @@ public class MobileAuthController extends BaseController {
     public ApiResponse<LoginResultResponse> loginByGoogle(
             @RequestHeader(CustomHeaders.CLIENT_ID) String clientId,
             @RequestBody @Valid ThirdPartyLoginRequest req) {
-        LoginResultDto2 result = authenticationAppService.loginByGoogle(req.getToken(), clientId);
+        LoginResultDto result = authenticationAppService.loginByGoogle(req.getToken(), clientId);
         return ApiResponse.ok(loginResultAssembler.toVoWithCaptcha(result));
     }
 
@@ -112,7 +112,7 @@ public class MobileAuthController extends BaseController {
     public ApiResponse<LoginResultResponse> loginByLocalMobile(
             @RequestHeader(CustomHeaders.CLIENT_ID) String clientId,
             @RequestBody @Valid LocalMobileLoginRequest req) {
-        LoginResultDto2 result = authenticationAppService.loginByLocalMobile(req.getToken(), clientId, req.getDeviceInfo());
+        LoginResultDto result = authenticationAppService.loginByLocalMobile(req.getToken(), clientId, req.getDeviceInfo());
         return ApiResponse.ok(loginResultAssembler.toVoWithCaptcha(result));
     }
 
@@ -128,7 +128,7 @@ public class MobileAuthController extends BaseController {
     public ApiResponse<LoginResultResponse> refreshToken(
             @RequestHeader(CustomHeaders.CLIENT_ID) String clientId,
             @RequestBody @Valid RefreshTokenRequest req) {
-        LoginResultDto2 result = authenticationAppService.refreshToken(req.getRefreshToken(), clientId);
+        LoginResultDto result = authenticationAppService.refreshToken(req.getRefreshToken(), clientId);
         return ApiResponse.ok(loginResultAssembler.toVoWithCaptcha(result));
     }
 

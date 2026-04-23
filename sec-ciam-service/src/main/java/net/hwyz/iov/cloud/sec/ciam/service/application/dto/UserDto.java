@@ -11,14 +11,14 @@ import java.time.Instant;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class DeactivationRequestDto2 {
-    private String deactivationRequestId;
+public class UserDto {
     private String userId;
-    private Integer reviewStatus;
-    private String requestReason;
-    private String remark;
-    private Instant requestTime;
-    private Instant reviewTime;
-    private String reviewer;
+    private Integer userStatus;
+    private String brandCode;
+    private String registerSource;
+    private String registerChannel;
+    private String primaryIdentityType;
+    private Instant lastLoginTime;
+    private Instant deactivatedTime;
     private String description;
 }

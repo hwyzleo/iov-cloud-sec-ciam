@@ -11,7 +11,7 @@ import java.time.OffsetDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserSearchDto2 {
+public class UserSearchDto {
     private String userId;
     private Integer userStatus;
     private String registerSource;

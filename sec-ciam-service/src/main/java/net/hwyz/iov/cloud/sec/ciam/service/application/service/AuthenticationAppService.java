@@ -3,9 +3,9 @@ package net.hwyz.iov.cloud.sec.ciam.service.application.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
-import net.hwyz.iov.cloud.sec.ciam.service.application.dto.DeviceInfoDto2;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.DeviceInfoDto;
 import net.hwyz.iov.cloud.sec.ciam.service.application.dto.cmd.LoginByMobileCodeCmd;
-import net.hwyz.iov.cloud.sec.ciam.service.application.dto.LoginResultDto2;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.LoginResultDto;
 import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditEvent;
 import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditEventType;
 import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditLogger;
@@ -83,12 +83,12 @@ public class AuthenticationAppService {
      * @param cmd 登录命令对象
      * @return 登录结果
      */
-    public LoginResultDto2 loginByMobileCode(LoginByMobileCodeCmd cmd) {
+    public LoginResultDto loginByMobileCode(LoginByMobileCodeCmd cmd) {
         String mobile = cmd.getMobile();
         String countryCode = cmd.getCountryCode();
         String code = cmd.getCode();
         String deviceId = cmd.getDeviceId();
-        DeviceInfoDto2 deviceInfo = cmd.getDeviceInfo();
+        DeviceInfoDto deviceInfo = cmd.getDeviceInfo();
 
         String userKey = FieldEncryptor.hash(mobile);
 
@@ -143,8 +143,8 @@ public class AuthenticationAppService {
      * @param captchaAnswer 图形验证码答案（可为 null）
      * @return 登录结果
      */
-    public LoginResultDto2 loginByEmailPassword(String email, String password, String clientId,
-                                                String captchaId, String captchaAnswer) {
+    public LoginResultDto loginByEmailPassword(String email, String password, String clientId,
+                                               String captchaId, String captchaAnswer) {
         // 1. 查找邮箱标识
         Optional<UserIdentity> identityOpt =
                 identityDomainService.findByTypeAndValue(IdentityType.EMAIL, email);
@@ -189,7 +189,7 @@ public class AuthenticationAppService {
             // 密码错误且需要挑战 → 返回挑战
             CaptchaChallenge challenge = captchaDomainService.createChallenge(userId);
             logAudit(userId, clientId, AuditEventType.LOGIN_FAIL, false);
-            return LoginResultDto2.builder()
+            return LoginResultDto.builder()
                     .challengeRequired(true)
                     .captchaChallenge(challenge)
                     .build();
@@ -209,7 +209,7 @@ public class AuthenticationAppService {
 
         // 7. 登录成功
         logAudit(userId, clientId, AuditEventType.LOGIN_SUCCESS, true);
-        return LoginResultDto2.builder()
+        return LoginResultDto.builder()
                 .userId(userId)
                 .newUser(false)
                 .build();
@@ -223,7 +223,7 @@ public class AuthenticationAppService {
      * @param clientId 客户端标识
      * @return 登录结果
      */
-    public LoginResultDto2 loginByEmailCode(String email, String code, String clientId) {
+    public LoginResultDto loginByEmailCode(String email, String code, String clientId) {
         String userKey = FieldEncryptor.hash(email);
 
         // 1. 校验验证码
@@ -264,7 +264,7 @@ public class AuthenticationAppService {
      * @param clientId 客户端标识
      * @return 登录结果
      */
-    public LoginResultDto2 loginByWechat(String code, String clientId) {
+    public LoginResultDto loginByWechat(String code, String clientId) {
         ThirdPartyUserInfo userInfo = wechatLoginAdapter.getUserInfo(code);
         return handleThirdPartyLogin(userInfo, IdentityType.WECHAT, clientId, "wechat_login");
     }
@@ -279,7 +279,7 @@ public class AuthenticationAppService {
      * @param clientId      客户端标识
      * @return 登录结果
      */
-    public LoginResultDto2 loginByApple(String identityToken, String clientId) {
+    public LoginResultDto loginByApple(String identityToken, String clientId) {
         ThirdPartyUserInfo userInfo = appleLoginAdapter.verifyIdentityToken(identityToken);
         return handleThirdPartyLogin(userInfo, IdentityType.APPLE, clientId, "apple_login");
     }
@@ -294,7 +294,7 @@ public class AuthenticationAppService {
      * @param clientId 客户端标识
      * @return 登录结果
      */
-    public LoginResultDto2 loginByGoogle(String idToken, String clientId) {
+    public LoginResultDto loginByGoogle(String idToken, String clientId) {
         ThirdPartyUserInfo userInfo = googleLoginAdapter.verifyIdToken(idToken);
         return handleThirdPartyLogin(userInfo, IdentityType.GOOGLE, clientId, "google_login");
     }
@@ -311,7 +311,7 @@ public class AuthenticationAppService {
      * @param deviceInfo 设备信息
      * @return 登录结果
      */
-    public LoginResultDto2 loginByLocalMobile(String token, String clientId, DeviceInfoDto2 deviceInfo) {
+    public LoginResultDto loginByLocalMobile(String token, String clientId, DeviceInfoDto deviceInfo) {
         // 1. 调用本机号码认证适配器
         String mobile = localMobileAuthAdapter.verifyToken(token);
 
@@ -319,7 +319,7 @@ public class AuthenticationAppService {
         if (mobile == null) {
             log.info("本机手机号认证不可用，需回退到短信验证码登录: clientId={}", clientId);
             logAudit(null, clientId, AuditEventType.LOGIN_FAIL, false);
-            return LoginResultDto2.builder()
+            return LoginResultDto.builder()
                     .fallbackRequired(true)
                     .build();
         }
@@ -362,7 +362,7 @@ public class AuthenticationAppService {
 
     // ---- 内部方法 ----
 
-    private LoginResultDto2 handleExistingUserLogin(UserIdentity identity, String deviceId, String clientId) {
+    private LoginResultDto handleExistingUserLogin(UserIdentity identity, String deviceId, String clientId) {
         String userId = identity.getUserId();
 
         User user = userRepository.findByUserId(userId)
@@ -385,7 +385,7 @@ public class AuthenticationAppService {
         String refreshToken = refreshTokenDomainService.issueRefreshToken(
                 userId, sessionId, clientId, 7 * 24 * 60 * 60);
 
-        return LoginResultDto2.builder()
+        return LoginResultDto.builder()
                 .userId(userId)
                 .newUser(false)
                 .accessToken(accessToken)
@@ -395,7 +395,7 @@ public class AuthenticationAppService {
                 .build();
     }
 
-    private LoginResultDto2 handleNewUserRegistration(String mobile, String countryCode, String deviceId, DeviceInfoDto2 deviceInfo) {
+    private LoginResultDto handleNewUserRegistration(String mobile, String countryCode, String deviceId, DeviceInfoDto deviceInfo) {
         User user = userDomainService.createUser(RegisterSource.MOBILE, null, null, IdentityType.MOBILE);
         String userId = user.getUserId();
 
@@ -417,7 +417,7 @@ public class AuthenticationAppService {
         String refreshToken = refreshTokenDomainService.issueRefreshToken(
                 userId, sessionId, deviceInfo.getClientId(), 7 * 24 * 60 * 60);
 
-        return LoginResultDto2.builder()
+        return LoginResultDto.builder()
                 .userId(userId)
                 .newUser(true)
                 .accessToken(accessToken)
@@ -427,7 +427,7 @@ public class AuthenticationAppService {
                 .build();
     }
 
-    private LoginResultDto2 handleNewEmailUserRegistration(String email, String clientId) {
+    private LoginResultDto handleNewEmailUserRegistration(String email, String clientId) {
         User user = userDomainService.createUser(RegisterSource.EMAIL, null, null, IdentityType.EMAIL);
         String userId = user.getUserId();
 
@@ -440,14 +440,14 @@ public class AuthenticationAppService {
 
         logAudit(userId, clientId, AuditEventType.REGISTER_SUCCESS, true);
 
-        return LoginResultDto2.builder()
+        return LoginResultDto.builder()
                 .userId(userId)
                 .newUser(true)
                 .sessionId(null)
                 .build();
     }
 
-    private LoginResultDto2 handleNewLocalMobileUserRegistration(String mobile, String clientId, DeviceInfoDto2 deviceInfo) {
+    private LoginResultDto handleNewLocalMobileUserRegistration(String mobile, String clientId, DeviceInfoDto deviceInfo) {
         User user = userDomainService.createUser(RegisterSource.LOCAL_MOBILE, null, null, IdentityType.MOBILE);
         String userId = user.getUserId();
 
@@ -462,7 +462,7 @@ public class AuthenticationAppService {
 
         logAudit(userId, clientId, AuditEventType.REGISTER_SUCCESS, true);
 
-        return LoginResultDto2.builder()
+        return LoginResultDto.builder()
                 .userId(userId)
                 .newUser(true)
                 .sessionId(null)
@@ -485,10 +485,10 @@ public class AuthenticationAppService {
      * @param bindSource 绑定来源
      * @return 登录结果
      */
-    private LoginResultDto2 handleThirdPartyLogin(ThirdPartyUserInfo userInfo,
-                                                  IdentityType type,
-                                                  String clientId,
-                                                  String bindSource) {
+    private LoginResultDto handleThirdPartyLogin(ThirdPartyUserInfo userInfo,
+                                                 IdentityType type,
+                                                 String clientId,
+                                                 String bindSource) {
         String subject = userInfo.getSubject();
 
         // 1. 查找第三方主体标识是否已绑定
@@ -522,7 +522,7 @@ public class AuthenticationAppService {
 
         logAudit(userId, clientId, AuditEventType.REGISTER_SUCCESS, true);
 
-        return LoginResultDto2.builder()
+        return LoginResultDto.builder()
                 .userId(userId)
                 .newUser(true)
                 .sessionId(null)
@@ -536,7 +536,7 @@ public class AuthenticationAppService {
      * @param clientId     客户端标识
      * @return 登录结果（包含新的 access_token 和 refresh_token）
      */
-    public LoginResultDto2 refreshToken(String refreshToken, String clientId) {
+    public LoginResultDto refreshToken(String refreshToken, String clientId) {
         RefreshTokenRotationResult rotationResult = refreshTokenDomainService.rotateRefreshToken(refreshToken, clientId);
 
         int accessTokenTtl = 1800;
@@ -544,7 +544,7 @@ public class AuthenticationAppService {
                 rotationResult.getUserId(), clientId, rotationResult.getScope(),
                 rotationResult.getSessionId(), accessTokenTtl);
 
-        return LoginResultDto2.builder()
+        return LoginResultDto.builder()
                 .userId(rotationResult.getUserId())
                 .accessToken(accessToken)
                 .refreshToken(rotationResult.getNewRefreshToken())

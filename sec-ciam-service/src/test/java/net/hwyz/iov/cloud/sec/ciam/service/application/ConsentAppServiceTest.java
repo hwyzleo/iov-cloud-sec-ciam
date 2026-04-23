@@ -1,7 +1,7 @@
 package net.hwyz.iov.cloud.sec.ciam.service.application;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.UserConsentDto;
 import net.hwyz.iov.cloud.sec.ciam.service.application.service.*;
 
-import net.hwyz.iov.cloud.sec.ciam.service.application.dto.UserConsentDto2;
 import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditEvent;
 import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditLogger;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.model.UserConsent;
@@ -47,7 +47,7 @@ class ConsentAppServiceTest {
 
         @Test
         void grantsUserAgreementConsentSuccessfully() {
-            UserConsentDto2 result = service.grantConsent(
+            UserConsentDto result = service.grantConsent(
                     USER_ID, "user_agreement", "v2.0", "app", "mobile", OPERATE_IP);
 
             assertNotNull(result);
@@ -65,7 +65,7 @@ class ConsentAppServiceTest {
 
         @Test
         void grantsPrivacyPolicyConsentSuccessfully() {
-            UserConsentDto2 result = service.grantConsent(
+            UserConsentDto result = service.grantConsent(
                     USER_ID, "privacy_policy", "v1.5", "web", "browser", OPERATE_IP);
 
             assertNotNull(result);
@@ -75,7 +75,7 @@ class ConsentAppServiceTest {
 
         @Test
         void grantsMarketingConsentSuccessfully() {
-            UserConsentDto2 result = service.grantConsent(
+            UserConsentDto result = service.grantConsent(
                     USER_ID, "marketing", "v1.0", "app", "mobile", OPERATE_IP);
 
             assertNotNull(result);
@@ -116,7 +116,7 @@ class ConsentAppServiceTest {
                     stubConsent("marketing", 1));
             when(consentRepository.findByUserId(USER_ID)).thenReturn(records);
 
-            List<UserConsentDto2> result = service.getConsentRecords(USER_ID);
+            List<UserConsentDto> result = service.getConsentRecords(USER_ID);
 
             assertEquals(3, result.size());
             verify(consentRepository).findByUserId(USER_ID);
@@ -126,7 +126,7 @@ class ConsentAppServiceTest {
         void returnsEmptyListWhenNoRecords() {
             when(consentRepository.findByUserId(USER_ID)).thenReturn(Collections.emptyList());
 
-            List<UserConsentDto2> result = service.getConsentRecords(USER_ID);
+            List<UserConsentDto> result = service.getConsentRecords(USER_ID);
 
             assertTrue(result.isEmpty());
         }
@@ -143,7 +143,7 @@ class ConsentAppServiceTest {
             when(consentRepository.findByUserIdAndConsentType(USER_ID, "marketing"))
                     .thenReturn(List.of(consent));
 
-            List<UserConsentDto2> result = service.getConsentByType(USER_ID, "marketing");
+            List<UserConsentDto> result = service.getConsentByType(USER_ID, "marketing");
 
             assertEquals(1, result.size());
             assertEquals("marketing", result.get(0).getConsentType());

@@ -1,7 +1,7 @@
 package net.hwyz.iov.cloud.sec.ciam.service.application.assembler;
 
 import net.hwyz.iov.cloud.sec.ciam.service.adapter.web.vo.RefreshTokenVo;
-import net.hwyz.iov.cloud.sec.ciam.service.application.dto.RefreshTokenDto2;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.RefreshTokenDto;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.model.RefreshToken;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.RefreshTokenPo;
 import org.mapstruct.Mapper;
@@ -29,15 +29,15 @@ public interface RefreshTokenAssembler {
     /**
      * Domain -> DTO
      */
-    RefreshTokenDto2 toDto(RefreshToken domain);
+    RefreshTokenDto toDto(RefreshToken domain);
 
     /**
      * DTO -> Domain
      */
-    RefreshToken toEntity(RefreshTokenDto2 dto);
+    RefreshToken toEntity(RefreshTokenDto dto);
 
     /**
      * DTO -> VO
      */
-    RefreshTokenVo toVo(RefreshTokenDto2 dto);
+    RefreshTokenVo toVo(RefreshTokenDto dto);
 }

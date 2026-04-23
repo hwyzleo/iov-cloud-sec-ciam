@@ -1,7 +1,7 @@
 package net.hwyz.iov.cloud.sec.ciam.service.application.assembler;
 
 import net.hwyz.iov.cloud.sec.ciam.service.adapter.web.vo.DeactivationRequestVo;
-import net.hwyz.iov.cloud.sec.ciam.service.application.dto.DeactivationRequestDto2;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.DeactivationRequestDto;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.model.DeactivationRequest;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.DeactivationRequestPo;
 import org.mapstruct.Mapper;
@@ -29,15 +29,15 @@ public interface DeactivationRequestAssembler {
     /**
      * Domain -> DTO
      */
-    DeactivationRequestDto2 toDto(DeactivationRequest domain);
+    DeactivationRequestDto toDto(DeactivationRequest domain);
 
     /**
      * DTO -> Domain
      */
-    DeactivationRequest toEntity(DeactivationRequestDto2 dto);
+    DeactivationRequest toEntity(DeactivationRequestDto dto);
 
     /**
      * DTO -> VO
      */
-    DeactivationRequestVo toVo(DeactivationRequestDto2 dto);
+    DeactivationRequestVo toVo(DeactivationRequestDto dto);
 }

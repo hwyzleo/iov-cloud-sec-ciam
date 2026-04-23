@@ -1,6 +1,6 @@
 package net.hwyz.iov.cloud.sec.ciam.service.application.assembler;
 
-import net.hwyz.iov.cloud.sec.ciam.service.application.dto.InvitationRelationDto2;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.InvitationRelationDto;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.model.InvitationRelation;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
@@ -17,10 +17,10 @@ public interface InvitationRelationAssembler {
     /**
      * Domain -> DTO
      */
-    InvitationRelationDto2 toDto(InvitationRelation domain);
+    InvitationRelationDto toDto(InvitationRelation domain);
 
     /**
      * DTO -> Domain
      */
-    InvitationRelation toDomain(InvitationRelationDto2 dto);
+    InvitationRelation toDomain(InvitationRelationDto dto);
 }
