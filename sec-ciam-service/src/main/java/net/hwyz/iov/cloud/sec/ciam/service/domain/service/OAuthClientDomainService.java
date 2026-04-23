@@ -7,8 +7,8 @@ import net.hwyz.iov.cloud.sec.ciam.service.common.security.PasswordEncoder;
 import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.ClientStatus;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.OAuthClientType;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.model.OAuthClient;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.OAuthClientRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.OAuthClientPo;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
@@ -65,22 +65,19 @@ public class OAuthClientDomainService {
             secretHash = passwordEncoder.encode(rawSecret);
         }
 
-        OAuthClientPo entity = new OAuthClientPo();
-        entity.setClientId(clientId);
-        entity.setClientName(clientName);
-        entity.setClientSecretHash(secretHash);
-        entity.setClientType(clientType.getCode());
-        entity.setRedirectUris(redirectUris);
-        entity.setGrantTypes(grantTypes);
-        entity.setScopes(scopes);
-        entity.setPkceRequired(pkceRequired ? 1 : 0);
-        entity.setAccessTokenTtl(accessTokenTtl);
-        entity.setRefreshTokenTtl(refreshTokenTtl);
-        entity.setClientStatus(ClientStatus.ENABLED.getCode());
-        entity.setRowVersion(1);
-        entity.setRowValid(1);
-        entity.setCreateTime(DateTimeUtil.getNowInstant());
-        entity.setModifyTime(DateTimeUtil.getNowInstant());
+        OAuthClient entity = OAuthClient.builder()
+                .clientId(clientId)
+                .clientName(clientName)
+                .clientSecretHash(secretHash)
+                .clientType(clientType.getCode())
+                .redirectUris(redirectUris)
+                .grantTypes(grantTypes)
+                .scopes(scopes)
+                .pkceRequired(pkceRequired ? 1 : 0)
+                .accessTokenTtl(accessTokenTtl)
+                .refreshTokenTtl(refreshTokenTtl)
+                .clientStatus(ClientStatus.ENABLED.getCode())
+                .build();
         clientRepository.insert(entity);
 
         return new ClientRegistrationResult(clientId, rawSecret, clientName);
@@ -92,7 +89,7 @@ public class OAuthClientDomainService {
      * @param clientId 客户端标识
      * @return 客户端记录（如存在）
      */
-    public Optional<OAuthClientPo> findByClientId(String clientId) {
+    public Optional<OAuthClient> findByClientId(String clientId) {
         return clientRepository.findByClientId(clientId);
     }
 
@@ -105,7 +102,7 @@ public class OAuthClientDomainService {
      * @throws BusinessException 客户端不存在时抛出 CLIENT_NOT_FOUND；客户端已停用时抛出 CLIENT_DISABLED
      */
     public boolean validateClient(String clientId, String clientSecret) {
-        OAuthClientPo client = clientRepository.findByClientId(clientId)
+        OAuthClient client = clientRepository.findByClientId(clientId)
                 .orElseThrow(() -> new BusinessException(CiamErrorCode.CLIENT_NOT_FOUND));
 
         if (client.getClientStatus() != ClientStatus.ENABLED.getCode()) {
@@ -129,7 +126,7 @@ public class OAuthClientDomainService {
      * @throws BusinessException 客户端不存在时抛出 CLIENT_NOT_FOUND
      */
     public boolean validateRedirectUri(String clientId, String redirectUri) {
-        OAuthClientPo client = clientRepository.findByClientId(clientId)
+        OAuthClient client = clientRepository.findByClientId(clientId)
                 .orElseThrow(() -> new BusinessException(CiamErrorCode.CLIENT_NOT_FOUND));
 
         if (client.getRedirectUris() == null || client.getRedirectUris().isBlank()) {
@@ -162,7 +159,7 @@ public class OAuthClientDomainService {
                              Boolean pkceRequired,
                              Integer accessTokenTtl,
                              Integer refreshTokenTtl) {
-        OAuthClientPo client = clientRepository.findByClientId(clientId)
+        OAuthClient client = clientRepository.findByClientId(clientId)
                 .orElseThrow(() -> new BusinessException(CiamErrorCode.CLIENT_NOT_FOUND));
 
         if (clientName != null) {
@@ -186,7 +183,6 @@ public class OAuthClientDomainService {
         if (refreshTokenTtl != null) {
             client.setRefreshTokenTtl(refreshTokenTtl);
         }
-        client.setModifyTime(DateTimeUtil.getNowInstant());
         clientRepository.updateByClientId(client);
     }
 
@@ -197,11 +193,10 @@ public class OAuthClientDomainService {
      * @throws BusinessException 客户端不存在时抛出 CLIENT_NOT_FOUND
      */
     public void disableClient(String clientId) {
-        OAuthClientPo client = clientRepository.findByClientId(clientId)
+        OAuthClient client = clientRepository.findByClientId(clientId)
                 .orElseThrow(() -> new BusinessException(CiamErrorCode.CLIENT_NOT_FOUND));
 
         client.setClientStatus(ClientStatus.DISABLED.getCode());
-        client.setModifyTime(DateTimeUtil.getNowInstant());
         clientRepository.updateByClientId(client);
     }
 
@@ -212,11 +207,10 @@ public class OAuthClientDomainService {
      * @throws BusinessException 客户端不存在时抛出 CLIENT_NOT_FOUND
      */
     public void enableClient(String clientId) {
-        OAuthClientPo client = clientRepository.findByClientId(clientId)
+        OAuthClient client = clientRepository.findByClientId(clientId)
                 .orElseThrow(() -> new BusinessException(CiamErrorCode.CLIENT_NOT_FOUND));
 
         client.setClientStatus(ClientStatus.ENABLED.getCode());
-        client.setModifyTime(DateTimeUtil.getNowInstant());
         clientRepository.updateByClientId(client);
     }
 

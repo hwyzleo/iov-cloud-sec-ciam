@@ -2,8 +2,8 @@ package net.hwyz.iov.cloud.sec.ciam.service.domain.service;
 
 import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
 import net.hwyz.iov.cloud.sec.ciam.service.common.exception.CiamErrorCode;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.model.OAuthClient;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.OAuthClientRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.OAuthClientPo;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.cache.InMemoryVerificationCodeStore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -31,21 +31,19 @@ class DeviceAuthorizationServiceTest {
         service = new DeviceAuthorizationService(clientRepository, store);
     }
 
-    private OAuthClientPo stubEnabledClient() {
-        OAuthClientPo client = new OAuthClientPo();
-        client.setClientId(CLIENT_ID);
-        client.setClientName("Vehicle App");
-        client.setClientType("public");
-        client.setRedirectUris(null);
-        client.setGrantTypes("urn:ietf:params:oauth:grant-type:device_code");
-        client.setScopes("openid,vehicle");
-        client.setPkceRequired(0);
-        client.setAccessTokenTtl(1800);
-        client.setRefreshTokenTtl(2592000);
-        client.setClientStatus(1);
-        client.setRowVersion(1);
-        client.setRowValid(1);
-        return client;
+    private OAuthClient stubEnabledClient() {
+        return OAuthClient.builder()
+                .clientId(CLIENT_ID)
+                .clientName("Vehicle App")
+                .clientType("public")
+                .redirectUris(null)
+                .grantTypes("urn:ietf:params:oauth:grant-type:device_code")
+                .scopes("openid,vehicle")
+                .pkceRequired(0)
+                .accessTokenTtl(1800)
+                .refreshTokenTtl(2592000)
+                .clientStatus(1)
+                .build();
     }
 
     // ---- initiateDeviceAuthorization ----
@@ -81,7 +79,7 @@ class DeviceAuthorizationServiceTest {
 
         @Test
         void initiate_failsWhenClientDisabled() {
-            OAuthClientPo client = stubEnabledClient();
+            OAuthClient client = stubEnabledClient();
             client.setClientStatus(0);
             when(clientRepository.findByClientId(CLIENT_ID)).thenReturn(Optional.of(client));
 

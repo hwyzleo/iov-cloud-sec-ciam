@@ -5,8 +5,8 @@ import net.hwyz.iov.cloud.sec.ciam.service.common.exception.CiamErrorCode;
 import net.hwyz.iov.cloud.sec.ciam.service.common.security.PasswordEncoder;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.ClientStatus;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.OAuthClientType;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.model.OAuthClient;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.OAuthClientRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.OAuthClientPo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -32,23 +32,21 @@ class OAuthClientDomainServiceTest {
         service = new OAuthClientDomainService(clientRepository, passwordEncoder);
     }
 
-    private OAuthClientPo stubClient(String clientId, OAuthClientType type,
+    private OAuthClient stubClient(String clientId, OAuthClientType type,
                                          String rawSecret, int status) {
-        OAuthClientPo client = new OAuthClientPo();
-        client.setClientId(clientId);
-        client.setClientName("Test App");
-        client.setClientType(type.getCode());
-        client.setClientSecretHash(rawSecret != null ? passwordEncoder.encode(rawSecret) : null);
-        client.setRedirectUris("https://example.com/callback,https://example.com/cb2");
-        client.setGrantTypes("authorization_code,refresh_token");
-        client.setScopes("openid,profile");
-        client.setPkceRequired(1);
-        client.setAccessTokenTtl(1800);
-        client.setRefreshTokenTtl(2592000);
-        client.setClientStatus(status);
-        client.setRowVersion(1);
-        client.setRowValid(1);
-        return client;
+        return OAuthClient.builder()
+                .clientId(clientId)
+                .clientName("Test App")
+                .clientType(type.getCode())
+                .clientSecretHash(rawSecret != null ? passwordEncoder.encode(rawSecret) : null)
+                .redirectUris("https://example.com/callback,https://example.com/cb2")
+                .grantTypes("authorization_code,refresh_token")
+                .scopes("openid,profile")
+                .pkceRequired(1)
+                .accessTokenTtl(1800)
+                .refreshTokenTtl(2592000)
+                .clientStatus(status)
+                .build();
     }
 
     // ---- registerClient ----
@@ -119,11 +117,11 @@ class OAuthClientDomainServiceTest {
 
         @Test
         void findByClientId_returnsClient() {
-            OAuthClientPo client = stubClient("cid-001", OAuthClientType.CONFIDENTIAL,
+            OAuthClient client = stubClient("cid-001", OAuthClientType.CONFIDENTIAL,
                     "secret123", ClientStatus.ENABLED.getCode());
             when(clientRepository.findByClientId("cid-001")).thenReturn(Optional.of(client));
 
-            Optional<OAuthClientPo> result = service.findByClientId("cid-001");
+            Optional<OAuthClient> result = service.findByClientId("cid-001");
 
             assertTrue(result.isPresent());
             assertEquals("cid-001", result.get().getClientId());
@@ -133,7 +131,7 @@ class OAuthClientDomainServiceTest {
         void findByClientId_returnsEmptyWhenNotFound() {
             when(clientRepository.findByClientId("nonexistent")).thenReturn(Optional.empty());
 
-            Optional<OAuthClientPo> result = service.findByClientId("nonexistent");
+            Optional<OAuthClient> result = service.findByClientId("nonexistent");
 
             assertFalse(result.isPresent());
         }
@@ -147,7 +145,7 @@ class OAuthClientDomainServiceTest {
         @Test
         void validateClient_successForConfidentialClient() {
             String rawSecret = "my-secret";
-            OAuthClientPo client = stubClient("cid-001", OAuthClientType.CONFIDENTIAL,
+            OAuthClient client = stubClient("cid-001", OAuthClientType.CONFIDENTIAL,
                     rawSecret, ClientStatus.ENABLED.getCode());
             when(clientRepository.findByClientId("cid-001")).thenReturn(Optional.of(client));
 
@@ -156,7 +154,7 @@ class OAuthClientDomainServiceTest {
 
         @Test
         void validateClient_failsWithWrongSecret() {
-            OAuthClientPo client = stubClient("cid-001", OAuthClientType.CONFIDENTIAL,
+            OAuthClient client = stubClient("cid-001", OAuthClientType.CONFIDENTIAL,
                     "correct-secret", ClientStatus.ENABLED.getCode());
             when(clientRepository.findByClientId("cid-001")).thenReturn(Optional.of(client));
 
@@ -174,7 +172,7 @@ class OAuthClientDomainServiceTest {
 
         @Test
         void validateClient_throwsWhenClientDisabled() {
-            OAuthClientPo client = stubClient("cid-001", OAuthClientType.CONFIDENTIAL,
+            OAuthClient client = stubClient("cid-001", OAuthClientType.CONFIDENTIAL,
                     "secret", ClientStatus.DISABLED.getCode());
             when(clientRepository.findByClientId("cid-001")).thenReturn(Optional.of(client));
 
@@ -185,7 +183,7 @@ class OAuthClientDomainServiceTest {
 
         @Test
         void validateClient_returnsFalseForPublicClient() {
-            OAuthClientPo client = stubClient("cid-pub", OAuthClientType.PUBLIC,
+            OAuthClient client = stubClient("cid-pub", OAuthClientType.PUBLIC,
                     null, ClientStatus.ENABLED.getCode());
             when(clientRepository.findByClientId("cid-pub")).thenReturn(Optional.of(client));
 
@@ -200,7 +198,7 @@ class OAuthClientDomainServiceTest {
 
         @Test
         void validateRedirectUri_matchesRegisteredUri() {
-            OAuthClientPo client = stubClient("cid-001", OAuthClientType.CONFIDENTIAL,
+            OAuthClient client = stubClient("cid-001", OAuthClientType.CONFIDENTIAL,
                     "secret", ClientStatus.ENABLED.getCode());
             when(clientRepository.findByClientId("cid-001")).thenReturn(Optional.of(client));
 
@@ -210,7 +208,7 @@ class OAuthClientDomainServiceTest {
 
         @Test
         void validateRedirectUri_rejectsUnregisteredUri() {
-            OAuthClientPo client = stubClient("cid-001", OAuthClientType.CONFIDENTIAL,
+            OAuthClient client = stubClient("cid-001", OAuthClientType.CONFIDENTIAL,
                     "secret", ClientStatus.ENABLED.getCode());
             when(clientRepository.findByClientId("cid-001")).thenReturn(Optional.of(client));
 
@@ -228,7 +226,7 @@ class OAuthClientDomainServiceTest {
 
         @Test
         void validateRedirectUri_returnsFalseWhenNoUrisConfigured() {
-            OAuthClientPo client = stubClient("cid-001", OAuthClientType.INTERNAL,
+            OAuthClient client = stubClient("cid-001", OAuthClientType.INTERNAL,
                     "secret", ClientStatus.ENABLED.getCode());
             client.setRedirectUris(null);
             when(clientRepository.findByClientId("cid-001")).thenReturn(Optional.of(client));
@@ -244,7 +242,7 @@ class OAuthClientDomainServiceTest {
 
         @Test
         void disableClient_setsStatusToDisabled() {
-            OAuthClientPo client = stubClient("cid-001", OAuthClientType.CONFIDENTIAL,
+            OAuthClient client = stubClient("cid-001", OAuthClientType.CONFIDENTIAL,
                     "secret", ClientStatus.ENABLED.getCode());
             when(clientRepository.findByClientId("cid-001")).thenReturn(Optional.of(client));
 
@@ -258,7 +256,7 @@ class OAuthClientDomainServiceTest {
 
         @Test
         void enableClient_setsStatusToEnabled() {
-            OAuthClientPo client = stubClient("cid-001", OAuthClientType.CONFIDENTIAL,
+            OAuthClient client = stubClient("cid-001", OAuthClientType.CONFIDENTIAL,
                     "secret", ClientStatus.DISABLED.getCode());
             when(clientRepository.findByClientId("cid-001")).thenReturn(Optional.of(client));
 
@@ -296,7 +294,7 @@ class OAuthClientDomainServiceTest {
 
         @Test
         void updateClient_updatesSpecifiedFields() {
-            OAuthClientPo client = stubClient("cid-001", OAuthClientType.CONFIDENTIAL,
+            OAuthClient client = stubClient("cid-001", OAuthClientType.CONFIDENTIAL,
                     "secret", ClientStatus.ENABLED.getCode());
             when(clientRepository.findByClientId("cid-001")).thenReturn(Optional.of(client));
 

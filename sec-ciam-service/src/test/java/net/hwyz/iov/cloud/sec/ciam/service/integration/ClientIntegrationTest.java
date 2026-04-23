@@ -4,7 +4,7 @@ import net.hwyz.iov.cloud.framework.common.bean.ApiResponse;
 import net.hwyz.iov.cloud.sec.ciam.service.adapter.web.controller.mobile.vo.MobileLoginRequest;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.IdentityStatus;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.UserStatus;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.OAuthClientPo;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.model.OAuthClient;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.model.User;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.model.UserIdentity;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.OAuthClientRepository;
@@ -41,10 +41,10 @@ class ClientIntegrationTest {
 
     @BeforeEach
     void setUp() {
-        // 修正：使用构造器赋值，主代码 PO 类目前不一定开启了 @Builder
-        OAuthClientPo client = new OAuthClientPo();
-        client.setClientId(CLIENT_ID);
-        client.setClientStatus(1);
+        OAuthClient client = OAuthClient.builder()
+                .clientId(CLIENT_ID)
+                .clientStatus(1)
+                .build();
         when(clientRepository.findByClientId(CLIENT_ID)).thenReturn(Optional.of(client));
     }
 

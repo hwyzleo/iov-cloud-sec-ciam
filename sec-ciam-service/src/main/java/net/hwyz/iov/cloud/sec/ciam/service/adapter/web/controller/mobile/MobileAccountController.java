@@ -5,27 +5,12 @@ import lombok.RequiredArgsConstructor;
 import net.hwyz.iov.cloud.framework.common.bean.ApiResponse;
 import net.hwyz.iov.cloud.framework.web.context.SecurityContextHolder;
 import net.hwyz.iov.cloud.sec.ciam.service.adapter.web.vo.*;
-import net.hwyz.iov.cloud.sec.ciam.service.application.service.AccountBindingAppService;
-import net.hwyz.iov.cloud.sec.ciam.service.application.service.AccountLifecycleAppService;
-import net.hwyz.iov.cloud.sec.ciam.service.application.service.ConsentAppService;
-import net.hwyz.iov.cloud.sec.ciam.service.application.service.OwnerCertificationAppService;
-import net.hwyz.iov.cloud.sec.ciam.service.application.service.PasswordChangeAppService;
-import net.hwyz.iov.cloud.sec.ciam.service.application.service.PasswordResetAppService;
-import net.hwyz.iov.cloud.sec.ciam.service.application.service.UserProfileAppService;
+import net.hwyz.iov.cloud.sec.ciam.service.application.service.*;
 import net.hwyz.iov.cloud.sec.ciam.service.application.assembler.*;
 import net.hwyz.iov.cloud.sec.ciam.service.adapter.web.controller.mobile.vo.*;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.IdentityType;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.service.SessionDomainService;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.service.VerificationCodeType;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -40,7 +25,7 @@ public class MobileAccountController {
 
     private final UserProfileAppService userProfileAppService;
     private final AccountBindingAppService accountBindingAppService;
-    private final SessionDomainService sessionDomainService;
+    private final SessionAppService sessionAppService;
     private final PasswordChangeAppService passwordChangeAppService;
     private final PasswordResetAppService passwordResetAppService;
     private final AccountLifecycleAppService accountLifecycleAppService;
@@ -98,8 +83,8 @@ public class MobileAccountController {
     @GetMapping("/sessions")
     public ApiResponse<List<SessionVo>> listSessions() {
         String userId = SecurityContextHolder.getUserId();
-        List<SessionVo> voList = sessionDomainService.findUserSessions(userId).stream()
-                .map(domain -> SessionAssembler.INSTANCE.toVo(SessionAssembler.INSTANCE.toDto(domain)))
+        List<SessionVo> voList = sessionAppService.findUserSessions(userId).stream()
+                .map(SessionAssembler.INSTANCE::toVo)
                 .collect(Collectors.toList());
         return ApiResponse.ok(voList);
     }
@@ -108,8 +93,8 @@ public class MobileAccountController {
     @GetMapping("/devices")
     public ApiResponse<List<DeviceVo>> listDevices() {
         String userId = SecurityContextHolder.getUserId();
-        List<DeviceVo> voList = sessionDomainService.findUserDevices(userId).stream()
-                .map(domain -> DeviceAssembler.INSTANCE.toVo(DeviceAssembler.INSTANCE.toDto(domain)))
+        List<DeviceVo> voList = sessionAppService.findUserDevices(userId).stream()
+                .map(DeviceAssembler.INSTANCE::toVo)
                 .collect(Collectors.toList());
         return ApiResponse.ok(voList);
     }
@@ -118,7 +103,7 @@ public class MobileAccountController {
     @PostMapping("/sessions/kick")
     public ApiResponse<Void> kickSession(@RequestBody @Valid KickSessionRequest request) {
         String userId = SecurityContextHolder.getUserId();
-        sessionDomainService.kickSession(request.getSessionId(), userId);
+        sessionAppService.kickSession(request.getSessionId(), userId);
         return ApiResponse.ok();
     }
 
@@ -126,7 +111,7 @@ public class MobileAccountController {
     @PostMapping("/devices/kick")
     public ApiResponse<Void> kickDevice(@RequestBody @Valid KickDeviceRequest request) {
         String userId = SecurityContextHolder.getUserId();
-        sessionDomainService.kickDevice(request.getDeviceId(), userId);
+        sessionAppService.kickDevice(request.getDeviceId(), userId);
         return ApiResponse.ok();
     }
 
