@@ -1,12 +1,10 @@
 package net.hwyz.iov.cloud.sec.ciam.service.domain.service;
-import net.hwyz.iov.cloud.sec.ciam.service.application.service.*;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.adapter.*;
 
 import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
 import net.hwyz.iov.cloud.sec.ciam.service.common.exception.CiamErrorCode;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.adapter.CaptchaChallenge;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.gatewayimpl.http.StubCaptchaAdapter;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.cache.InMemoryVerificationCodeStore;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.gateway.CaptchaChallenge;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.gateway.http.StubCaptchaAdapter;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.cache.InMemoryVerificationCodeStore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

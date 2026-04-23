@@ -6,9 +6,21 @@ import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 import org.mapstruct.factory.Mappers;
 
-@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
+/**
+ * 刷新令牌 PO 转换器
+ */
+@Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface RefreshTokenPoConverter {
+
     RefreshTokenPoConverter INSTANCE = Mappers.getMapper(RefreshTokenPoConverter.class);
+
+    /**
+     * PO -> Domain
+     */
     RefreshToken toDomain(RefreshTokenPo po);
-    RefreshTokenPo toPo(RefreshToken domain);
+
+    /**
+     * Domain -> PO
+     */
+    RefreshTokenPo toDo(RefreshToken domain);
 }

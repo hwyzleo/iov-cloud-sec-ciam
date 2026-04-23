@@ -4,8 +4,8 @@ import net.hwyz.iov.cloud.sec.ciam.service.application.service.AuthenticationApp
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.UserStatus;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.model.User;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.model.UserIdentity;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserIdentityRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserRepository;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.UserIdentityRepository;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -21,9 +21,9 @@ import static org.mockito.Mockito.when;
 class CoreAuthenticationLoopVerificationTest {
 
     @MockBean
-    private CiamUserRepository userRepository;
+    private UserRepository userRepository;
     @MockBean
-    private CiamUserIdentityRepository identityRepository;
+    private UserIdentityRepository identityRepository;
     @Autowired
     private AuthenticationAppService authenticationAppService;
 

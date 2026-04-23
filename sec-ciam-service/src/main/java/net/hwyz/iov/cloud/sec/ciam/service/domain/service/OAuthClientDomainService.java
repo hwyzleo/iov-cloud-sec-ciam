@@ -7,7 +7,7 @@ import net.hwyz.iov.cloud.sec.ciam.service.common.security.PasswordEncoder;
 import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.ClientStatus;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.OAuthClientType;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamOAuthClientRepository;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.OAuthClientRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.OAuthClientPo;
 import org.springframework.stereotype.Service;
 
@@ -29,7 +29,7 @@ public class OAuthClientDomainService {
     private static final SecureRandom SECURE_RANDOM = new SecureRandom();
     private static final int SECRET_LENGTH = 32;
 
-    private final CiamOAuthClientRepository clientRepository;
+    private final OAuthClientRepository clientRepository;
     private final PasswordEncoder passwordEncoder;
 
     /**

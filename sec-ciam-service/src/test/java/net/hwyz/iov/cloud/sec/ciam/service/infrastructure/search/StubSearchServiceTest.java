@@ -1,6 +1,4 @@
 package net.hwyz.iov.cloud.sec.ciam.service.infrastructure.search;
-import net.hwyz.iov.cloud.sec.ciam.service.application.service.*;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.adapter.*;
 
 import net.hwyz.iov.cloud.sec.ciam.service.domain.search.SearchResult;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.search.document.AuditLogSearchDocument;
@@ -9,10 +7,7 @@ import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.search.document.UserSe
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
 

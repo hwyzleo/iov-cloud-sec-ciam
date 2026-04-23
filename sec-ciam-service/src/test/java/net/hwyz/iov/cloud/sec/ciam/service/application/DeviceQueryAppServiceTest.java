@@ -1,13 +1,13 @@
 package net.hwyz.iov.cloud.sec.ciam.service.application;
 import net.hwyz.iov.cloud.sec.ciam.service.application.service.*;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.adapter.*;
 
 import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
 import net.hwyz.iov.cloud.sec.ciam.service.application.dto.DeviceInfoDto;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.DeviceStatus;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.model.Device;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.query.DeviceQuery;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamDeviceRepository;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.model.DeviceSearchCriteria;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.query.DeviceQuery;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.DeviceRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -25,7 +25,7 @@ import static org.mockito.Mockito.*;
  */
 class DeviceQueryAppServiceTest {
 
-    private CiamDeviceRepository deviceRepository;
+    private DeviceRepository deviceRepository;
 
     private DeviceQueryAppService service;
 
@@ -34,7 +34,7 @@ class DeviceQueryAppServiceTest {
 
     @BeforeEach
     void setUp() {
-        deviceRepository = mock(CiamDeviceRepository.class);
+        deviceRepository = mock(DeviceRepository.class);
         service = new DeviceQueryAppService(deviceRepository);
     }
 
@@ -90,7 +90,7 @@ class DeviceQueryAppServiceTest {
 
         @Test
         void returnsAllDevicesWhenNoFilters() {
-            when(deviceRepository.search(any(DeviceQuery.class))).thenReturn(List.of(
+            when(deviceRepository.search(any(DeviceSearchCriteria.class))).thenReturn(List.of(
                     stubDevice("DEV-001"),
                     stubDevice("DEV-002"),
                     stubDevice("DEV-003")));
@@ -102,7 +102,7 @@ class DeviceQueryAppServiceTest {
 
         @Test
         void filtersByDeviceId() {
-            when(deviceRepository.search(argThat(q -> "DEV-001".equals(q.getDeviceId())))).thenReturn(List.of(
+            when(deviceRepository.search(argThat((DeviceSearchCriteria q) -> "DEV-001".equals(q.getDeviceId())))).thenReturn(List.of(
                     stubDevice("DEV-001")));
 
             List<DeviceQueryAppService.DeviceSearchResult> result = service.queryDeviceList(DeviceQuery.builder().deviceId("DEV-001").build());
@@ -113,7 +113,7 @@ class DeviceQueryAppServiceTest {
 
         @Test
         void filtersByUserId() {
-            when(deviceRepository.search(argThat(q -> USER_ID.equals(q.getUserId())))).thenReturn(List.of(
+            when(deviceRepository.search(argThat((DeviceSearchCriteria q) -> USER_ID.equals(q.getUserId())))).thenReturn(List.of(
                     stubDevice("DEV-001"),
                     stubDevice("DEV-002")));
 
@@ -124,7 +124,7 @@ class DeviceQueryAppServiceTest {
 
         @Test
         void filtersByClientType() {
-            when(deviceRepository.search(argThat(q -> "MOBILE".equals(q.getClientType())))).thenReturn(List.of(
+            when(deviceRepository.search(argThat((DeviceSearchCriteria q) -> "MOBILE".equals(q.getClientType())))).thenReturn(List.of(
                     stubDevice("DEV-001")));
 
             List<DeviceQueryAppService.DeviceSearchResult> result = service.queryDeviceList(DeviceQuery.builder().clientType("MOBILE").build());
@@ -135,7 +135,7 @@ class DeviceQueryAppServiceTest {
 
         @Test
         void filtersByDeviceStatus() {
-            when(deviceRepository.search(argThat(q -> DeviceStatus.ACTIVE.getCode() == q.getDeviceStatus()))).thenReturn(List.of(
+            when(deviceRepository.search(argThat((DeviceSearchCriteria q) -> DeviceStatus.ACTIVE.getCode() == q.getDeviceStatus()))).thenReturn(List.of(
                     stubDevice("DEV-001")));
 
             List<DeviceQueryAppService.DeviceSearchResult> result = service.queryDeviceList(DeviceQuery.builder().deviceStatus(DeviceStatus.ACTIVE.getCode()).build());
@@ -146,7 +146,7 @@ class DeviceQueryAppServiceTest {
 
         @Test
         void filtersByTrustedFlag() {
-            when(deviceRepository.search(argThat(q -> q.getTrustedFlag() != null && q.getTrustedFlag()))).thenReturn(List.of(
+            when(deviceRepository.search(argThat((DeviceSearchCriteria q) -> q.getTrustedFlag() != null && q.getTrustedFlag()))).thenReturn(List.of(
                     stubDevice("DEV-001")));
 
             List<DeviceQueryAppService.DeviceSearchResult> result = service.queryDeviceList(DeviceQuery.builder().trustedFlag(true).build());
@@ -157,7 +157,7 @@ class DeviceQueryAppServiceTest {
 
         @Test
         void filtersByDeviceNameFuzzy() {
-            when(deviceRepository.search(argThat(q -> "iPhone".equals(q.getDeviceName())))).thenReturn(List.of(
+            when(deviceRepository.search(argThat((DeviceSearchCriteria q) -> "iPhone".equals(q.getDeviceName())))).thenReturn(List.of(
                     stubDevice("DEV-001")));
 
             List<DeviceQueryAppService.DeviceSearchResult> result = service.queryDeviceList(DeviceQuery.builder().deviceName("iPhone").build());
@@ -168,7 +168,7 @@ class DeviceQueryAppServiceTest {
 
         @Test
         void filtersByDeviceOsFuzzy() {
-            when(deviceRepository.search(argThat(q -> "iOS".equals(q.getDeviceOs())))).thenReturn(List.of(
+            when(deviceRepository.search(argThat((DeviceSearchCriteria q) -> "iOS".equals(q.getDeviceOs())))).thenReturn(List.of(
                     stubDevice("DEV-001")));
 
             List<DeviceQueryAppService.DeviceSearchResult> result = service.queryDeviceList(DeviceQuery.builder().deviceOs("iOS").build());
@@ -179,7 +179,7 @@ class DeviceQueryAppServiceTest {
 
         @Test
         void filtersByLanguage() {
-            when(deviceRepository.search(argThat(q -> "zh-CN".equals(q.getLanguage())))).thenReturn(List.of(
+            when(deviceRepository.search(argThat((DeviceSearchCriteria q) -> "zh-CN".equals(q.getLanguage())))).thenReturn(List.of(
                     stubDevice("DEV-001")));
 
             List<DeviceQueryAppService.DeviceSearchResult> result = service.queryDeviceList(DeviceQuery.builder().language("zh-CN").build());
@@ -190,7 +190,7 @@ class DeviceQueryAppServiceTest {
 
         @Test
         void returnsEmptyWhenNoDevices() {
-            when(deviceRepository.search(any(DeviceQuery.class))).thenReturn(Collections.emptyList());
+            when(deviceRepository.search(any(DeviceSearchCriteria.class))).thenReturn(Collections.emptyList());
 
             List<DeviceQueryAppService.DeviceSearchResult> result = service.queryDeviceList(DeviceQuery.builder().build());
 

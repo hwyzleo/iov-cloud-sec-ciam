@@ -7,8 +7,8 @@ import net.hwyz.iov.cloud.sec.ciam.service.common.exception.CiamErrorCode;
 import net.hwyz.iov.cloud.sec.ciam.service.common.security.TokenDigest;
 import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.TokenStatus;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamRefreshTokenRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.RefreshTokenPo;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.model.RefreshToken;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.RefreshTokenRepository;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
@@ -34,7 +34,7 @@ public class RefreshTokenDomainService {
     private static final int RAW_TOKEN_BYTE_LENGTH = 32;
     private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
-    private final CiamRefreshTokenRepository refreshTokenRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
 
     /**
      * 签发新的 Refresh Token。
@@ -53,23 +53,20 @@ public class RefreshTokenDomainService {
         String fingerprint = TokenDigest.fingerprint(rawToken);
         Instant now = DateTimeUtil.getNowInstant();
 
-        RefreshTokenPo entity = new RefreshTokenPo();
-        entity.setRefreshTokenId(UUID.randomUUID().toString());
-        entity.setUserId(userId);
-        entity.setSessionId(sessionId);
-        entity.setClientId(clientId);
-        entity.setTokenFingerprint(fingerprint);
-        entity.setTokenStatus(TokenStatus.ACTIVE.getCode());
-        entity.setIssueTime(now);
-        entity.setExpireTime(now.plusSeconds(ttlSeconds));
-        entity.setCreateTime(now);
-        entity.setModifyTime(now);
-        entity.setRowValid(1);
-        entity.setRowVersion(1);
+        RefreshToken domain = RefreshToken.builder()
+                .refreshTokenId(UUID.randomUUID().toString())
+                .userId(userId)
+                .sessionId(sessionId)
+                .clientId(clientId)
+                .tokenFingerprint(fingerprint)
+                .tokenStatus(TokenStatus.ACTIVE.getCode())
+                .issueTime(now)
+                .expireTime(now.plusSeconds(ttlSeconds))
+                .build();
 
-        refreshTokenRepository.insert(entity);
+        refreshTokenRepository.insert(domain);
         log.info("签发 Refresh Token: userId={}, sessionId={}, clientId={}, refreshTokenId={}",
-                userId, sessionId, clientId, entity.getRefreshTokenId());
+                userId, sessionId, clientId, domain.getRefreshTokenId());
 
         return rawToken;
     }
@@ -92,7 +89,7 @@ public class RefreshTokenDomainService {
      */
     public RefreshTokenRotationResult rotateRefreshToken(String rawToken, String clientId) {
         String fingerprint = TokenDigest.fingerprint(rawToken);
-        RefreshTokenPo existing = refreshTokenRepository.findByTokenFingerprint(fingerprint)
+        RefreshToken existing = refreshTokenRepository.findByTokenFingerprint(fingerprint)
                 .orElseThrow(() -> new BusinessException(CiamErrorCode.TOKEN_INVALID));
 
         // 重放检测：已轮换的令牌被再次使用
@@ -123,11 +120,9 @@ public class RefreshTokenDomainService {
         Instant now = DateTimeUtil.getNowInstant();
         existing.setTokenStatus(TokenStatus.ROTATED.getCode());
         existing.setUsedTime(now);
-        existing.setModifyTime(now);
         refreshTokenRepository.updateByRefreshTokenId(existing);
 
         // 计算新令牌 TTL：继承旧令牌的剩余有效期
-        long remainingSeconds = java.time.Duration.between(now, existing.getExpireTime()).getSeconds();
         // 使用原始 TTL（从签发到过期的完整时长）
         long originalTtl = java.time.Duration.between(existing.getIssueTime(), existing.getExpireTime()).getSeconds();
 
@@ -135,20 +130,17 @@ public class RefreshTokenDomainService {
         String newRawToken = generateRawToken();
         String newFingerprint = TokenDigest.fingerprint(newRawToken);
 
-        RefreshTokenPo newEntity = new RefreshTokenPo();
-        newEntity.setRefreshTokenId(UUID.randomUUID().toString());
-        newEntity.setUserId(existing.getUserId());
-        newEntity.setSessionId(existing.getSessionId());
-        newEntity.setClientId(existing.getClientId());
-        newEntity.setTokenFingerprint(newFingerprint);
-        newEntity.setParentTokenId(existing.getRefreshTokenId());
-        newEntity.setTokenStatus(TokenStatus.ACTIVE.getCode());
-        newEntity.setIssueTime(now);
-        newEntity.setExpireTime(now.plusSeconds(originalTtl));
-        newEntity.setCreateTime(now);
-        newEntity.setModifyTime(now);
-        newEntity.setRowValid(1);
-        newEntity.setRowVersion(1);
+        RefreshToken newEntity = RefreshToken.builder()
+                .refreshTokenId(UUID.randomUUID().toString())
+                .userId(existing.getUserId())
+                .sessionId(existing.getSessionId())
+                .clientId(existing.getClientId())
+                .tokenFingerprint(newFingerprint)
+                .parentTokenId(existing.getRefreshTokenId())
+                .tokenStatus(TokenStatus.ACTIVE.getCode())
+                .issueTime(now)
+                .expireTime(now.plusSeconds(originalTtl))
+                .build();
 
         refreshTokenRepository.insert(newEntity);
 
@@ -171,7 +163,7 @@ public class RefreshTokenDomainService {
      */
     public void revokeRefreshToken(String rawToken) {
         String fingerprint = TokenDigest.fingerprint(rawToken);
-        RefreshTokenPo existing = refreshTokenRepository.findByTokenFingerprint(fingerprint)
+        RefreshToken existing = refreshTokenRepository.findByTokenFingerprint(fingerprint)
                 .orElseThrow(() -> new BusinessException(CiamErrorCode.TOKEN_INVALID));
 
         TokenStatus status = TokenStatus.fromCode(existing.getTokenStatus());
@@ -183,7 +175,6 @@ public class RefreshTokenDomainService {
         Instant now = DateTimeUtil.getNowInstant();
         existing.setTokenStatus(TokenStatus.REVOKED.getCode());
         existing.setRevokeTime(now);
-        existing.setModifyTime(now);
         refreshTokenRepository.updateByRefreshTokenId(existing);
 
         log.info("Refresh Token 已撤销: refreshTokenId={}, userId={}",

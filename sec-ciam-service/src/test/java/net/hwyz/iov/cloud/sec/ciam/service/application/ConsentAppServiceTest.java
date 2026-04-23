@@ -1,13 +1,10 @@
 package net.hwyz.iov.cloud.sec.ciam.service.application;
 import net.hwyz.iov.cloud.sec.ciam.service.application.service.*;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.adapter.*;
 
-import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
 import net.hwyz.iov.cloud.sec.ciam.service.application.dto.UserConsentDto;
 import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditEvent;
 import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditLogger;
-import net.hwyz.iov.cloud.sec.ciam.service.common.exception.CiamErrorCode;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserConsentRepository;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.UserConsentRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.UserConsentPo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -26,7 +23,7 @@ import static org.mockito.Mockito.*;
  */
 class ConsentAppServiceTest {
 
-    private CiamUserConsentRepository consentRepository;
+    private UserConsentRepository consentRepository;
     private AuditLogger auditLogger;
     private ConsentAppService service;
 
@@ -35,7 +32,7 @@ class ConsentAppServiceTest {
 
     @BeforeEach
     void setUp() {
-        consentRepository = mock(CiamUserConsentRepository.class);
+        consentRepository = mock(UserConsentRepository.class);
         auditLogger = mock(AuditLogger.class);
         when(consentRepository.insert(any())).thenReturn(1);
         when(consentRepository.updateByConsentId(any())).thenReturn(1);

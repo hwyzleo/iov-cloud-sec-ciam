@@ -1,6 +1,4 @@
 package net.hwyz.iov.cloud.sec.ciam.service.common.exception;
-import net.hwyz.iov.cloud.sec.ciam.service.application.service.*;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.adapter.*;
 
 import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
 import org.junit.jupiter.api.Test;

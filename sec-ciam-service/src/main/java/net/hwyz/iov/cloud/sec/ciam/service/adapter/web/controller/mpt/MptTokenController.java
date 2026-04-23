@@ -6,9 +6,9 @@ import net.hwyz.iov.cloud.framework.common.bean.ApiResponse;
 import net.hwyz.iov.cloud.framework.common.bean.PageResult;
 import net.hwyz.iov.cloud.framework.web.controller.BaseController;
 import net.hwyz.iov.cloud.sec.ciam.service.adapter.web.vo.RefreshTokenVo;
+import net.hwyz.iov.cloud.sec.ciam.service.application.assembler.RefreshTokenAssembler;
 import net.hwyz.iov.cloud.sec.ciam.service.application.service.TokenQueryAppService;
-import net.hwyz.iov.cloud.sec.ciam.service.application.assembler.RefreshTokenMapper;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.query.TokenQuery;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.query.TokenQuery;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 public class MptTokenController extends BaseController {
 
     private final TokenQueryAppService tokenQueryAppService;
-    private final RefreshTokenMapper refreshTokenMapper = RefreshTokenMapper.INSTANCE;
+    private final RefreshTokenAssembler refreshTokenAssembler = RefreshTokenAssembler.INSTANCE;
 
     /**
      * 检索令牌列表
@@ -52,13 +52,13 @@ public class MptTokenController extends BaseController {
 
     @GetMapping("/tokens/detail")
     public ApiResponse<RefreshTokenVo> getTokenDetail(@RequestParam String refreshTokenId) {
-        return ApiResponse.ok(refreshTokenMapper.toVo(tokenQueryAppService.queryToken(refreshTokenId)));
+        return ApiResponse.ok(refreshTokenAssembler.toVo(tokenQueryAppService.queryToken(refreshTokenId)));
     }
 
     @GetMapping("/tokens/user")
     public ApiResponse<List<RefreshTokenVo>> getUserTokens(@RequestParam String userId) {
         List<RefreshTokenVo> voList = tokenQueryAppService.queryUserTokens(userId).stream()
-            .map(refreshTokenMapper::toVo)
+            .map(refreshTokenAssembler::toVo)
             .collect(Collectors.toList());
         return ApiResponse.ok(voList);
     }
@@ -66,7 +66,7 @@ public class MptTokenController extends BaseController {
     @GetMapping("/tokens/session")
     public ApiResponse<List<RefreshTokenVo>> getSessionTokens(@RequestParam String sessionId) {
         List<RefreshTokenVo> voList = tokenQueryAppService.querySessionTokens(sessionId).stream()
-            .map(refreshTokenMapper::toVo)
+            .map(refreshTokenAssembler::toVo)
             .collect(Collectors.toList());
         return ApiResponse.ok(voList);
     }

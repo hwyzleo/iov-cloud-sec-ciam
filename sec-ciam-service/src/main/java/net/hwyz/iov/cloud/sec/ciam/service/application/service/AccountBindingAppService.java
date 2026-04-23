@@ -5,8 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
 import net.hwyz.iov.cloud.sec.ciam.service.application.dto.MergeRequestDto;
 import net.hwyz.iov.cloud.sec.ciam.service.application.dto.UserIdentityDto;
-import net.hwyz.iov.cloud.sec.ciam.service.application.assembler.MergeRequestMapper;
-import net.hwyz.iov.cloud.sec.ciam.service.application.assembler.UserIdentityMapper;
+import net.hwyz.iov.cloud.sec.ciam.service.application.assembler.MergeRequestAssembler;
+import net.hwyz.iov.cloud.sec.ciam.service.application.assembler.UserIdentityAssembler;
 import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditEvent;
 import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditEventType;
 import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditLogger;
@@ -24,7 +24,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * 账号绑定、解绑与合并应用服务 — 编排标识绑定/解绑、冲突检测与账号合并流程。
@@ -45,7 +44,7 @@ import java.util.stream.Collectors;
 public class AccountBindingAppService {
 
     private final IdentityDomainService identityDomainService;
-    private final CiamMergeRequestRepository mergeRequestRepository;
+    private final MergeRequestRepository mergeRequestRepository;
     private final FieldEncryptor fieldEncryptor;
     private final AuditLogger auditLogger;
 
@@ -93,7 +92,7 @@ public class AccountBindingAppService {
         logAudit(userId, AuditEventType.BIND, true);
 
         log.info("标识绑定成功: userId={}, identityType={}", userId, identityType.getCode());
-        return UserIdentityMapper.INSTANCE.toDto(result);
+        return UserIdentityAssembler.INSTANCE.toDto(result);
     }
 
     /**
@@ -151,7 +150,7 @@ public class AccountBindingAppService {
 
         log.info("合并申请已创建: mergeRequestId={}, sourceUserId={}, targetUserId={}",
                 request.getMergeRequestId(), sourceUserId, targetUserId);
-        return MergeRequestMapper.INSTANCE.toDto(request);
+        return MergeRequestAssembler.INSTANCE.toDto(request);
     }
 
     /**

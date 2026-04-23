@@ -1,11 +1,10 @@
 package net.hwyz.iov.cloud.sec.ciam.service.application;
 
 import net.hwyz.iov.cloud.sec.ciam.service.application.service.PasswordResetAppService;
-import net.hwyz.iov.cloud.sec.ciam.service.application.service.PasswordChangeAppService;
 import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditLogger;
 import net.hwyz.iov.cloud.sec.ciam.service.common.audit.SecurityEventLogger;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamRefreshTokenRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamSessionRepository;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.RefreshTokenRepository;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.SessionRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.service.CredentialDomainService;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.service.IdentityDomainService;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.service.VerificationCodeService;
@@ -22,8 +21,8 @@ class PasswordResetAppServiceTest {
     void setUp() {
         service = new PasswordResetAppService(
                 mock(IdentityDomainService.class), mock(VerificationCodeService.class),
-                mock(CredentialDomainService.class), mock(CiamSessionRepository.class),
-                mock(CiamRefreshTokenRepository.class), mock(AuditLogger.class),
+                mock(CredentialDomainService.class), mock(SessionRepository.class),
+                mock(RefreshTokenRepository.class), mock(AuditLogger.class),
                 mock(SecurityEventLogger.class));
     }
 

@@ -7,7 +7,7 @@ import net.hwyz.iov.cloud.framework.web.context.SecurityContextHolder;
 import net.hwyz.iov.cloud.framework.web.controller.BaseController;
 import net.hwyz.iov.cloud.sec.ciam.service.adapter.web.vo.RiskEventVo;
 import net.hwyz.iov.cloud.sec.ciam.service.application.service.RiskEventAppService;
-import net.hwyz.iov.cloud.sec.ciam.service.application.assembler.RiskEventMapper;
+import net.hwyz.iov.cloud.sec.ciam.service.application.assembler.RiskEventAssembler;
 import net.hwyz.iov.cloud.sec.ciam.service.adapter.web.controller.mobile.vo.TriggerMfaRequest;
 import net.hwyz.iov.cloud.sec.ciam.service.adapter.web.controller.mobile.vo.VerifyMfaRequest;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.ChallengeScene;
@@ -37,7 +37,7 @@ public class MobileRiskController extends BaseController {
     private final MfaDomainService mfaDomainService;
     private final RiskEventAppService riskEventAppService;
     
-    private final RiskEventMapper riskEventMapper = RiskEventMapper.INSTANCE;
+    private final RiskEventAssembler riskEventAssembler = RiskEventAssembler.INSTANCE;
 
     /** 触发 MFA 挑战 */
     @PostMapping("/mfa/trigger")
@@ -64,7 +64,7 @@ public class MobileRiskController extends BaseController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endTime) {
         String userId = SecurityContextHolder.getUserId();
         List<RiskEventVo> voList = riskEventAppService.queryUserRiskEvents(userId, startTime, endTime).stream()
-            .map(riskEventMapper::toVo)
+            .map(riskEventAssembler::toVo)
             .collect(Collectors.toList());
         return ApiResponse.ok(voList);
     }

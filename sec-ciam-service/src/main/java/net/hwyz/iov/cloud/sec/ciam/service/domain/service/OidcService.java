@@ -4,8 +4,7 @@ import lombok.RequiredArgsConstructor;
 import net.hwyz.iov.cloud.sec.ciam.service.common.security.FieldEncryptor;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.IdentityType;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.model.UserIdentity;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.model.UserProfile;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserProfileRepository;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.UserProfileRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -30,7 +29,7 @@ public class OidcService {
     static final String ISSUER = "https://account.openiov.com";
     static final int ID_TOKEN_TTL_SECONDS = 3600;
 
-    private final CiamUserProfileRepository profileRepository;
+    private final UserProfileRepository profileRepository;
     private final IdentityDomainService identityDomainService;
     private final FieldEncryptor fieldEncryptor;
 

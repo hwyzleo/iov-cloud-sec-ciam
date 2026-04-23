@@ -17,7 +17,7 @@ import java.util.Map;
  * OIDC 控制器 — UserInfo、Discovery Document、JWKS。
  */
 @RestController
-@RequestMapping("/api/open/v1/oidc")
+@RequestMapping("/api/open/oidc/v1")
 @RequiredArgsConstructor
 public class OpenOidcController {
 

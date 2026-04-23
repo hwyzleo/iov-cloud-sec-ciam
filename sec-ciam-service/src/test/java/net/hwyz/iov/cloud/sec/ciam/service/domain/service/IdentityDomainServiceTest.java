@@ -2,7 +2,7 @@ package net.hwyz.iov.cloud.sec.ciam.service.domain.service;
 
 import net.hwyz.iov.cloud.sec.ciam.service.common.security.FieldEncryptor;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.IdentityType;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserIdentityRepository;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.UserIdentityRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -14,7 +14,7 @@ class IdentityDomainServiceTest {
 
     @BeforeEach
     void setUp() {
-        service = new IdentityDomainService(mock(CiamUserIdentityRepository.class), mock(FieldEncryptor.class));
+        service = new IdentityDomainService(mock(UserIdentityRepository.class), mock(FieldEncryptor.class));
     }
 
     @Test

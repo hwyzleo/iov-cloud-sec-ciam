@@ -1,11 +1,9 @@
 package net.hwyz.iov.cloud.sec.ciam.service.domain.service;
-import net.hwyz.iov.cloud.sec.ciam.service.application.service.*;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.adapter.*;
 
 import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
 import net.hwyz.iov.cloud.sec.ciam.service.common.exception.CiamErrorCode;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.TagStatus;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserTagRepository;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.UserTagRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.UserTagPo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -22,12 +20,12 @@ import static org.mockito.Mockito.*;
 
 class TagDomainServiceTest {
 
-    private CiamUserTagRepository tagRepository;
+    private UserTagRepository tagRepository;
     private TagDomainService service;
 
     @BeforeEach
     void setUp() {
-        tagRepository = mock(CiamUserTagRepository.class);
+        tagRepository = mock(UserTagRepository.class);
         when(tagRepository.insert(any())).thenReturn(1);
         when(tagRepository.updateByTagId(any())).thenReturn(1);
         service = new TagDomainService(tagRepository);

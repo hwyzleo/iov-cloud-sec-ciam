@@ -1,13 +1,11 @@
 package net.hwyz.iov.cloud.sec.ciam.service.domain.service;
-import net.hwyz.iov.cloud.sec.ciam.service.application.service.*;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.adapter.*;
 
 import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
 import net.hwyz.iov.cloud.sec.ciam.service.common.exception.CiamErrorCode;
 import net.hwyz.iov.cloud.sec.ciam.service.common.security.PasswordEncoder;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.CredentialStatus;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.CredentialType;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserCredentialRepository;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.UserCredentialRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.UserCredentialPo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -22,7 +20,7 @@ import static org.mockito.Mockito.*;
 
 class CredentialDomainServiceTest {
 
-    private CiamUserCredentialRepository credentialRepository;
+    private UserCredentialRepository credentialRepository;
     private PasswordEncoder passwordEncoder;
     private PasswordPolicyService passwordPolicyService;
     private CredentialDomainService service;
@@ -32,7 +30,7 @@ class CredentialDomainServiceTest {
 
     @BeforeEach
     void setUp() {
-        credentialRepository = mock(CiamUserCredentialRepository.class);
+        credentialRepository = mock(UserCredentialRepository.class);
         passwordEncoder = new PasswordEncoder(4); // low strength for fast tests
         passwordPolicyService = new PasswordPolicyService();
         when(credentialRepository.insert(any())).thenReturn(1);

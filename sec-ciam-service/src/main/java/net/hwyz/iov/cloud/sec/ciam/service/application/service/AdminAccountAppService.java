@@ -10,16 +10,15 @@ import net.hwyz.iov.cloud.sec.ciam.service.common.exception.CiamErrorCode;
 import net.hwyz.iov.cloud.sec.ciam.service.common.security.FieldEncryptor;
 import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
 import net.hwyz.iov.cloud.sec.ciam.service.common.util.UserIdGenerator;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.IdentityType;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.RegisterSource;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.UserStatus;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.model.User;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.model.UserIdentity;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.model.UserProfile;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserCredentialRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserIdentityRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserProfileRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserRepository;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.UserCredentialRepository;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.UserIdentityRepository;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.UserProfileRepository;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,10 +33,10 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class AdminAccountAppService {
 
-    private final CiamUserRepository userRepository;
-    private final CiamUserIdentityRepository identityRepository;
-    private final CiamUserProfileRepository profileRepository;
-    private final CiamUserCredentialRepository credentialRepository;
+    private final UserRepository userRepository;
+    private final UserIdentityRepository identityRepository;
+    private final UserProfileRepository profileRepository;
+    private final UserCredentialRepository credentialRepository;
     private final AuditLogger auditLogger;
     private final FieldEncryptor fieldEncryptor;
 

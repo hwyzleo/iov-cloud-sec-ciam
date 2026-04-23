@@ -1,7 +1,7 @@
 package net.hwyz.iov.cloud.sec.ciam.service.adapter.web.controller.service;
 
 import lombok.RequiredArgsConstructor;
-import net.hwyz.iov.cloud.sec.ciam.api.service.CiamUserService;
+import net.hwyz.iov.cloud.sec.ciam.api.service.ServiceUserApi;
 import net.hwyz.iov.cloud.sec.ciam.api.vo.UserBasicInfo;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.service.TagDomainService;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.service.UserDomainService;
@@ -13,9 +13,9 @@ import org.springframework.web.bind.annotation.RestController;
  * 服务接口 — 用户信息查询。
  */
 @RestController
-@RequestMapping("/api/service/v1")
+@RequestMapping("/api/service/user/v1")
 @RequiredArgsConstructor
-public class ServiceUserController implements CiamUserService {
+public class ServiceUserController implements ServiceUserApi {
 
     private final UserDomainService userDomainService;
     private final TagDomainService tagDomainService;

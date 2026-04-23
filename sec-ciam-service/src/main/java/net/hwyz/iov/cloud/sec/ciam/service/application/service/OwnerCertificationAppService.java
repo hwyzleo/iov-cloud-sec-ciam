@@ -3,8 +3,8 @@ package net.hwyz.iov.cloud.sec.ciam.service.application.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
+import net.hwyz.iov.cloud.sec.ciam.service.application.assembler.OwnerCertificationAssembler;
 import net.hwyz.iov.cloud.sec.ciam.service.application.dto.OwnerCertificationDto;
-import net.hwyz.iov.cloud.sec.ciam.service.application.assembler.OwnerCertificationMapper;
 import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditEvent;
 import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditEventType;
 import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditLogger;
@@ -12,7 +12,7 @@ import net.hwyz.iov.cloud.sec.ciam.service.common.exception.CiamErrorCode;
 import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
 import net.hwyz.iov.cloud.sec.ciam.service.common.util.UserIdGenerator;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.CertStatus;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamOwnerCertStateRepository;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.OwnerCertStateRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.service.TagDomainService;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.OwnerCertStatePo;
 import org.springframework.stereotype.Service;
@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class OwnerCertificationAppService {
 
-    private final CiamOwnerCertStateRepository certStateRepository;
+    private final OwnerCertStateRepository certStateRepository;
     private final TagDomainService tagDomainService;
     private final AuditLogger auditLogger;
 
@@ -113,7 +113,7 @@ public class OwnerCertificationAppService {
         List<OwnerCertStatePo> records = certStateRepository.findByUserId(userId);
         logAudit(userId, AuditEventType.OWNER_CERT_QUERY, true);
         return records.stream()
-                .map(doObj -> OwnerCertificationMapper.INSTANCE.toDto(OwnerCertificationMapper.INSTANCE.toDomain(doObj)))
+                .map(doObj -> OwnerCertificationAssembler.INSTANCE.toDto(OwnerCertificationAssembler.INSTANCE.toDomain(doObj)))
                 .collect(Collectors.toList());
     }
 
@@ -145,7 +145,7 @@ public class OwnerCertificationAppService {
 
         logAudit(userId, AuditEventType.OWNER_CERT_COMPENSATE, true);
         return pendingRecords.stream()
-                .map(doObj -> OwnerCertificationMapper.INSTANCE.toDto(OwnerCertificationMapper.INSTANCE.toDomain(doObj)))
+                .map(doObj -> OwnerCertificationAssembler.INSTANCE.toDto(OwnerCertificationAssembler.INSTANCE.toDomain(doObj)))
                 .collect(Collectors.toList());
     }
 

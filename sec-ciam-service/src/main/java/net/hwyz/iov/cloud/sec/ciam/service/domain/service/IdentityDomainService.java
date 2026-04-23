@@ -9,7 +9,7 @@ import net.hwyz.iov.cloud.sec.ciam.service.common.util.UserIdGenerator;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.IdentityStatus;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.IdentityType;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.model.UserIdentity;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserIdentityRepository;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.UserIdentityRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class IdentityDomainService {
 
-    private final CiamUserIdentityRepository identityRepository;
+    private final UserIdentityRepository identityRepository;
     private final FieldEncryptor fieldEncryptor;
 
     /**

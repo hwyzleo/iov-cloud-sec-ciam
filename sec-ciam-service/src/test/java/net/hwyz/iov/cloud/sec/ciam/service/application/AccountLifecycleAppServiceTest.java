@@ -22,10 +22,10 @@ class AccountLifecycleAppServiceTest {
         service = new AccountLifecycleAppService(
                 mock(VerificationCodeService.class), mock(IdentityDomainService.class),
                 mock(UserDomainService.class), mock(PasswordChangeAppService.class),
-                mock(CiamDeactivationRequestRepository.class), mock(CiamUserRepository.class),
-                mock(CiamUserIdentityRepository.class), mock(CiamUserCredentialRepository.class),
-                mock(CiamUserProfileRepository.class), mock(CiamSessionRepository.class),
-                mock(CiamRefreshTokenRepository.class), mock(AuditLogger.class),
+                mock(DeactivationRequestRepository.class), mock(UserRepository.class),
+                mock(UserIdentityRepository.class), mock(UserCredentialRepository.class),
+                mock(UserProfileRepository.class), mock(SessionRepository.class),
+                mock(RefreshTokenRepository.class), mock(AuditLogger.class),
                 mock(SecurityEventLogger.class));
     }
 

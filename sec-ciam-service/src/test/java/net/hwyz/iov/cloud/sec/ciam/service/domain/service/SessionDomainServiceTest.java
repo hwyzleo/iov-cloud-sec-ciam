@@ -1,15 +1,13 @@
 package net.hwyz.iov.cloud.sec.ciam.service.domain.service;
-import net.hwyz.iov.cloud.sec.ciam.service.application.service.*;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.adapter.*;
 
 import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
 import net.hwyz.iov.cloud.sec.ciam.service.common.exception.CiamErrorCode;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.DeviceStatus;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.SessionStatus;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.model.Device;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamDeviceRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamRefreshTokenRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamSessionRepository;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.DeviceRepository;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.RefreshTokenRepository;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.SessionRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.SessionPo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -25,9 +23,9 @@ import static org.mockito.Mockito.*;
 
 class SessionDomainServiceTest {
 
-    private CiamSessionRepository sessionRepository;
-    private CiamRefreshTokenRepository refreshTokenRepository;
-    private CiamDeviceRepository deviceRepository;
+    private SessionRepository sessionRepository;
+    private RefreshTokenRepository refreshTokenRepository;
+    private DeviceRepository deviceRepository;
     private SessionDomainService service;
 
     private static final String SESSION_ID = "session-001";
@@ -36,9 +34,9 @@ class SessionDomainServiceTest {
 
     @BeforeEach
     void setUp() {
-        sessionRepository = mock(CiamSessionRepository.class);
-        refreshTokenRepository = mock(CiamRefreshTokenRepository.class);
-        deviceRepository = mock(CiamDeviceRepository.class);
+        sessionRepository = mock(SessionRepository.class);
+        refreshTokenRepository = mock(RefreshTokenRepository.class);
+        deviceRepository = mock(DeviceRepository.class);
         when(sessionRepository.updateBySessionId(any())).thenReturn(1);
         when(refreshTokenRepository.revokeAllBySessionId(anyString())).thenReturn(0);
         service = new SessionDomainService(sessionRepository, refreshTokenRepository, deviceRepository);

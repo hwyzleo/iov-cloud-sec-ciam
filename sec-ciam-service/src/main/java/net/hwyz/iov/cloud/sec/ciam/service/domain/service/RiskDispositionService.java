@@ -11,7 +11,7 @@ import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.ChallengeScene;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.ChallengeType;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.DecisionResult;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamRiskEventRepository;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.RiskEventRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.RiskEventPo;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.SessionPo;
 import org.springframework.stereotype.Service;
@@ -36,7 +36,7 @@ public class RiskDispositionService {
 
     private final SessionDomainService sessionDomainService;
     private final MfaDomainService mfaDomainService;
-    private final CiamRiskEventRepository riskEventRepository;
+    private final RiskEventRepository riskEventRepository;
     private final AuditLogger auditLogger;
 
     /**

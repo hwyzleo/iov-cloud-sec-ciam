@@ -4,14 +4,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
 import net.hwyz.iov.cloud.sec.ciam.service.application.dto.UserConsentDto;
-import net.hwyz.iov.cloud.sec.ciam.service.application.assembler.UserConsentMapper;
+import net.hwyz.iov.cloud.sec.ciam.service.application.assembler.UserConsentAssembler;
 import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditEvent;
 import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditEventType;
 import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditLogger;
 import net.hwyz.iov.cloud.sec.ciam.service.common.exception.CiamErrorCode;
 import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
 import net.hwyz.iov.cloud.sec.ciam.service.common.util.UserIdGenerator;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserConsentRepository;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.UserConsentRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.UserConsentPo;
 import org.springframework.stereotype.Service;
 
@@ -43,7 +43,7 @@ public class ConsentAppService {
     public static final int CONSENT_STATUS_AGREED = 1;
     public static final int CONSENT_STATUS_WITHDRAWN = 0;
 
-    private final CiamUserConsentRepository consentRepository;
+    private final UserConsentRepository consentRepository;
     private final AuditLogger auditLogger;
 
     /**
@@ -88,7 +88,7 @@ public class ConsentAppService {
         log.info("同意授予成功: userId={}, consentType={}, policyVersion={}",
                 userId, consentType, policyVersion);
 
-        return UserConsentMapper.INSTANCE.toDto(UserConsentMapper.INSTANCE.toDomain(record));
+        return UserConsentAssembler.INSTANCE.toDto(UserConsentAssembler.INSTANCE.toDomain(record));
     }
 
     /**
@@ -136,7 +136,7 @@ public class ConsentAppService {
     public List<UserConsentDto> getConsentRecords(String userId) {
         validateUserId(userId);
         return consentRepository.findByUserId(userId).stream()
-                .map(doObj -> UserConsentMapper.INSTANCE.toDto(UserConsentMapper.INSTANCE.toDomain(doObj)))
+                .map(doObj -> UserConsentAssembler.INSTANCE.toDto(UserConsentAssembler.INSTANCE.toDomain(doObj)))
                 .collect(Collectors.toList());
     }
 
@@ -151,7 +151,7 @@ public class ConsentAppService {
         validateUserId(userId);
         validateConsentType(consentType);
         return consentRepository.findByUserIdAndConsentType(userId, consentType).stream()
-                .map(doObj -> UserConsentMapper.INSTANCE.toDto(UserConsentMapper.INSTANCE.toDomain(doObj)))
+                .map(doObj -> UserConsentAssembler.INSTANCE.toDto(UserConsentAssembler.INSTANCE.toDomain(doObj)))
                 .collect(Collectors.toList());
     }
 

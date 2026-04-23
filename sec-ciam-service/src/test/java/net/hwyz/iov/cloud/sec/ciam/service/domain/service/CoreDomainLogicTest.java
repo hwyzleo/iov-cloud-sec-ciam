@@ -3,8 +3,9 @@ package net.hwyz.iov.cloud.sec.ciam.service.domain.service;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.UserStatus;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.model.User;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.model.UserIdentity;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserIdentityRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserRepository;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.UserIdentityRepository;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.UserRepository;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.UserProfileRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -17,15 +18,15 @@ import static org.mockito.Mockito.when;
 
 class CoreDomainLogicTest {
 
-    private CiamUserRepository userRepository;
-    private CiamUserIdentityRepository identityRepository;
+    private UserRepository userRepository;
+    private UserIdentityRepository identityRepository;
     private UserDomainService userDomainService;
 
     @BeforeEach
     void setUp() {
-        userRepository = mock(CiamUserRepository.class);
-        identityRepository = mock(CiamUserIdentityRepository.class);
-        userDomainService = new UserDomainService(userRepository, mock(net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserProfileRepository.class));
+        userRepository = mock(UserRepository.class);
+        identityRepository = mock(UserIdentityRepository.class);
+        userDomainService = new UserDomainService(userRepository, mock(UserProfileRepository.class));
     }
 
     @Test

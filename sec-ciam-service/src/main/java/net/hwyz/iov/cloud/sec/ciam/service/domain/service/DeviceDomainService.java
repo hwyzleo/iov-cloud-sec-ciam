@@ -6,7 +6,7 @@ import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
 import net.hwyz.iov.cloud.sec.ciam.service.application.dto.DeviceInfoDto;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.DeviceStatus;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.model.Device;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamDeviceRepository;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.DeviceRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -19,7 +19,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class DeviceDomainService {
 
-    private final CiamDeviceRepository deviceRepository;
+    private final DeviceRepository deviceRepository;
 
     /**
      * 记录或更新设备信息。

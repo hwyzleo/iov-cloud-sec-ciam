@@ -1,16 +1,18 @@
-package net.hwyz.iov.cloud.sec.ciam.application;
+package net.hwyz.iov.cloud.sec.ciam.service.application.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
+import net.hwyz.iov.cloud.sec.ciam.service.application.assembler.InvitationRelationAssembler;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.InvitationRelationDto;
 import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditEvent;
 import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditEventType;
 import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditLogger;
 import net.hwyz.iov.cloud.sec.ciam.service.common.exception.CiamErrorCode;
 import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
 import net.hwyz.iov.cloud.sec.ciam.service.common.util.UserIdGenerator;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamInvitationRelationRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.InvitationRelationPo;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.model.InvitationRelation;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.InvitationRelationRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -30,7 +32,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class InvitationRelationAppService {
 
-    private final CiamInvitationRelationRepository invitationRelationRepository;
+    private final InvitationRelationRepository invitationRelationRepository;
     private final AuditLogger auditLogger;
 
     /**
@@ -47,7 +49,7 @@ public class InvitationRelationAppService {
      * @param channelName       渠道名称（可为 null）
      * @return 创建的邀请关系记录，若跳过则返回 null
      */
-    public InvitationRelationPo recordInvitation(String userId,
+    public InvitationRelationDto recordInvitation(String userId,
                                                      String inviterUserId,
                                                      String invitationCode,
                                                      String channelCode,
@@ -63,34 +65,31 @@ public class InvitationRelationAppService {
         }
 
         // 不可变性校验：已存在则拒绝
-        Optional<InvitationRelationPo> existing =
+        Optional<InvitationRelation> existing =
                 invitationRelationRepository.findByInviteeUserId(userId);
         if (existing.isPresent()) {
             log.warn("邀请关系已存在，拒绝重复写入: userId={}", userId);
             throw new BusinessException(CiamErrorCode.INVITATION_ALREADY_EXISTS);
         }
 
-        InvitationRelationPo record = new InvitationRelationPo();
-        record.setRelationId(UserIdGenerator.generate());
-        record.setInviteeUserId(userId);
-        record.setInviterUserId(inviterUserId);
-        record.setInviteCode(invitationCode);
-        record.setInviteChannelCode(channelCode);
-        record.setInviteActivityCode(channelName);
-        record.setRelationLockFlag(1);
-        record.setRegisterTime(DateTimeUtil.getNowInstant());
-        record.setRowVersion(1);
-        record.setRowValid(1);
-        record.setCreateTime(DateTimeUtil.getNowInstant());
-        record.setModifyTime(DateTimeUtil.getNowInstant());
+        InvitationRelation domain = InvitationRelation.builder()
+                .relationId(UserIdGenerator.generate())
+                .inviteeUserId(userId)
+                .inviterUserId(inviterUserId)
+                .inviteCode(invitationCode)
+                .inviteChannelCode(channelCode)
+                .inviteActivityCode(channelName)
+                .relationLockFlag(1)
+                .registerTime(DateTimeUtil.getNowInstant())
+                .build();
 
-        invitationRelationRepository.insert(record);
+        invitationRelationRepository.insert(domain);
 
         logAudit(userId, AuditEventType.INVITATION_RECORD, true);
         log.info("邀请关系记录成功: userId={}, inviterUserId={}, channelCode={}",
                 userId, inviterUserId, channelCode);
 
-        return record;
+        return InvitationRelationAssembler.INSTANCE.toDto(domain);
     }
 
     /**
@@ -99,11 +98,12 @@ public class InvitationRelationAppService {
      * @param userId 被邀请人用户 ID
      * @return 邀请关系记录（可能为空）
      */
-    public Optional<InvitationRelationPo> getInvitationRelation(String userId) {
+    public Optional<InvitationRelationDto> getInvitationRelation(String userId) {
         if (userId == null || userId.isBlank()) {
             throw new BusinessException(CiamErrorCode.INVALID_PARAM, "userId 不能为空");
         }
-        return invitationRelationRepository.findByInviteeUserId(userId);
+        return invitationRelationRepository.findByInviteeUserId(userId)
+                .map(InvitationRelationAssembler.INSTANCE::toDto);
     }
 
     private boolean isAllBlank(String... values) {

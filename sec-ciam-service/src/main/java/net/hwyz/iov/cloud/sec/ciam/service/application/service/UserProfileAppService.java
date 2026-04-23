@@ -4,8 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
 import net.hwyz.iov.cloud.framework.common.util.StrUtil;
+import net.hwyz.iov.cloud.sec.ciam.service.application.assembler.UserProfileAssembler;
 import net.hwyz.iov.cloud.sec.ciam.service.application.dto.UserProfileDto;
-import net.hwyz.iov.cloud.sec.ciam.service.application.assembler.UserProfileMapper;
 import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditEvent;
 import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditEventType;
 import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditLogger;
@@ -13,7 +13,7 @@ import net.hwyz.iov.cloud.sec.ciam.service.common.exception.CiamErrorCode;
 import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
 import net.hwyz.iov.cloud.sec.ciam.service.common.util.UserIdGenerator;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.model.UserProfile;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserProfileRepository;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.UserProfileRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -36,7 +36,7 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class UserProfileAppService {
 
-    private final CiamUserProfileRepository profileRepository;
+    private final UserProfileRepository profileRepository;
     private final AuditLogger auditLogger;
 
     @Value("${biz.default-avatar}")
@@ -59,7 +59,7 @@ public class UserProfileAppService {
         if (StrUtil.isBlank(userProfile.getAvatarUrl())) {
             userProfile.setAvatarUrl(defaultAvatar);
         }
-        return UserProfileMapper.INSTANCE.toDto(userProfile);
+        return UserProfileAssembler.INSTANCE.toDto(userProfile);
     }
 
     /**

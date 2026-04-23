@@ -3,7 +3,7 @@ package net.hwyz.iov.cloud.sec.ciam.service.common.audit;
 import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.model.AuditLog;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamAuditLogRepository;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.AuditLogRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
@@ -21,11 +21,11 @@ import java.util.UUID;
 @Component
 public class PersistentAuditLogger implements AuditLogger {
 
-    private final CiamAuditLogRepository auditLogRepository;
+    private final AuditLogRepository auditLogRepository;
     private final AuditLogger delegate;
 
     @Autowired
-    public PersistentAuditLogger(CiamAuditLogRepository auditLogRepository, Slf4jAuditLogger slf4jAuditLogger) {
+    public PersistentAuditLogger(AuditLogRepository auditLogRepository, Slf4jAuditLogger slf4jAuditLogger) {
         this.auditLogRepository = auditLogRepository;
         this.delegate = slf4jAuditLogger;
     }
@@ -33,7 +33,7 @@ public class PersistentAuditLogger implements AuditLogger {
     /**
      * 用于测试的构造函数，允许注入任意 AuditLogger 作为委托。
      */
-    PersistentAuditLogger(CiamAuditLogRepository auditLogRepository, AuditLogger delegate) {
+    PersistentAuditLogger(AuditLogRepository auditLogRepository, AuditLogger delegate) {
         this.auditLogRepository = auditLogRepository;
         this.delegate = delegate;
     }

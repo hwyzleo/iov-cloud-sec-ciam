@@ -8,7 +8,7 @@ import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
 import net.hwyz.iov.cloud.sec.ciam.service.common.util.UserIdGenerator;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.CredentialStatus;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.CredentialType;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserCredentialRepository;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.UserCredentialRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.UserCredentialPo;
 import org.springframework.stereotype.Service;
 
@@ -32,7 +32,7 @@ public class CredentialDomainService {
     /** 锁定时长（分钟） */
     public static final int LOCK_DURATION_MINUTES = 30;
 
-    private final CiamUserCredentialRepository credentialRepository;
+    private final UserCredentialRepository credentialRepository;
     private final PasswordEncoder passwordEncoder;
     private final PasswordPolicyService passwordPolicyService;
 

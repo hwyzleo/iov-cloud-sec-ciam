@@ -40,13 +40,13 @@ public class AccountLifecycleAppService {
     private final IdentityDomainService identityDomainService;
     private final UserDomainService userDomainService;
     private final PasswordChangeAppService passwordChangeAppService;
-    private final CiamDeactivationRequestRepository deactivationRequestRepository;
-    private final CiamUserRepository userRepository;
-    private final CiamUserIdentityRepository identityRepository;
-    private final CiamUserCredentialRepository credentialRepository;
-    private final CiamUserProfileRepository profileRepository;
-    private final CiamSessionRepository sessionRepository;
-    private final CiamRefreshTokenRepository refreshTokenRepository;
+    private final DeactivationRequestRepository deactivationRequestRepository;
+    private final UserRepository userRepository;
+    private final UserIdentityRepository identityRepository;
+    private final UserCredentialRepository credentialRepository;
+    private final UserProfileRepository profileRepository;
+    private final SessionRepository sessionRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
     private final AuditLogger auditLogger;
     private final SecurityEventLogger securityEventLogger;
 

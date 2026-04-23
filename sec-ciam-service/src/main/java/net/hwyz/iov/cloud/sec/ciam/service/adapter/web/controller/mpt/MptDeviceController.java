@@ -5,9 +5,9 @@ import net.hwyz.iov.cloud.framework.common.bean.ApiResponse;
 import net.hwyz.iov.cloud.framework.common.bean.PageResult;
 import net.hwyz.iov.cloud.framework.web.controller.BaseController;
 import net.hwyz.iov.cloud.sec.ciam.service.adapter.web.vo.DeviceVo;
+import net.hwyz.iov.cloud.sec.ciam.service.application.assembler.DeviceAssembler;
 import net.hwyz.iov.cloud.sec.ciam.service.application.service.DeviceQueryAppService;
-import net.hwyz.iov.cloud.sec.ciam.service.application.assembler.DeviceMapper;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.query.DeviceQuery;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.query.DeviceQuery;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,7 +28,7 @@ public class MptDeviceController extends BaseController {
 
     private final DeviceQueryAppService deviceQueryAppService;
 
-    private final DeviceMapper deviceMapper = DeviceMapper.INSTANCE;
+    private final DeviceAssembler deviceMapper = DeviceAssembler.INSTANCE;
 
     /**
      * 检索设备列表

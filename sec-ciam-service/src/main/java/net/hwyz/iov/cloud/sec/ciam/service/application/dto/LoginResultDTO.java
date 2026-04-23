@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.adapter.CaptchaChallenge;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.gateway.CaptchaChallenge;
 
 /**
  * 登录结果 DTO。

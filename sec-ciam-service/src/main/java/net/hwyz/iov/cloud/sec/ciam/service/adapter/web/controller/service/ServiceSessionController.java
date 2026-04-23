@@ -1,7 +1,7 @@
 package net.hwyz.iov.cloud.sec.ciam.service.adapter.web.controller.service;
 
 import lombok.RequiredArgsConstructor;
-import net.hwyz.iov.cloud.sec.ciam.api.service.CiamSessionService;
+import net.hwyz.iov.cloud.sec.ciam.api.service.ServiceSessionApi;
 import net.hwyz.iov.cloud.sec.ciam.api.vo.SessionValidateResult;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.service.SessionDomainService;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,9 +12,9 @@ import org.springframework.web.bind.annotation.RestController;
  * 服务接口 — 会话校验。
  */
 @RestController
-@RequestMapping("/api/service/v1")
+@RequestMapping("/api/service/session/v1")
 @RequiredArgsConstructor
-public class ServiceSessionController implements CiamSessionService {
+public class ServiceSessionController implements ServiceSessionApi {
 
     private final SessionDomainService sessionDomainService;
 

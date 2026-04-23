@@ -1,17 +1,15 @@
 package net.hwyz.iov.cloud.sec.ciam.service.domain.service;
-import net.hwyz.iov.cloud.sec.ciam.service.application.service.*;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.adapter.*;
 
 import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
 import net.hwyz.iov.cloud.sec.ciam.service.common.exception.CiamErrorCode;
 import net.hwyz.iov.cloud.sec.ciam.service.common.security.TokenDigest;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.adapter.AdapterResult;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.adapter.EmailAdapter;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.adapter.SmsAdapter;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.gateway.AdapterResult;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.gateway.EmailAdapter;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.gateway.SmsAdapter;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.ChallengeScene;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.ChallengeStatus;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.ChallengeType;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamMfaChallengeRepository;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.MfaChallengeRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.MfaChallengePo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -19,9 +17,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -32,14 +27,14 @@ import static org.mockito.Mockito.*;
 
 class MfaDomainServiceTest {
 
-    private CiamMfaChallengeRepository challengeRepository;
+    private MfaChallengeRepository challengeRepository;
     private SmsAdapter smsAdapter;
     private EmailAdapter emailAdapter;
     private MfaDomainService service;
 
     @BeforeEach
     void setUp() {
-        challengeRepository = mock(CiamMfaChallengeRepository.class);
+        challengeRepository = mock(MfaChallengeRepository.class);
         smsAdapter = mock(SmsAdapter.class);
         emailAdapter = mock(EmailAdapter.class);
         when(challengeRepository.insert(any())).thenReturn(1);

@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.DecisionResult;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.RiskLevel;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamRiskEventRepository;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.RiskEventRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.RiskEventPo;
 import org.springframework.stereotype.Service;
 
@@ -24,7 +24,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class RiskAssessmentService {
 
-    private final CiamRiskEventRepository riskEventRepository;
+    private final RiskEventRepository riskEventRepository;
 
     /**
      * 评估登录风险。

@@ -1,14 +1,13 @@
 package net.hwyz.iov.cloud.sec.ciam.service.application;
-import net.hwyz.iov.cloud.sec.ciam.service.application.service.*;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.adapter.*;
 
 import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
-import net.hwyz.iov.cloud.sec.ciam.application.InvitationRelationAppService;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.InvitationRelationDto;
+import net.hwyz.iov.cloud.sec.ciam.service.application.service.InvitationRelationAppService;
 import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditEvent;
 import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditLogger;
 import net.hwyz.iov.cloud.sec.ciam.service.common.exception.CiamErrorCode;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamInvitationRelationRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.InvitationRelationPo;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.model.InvitationRelation;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.InvitationRelationRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -27,7 +26,7 @@ import static org.mockito.Mockito.*;
  */
 class InvitationRelationAppServiceTest {
 
-    private CiamInvitationRelationRepository invitationRelationRepository;
+    private InvitationRelationRepository invitationRelationRepository;
     private AuditLogger auditLogger;
     private InvitationRelationAppService service;
 
@@ -39,7 +38,7 @@ class InvitationRelationAppServiceTest {
 
     @BeforeEach
     void setUp() {
-        invitationRelationRepository = mock(CiamInvitationRelationRepository.class);
+        invitationRelationRepository = mock(InvitationRelationRepository.class);
         auditLogger = mock(AuditLogger.class);
         when(invitationRelationRepository.insert(any())).thenReturn(1);
 
@@ -56,7 +55,7 @@ class InvitationRelationAppServiceTest {
             when(invitationRelationRepository.findByInviteeUserId(USER_ID))
                     .thenReturn(Optional.empty());
 
-            InvitationRelationPo result = service.recordInvitation(
+            InvitationRelationDto result = service.recordInvitation(
                     USER_ID, INVITER_USER_ID, INVITATION_CODE, CHANNEL_CODE, CHANNEL_NAME);
 
             assertNotNull(result);
@@ -67,11 +66,9 @@ class InvitationRelationAppServiceTest {
             assertEquals(CHANNEL_CODE, result.getInviteChannelCode());
             assertEquals(CHANNEL_NAME, result.getInviteActivityCode());
             assertEquals(1, result.getRelationLockFlag());
-            assertEquals(1, result.getRowValid());
             assertNotNull(result.getRegisterTime());
-            assertNotNull(result.getCreateTime());
 
-            verify(invitationRelationRepository).insert(any(InvitationRelationPo.class));
+            verify(invitationRelationRepository).insert(any(InvitationRelation.class));
 
             // Verify audit log
             ArgumentCaptor<AuditEvent> captor = ArgumentCaptor.forClass(AuditEvent.class);
@@ -82,11 +79,11 @@ class InvitationRelationAppServiceTest {
 
         @Test
         void rejectsDuplicateInvitationRecord() {
-            InvitationRelationPo existing = new InvitationRelationPo();
-            existing.setRelationId("existing-relation");
-            existing.setInviteeUserId(USER_ID);
-            existing.setInviterUserId(INVITER_USER_ID);
-            existing.setRowValid(1);
+            InvitationRelation existing = InvitationRelation.builder()
+                    .relationId("existing-relation")
+                    .inviteeUserId(USER_ID)
+                    .inviterUserId(INVITER_USER_ID)
+                    .build();
 
             when(invitationRelationRepository.findByInviteeUserId(USER_ID))
                     .thenReturn(Optional.of(existing));
@@ -102,7 +99,7 @@ class InvitationRelationAppServiceTest {
 
         @Test
         void skipsWhenAllInvitationFieldsAreNull() {
-            InvitationRelationPo result = service.recordInvitation(
+            InvitationRelationDto result = service.recordInvitation(
                     USER_ID, null, null, null, null);
 
             assertNull(result);
@@ -113,7 +110,7 @@ class InvitationRelationAppServiceTest {
 
         @Test
         void skipsWhenAllInvitationFieldsAreBlank() {
-            InvitationRelationPo result = service.recordInvitation(
+            InvitationRelationDto result = service.recordInvitation(
                     USER_ID, "", "  ", "", "  ");
 
             assertNull(result);
@@ -126,7 +123,7 @@ class InvitationRelationAppServiceTest {
             when(invitationRelationRepository.findByInviteeUserId(USER_ID))
                     .thenReturn(Optional.empty());
 
-            InvitationRelationPo result = service.recordInvitation(
+            InvitationRelationDto result = service.recordInvitation(
                     USER_ID, null, null, CHANNEL_CODE, null);
 
             assertNotNull(result);
@@ -135,7 +132,7 @@ class InvitationRelationAppServiceTest {
             assertNull(result.getInviteCode());
             assertEquals(CHANNEL_CODE, result.getInviteChannelCode());
 
-            verify(invitationRelationRepository).insert(any(InvitationRelationPo.class));
+            verify(invitationRelationRepository).insert(any(InvitationRelation.class));
         }
 
         @Test
@@ -162,17 +159,18 @@ class InvitationRelationAppServiceTest {
 
         @Test
         void returnsInvitationRelationWhenExists() {
-            InvitationRelationPo existing = new InvitationRelationPo();
-            existing.setRelationId("rel-001");
-            existing.setInviteeUserId(USER_ID);
-            existing.setInviterUserId(INVITER_USER_ID);
-            existing.setInviteCode(INVITATION_CODE);
-            existing.setInviteChannelCode(CHANNEL_CODE);
+            InvitationRelation existing = InvitationRelation.builder()
+                    .relationId("rel-001")
+                    .inviteeUserId(USER_ID)
+                    .inviterUserId(INVITER_USER_ID)
+                    .inviteCode(INVITATION_CODE)
+                    .inviteChannelCode(CHANNEL_CODE)
+                    .build();
 
             when(invitationRelationRepository.findByInviteeUserId(USER_ID))
                     .thenReturn(Optional.of(existing));
 
-            Optional<InvitationRelationPo> result = service.getInvitationRelation(USER_ID);
+            Optional<InvitationRelationDto> result = service.getInvitationRelation(USER_ID);
 
             assertTrue(result.isPresent());
             assertEquals("rel-001", result.get().getRelationId());
@@ -184,7 +182,7 @@ class InvitationRelationAppServiceTest {
             when(invitationRelationRepository.findByInviteeUserId(USER_ID))
                     .thenReturn(Optional.empty());
 
-            Optional<InvitationRelationPo> result = service.getInvitationRelation(USER_ID);
+            Optional<InvitationRelationDto> result = service.getInvitationRelation(USER_ID);
 
             assertTrue(result.isEmpty());
         }

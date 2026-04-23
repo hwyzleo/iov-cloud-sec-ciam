@@ -1,7 +1,7 @@
 package net.hwyz.iov.cloud.sec.ciam.service.adapter.web.controller.service;
 
 import lombok.RequiredArgsConstructor;
-import net.hwyz.iov.cloud.sec.ciam.api.service.CiamTokenService;
+import net.hwyz.iov.cloud.sec.ciam.api.service.ServiceTokenApi;
 import net.hwyz.iov.cloud.sec.ciam.api.vo.TokenVerifyResult;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.service.JwtTokenService;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.service.TokenClaims;
@@ -15,9 +15,9 @@ import java.util.Map;
  * 服务接口 — Token 校验。
  */
 @RestController
-@RequestMapping("/api/service/v1")
+@RequestMapping("/api/service/token/v1")
 @RequiredArgsConstructor
-public class ServiceTokenController implements CiamTokenService {
+public class ServiceTokenController implements ServiceTokenApi {
 
     private final JwtTokenService jwtTokenService;
 

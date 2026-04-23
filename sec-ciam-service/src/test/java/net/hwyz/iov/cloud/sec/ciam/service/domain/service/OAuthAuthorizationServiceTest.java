@@ -1,8 +1,8 @@
 package net.hwyz.iov.cloud.sec.ciam.service.domain.service;
 
 import net.hwyz.iov.cloud.sec.ciam.service.domain.model.AuthCode;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamAuthCodeRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamOAuthClientRepository;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.AuthCodeRepository;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.OAuthClientRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.common.security.PasswordEncoder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,14 +16,14 @@ import static org.mockito.Mockito.when;
 
 class OAuthAuthorizationServiceTest {
 
-    private CiamAuthCodeRepository authCodeRepository;
+    private AuthCodeRepository authCodeRepository;
     private OAuthAuthorizationService service;
 
     @BeforeEach
     void setUp() {
-        authCodeRepository = mock(CiamAuthCodeRepository.class);
+        authCodeRepository = mock(AuthCodeRepository.class);
         service = new OAuthAuthorizationService(
-                authCodeRepository, mock(CiamOAuthClientRepository.class), mock(PasswordEncoder.class));
+                authCodeRepository, mock(OAuthClientRepository.class), mock(PasswordEncoder.class));
     }
 
     @Test

@@ -1,6 +1,5 @@
 package net.hwyz.iov.cloud.sec.ciam.service.application;
 import net.hwyz.iov.cloud.sec.ciam.service.application.service.*;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.adapter.*;
 
 import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
 import net.hwyz.iov.cloud.sec.ciam.service.application.dto.UserProfileDto;
@@ -8,13 +7,12 @@ import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditEvent;
 import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditLogger;
 import net.hwyz.iov.cloud.sec.ciam.service.common.exception.CiamErrorCode;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.model.UserProfile;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserProfileRepository;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.UserProfileRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
-import java.time.LocalDate;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -26,7 +24,7 @@ import static org.mockito.Mockito.*;
  */
 class UserProfileAppServiceTest {
 
-    private CiamUserProfileRepository profileRepository;
+    private UserProfileRepository profileRepository;
     private AuditLogger auditLogger;
     private UserProfileAppService service;
 
@@ -35,7 +33,7 @@ class UserProfileAppServiceTest {
 
     @BeforeEach
     void setUp() {
-        profileRepository = mock(CiamUserProfileRepository.class);
+        profileRepository = mock(UserProfileRepository.class);
         auditLogger = mock(AuditLogger.class);
 
         when(profileRepository.updateByProfileId(any())).thenReturn(1);

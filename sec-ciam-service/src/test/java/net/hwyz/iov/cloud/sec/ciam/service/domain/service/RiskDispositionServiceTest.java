@@ -1,23 +1,21 @@
 package net.hwyz.iov.cloud.sec.ciam.service.domain.service;
-import net.hwyz.iov.cloud.sec.ciam.service.application.service.*;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.adapter.*;
 
 import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
 import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditEvent;
 import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditEventType;
 import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditLogger;
 import net.hwyz.iov.cloud.sec.ciam.service.common.exception.CiamErrorCode;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.adapter.AdapterResult;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.adapter.EmailAdapter;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.adapter.SmsAdapter;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.gateway.AdapterResult;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.gateway.EmailAdapter;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.gateway.SmsAdapter;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.DecisionResult;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.RiskLevel;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.SessionStatus;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamDeviceRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamMfaChallengeRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamRefreshTokenRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamRiskEventRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamSessionRepository;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.DeviceRepository;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.MfaChallengeRepository;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.RefreshTokenRepository;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.RiskEventRepository;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.SessionRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.RiskEventPo;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.SessionPo;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,10 +34,10 @@ import static org.mockito.Mockito.*;
 
 class RiskDispositionServiceTest {
 
-    private CiamSessionRepository sessionRepository;
-    private CiamRefreshTokenRepository refreshTokenRepository;
-    private CiamMfaChallengeRepository challengeRepository;
-    private CiamRiskEventRepository riskEventRepository;
+    private SessionRepository sessionRepository;
+    private RefreshTokenRepository refreshTokenRepository;
+    private MfaChallengeRepository challengeRepository;
+    private RiskEventRepository riskEventRepository;
     private AuditLogger auditLogger;
     private SmsAdapter smsAdapter;
     private EmailAdapter emailAdapter;
@@ -52,11 +50,11 @@ class RiskDispositionServiceTest {
 
     @BeforeEach
     void setUp() {
-        sessionRepository = mock(CiamSessionRepository.class);
-        refreshTokenRepository = mock(CiamRefreshTokenRepository.class);
-        CiamDeviceRepository deviceRepository = mock(CiamDeviceRepository.class);
-        challengeRepository = mock(CiamMfaChallengeRepository.class);
-        riskEventRepository = mock(CiamRiskEventRepository.class);
+        sessionRepository = mock(SessionRepository.class);
+        refreshTokenRepository = mock(RefreshTokenRepository.class);
+        DeviceRepository deviceRepository = mock(DeviceRepository.class);
+        challengeRepository = mock(MfaChallengeRepository.class);
+        riskEventRepository = mock(RiskEventRepository.class);
         auditLogger = mock(AuditLogger.class);
         smsAdapter = mock(SmsAdapter.class);
         emailAdapter = mock(EmailAdapter.class);

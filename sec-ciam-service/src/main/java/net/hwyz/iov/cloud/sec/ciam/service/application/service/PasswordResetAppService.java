@@ -41,8 +41,8 @@ public class PasswordResetAppService {
     private final IdentityDomainService identityDomainService;
     private final VerificationCodeService verificationCodeService;
     private final CredentialDomainService credentialDomainService;
-    private final CiamSessionRepository sessionRepository;
-    private final CiamRefreshTokenRepository refreshTokenRepository;
+    private final SessionRepository sessionRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
     private final AuditLogger auditLogger;
     private final SecurityEventLogger securityEventLogger;
 

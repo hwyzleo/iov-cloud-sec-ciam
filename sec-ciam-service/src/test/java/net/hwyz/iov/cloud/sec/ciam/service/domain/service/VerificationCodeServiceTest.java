@@ -1,13 +1,11 @@
 package net.hwyz.iov.cloud.sec.ciam.service.domain.service;
-import net.hwyz.iov.cloud.sec.ciam.service.application.service.*;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.adapter.*;
 
 import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
 import net.hwyz.iov.cloud.sec.ciam.service.common.exception.CiamErrorCode;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.adapter.AdapterResult;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.adapter.EmailAdapter;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.adapter.SmsAdapter;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.cache.InMemoryVerificationCodeStore;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.gateway.AdapterResult;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.gateway.EmailAdapter;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.gateway.SmsAdapter;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.cache.InMemoryVerificationCodeStore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

@@ -1,13 +1,11 @@
 package net.hwyz.iov.cloud.sec.ciam.service.domain.service;
-import net.hwyz.iov.cloud.sec.ciam.service.application.service.*;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.adapter.*;
 
 import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
 import net.hwyz.iov.cloud.sec.ciam.service.common.exception.CiamErrorCode;
 import net.hwyz.iov.cloud.sec.ciam.service.common.security.PasswordEncoder;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.ClientStatus;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.OAuthClientType;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamOAuthClientRepository;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.OAuthClientRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.OAuthClientPo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -21,13 +19,13 @@ import static org.mockito.Mockito.*;
 
 class OAuthClientDomainServiceTest {
 
-    private CiamOAuthClientRepository clientRepository;
+    private OAuthClientRepository clientRepository;
     private PasswordEncoder passwordEncoder;
     private OAuthClientDomainService service;
 
     @BeforeEach
     void setUp() {
-        clientRepository = mock(CiamOAuthClientRepository.class);
+        clientRepository = mock(OAuthClientRepository.class);
         passwordEncoder = new PasswordEncoder(4); // low strength for fast tests
         when(clientRepository.insert(any())).thenReturn(1);
         when(clientRepository.updateByClientId(any())).thenReturn(1);

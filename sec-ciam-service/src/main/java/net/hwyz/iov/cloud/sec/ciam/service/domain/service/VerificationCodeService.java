@@ -3,9 +3,9 @@ package net.hwyz.iov.cloud.sec.ciam.service.domain.service;
 import lombok.RequiredArgsConstructor;
 import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
 import net.hwyz.iov.cloud.sec.ciam.service.common.exception.CiamErrorCode;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.adapter.AdapterResult;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.adapter.EmailAdapter;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.adapter.SmsAdapter;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.gateway.AdapterResult;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.gateway.EmailAdapter;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.gateway.SmsAdapter;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;

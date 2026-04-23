@@ -3,8 +3,8 @@ package net.hwyz.iov.cloud.sec.ciam.service.domain.service;
 import lombok.RequiredArgsConstructor;
 import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
 import net.hwyz.iov.cloud.sec.ciam.service.common.exception.CiamErrorCode;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.adapter.CaptchaAdapter;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.adapter.CaptchaChallenge;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.gateway.CaptchaAdapter;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.gateway.CaptchaChallenge;
 import org.springframework.stereotype.Service;
 
 /**

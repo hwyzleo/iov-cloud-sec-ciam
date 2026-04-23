@@ -1,10 +1,8 @@
 package net.hwyz.iov.cloud.sec.ciam.service.domain.service;
-import net.hwyz.iov.cloud.sec.ciam.service.application.service.*;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.adapter.*;
 
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.DecisionResult;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.RiskLevel;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamRiskEventRepository;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.RiskEventRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.RiskEventPo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,12 +14,12 @@ import static org.mockito.Mockito.*;
 
 class RiskAssessmentServiceTest {
 
-    private CiamRiskEventRepository riskEventRepository;
+    private RiskEventRepository riskEventRepository;
     private RiskAssessmentService service;
 
     @BeforeEach
     void setUp() {
-        riskEventRepository = mock(CiamRiskEventRepository.class);
+        riskEventRepository = mock(RiskEventRepository.class);
         when(riskEventRepository.insert(any())).thenReturn(1);
         service = new RiskAssessmentService(riskEventRepository);
     }

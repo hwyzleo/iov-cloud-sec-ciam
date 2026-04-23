@@ -6,13 +6,13 @@ import net.hwyz.iov.cloud.sec.ciam.service.common.exception.CiamErrorCode;
 import net.hwyz.iov.cloud.sec.ciam.service.common.security.TokenDigest;
 import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
 import net.hwyz.iov.cloud.sec.ciam.service.common.util.UserIdGenerator;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.adapter.AdapterResult;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.adapter.EmailAdapter;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.adapter.SmsAdapter;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.gateway.AdapterResult;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.gateway.EmailAdapter;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.gateway.SmsAdapter;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.ChallengeScene;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.ChallengeStatus;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.ChallengeType;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamMfaChallengeRepository;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.MfaChallengeRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.MfaChallengePo;
 import org.springframework.stereotype.Service;
 
@@ -43,7 +43,7 @@ public class MfaDomainService {
 
     private static final SecureRandom RANDOM = new SecureRandom();
 
-    private final CiamMfaChallengeRepository challengeRepository;
+    private final MfaChallengeRepository challengeRepository;
     private final SmsAdapter smsAdapter;
     private final EmailAdapter emailAdapter;
 

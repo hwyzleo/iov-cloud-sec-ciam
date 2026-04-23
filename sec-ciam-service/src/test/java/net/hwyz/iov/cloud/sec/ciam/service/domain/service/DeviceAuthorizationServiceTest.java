@@ -1,12 +1,10 @@
 package net.hwyz.iov.cloud.sec.ciam.service.domain.service;
-import net.hwyz.iov.cloud.sec.ciam.service.application.service.*;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.adapter.*;
 
 import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
 import net.hwyz.iov.cloud.sec.ciam.service.common.exception.CiamErrorCode;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamOAuthClientRepository;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.OAuthClientRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.OAuthClientPo;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.cache.InMemoryVerificationCodeStore;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.cache.InMemoryVerificationCodeStore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -18,7 +16,7 @@ import static org.mockito.Mockito.*;
 
 class DeviceAuthorizationServiceTest {
 
-    private CiamOAuthClientRepository clientRepository;
+    private OAuthClientRepository clientRepository;
     private InMemoryVerificationCodeStore store;
     private DeviceAuthorizationService service;
 
@@ -28,7 +26,7 @@ class DeviceAuthorizationServiceTest {
 
     @BeforeEach
     void setUp() {
-        clientRepository = mock(CiamOAuthClientRepository.class);
+        clientRepository = mock(OAuthClientRepository.class);
         store = new InMemoryVerificationCodeStore();
         service = new DeviceAuthorizationService(clientRepository, store);
     }

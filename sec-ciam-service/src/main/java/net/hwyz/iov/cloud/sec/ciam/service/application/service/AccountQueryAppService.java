@@ -5,28 +5,26 @@ import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
 import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
 import net.hwyz.iov.cloud.framework.web.util.PageUtil;
+import net.hwyz.iov.cloud.sec.ciam.service.application.assembler.MergeRequestAssembler;
+import net.hwyz.iov.cloud.sec.ciam.service.application.assembler.UserIdentityAssembler;
 import net.hwyz.iov.cloud.sec.ciam.service.application.dto.DeactivationRequestDto;
 import net.hwyz.iov.cloud.sec.ciam.service.application.dto.MergeRequestDto;
 import net.hwyz.iov.cloud.sec.ciam.service.application.dto.UserIdentityDto;
 import net.hwyz.iov.cloud.sec.ciam.service.application.dto.UserSearchDto;
-import net.hwyz.iov.cloud.sec.ciam.service.application.assembler.DeactivationRequestMapper;
-import net.hwyz.iov.cloud.sec.ciam.service.application.assembler.MergeRequestMapper;
-import net.hwyz.iov.cloud.sec.ciam.service.application.assembler.UserIdentityMapper;
+import net.hwyz.iov.cloud.sec.ciam.service.application.assembler.DeactivationRequestAssembler;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.query.UserQuery;
 import net.hwyz.iov.cloud.sec.ciam.service.common.exception.CiamErrorCode;
 import net.hwyz.iov.cloud.sec.ciam.service.common.security.FieldEncryptor;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.IdentityType;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.model.User;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.model.UserIdentity;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.model.UserProfile;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.query.UserQuery;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.model.UserSearchCriteria;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.*;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.search.SearchResult;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.search.SearchService;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.MergeRequestPo;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.DeactivationRequestPo;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.search.document.AuditLogSearchDocument;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.search.document.RiskEventSearchDocument;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.search.document.UserSearchDocument;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -43,12 +41,12 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class AccountQueryAppService {
 
-    private final CiamUserRepository userRepository;
-    private final CiamUserIdentityRepository identityRepository;
-    private final CiamUserProfileRepository profileRepository;
-    private final CiamUserTagRepository tagRepository;
-    private final CiamMergeRequestRepository mergeRequestRepository;
-    private final CiamDeactivationRequestRepository deactivationRequestRepository;
+    private final UserRepository userRepository;
+    private final UserIdentityRepository identityRepository;
+    private final UserProfileRepository profileRepository;
+    private final UserTagRepository tagRepository;
+    private final MergeRequestRepository mergeRequestRepository;
+    private final DeactivationRequestRepository deactivationRequestRepository;
     private final SearchService searchService;
     private final FieldEncryptor fieldEncryptor;
 
@@ -102,7 +100,17 @@ public class AccountQueryAppService {
      * 检索用户列表
      */
     public List<UserSearchDto> queryUserList(UserQuery query) {
-        List<User> userList = userRepository.search(query);
+        UserSearchCriteria criteria = UserSearchCriteria.builder()
+                .userId(query.getUserId())
+                .identityType(query.getIdentityType())
+                .identityValue(query.getIdentityValue())
+                .nickname(query.getNickname())
+                .registerSource(query.getRegisterSource())
+                .userStatus(query.getUserStatus())
+                .startTime(query.getStartTime())
+                .endTime(query.getEndTime())
+                .build();
+        List<User> userList = userRepository.search(criteria);
 
         // 使用 PageUtil.convert 确保分页元数据透传
         return PageUtil.convert(userList, user -> {
@@ -141,16 +149,16 @@ public class AccountQueryAppService {
         userRepository.findByUserId(userId)
                 .orElseThrow(() -> new BusinessException(CiamErrorCode.USER_NOT_FOUND));
         return identityRepository.findByUserId(userId).stream()
-                .map(UserIdentityMapper.INSTANCE::toDto)
+                .map(UserIdentityAssembler.INSTANCE::toDto)
                 .collect(Collectors.toList());
     }
 
     public List<MergeRequestDto> queryMergeRequests(int reviewStatus) {
-        return PageUtil.convert(mergeRequestRepository.findByReviewStatus(reviewStatus), MergeRequestMapper.INSTANCE::toDto);
+        return PageUtil.convert(mergeRequestRepository.findByReviewStatus(reviewStatus), MergeRequestAssembler.INSTANCE::toDto);
     }
 
     public List<DeactivationRequestDto> queryDeactivationRequests(int reviewStatus) {
-        return PageUtil.convert(deactivationRequestRepository.findByReviewStatus(reviewStatus), DeactivationRequestMapper.INSTANCE::toDto);
+        return PageUtil.convert(deactivationRequestRepository.findByReviewStatus(reviewStatus), DeactivationRequestAssembler.INSTANCE::toDto);
     }
 
     public SearchResult<AuditLogSearchDocument> queryAuditLogs(String userId, String eventType,

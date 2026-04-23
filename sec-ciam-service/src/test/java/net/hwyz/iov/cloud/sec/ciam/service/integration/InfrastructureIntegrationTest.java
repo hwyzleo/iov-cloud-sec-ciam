@@ -6,8 +6,8 @@ import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.converter.
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.converter.UserPoConverter;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.mapper.CiamUserIdentityMapper;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.mapper.CiamUserMapper;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.repository.CiamUserIdentityRepositoryImpl;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.repository.CiamUserRepositoryImpl;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.repository.UserIdentityRepositoryImpl;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.repository.UserRepositoryImpl;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -29,7 +29,7 @@ class InfrastructureIntegrationTest {
 
     @Test
     void testUserRepository() {
-        CiamUserRepositoryImpl repo = new CiamUserRepositoryImpl(userMapper, UserPoConverter.INSTANCE);
+        UserRepositoryImpl repo = new UserRepositoryImpl(userMapper, UserPoConverter.INSTANCE);
         String userId = UUID.randomUUID().toString();
         User user = User.builder().userId(userId).build();
         repo.insert(user);
@@ -39,7 +39,7 @@ class InfrastructureIntegrationTest {
 
     @Test
     void testIdentityRepository() {
-        CiamUserIdentityRepositoryImpl repo = new CiamUserIdentityRepositoryImpl(identityMapper, UserIdentityPoConverter.INSTANCE);
+        UserIdentityRepositoryImpl repo = new UserIdentityRepositoryImpl(identityMapper, UserIdentityPoConverter.INSTANCE);
         String userId = UUID.randomUUID().toString();
         UserIdentity identity = UserIdentity.builder().userId(userId).identityType("MOBILE").identityValue("138").build();
         repo.insert(identity);

@@ -2,8 +2,8 @@ package net.hwyz.iov.cloud.sec.ciam.service.protocol;
 
 import net.hwyz.iov.cloud.sec.ciam.service.domain.model.AuthCode;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.model.UserProfile;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamAuthCodeRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserProfileRepository;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.AuthCodeRepository;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.UserProfileRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -18,9 +18,9 @@ import static org.mockito.Mockito.when;
 class OAuthOidcProtocolComplianceTest {
 
     @MockBean
-    private CiamAuthCodeRepository authCodeRepository;
+    private AuthCodeRepository authCodeRepository;
     @MockBean
-    private CiamUserProfileRepository profileRepository;
+    private UserProfileRepository profileRepository;
 
     @Test
     void testProtocolCompliance() {

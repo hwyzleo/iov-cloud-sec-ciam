@@ -8,9 +8,9 @@ import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.DeviceStatus;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.SessionStatus;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.model.Device;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamDeviceRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamRefreshTokenRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamSessionRepository;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.DeviceRepository;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.RefreshTokenRepository;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.SessionRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.SessionPo;
 import org.springframework.stereotype.Service;
 
@@ -26,9 +26,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SessionDomainService {
 
-    private final CiamSessionRepository sessionRepository;
-    private final CiamRefreshTokenRepository refreshTokenRepository;
-    private final CiamDeviceRepository deviceRepository;
+    private final SessionRepository sessionRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
+    private final DeviceRepository deviceRepository;
 
     /**
      * 用户主动退出登录。

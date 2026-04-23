@@ -1,6 +1,5 @@
 package net.hwyz.iov.cloud.sec.ciam.service.application;
 import net.hwyz.iov.cloud.sec.ciam.service.application.service.*;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.adapter.*;
 
 import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
 import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditEvent;
@@ -9,9 +8,9 @@ import net.hwyz.iov.cloud.sec.ciam.service.common.exception.CiamErrorCode;
 import net.hwyz.iov.cloud.sec.ciam.service.common.security.PasswordEncoder;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.CredentialStatus;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.CredentialType;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamRefreshTokenRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamSessionRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserCredentialRepository;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.RefreshTokenRepository;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.SessionRepository;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.UserCredentialRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.service.CredentialDomainService;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.service.PasswordPolicyService;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.UserCredentialPo;
@@ -34,9 +33,9 @@ import static org.mockito.Mockito.*;
  */
 class PasswordChangeAppServiceTest {
 
-    private CiamUserCredentialRepository credentialRepository;
-    private CiamSessionRepository sessionRepository;
-    private CiamRefreshTokenRepository refreshTokenRepository;
+    private UserCredentialRepository credentialRepository;
+    private SessionRepository sessionRepository;
+    private RefreshTokenRepository refreshTokenRepository;
     private AuditLogger auditLogger;
     private PasswordEncoder passwordEncoder;
 
@@ -49,9 +48,9 @@ class PasswordChangeAppServiceTest {
 
     @BeforeEach
     void setUp() {
-        credentialRepository = mock(CiamUserCredentialRepository.class);
-        sessionRepository = mock(CiamSessionRepository.class);
-        refreshTokenRepository = mock(CiamRefreshTokenRepository.class);
+        credentialRepository = mock(UserCredentialRepository.class);
+        sessionRepository = mock(SessionRepository.class);
+        refreshTokenRepository = mock(RefreshTokenRepository.class);
         auditLogger = mock(AuditLogger.class);
         passwordEncoder = new PasswordEncoder();
 

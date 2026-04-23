@@ -1,15 +1,11 @@
 package net.hwyz.iov.cloud.sec.ciam.service.domain.service;
 
 import net.hwyz.iov.cloud.sec.ciam.service.common.security.FieldEncryptor;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.IdentityType;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.model.UserIdentity;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.model.UserProfile;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserProfileRepository;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.UserProfileRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -18,7 +14,7 @@ import static org.mockito.Mockito.when;
 
 class OidcServiceTest {
 
-    private CiamUserProfileRepository profileRepository;
+    private UserProfileRepository profileRepository;
     private IdentityDomainService identityDomainService;
     private FieldEncryptor fieldEncryptor;
     private OidcService service;
@@ -27,7 +23,7 @@ class OidcServiceTest {
 
     @BeforeEach
     void setUp() {
-        profileRepository = mock(CiamUserProfileRepository.class);
+        profileRepository = mock(UserProfileRepository.class);
         identityDomainService = mock(IdentityDomainService.class);
         fieldEncryptor = mock(FieldEncryptor.class);
         // 严格对齐构造器：profileRepository, identityDomainService, fieldEncryptor

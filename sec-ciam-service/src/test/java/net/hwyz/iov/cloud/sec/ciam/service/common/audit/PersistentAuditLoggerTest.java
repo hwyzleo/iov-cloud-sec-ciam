@@ -1,7 +1,7 @@
 package net.hwyz.iov.cloud.sec.ciam.service.common.audit;
 
 import net.hwyz.iov.cloud.sec.ciam.service.domain.model.AuditLog;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamAuditLogRepository;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.AuditLogRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -12,13 +12,13 @@ import static org.mockito.Mockito.*;
 
 class PersistentAuditLoggerTest {
 
-    private CiamAuditLogRepository auditLogRepository;
+    private AuditLogRepository auditLogRepository;
     private Slf4jAuditLogger delegateLogger;
     private PersistentAuditLogger persistentAuditLogger;
 
     @BeforeEach
     void setUp() {
-        auditLogRepository = mock(CiamAuditLogRepository.class);
+        auditLogRepository = mock(AuditLogRepository.class);
         delegateLogger = mock(Slf4jAuditLogger.class);
         persistentAuditLogger = new PersistentAuditLogger(auditLogRepository, delegateLogger);
     }

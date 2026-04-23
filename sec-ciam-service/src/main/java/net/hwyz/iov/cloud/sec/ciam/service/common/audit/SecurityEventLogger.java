@@ -2,7 +2,7 @@ package net.hwyz.iov.cloud.sec.ciam.service.common.audit;
 
 import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamRiskEventRepository;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.RiskEventRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.RiskEventPo;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
@@ -24,9 +24,9 @@ import java.util.UUID;
 public class SecurityEventLogger {
 
     @Nullable
-    private final CiamRiskEventRepository riskEventRepository;
+    private final RiskEventRepository riskEventRepository;
 
-    public SecurityEventLogger(@Nullable CiamRiskEventRepository riskEventRepository) {
+    public SecurityEventLogger(@Nullable RiskEventRepository riskEventRepository) {
         this.riskEventRepository = riskEventRepository;
     }
 

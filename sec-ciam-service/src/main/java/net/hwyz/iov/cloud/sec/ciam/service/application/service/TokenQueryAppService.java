@@ -5,12 +5,13 @@ import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
 import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
 import net.hwyz.iov.cloud.framework.web.util.PageUtil;
+import net.hwyz.iov.cloud.sec.ciam.service.application.assembler.RefreshTokenAssembler;
 import net.hwyz.iov.cloud.sec.ciam.service.application.dto.RefreshTokenDto;
-import net.hwyz.iov.cloud.sec.ciam.service.application.assembler.RefreshTokenMapper;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.query.TokenQuery;
 import net.hwyz.iov.cloud.sec.ciam.service.common.exception.CiamErrorCode;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.query.TokenQuery;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamRefreshTokenRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.RefreshTokenPo;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.model.RefreshToken;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.model.TokenSearchCriteria;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.RefreshTokenRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.OffsetDateTime;
@@ -25,33 +26,42 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class TokenQueryAppService {
 
-    private final CiamRefreshTokenRepository refreshTokenRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
 
     public List<TokenSearchResult> queryTokenList(TokenQuery query) {
-        List<RefreshTokenPo> allTokens = refreshTokenRepository.search(query);
+        TokenSearchCriteria criteria = TokenSearchCriteria.builder()
+                .refreshTokenId(query.getRefreshTokenId())
+                .userId(query.getUserId())
+                .sessionId(query.getSessionId())
+                .clientId(query.getClientId())
+                .tokenStatus(query.getTokenStatus())
+                .startTime(query.getStartTime())
+                .endTime(query.getEndTime())
+                .build();
+        List<RefreshToken> allTokens = refreshTokenRepository.search(criteria);
 
         return PageUtil.convert(allTokens, this::toTokenSearchResult);
     }
 
     public RefreshTokenDto queryToken(String refreshTokenId) {
-        RefreshTokenPo token = refreshTokenRepository.findByRefreshTokenId(refreshTokenId)
+        RefreshToken token = refreshTokenRepository.findByRefreshTokenId(refreshTokenId)
                 .orElseThrow(() -> new BusinessException(CiamErrorCode.TOKEN_INVALID));
-        return RefreshTokenMapper.INSTANCE.toDto(RefreshTokenMapper.INSTANCE.toDomain(token));
+        return RefreshTokenAssembler.INSTANCE.toDto(token);
     }
 
     public List<RefreshTokenDto> queryUserTokens(String userId) {
         return refreshTokenRepository.findByUserId(userId).stream()
-                .map(doObj -> RefreshTokenMapper.INSTANCE.toDto(RefreshTokenMapper.INSTANCE.toDomain(doObj)))
+                .map(RefreshTokenAssembler.INSTANCE::toDto)
                 .collect(Collectors.toList());
     }
 
     public List<RefreshTokenDto> querySessionTokens(String sessionId) {
         return refreshTokenRepository.findBySessionId(sessionId).stream()
-                .map(doObj -> RefreshTokenMapper.INSTANCE.toDto(RefreshTokenMapper.INSTANCE.toDomain(doObj)))
+                .map(RefreshTokenAssembler.INSTANCE::toDto)
                 .collect(Collectors.toList());
     }
 
-    private TokenSearchResult toTokenSearchResult(RefreshTokenPo token) {
+    private TokenSearchResult toTokenSearchResult(RefreshToken token) {
         return new TokenSearchResult(
                 token.getRefreshTokenId(),
                 token.getUserId(),
@@ -64,7 +74,7 @@ public class TokenQueryAppService {
                 DateTimeUtil.instantToOffsetDateTime(token.getUsedTime()),
                 DateTimeUtil.instantToOffsetDateTime(token.getRevokeTime()),
                 DateTimeUtil.instantToOffsetDateTime(token.getExpireTime()),
-                DateTimeUtil.instantToOffsetDateTime(token.getCreateTime()),
+                null, // PO 才有 createTime，Domain 暂未包含，如需可添加
                 token.getDescription()
         );
     }

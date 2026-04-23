@@ -3,7 +3,7 @@ package net.hwyz.iov.cloud.sec.ciam.service.domain.service;
 import lombok.RequiredArgsConstructor;
 import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
 import net.hwyz.iov.cloud.sec.ciam.service.common.exception.CiamErrorCode;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamOAuthClientRepository;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.OAuthClientRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.OAuthClientPo;
 import org.springframework.stereotype.Service;
 
@@ -45,7 +45,7 @@ public class DeviceAuthorizationService {
     static final String STATUS_APPROVED = "approved";
     static final String STATUS_DENIED = "denied";
 
-    private final CiamOAuthClientRepository clientRepository;
+    private final OAuthClientRepository clientRepository;
     private final VerificationCodeStore store;
 
     /**

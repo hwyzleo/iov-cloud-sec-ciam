@@ -3,7 +3,7 @@ package net.hwyz.iov.cloud.sec.ciam.service.application;
 import net.hwyz.iov.cloud.sec.ciam.service.application.service.AccountBindingAppService;
 import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditLogger;
 import net.hwyz.iov.cloud.sec.ciam.service.common.security.FieldEncryptor;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamMergeRequestRepository;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.MergeRequestRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.service.IdentityDomainService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,7 +17,7 @@ class AccountBindingAppServiceTest {
     @BeforeEach
     void setUp() {
         service = new AccountBindingAppService(
-                mock(IdentityDomainService.class), mock(CiamMergeRequestRepository.class),
+                mock(IdentityDomainService.class), mock(MergeRequestRepository.class),
                 mock(FieldEncryptor.class), mock(AuditLogger.class));
     }
 

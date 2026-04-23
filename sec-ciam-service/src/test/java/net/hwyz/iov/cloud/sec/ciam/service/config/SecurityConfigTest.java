@@ -1,10 +1,9 @@
 package net.hwyz.iov.cloud.sec.ciam.service.config;
-import net.hwyz.iov.cloud.sec.ciam.service.application.service.*;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.adapter.*;
 
 import net.hwyz.iov.cloud.sec.ciam.service.common.security.CallbackSignatureVerifier;
 import net.hwyz.iov.cloud.sec.ciam.service.common.security.FieldEncryptor;
 import net.hwyz.iov.cloud.sec.ciam.service.common.security.PasswordEncoder;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.config.SecurityConfig;
 import org.junit.jupiter.api.Test;
 
 import java.security.SecureRandom;

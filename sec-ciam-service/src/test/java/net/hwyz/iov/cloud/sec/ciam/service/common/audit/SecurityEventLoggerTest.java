@@ -1,8 +1,6 @@
 package net.hwyz.iov.cloud.sec.ciam.service.common.audit;
-import net.hwyz.iov.cloud.sec.ciam.service.application.service.*;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.adapter.*;
 
-import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamRiskEventRepository;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.RiskEventRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.RiskEventPo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -10,7 +8,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
@@ -20,12 +17,12 @@ import static org.mockito.Mockito.*;
 
 class SecurityEventLoggerTest {
 
-    private CiamRiskEventRepository riskEventRepository;
+    private RiskEventRepository riskEventRepository;
     private SecurityEventLogger logger;
 
     @BeforeEach
     void setUp() {
-        riskEventRepository = mock(CiamRiskEventRepository.class);
+        riskEventRepository = mock(RiskEventRepository.class);
         when(riskEventRepository.insert(any())).thenReturn(1);
         logger = new SecurityEventLogger(riskEventRepository);
     }

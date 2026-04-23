@@ -1,16 +1,11 @@
 package net.hwyz.iov.cloud.sec.ciam.service.application;
 import net.hwyz.iov.cloud.sec.ciam.service.application.service.*;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.adapter.*;
 
-import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
 import net.hwyz.iov.cloud.sec.ciam.service.application.dto.OwnerCertificationDto;
-import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditEvent;
 import net.hwyz.iov.cloud.sec.ciam.service.common.audit.AuditLogger;
-import net.hwyz.iov.cloud.sec.ciam.service.common.exception.CiamErrorCode;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.CertStatus;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.TagStatus;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamOwnerCertStateRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserTagRepository;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.OwnerCertStateRepository;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.UserTagRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.service.TagDomainService;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.OwnerCertStatePo;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.UserTagPo;
@@ -32,8 +27,8 @@ import static org.mockito.Mockito.*;
  */
 class OwnerCertificationAppServiceTest {
 
-    private CiamOwnerCertStateRepository certStateRepository;
-    private CiamUserTagRepository tagRepository;
+    private OwnerCertStateRepository certStateRepository;
+    private UserTagRepository tagRepository;
     private AuditLogger auditLogger;
     private OwnerCertificationAppService service;
 
@@ -43,8 +38,8 @@ class OwnerCertificationAppServiceTest {
 
     @BeforeEach
     void setUp() {
-        certStateRepository = mock(CiamOwnerCertStateRepository.class);
-        tagRepository = mock(CiamUserTagRepository.class);
+        certStateRepository = mock(OwnerCertStateRepository.class);
+        tagRepository = mock(UserTagRepository.class);
         auditLogger = mock(AuditLogger.class);
 
         when(certStateRepository.insert(any())).thenReturn(1);

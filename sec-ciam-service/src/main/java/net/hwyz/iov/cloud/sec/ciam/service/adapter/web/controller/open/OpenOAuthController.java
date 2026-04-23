@@ -26,7 +26,7 @@ import java.util.Map;
  * OAuth 2.0 控制器 — 授权码+PKCE、令牌交换、Client Credentials、设备授权、刷新令牌、令牌撤销。
  */
 @RestController
-@RequestMapping("/api/open/v1/oauth")
+@RequestMapping("/api/open/oauth/v1")
 @RequiredArgsConstructor
 public class OpenOAuthController {
 

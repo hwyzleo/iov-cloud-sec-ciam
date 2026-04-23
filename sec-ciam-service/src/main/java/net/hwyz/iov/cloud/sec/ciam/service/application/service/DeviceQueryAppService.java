@@ -6,11 +6,12 @@ import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
 import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
 import net.hwyz.iov.cloud.framework.web.util.PageUtil;
 import net.hwyz.iov.cloud.sec.ciam.service.application.dto.DeviceInfoDto;
-import net.hwyz.iov.cloud.sec.ciam.service.application.assembler.DeviceMapper;
+import net.hwyz.iov.cloud.sec.ciam.service.application.assembler.DeviceAssembler;
+import net.hwyz.iov.cloud.sec.ciam.service.application.dto.query.DeviceQuery;
 import net.hwyz.iov.cloud.sec.ciam.service.common.exception.CiamErrorCode;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.model.Device;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.query.DeviceQuery;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamDeviceRepository;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.model.DeviceSearchCriteria;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.DeviceRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.OffsetDateTime;
@@ -25,10 +26,23 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class DeviceQueryAppService {
 
-    private final CiamDeviceRepository deviceRepository;
+    private final DeviceRepository deviceRepository;
 
     public List<DeviceSearchResult> queryDeviceList(DeviceQuery query) {
-        List<Device> allDevices = deviceRepository.search(query);
+        DeviceSearchCriteria criteria = DeviceSearchCriteria.builder()
+                .deviceId(query.getDeviceId())
+                .userId(query.getUserId())
+                .clientType(query.getClientType())
+                .clientId(query.getClientId())
+                .deviceName(query.getDeviceName())
+                .deviceOs(query.getDeviceOs())
+                .deviceStatus(query.getDeviceStatus())
+                .trustedFlag(query.getTrustedFlag())
+                .language(query.getLanguage())
+                .startTime(query.getStartTime())
+                .endTime(query.getEndTime())
+                .build();
+        List<Device> allDevices = deviceRepository.search(criteria);
 
         return PageUtil.convert(allDevices, device -> new DeviceSearchResult(
                 device.getDeviceId(),
@@ -52,12 +66,12 @@ public class DeviceQueryAppService {
     public DeviceInfoDto queryDevice(String deviceId) {
         Device device = deviceRepository.findByDeviceId(deviceId)
                 .orElseThrow(() -> new BusinessException(CiamErrorCode.DEVICE_NOT_FOUND));
-        return DeviceMapper.INSTANCE.toDto(device);
+        return DeviceAssembler.INSTANCE.toDto(device);
     }
 
     public List<DeviceInfoDto> queryUserDevices(String userId) {
         return deviceRepository.findByUserId(userId).stream()
-                .map(DeviceMapper.INSTANCE::toDto)
+                .map(DeviceAssembler.INSTANCE::toDto)
                 .collect(Collectors.toList());
     }
 

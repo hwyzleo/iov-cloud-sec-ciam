@@ -1,21 +1,19 @@
 package net.hwyz.iov.cloud.sec.ciam.service.security;
-import net.hwyz.iov.cloud.sec.ciam.service.application.service.*;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.adapter.*;
 
 import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
 import net.hwyz.iov.cloud.sec.ciam.service.common.exception.CiamErrorCode;
 import net.hwyz.iov.cloud.sec.ciam.service.common.security.PasswordEncoder;
 import net.hwyz.iov.cloud.sec.ciam.service.common.security.RateLimitFilter;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.adapter.AdapterResult;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.adapter.EmailAdapter;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.adapter.SmsAdapter;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.gateway.AdapterResult;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.gateway.EmailAdapter;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.gateway.SmsAdapter;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.CredentialStatus;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.CredentialType;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.DecisionResult;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.RiskLevel;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.SessionStatus;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamSessionRepository;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamUserCredentialRepository;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.SessionRepository;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.UserCredentialRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.service.CredentialDomainService;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.service.PasswordPolicyService;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.service.PasswordVerifyResult;
@@ -36,9 +34,6 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -125,7 +120,7 @@ class SecurityAndPerformanceTest {
     @DisplayName("密码暴力尝试防护")
     class PasswordBruteForceTests {
         @Mock
-        private CiamUserCredentialRepository credentialRepository;
+        private UserCredentialRepository credentialRepository;
         @Mock
         private PasswordEncoder passwordEncoder;
         @Mock
@@ -284,7 +279,7 @@ class SecurityAndPerformanceTest {
     @DisplayName("生效中的锁定策略")
     class ActiveLockoutPolicyTests {
         @Mock
-        private CiamUserCredentialRepository credentialRepository;
+        private UserCredentialRepository credentialRepository;
         @Mock
         private PasswordEncoder passwordEncoder;
         @Mock
@@ -452,7 +447,7 @@ class SecurityAndPerformanceTest {
     @DisplayName("会话规模基线")
     class SessionScaleBaselineTests {
         @Mock
-        private CiamSessionRepository sessionRepository;
+        private SessionRepository sessionRepository;
 
         @Test
         @DisplayName("单用户多会话查询应能处理大量会话记录")

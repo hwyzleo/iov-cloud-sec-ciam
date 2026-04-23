@@ -3,7 +3,7 @@ package net.hwyz.iov.cloud.sec.ciam.service.domain.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
-import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.CiamJwkRepository;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.JwkRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.JwkPo;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -40,7 +40,7 @@ public class JwkDomainService {
     private static final int KEY_STATUS_DISABLED = 2;
     private static final int KEY_STATUS_EXPIRED = 3;
 
-    private final CiamJwkRepository jwkRepository;
+    private final JwkRepository jwkRepository;
 
     @Value("${ciam.jwt.key-expire-days:365}")
     private int keyExpireDays;

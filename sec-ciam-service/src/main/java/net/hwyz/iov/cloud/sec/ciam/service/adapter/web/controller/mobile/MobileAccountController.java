@@ -53,7 +53,7 @@ public class MobileAccountController {
     @GetMapping("/profile")
     public ApiResponse<UserProfileVo> getProfile() {
         String userId = SecurityContextHolder.getUserId();
-        return ApiResponse.ok(UserProfileMapper.INSTANCE.toVo(userProfileAppService.getProfile(userId)));
+        return ApiResponse.ok(UserProfileAssembler.INSTANCE.toVo(userProfileAppService.getProfile(userId)));
     }
 
     /** 更新用户资料 */
@@ -78,7 +78,7 @@ public class MobileAccountController {
     @PostMapping("/binding")
     public ApiResponse<UserIdentityVo> bindIdentity(@RequestBody @Valid BindIdentityRequest request) {
         String userId = SecurityContextHolder.getUserId();
-        UserIdentityVo vo = UserIdentityMapper.INSTANCE.toVo(accountBindingAppService.bindIdentity(
+        UserIdentityVo vo = UserIdentityAssembler.INSTANCE.toVo(accountBindingAppService.bindIdentity(
                 userId, IdentityType.fromCode(request.getIdentityType()), request.getIdentityValue(), request.getCountryCode(), request.getBindSource()));
         return ApiResponse.ok(vo);
     }
@@ -99,7 +99,7 @@ public class MobileAccountController {
     public ApiResponse<List<SessionVo>> listSessions() {
         String userId = SecurityContextHolder.getUserId();
         List<SessionVo> voList = sessionDomainService.findUserSessions(userId).stream()
-                .map(doObj -> SessionMapper.INSTANCE.toVo(SessionMapper.INSTANCE.toDto(SessionMapper.INSTANCE.toDomain(doObj))))
+                .map(doObj -> SessionAssembler.INSTANCE.toVo(SessionAssembler.INSTANCE.toDto(SessionAssembler.INSTANCE.toDomain(doObj))))
                 .collect(Collectors.toList());
         return ApiResponse.ok(voList);
     }
@@ -109,7 +109,7 @@ public class MobileAccountController {
     public ApiResponse<List<DeviceVo>> listDevices() {
         String userId = SecurityContextHolder.getUserId();
         List<DeviceVo> voList = sessionDomainService.findUserDevices(userId).stream()
-                .map(domain -> DeviceMapper.INSTANCE.toVo(DeviceMapper.INSTANCE.toDto(domain)))
+                .map(domain -> DeviceAssembler.INSTANCE.toVo(DeviceAssembler.INSTANCE.toDto(domain)))
                 .collect(Collectors.toList());
         return ApiResponse.ok(voList);
     }
@@ -190,7 +190,7 @@ public class MobileAccountController {
     @PostMapping("/consent")
     public ApiResponse<UserConsentVo> grantConsent(@RequestBody @Valid GrantConsentRequest request) {
         String userId = SecurityContextHolder.getUserId();
-        UserConsentVo vo = UserConsentMapper.INSTANCE.toVo(consentAppService.grantConsent(
+        UserConsentVo vo = UserConsentAssembler.INSTANCE.toVo(consentAppService.grantConsent(
                 userId, request.getConsentType(), request.getPolicyVersion(), request.getSourceChannel(), request.getClientType(), request.getOperateIp()));
         return ApiResponse.ok(vo);
     }
@@ -210,11 +210,11 @@ public class MobileAccountController {
         List<UserConsentVo> voList;
         if (consentType != null && !consentType.isBlank()) {
             voList = consentAppService.getConsentByType(userId, consentType).stream()
-                    .map(UserConsentMapper.INSTANCE::toVo)
+                    .map(UserConsentAssembler.INSTANCE::toVo)
                     .collect(Collectors.toList());
         } else {
             voList = consentAppService.getConsentRecords(userId).stream()
-                    .map(UserConsentMapper.INSTANCE::toVo)
+                    .map(UserConsentAssembler.INSTANCE::toVo)
                     .collect(Collectors.toList());
         }
         return ApiResponse.ok(voList);
@@ -243,7 +243,7 @@ public class MobileAccountController {
     public ApiResponse<List<OwnerCertificationVo>> getOwnerCertStatus() {
         String userId = SecurityContextHolder.getUserId();
         List<OwnerCertificationVo> voList = ownerCertificationAppService.queryCertificationStatus(userId).stream()
-                .map(OwnerCertificationMapper.INSTANCE::toVo)
+                .map(OwnerCertificationAssembler.INSTANCE::toVo)
                 .collect(Collectors.toList());
         return ApiResponse.ok(voList);
     }
