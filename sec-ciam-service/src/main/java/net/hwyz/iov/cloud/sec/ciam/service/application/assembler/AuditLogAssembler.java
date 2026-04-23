@@ -1,6 +1,5 @@
 package net.hwyz.iov.cloud.sec.ciam.service.application.assembler;
 
-import net.hwyz.iov.cloud.sec.ciam.service.application.dto.AuditLogDto;
 import net.hwyz.iov.cloud.sec.ciam.service.adapter.web.vo.AuditLogVo;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.model.AuditLog;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.AuditLogPo;
@@ -29,15 +28,15 @@ public interface AuditLogAssembler {
     /**
      * Domain -> DTO
      */
-    AuditLogDto toDto(AuditLog domain);
+//    AuditLogDto toDto(AuditLog domain);
 
     /**
      * DTO -> Domain
      */
-    AuditLog toEntity(AuditLogDto dto);
+//    AuditLog toEntity(AuditLogDto dto);
 
     /**
      * DTO -> VO
      */
-    AuditLogVo toVo(AuditLogDto dto);
+//    AuditLogVo toVo(AuditLogDto dto);
 }
