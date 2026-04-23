@@ -26,6 +26,11 @@ public enum CertStatus implements CodeEnum {
         this.description = description;
     }
 
+    @Override
+    public String getDescription() {
+        return description;
+    }
+
     public static CertStatus fromCode(int code) {
         return Arrays.stream(values())
                 .filter(e -> e.code == code)

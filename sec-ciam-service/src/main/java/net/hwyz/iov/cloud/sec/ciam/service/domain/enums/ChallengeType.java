@@ -23,6 +23,11 @@ public enum ChallengeType implements LabelEnum {
         this.description = description;
     }
 
+    @Override
+    public String getDescription() {
+        return description;
+    }
+
     public static ChallengeType fromCode(String code) {
         return Arrays.stream(values())
                 .filter(e -> e.code.equals(code))

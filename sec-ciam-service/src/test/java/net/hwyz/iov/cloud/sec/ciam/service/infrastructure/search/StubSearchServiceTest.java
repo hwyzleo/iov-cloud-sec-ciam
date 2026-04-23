@@ -1,4 +1,6 @@
 package net.hwyz.iov.cloud.sec.ciam.service.infrastructure.search;
+import net.hwyz.iov.cloud.sec.ciam.service.application.service.*;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.adapter.*;
 
 import net.hwyz.iov.cloud.sec.ciam.service.domain.search.SearchResult;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.search.document.AuditLogSearchDocument;

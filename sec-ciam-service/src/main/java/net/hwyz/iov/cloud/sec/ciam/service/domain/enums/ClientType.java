@@ -26,6 +26,11 @@ public enum ClientType implements LabelEnum {
         this.description = description;
     }
 
+    @Override
+    public String getDescription() {
+        return description;
+    }
+
     public static ClientType fromCode(String code) {
         return Arrays.stream(values())
                 .filter(e -> e.code.equals(code))

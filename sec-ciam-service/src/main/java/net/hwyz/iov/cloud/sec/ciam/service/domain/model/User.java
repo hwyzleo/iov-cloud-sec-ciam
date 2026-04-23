@@ -21,6 +21,8 @@ public class User {
     private Instant lastLoginTime;
     private Instant deactivatedTime;
     private String description;
+    private Integer rowVersion;
+    private Integer rowValid;
     private Instant createTime;
     private Instant modifyTime;
 }

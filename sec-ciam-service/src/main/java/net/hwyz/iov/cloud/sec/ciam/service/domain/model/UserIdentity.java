@@ -25,4 +25,8 @@ public class UserIdentity {
     private Instant unbindTime;
     private Integer identityStatus;
     private String description;
+    private Integer rowVersion;
+    private Integer rowValid;
+    private Instant createTime;
+    private Instant modifyTime;
 }
