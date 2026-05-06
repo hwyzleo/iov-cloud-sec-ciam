@@ -36,12 +36,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private static final List<String> PUBLIC_PATTERNS = List.of(
             "/api/mobile/auth/v1/**",
-            "/api/open/v1/oidc/.well-known/**",
-            "/api/open/v1/oidc/jwks",
-            "/api/open/v1/oauth/token",
-            "/api/open/v1/oauth/device",
-            "/api/vehicle/v1/auth/**",
-            "/api/service/v1/**",
+            "/api/open/oidc/v1/.well-known/**",
+            "/api/open/oidc/v1/jwks",
+            "/api/open/oauth/v1/token",
+            "/api/open/oauth/v1/device",
+            "/api/vehicle/auth/v1/**",
+            "/api/service/**",
             "/api/mpt/**",
             "/swagger-ui/**",
             "/swagger-ui.html",
