@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class OidcService {
 
-    static final String ISSUER = "https://account.openiov.com";
+    static final String ISSUER = "https://account.openiov.top";
     static final int ID_TOKEN_TTL_SECONDS = 3600;
 
     private final UserProfileRepository profileRepository;

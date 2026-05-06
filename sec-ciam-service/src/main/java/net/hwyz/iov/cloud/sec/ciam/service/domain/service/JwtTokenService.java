@@ -32,7 +32,7 @@ import java.util.NoSuchElementException;
 @RequiredArgsConstructor
 public class JwtTokenService {
 
-    static final String ISSUER = "https://account.openiov.com";
+    static final String ISSUER = "https://account.openiov.top";
 
     private final JwkDomainService jwkDomainService;
 

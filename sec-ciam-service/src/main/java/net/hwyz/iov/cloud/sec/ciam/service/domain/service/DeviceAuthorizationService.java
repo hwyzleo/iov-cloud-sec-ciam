@@ -28,7 +28,7 @@ public class DeviceAuthorizationService {
     static final int POLLING_INTERVAL_SECONDS = 5;
 
     /** 验证地址 */
-    static final String VERIFICATION_URI = "https://account.openiov.com/device";
+    static final String VERIFICATION_URI = "https://account.openiov.top/device";
 
     /** 用户码长度 */
     static final int USER_CODE_LENGTH = 8;
