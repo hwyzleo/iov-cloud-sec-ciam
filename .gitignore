@@ -78,3 +78,5 @@ MybatisPlusGenerator.java
 
 spec/
 AGENTS.md
+graphify-out
+.opencode
