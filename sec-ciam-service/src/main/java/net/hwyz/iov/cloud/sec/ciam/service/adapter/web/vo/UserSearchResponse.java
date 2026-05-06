@@ -1,7 +1,5 @@
 package net.hwyz.iov.cloud.sec.ciam.service.adapter.web.vo;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
