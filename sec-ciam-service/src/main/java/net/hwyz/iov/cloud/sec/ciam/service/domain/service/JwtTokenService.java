@@ -5,6 +5,7 @@ import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.hwyz.iov.cloud.framework.common.constant.SecurityConstants;
 import net.hwyz.iov.cloud.framework.common.exception.BusinessException;
 import net.hwyz.iov.cloud.sec.ciam.service.common.exception.CiamErrorCode;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.model.Jwk;
@@ -13,12 +14,7 @@ import org.springframework.stereotype.Service;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.time.Instant;
-import java.util.Base64;
-import java.util.Date;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 /**
  * JWT Access Token 签发与校验领域服务。
@@ -40,7 +36,8 @@ public class JwtTokenService {
      * 签发 JWT Access Token。
      *
      * @param userId     用户业务唯一标识
-     * @param deviceId   设备标识
+     * @param deviceId   设备标识（具体设备，用于设备管理和风控）
+     * @param clientId   客户端标识（应用类型，用于OAuth和权限控制）
      * @param scope      授权范围
      * @param sessionId  会话业务唯一标识
      * @param ttlSeconds 令牌有效期（秒）
@@ -48,6 +45,7 @@ public class JwtTokenService {
      */
     public String generateAccessToken(String userId,
                                       String deviceId,
+                                      String clientId,
                                       String scope,
                                       String sessionId,
                                       int ttlSeconds) {
@@ -61,17 +59,25 @@ public class JwtTokenService {
                 .issuer(ISSUER)
                 .issuedAt(Date.from(now))
                 .expiration(Date.from(now.plusSeconds(ttlSeconds)))
-                .claim("device_id", deviceId)
-                .claim("scope", scope)
-                .claim("session_id", sessionId)
+                .claim(SecurityConstants.DEVICE_ID, deviceId)
+                .claim(SecurityConstants.CLIENT_ID, clientId)
+                .claim(SecurityConstants.SCOPE, scope)
+                .claim(SecurityConstants.SESSION_ID, sessionId)
                 .signWith(privateKey, Jwts.SIG.RS256)
                 .compact();
     }
 
     /**
      * 签发 JWT Refresh Token。
+     *
+     * @param userId    用户业务唯一标识
+     * @param deviceId  设备标识（具体设备）
+     * @param clientId  客户端标识（应用类型）
+     * @param scope     授权范围
+     * @param sessionId 会话业务唯一标识
+     * @return JWT 字符串
      */
-    public String generateRefreshToken(String userId, String deviceId, String scope, String sessionId) {
+    public String generateRefreshToken(String userId, String deviceId, String clientId, String scope, String sessionId) {
         Instant now = Instant.now();
         int ttlSeconds = 7 * 24 * 60 * 60;
         RSAPrivateKey privateKey = jwkDomainService.getPrimaryPrivateKey();
@@ -83,10 +89,11 @@ public class JwtTokenService {
                 .issuer(ISSUER)
                 .issuedAt(Date.from(now))
                 .expiration(Date.from(now.plusSeconds(ttlSeconds)))
-                .claim("device_id", deviceId)
-                .claim("scope", scope)
-                .claim("session_id", sessionId)
-                .claim("type", "refresh")
+                .claim(SecurityConstants.DEVICE_ID, deviceId)
+                .claim(SecurityConstants.CLIENT_ID, clientId)
+                .claim(SecurityConstants.SESSION_ID, sessionId)
+                .claim(SecurityConstants.SCOPE, scope)
+                .claim(SecurityConstants.TYPE, "refresh")
                 .signWith(privateKey, Jwts.SIG.RS256)
                 .compact();
     }
@@ -109,9 +116,10 @@ public class JwtTokenService {
 
             return TokenClaims.builder()
                     .sub(claims.getSubject())
-                    .clientId(claims.get("client_id", String.class))
-                    .scope(claims.get("scope", String.class))
-                    .sessionId(claims.get("session_id", String.class))
+                    .deviceId(claims.get(SecurityConstants.DEVICE_ID, String.class))
+                    .clientId(claims.get(SecurityConstants.CLIENT_ID, String.class))
+                    .scope(claims.get(SecurityConstants.SCOPE, String.class))
+                    .sessionId(claims.get(SecurityConstants.SESSION_ID, String.class))
                     .iss(claims.getIssuer())
                     .iat(claims.getIssuedAt().toInstant())
                     .exp(claims.getExpiration().toInstant())
@@ -166,8 +174,8 @@ public class JwtTokenService {
         }
         try {
             String headerJson = new String(java.util.Base64.getUrlDecoder().decode(parts[0]));
-            com.fasterxml.jackson.databind.JsonNode header = 
-                new com.fasterxml.jackson.databind.ObjectMapper().readTree(headerJson);
+            com.fasterxml.jackson.databind.JsonNode header =
+                    new com.fasterxml.jackson.databind.ObjectMapper().readTree(headerJson);
             return header.has("kid") ? header.get("kid").asText() : null;
         } catch (Exception e) {
             throw new JwtException("无法解析 token header", e);

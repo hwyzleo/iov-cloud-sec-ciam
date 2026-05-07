@@ -27,7 +27,7 @@ public class VehicleAuthAppService {
     public Map<String, Object> pollDeviceToken(String deviceCode, String clientId) {
         var result = deviceAuthorizationService.pollDeviceAuthorization(deviceCode, clientId);
         String accessToken = jwtTokenService.generateAccessToken(
-                result.getUserId(), clientId, result.getScope(), null, 1800);
+                result.getUserId(), null, result.getClientId(), result.getScope(), null, 1800);
         return Map.of(
                 "access_token", accessToken,
                 "token_type", "Bearer",

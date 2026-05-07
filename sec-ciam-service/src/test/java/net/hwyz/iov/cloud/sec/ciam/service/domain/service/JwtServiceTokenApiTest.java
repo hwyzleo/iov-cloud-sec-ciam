@@ -24,6 +24,7 @@ import static org.mockito.Mockito.*;
 class JwtServiceTokenApiTest {
 
     private static final String USER_ID = "user-jwt-001";
+    private static final String DEVICE_ID = "device-001";
     private static final String CLIENT_ID = "client-app-001";
     private static final String SCOPE = "openid,profile";
     private static final String SESSION_ID = "session-001";
@@ -59,11 +60,12 @@ class JwtServiceTokenApiTest {
 
         @Test
         void shouldGenerateAndValidateTokenSuccessfully() {
-            String token = service.generateAccessToken(USER_ID, CLIENT_ID, SCOPE, SESSION_ID, TTL_SECONDS);
+            String token = service.generateAccessToken(USER_ID, DEVICE_ID, CLIENT_ID, SCOPE, SESSION_ID, TTL_SECONDS);
             assertNotNull(token);
 
             TokenClaims claims = service.validateAccessToken(token);
             assertEquals(USER_ID, claims.getSub());
+            assertEquals(DEVICE_ID, claims.getDeviceId());
             assertEquals(CLIENT_ID, claims.getClientId());
             assertEquals(SCOPE, claims.getScope());
             assertEquals(SESSION_ID, claims.getSessionId());
@@ -75,7 +77,7 @@ class JwtServiceTokenApiTest {
 
         @Test
         void shouldGenerateRefreshTokenSuccessfully() {
-            String token = service.generateRefreshToken(USER_ID, CLIENT_ID, SCOPE, SESSION_ID);
+            String token = service.generateRefreshToken(USER_ID, DEVICE_ID, CLIENT_ID, SCOPE, SESSION_ID);
             assertNotNull(token);
         }
     }
@@ -85,7 +87,7 @@ class JwtServiceTokenApiTest {
 
         @Test
         void shouldThrowWhenTokenIsExpired() throws InterruptedException {
-            String token = service.generateAccessToken(USER_ID, CLIENT_ID, SCOPE, SESSION_ID, 1);
+            String token = service.generateAccessToken(USER_ID, DEVICE_ID, CLIENT_ID, SCOPE, SESSION_ID, 1);
             Thread.sleep(1500);
 
             assertThrows(BusinessException.class, () -> service.validateAccessToken(token));
@@ -93,7 +95,7 @@ class JwtServiceTokenApiTest {
 
         @Test
         void shouldThrowWhenTokenIsTampered() {
-            String validToken = service.generateAccessToken(USER_ID, CLIENT_ID, SCOPE, SESSION_ID, TTL_SECONDS);
+            String validToken = service.generateAccessToken(USER_ID, DEVICE_ID, CLIENT_ID, SCOPE, SESSION_ID, TTL_SECONDS);
             String tamperedToken = validToken.substring(0, validToken.length() - 5) + "abcde";
 
             assertThrows(BusinessException.class, () -> service.validateAccessToken(tamperedToken));

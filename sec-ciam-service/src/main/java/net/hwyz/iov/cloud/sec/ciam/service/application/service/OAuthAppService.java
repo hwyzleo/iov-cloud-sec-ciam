@@ -36,7 +36,7 @@ public class OAuthAppService {
 
         int accessTokenTtl = 1800;
         String accessToken = jwtTokenService.generateAccessToken(
-                exchangeResult.getUserId(), exchangeResult.getClientId(),
+                exchangeResult.getUserId(), null, exchangeResult.getClientId(),
                 exchangeResult.getScope(), exchangeResult.getSessionId(), accessTokenTtl);
 
         String refreshToken = refreshTokenDomainService.issueRefreshToken(
@@ -51,7 +51,7 @@ public class OAuthAppService {
         ClientCredentialsResult result = oAuthAuthorizationService.clientCredentialsGrant(clientId, clientSecret, scope);
 
         String accessToken = jwtTokenService.generateAccessToken(
-                null, result.getClientId(), result.getScope(), null, result.getAccessTokenTtl());
+                null, null, result.getClientId(), result.getScope(), null, result.getAccessTokenTtl());
 
         Map<String, Object> data = new LinkedHashMap<>();
         data.put("access_token", accessToken);
@@ -67,7 +67,7 @@ public class OAuthAppService {
 
         int accessTokenTtl = 1800;
         String accessToken = jwtTokenService.generateAccessToken(
-                rotationResult.getUserId(), clientId,
+                rotationResult.getUserId(), null, clientId,
                 rotationResult.getScope(), rotationResult.getSessionId(), accessTokenTtl);
 
         return buildTokenResponse(accessToken, rotationResult.getNewRefreshToken(), accessTokenTtl, rotationResult.getScope());
@@ -79,7 +79,7 @@ public class OAuthAppService {
 
         int accessTokenTtl = 1800;
         String accessToken = jwtTokenService.generateAccessToken(
-                result.getUserId(), result.getClientId(), result.getScope(), null, accessTokenTtl);
+                result.getUserId(), null, result.getClientId(), result.getScope(), null, accessTokenTtl);
 
         String newRefreshToken = refreshTokenDomainService.issueRefreshToken(
                 result.getUserId(), null, result.getClientId(), 2592000);

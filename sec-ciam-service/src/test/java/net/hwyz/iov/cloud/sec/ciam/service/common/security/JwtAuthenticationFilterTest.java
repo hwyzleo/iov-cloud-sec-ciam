@@ -134,7 +134,7 @@ class JwtAuthenticationFilterTest {
         @Test
         void validToken_setsAttributesAndContinues() throws Exception {
             String token = jwtTokenService.generateAccessToken(
-                    "user-001", "client-app", "openid profile", "session-001", 3600);
+                    "user-001", null, "client-app", "openid profile", "session-001", 3600);
 
             MockHttpServletRequest request = new MockHttpServletRequest("GET", "/api/v1/account/profile");
             request.addHeader("Authorization", "Bearer " + token);

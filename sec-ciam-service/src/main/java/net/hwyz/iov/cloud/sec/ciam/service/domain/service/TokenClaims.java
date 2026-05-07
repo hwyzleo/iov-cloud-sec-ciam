@@ -16,7 +16,9 @@ public class TokenClaims {
 
     /** 用户业务唯一标识 */
     private String sub;
-    /** OAuth 客户端标识 */
+    /** 设备标识（具体设备） */
+    private String deviceId;
+    /** OAuth 客户端标识（应用类型） */
     private String clientId;
     /** 授权范围 */
     private String scope;

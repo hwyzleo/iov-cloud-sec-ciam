@@ -106,7 +106,7 @@ public class AuthenticationAppService {
 
         try {
             if (identityOpt.isPresent()
-                    && identityOpt.get().getIdentityStatus().equals(net.hwyz.iov.cloud.sec.ciam.service.domain.enums.IdentityStatus.BOUND.getCode())) {
+                    && identityOpt.get().getIdentityStatus().equals(IdentityStatus.BOUND.getCode())) {
                 String userId = identityOpt.get().getUserId();
                 deviceDomainService.recordDevice(userId, deviceId, deviceInfo);
                 return handleExistingUserLogin(identityOpt.get(), deviceId, deviceInfo.getClientId());
@@ -381,7 +381,7 @@ public class AuthenticationAppService {
         int accessTokenTtl = 1800;
         String sessionId = UUID.randomUUID().toString();
         String accessToken = jwtTokenService.generateAccessToken(
-                userId, deviceId, "default", sessionId, accessTokenTtl);
+                userId, deviceId, clientId, "default", sessionId, accessTokenTtl);
         String refreshToken = refreshTokenDomainService.issueRefreshToken(
                 userId, sessionId, clientId, 7 * 24 * 60 * 60);
 
@@ -413,7 +413,7 @@ public class AuthenticationAppService {
         int accessTokenTtl = 1800;
         String sessionId = UUID.randomUUID().toString();
         String accessToken = jwtTokenService.generateAccessToken(
-                userId, deviceId, "default", sessionId, accessTokenTtl);
+                userId, deviceId, deviceInfo.getClientId(), "default", sessionId, accessTokenTtl);
         String refreshToken = refreshTokenDomainService.issueRefreshToken(
                 userId, sessionId, deviceInfo.getClientId(), 7 * 24 * 60 * 60);
 
@@ -541,7 +541,7 @@ public class AuthenticationAppService {
 
         int accessTokenTtl = 1800;
         String accessToken = jwtTokenService.generateAccessToken(
-                rotationResult.getUserId(), clientId, rotationResult.getScope(),
+                rotationResult.getUserId(), null, clientId, rotationResult.getScope(),
                 rotationResult.getSessionId(), accessTokenTtl);
 
         return LoginResultDto.builder()
