@@ -1,22 +1,19 @@
+# SPEC-Driven Development 约束文档
+- 参考 Notion Page ID: 37d0ec7a4b9280bd8c84c922f57f6d3e
+
 # 全局研发环境与行为准则
-- 参考 ~/.config/opencode/GLOBAL_GUIDE.md
+- 参考 Notion Page ID: 37d0ec7a4b928005aee8d863af5b2518
 
 # 开源车联网研发与行为准则
-- 参考 ~/Projects/open-iov/cloud/parent/iov-cloud-parent-cloud/PROJECT_GUIDE.md
+- 参考 Notion Page ID: 37d0ec7a4b92802d8915c7c310e24486
 
-# 当前项目需求
-- 参考 spec/requirements.md
+# 当前项目需求文档
+- 参考 Notion Page ID: 4080ec7a4b9280958756c686e0d84963
+- 变更记录 Notion Page ID: 305a57cdc9454b84bce8c0886d35180d
 
-# 当前项目设计
-- 参考 spec/design.md
-
-# 当前项目开发任务
-- 参考 spec/tasks.md
-
-# 当前项目研发与行为准则
-- JDK使用的是17，LOMBOK版本及编译插件在上层POM有，不用额外添加或调整
-- 本地JDK17地址为：/Library/Java/JavaVirtualMachines/jdk-17.0.1.jdk/Contents/Home
-- 每次解决当前问题后，必须整体项目编译通过才算完成，如果有报错则直到解决所有报错问题后才停止
+# 当前项目设计文档
+- 参考 Notion Page ID: 4080ec7a4b92800d9d50d90d49a50427
+- 变更记录 Notion Page ID: c8f3b07a76bf40ff9a852173ff70f9e5
 
 ## graphify
 

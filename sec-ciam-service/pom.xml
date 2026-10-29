@@ -119,4 +119,18 @@
         </dependency>
     </dependencies>
 
+    <build>
+        <plugins>
+            <!-- 模块级覆盖 parent 全局 maven-surefire-plugin skip=true（FW-WEB-DSN-CR-001 先例），
+                 使 CIAM 单元/集成测试可运行，产出 SEC-CIAM-DSN-CR-001 所需真实测试证据 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <skip>false</skip>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>

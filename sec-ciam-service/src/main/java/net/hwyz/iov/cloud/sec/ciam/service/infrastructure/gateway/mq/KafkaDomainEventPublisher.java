@@ -2,7 +2,6 @@ package net.hwyz.iov.cloud.sec.ciam.service.infrastructure.gateway.mq;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.event.DomainEvent;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.event.DomainEventPublisher;
@@ -14,6 +13,11 @@ import org.springframework.stereotype.Component;
  * <p>
  * 将领域事件序列化为 JSON 后发送到 {@code ciam-domain-events} 主题。
  * 如果 Kafka 不可用，仅记录错误日志，不影响业务主流程。
+ * <p>
+ * SEC-CIAM-DSN-CR-001：注入 Spring 管理的 ObjectMapper（自动应用框架
+ * iov.web.jackson 双读 + epoch-millis 写出策略），替换原手工 new ObjectMapper()
+ * + JavaTimeModule（默认 WRITE_DATES_AS_TIMESTAMPS 会把 Instant 输出为 epoch
+ * 秒小数，属于组织无效契约）。wire 变化：秒小数 → 13 位 epoch 毫秒；已登记。
  */
 @Slf4j
 @Component
@@ -24,10 +28,9 @@ public class KafkaDomainEventPublisher implements DomainEventPublisher {
     private final KafkaOperations<String, String> kafkaOperations;
     private final ObjectMapper objectMapper;
 
-    public KafkaDomainEventPublisher(KafkaOperations<String, String> kafkaOperations) {
+    public KafkaDomainEventPublisher(KafkaOperations<String, String> kafkaOperations, ObjectMapper objectMapper) {
         this.kafkaOperations = kafkaOperations;
-        this.objectMapper = new ObjectMapper();
-        this.objectMapper.registerModule(new JavaTimeModule());
+        this.objectMapper = objectMapper;
     }
 
     @Override

@@ -1,2 +1,10 @@
-server:
-  port: 8080
+# SEC-CIAM-DSN-CR-001 组织自有 JSON java.time 时间契约（P1：接入框架双读、保持旧 epoch-millis 写出）
+# - date-format: epoch-millis（框架默认值，显式固定本期旧写出）；iso 仅在消费方双读就绪后作为独立切换阶段启用
+# - zone-id: 显式业务时区。CIAM JSON 契约无 LocalDateTime 字段，启动探针（FW-WEB-DSN-CR-001 P1）要求
+#   epoch-millis 模式下显式配置 zone；证据：VerificationCodeService.DEFAULT_ZONE = Asia/Shanghai（既有业务墙上时间约定）。
+#   禁止使用 systemDefault 或未核验的兜底时区。
+iov:
+  web:
+    jackson:
+      date-format: epoch-millis
+      zone-id: Asia/Shanghai
