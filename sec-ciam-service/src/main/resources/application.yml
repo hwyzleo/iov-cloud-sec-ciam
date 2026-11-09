@@ -1,23 +1,8 @@
-# SEC-CIAM-DSN-CR-001 组织自有 JSON java.time 时间契约（P1：接入框架双读、保持旧 epoch-millis 写出）
-# - date-format: epoch-millis（框架默认值，显式固定本期旧写出）；iso 仅在消费方双读就绪后作为独立切换阶段启用
-# - zone-id: 显式业务时区。CIAM JSON 契约无 LocalDateTime 字段，启动探针（FW-WEB-DSN-CR-001 P1）要求
-#   epoch-millis 模式下显式配置 zone；证据：VerificationCodeService.DEFAULT_ZONE = Asia/Shanghai（既有业务墙上时间约定）。
-#   禁止使用 systemDefault 或未核验的兜底时区。
-iov:
-  web:
-    jackson:
-      date-format: epoch-millis
-      zone-id: Asia/Shanghai
-
 # SEC-CIAM-DSN-CR-003 §7 手机认证配置契约（RD-003-4/10）
-# - 安全默认：手机客户端允许清单为空（手机登录整体拒绝），固定验证码关闭
 # - dev/test 通过环境变量显式开启：
-#     CIAM_MOBILE_CLIENT_IDS=ciam-mobile-app
 #     CIAM_FIXED_VERIFICATION_CODE_ENABLED=true
 # - 固定验证码模式启用期间生产发布保持阻断；生产误开会在启动检查中 fail-fast
 ciam:
   authentication:
-    mobile:
-      allowed-client-ids: ${CIAM_MOBILE_CLIENT_IDS:}
     verification-code:
       fixed-enabled: ${CIAM_FIXED_VERIFICATION_CODE_ENABLED:false}
