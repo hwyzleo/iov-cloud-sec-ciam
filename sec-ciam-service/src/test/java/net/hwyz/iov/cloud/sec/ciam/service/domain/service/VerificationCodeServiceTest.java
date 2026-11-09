@@ -6,6 +6,7 @@ import net.hwyz.iov.cloud.sec.ciam.service.domain.gateway.AdapterResult;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.gateway.EmailAdapter;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.gateway.SmsAdapter;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.cache.InMemoryVerificationCodeStore;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.config.CiamAuthenticationProperties;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -21,6 +22,7 @@ class VerificationCodeServiceTest {
     private SmsAdapter smsAdapter;
     private EmailAdapter emailAdapter;
     private VerificationCodeService service;
+    private CiamAuthenticationProperties properties;
 
     private static final String USER_ID = "user-001";
     private static final String CLIENT_ID = "app-001";
@@ -37,7 +39,10 @@ class VerificationCodeServiceTest {
                 .thenReturn(AdapterResult.ok());
         when(emailAdapter.sendVerificationCode(anyString(), anyString()))
                 .thenReturn(AdapterResult.ok());
-        service = new VerificationCodeService(codeStore, smsAdapter, emailAdapter);
+        properties = new CiamAuthenticationProperties();
+        // 固定验证码模式：本类既有用例依赖确定验证码
+        properties.getVerificationCode().setFixedEnabled(true);
+        service = new VerificationCodeService(codeStore, smsAdapter, emailAdapter, properties);
     }
 
     // ---- 验证码生成 ----
@@ -262,6 +267,35 @@ class VerificationCodeServiceTest {
         @Test
         void emailTtl_is30Minutes() {
             assertEquals(1800, VerificationCodeType.EMAIL.getTtlSeconds());
+        }
+    }
+
+    // ---- 固定验证码环境隔离（SEC-CIAM-DSN-CR-003 US-003-2，TC-003-3）----
+
+    @Nested
+    class FixedCodeIsolationTests {
+
+        @Test
+        void fixedCode_usedOnlyWhenExplicitlyEnabled() {
+            CiamAuthenticationProperties disabled = new CiamAuthenticationProperties();
+            VerificationCodeService randomService =
+                    new VerificationCodeService(codeStore, smsAdapter, emailAdapter, disabled);
+
+            boolean sawNonFixedCode = false;
+            for (int i = 0; i < 50; i++) {
+                String code = randomService.generateCode();
+                assertEquals(6, code.length());
+                assertTrue(code.matches("\\d{6}"));
+                if (!"111111".equals(code)) {
+                    sawNonFixedCode = true;
+                }
+            }
+            assertTrue(sawNonFixedCode, "未启用固定验证码时必须使用 SecureRandom 生成，不能返回 111111");
+        }
+
+        @Test
+        void fixedCode_isSixOnesWhenEnabled() {
+            assertEquals("111111", service.generateCode());
         }
     }
 }

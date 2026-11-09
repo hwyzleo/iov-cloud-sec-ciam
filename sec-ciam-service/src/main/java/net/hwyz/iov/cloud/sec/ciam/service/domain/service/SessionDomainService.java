@@ -14,8 +14,10 @@ import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.RefreshTokenReposit
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.SessionRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * 会话领域服务 — 封装退出登录、会话失效等逻辑。
@@ -30,6 +32,106 @@ public class SessionDomainService {
     private final SessionRepository sessionRepository;
     private final RefreshTokenRepository refreshTokenRepository;
     private final DeviceRepository deviceRepository;
+
+    /**
+     * 建立手机登录会话事实（SEC-CIAM-DSN-CR-003 RD-003-1/2，§4.1）。
+     * <p>
+     * 会话是手机登录上下文的事实源：user/client/clientType/device/scope/expireTime 均在此冻结。
+     *
+     * @param userId     用户业务唯一标识
+     * @param clientId   OAuth 客户端标识
+     * @param clientType 终端类型（手机为 MOBILE）
+     * @param deviceId   设备标识
+     * @param scope      登录时冻结的授权范围（空格分隔，必须非空）
+     * @param expireTime 绝对到期时间（登录时间 + 客户端 refreshTokenTtl）
+     * @return 已持久化的 ACTIVE 会话
+     */
+    public Session openSession(String userId,
+                               String clientId,
+                               String clientType,
+                               String deviceId,
+                               String scope,
+                               Instant expireTime) {
+        Instant now = DateTimeUtil.getNowInstant();
+        Session session = Session.builder()
+                .sessionId(UUID.randomUUID().toString())
+                .userId(userId)
+                .deviceId(deviceId)
+                .clientId(clientId)
+                .clientType(clientType)
+                .scope(scope)
+                .riskLevel(0)
+                .sessionStatus(SessionStatus.ACTIVE.getCode())
+                .loginTime(now)
+                .lastActiveTime(now)
+                .expireTime(expireTime)
+                .modifyTime(now)
+                .description("Mobile code login")
+                .build();
+        sessionRepository.insert(session);
+        log.info("建立手机会话：sessionId={}, userId={}, clientId={}, clientType={}",
+                session.getSessionId(), userId, clientId, clientType);
+        return session;
+    }
+
+    /**
+     * 要求会话存在、处于 ACTIVE 且未到期（SEC-CIAM-DSN-CR-003 §5.4）。
+     *
+     * @param sessionId 会话业务唯一标识
+     * @return 有效会话
+     * @throws BusinessException TOKEN_INVALID（缺少会话标识或会话非活跃）、
+     *                           SESSION_NOT_FOUND（不存在）、SESSION_EXPIRED（已到期）
+     */
+    public Session requireActiveSession(String sessionId) {
+        if (sessionId == null || sessionId.isBlank()) {
+            throw new BusinessException(CiamErrorCode.TOKEN_INVALID, "令牌缺少会话标识");
+        }
+
+        Session session = sessionRepository.findBySessionId(sessionId)
+                .orElseThrow(() -> new BusinessException(CiamErrorCode.SESSION_NOT_FOUND));
+
+        if (session.getSessionStatus() == null
+                || session.getSessionStatus() != SessionStatus.ACTIVE.getCode()) {
+            throw new BusinessException(CiamErrorCode.TOKEN_INVALID, "会话已非活跃状态");
+        }
+
+        if (session.getExpireTime() == null
+                || !DateTimeUtil.getNowInstant().isBefore(session.getExpireTime())) {
+            throw new BusinessException(CiamErrorCode.SESSION_EXPIRED);
+        }
+
+        return session;
+    }
+
+    /**
+     * 校验 Token 声明与会话事实完全一致（SEC-CIAM-DSN-CR-003 §5.4，RD-003-8）。
+     * <p>
+     * 要求 user/client/clientType/device 四项均与持久会话一致，任一缺失或不匹配均视为令牌无效。
+     *
+     * @param session    持久会话
+     * @param userId     Token sub
+     * @param clientId   Token client_id
+     * @param clientType Token client_type
+     * @param deviceId   Token device_id
+     * @throws BusinessException TOKEN_INVALID 绑定不一致
+     */
+    public void assertClaimBinding(Session session,
+                                   String userId,
+                                   String clientId,
+                                   String clientType,
+                                   String deviceId) {
+        if (isBlank(userId) || isBlank(clientId) || isBlank(clientType) || isBlank(deviceId)
+                || !userId.equals(session.getUserId())
+                || !clientId.equals(session.getClientId())
+                || !clientType.equals(session.getClientType())
+                || !deviceId.equals(session.getDeviceId())) {
+            throw new BusinessException(CiamErrorCode.TOKEN_INVALID, "令牌与会话绑定不一致");
+        }
+    }
+
+    private static boolean isBlank(String value) {
+        return value == null || value.isBlank();
+    }
 
     /**
      * 用户主动退出登录。

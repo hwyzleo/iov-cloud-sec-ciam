@@ -72,7 +72,13 @@ public class SessionAppService {
         }
 
         Session session = sessionOpt.get();
-        boolean isValid = session.getSessionStatus() == SessionStatus.ACTIVE.getCode();
+        // SEC-CIAM-DSN-CR-003 §5.4：不能只看 ACTIVE 状态，必须同时校验绝对到期时间
+        boolean active = session.getSessionStatus() != null
+                && session.getSessionStatus() == SessionStatus.ACTIVE.getCode();
+        boolean notExpired = session.getExpireTime() != null
+                && net.hwyz.iov.cloud.framework.common.util.DateTimeUtil.getNowInstant()
+                .isBefore(session.getExpireTime());
+        boolean isValid = active && notExpired;
 
         return SessionValidateResult.builder()
                 .valid(isValid)

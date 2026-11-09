@@ -6,6 +6,7 @@ import net.hwyz.iov.cloud.sec.ciam.service.common.exception.CiamErrorCode;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.gateway.AdapterResult;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.gateway.EmailAdapter;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.gateway.SmsAdapter;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.config.CiamAuthenticationProperties;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
@@ -20,7 +21,7 @@ import java.time.temporal.ChronoUnit;
  * <p>
  * 职责：
  * <ul>
- *   <li>生成 6 位随机数字验证码</li>
+ *   <li>生成 6 位随机数字验证码（固定验证码仅在显式启用的 dev/test 环境生效）</li>
  *   <li>短信验证码 5 分钟有效，邮箱验证码 30 分钟有效</li>
  *   <li>单用户单客户端 1 分钟 1 次频控</li>
  *   <li>单用户单日 30 次上限</li>
@@ -50,6 +51,7 @@ public class VerificationCodeService {
     private final VerificationCodeStore codeStore;
     private final SmsAdapter smsAdapter;
     private final EmailAdapter emailAdapter;
+    private final CiamAuthenticationProperties authenticationProperties;
 
     /**
      * 发送短信验证码。
@@ -136,14 +138,16 @@ public class VerificationCodeService {
     }
 
     public String generateCode() {
+        if (authenticationProperties.getVerificationCode().isFixedEnabled()) {
+            // SEC-CIAM-DSN-CR-003 §6.1：固定验证码 111111 仅用于显式启用的开发/测试环境
+            return "111111";
+        }
         int bound = (int) Math.pow(10, CODE_LENGTH);
-        // 测试情况下默认6个1
-        // int num = RANDOM.nextInt(bound);
-        int num = 111111;
+        int num = RANDOM.nextInt(bound);
         return String.format("%0" + CODE_LENGTH + "d", num);
     }
 
-    static String buildCodeKey(String userId, String deviceId, VerificationCodeType type) {
+    public static String buildCodeKey(String userId, String deviceId, VerificationCodeType type) {
         return "vc:" + type.name().toLowerCase() + ":" + userId + ":" + deviceId;
     }
 

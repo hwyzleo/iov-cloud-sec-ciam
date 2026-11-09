@@ -49,22 +49,59 @@ public class JwtTokenService {
                                       String scope,
                                       String sessionId,
                                       int ttlSeconds) {
+        // 保留旧入口（RD-003-5）：范围外流程不伪造终端身份，不写 client_type
+        return generateAccessToken(AccessTokenContext.builder()
+                .userId(userId)
+                .deviceId(deviceId)
+                .clientId(clientId)
+                .scope(scope)
+                .sessionId(sessionId)
+                .ttlSeconds(ttlSeconds)
+                .build());
+    }
+
+    /**
+     * 按完整认证上下文签发 JWT Access Token（SEC-CIAM-DSN-CR-003 RD-003-5，§4.1/§4.4）。
+     * <p>
+     * 手机链路必须使用本入口，使 Token 携带与持久会话一致的
+     * {@code sub/client_id/client_type/device_id/session_id/scope}。
+     * 有效期取 {@code min(now + ttlSeconds, expireBound)}，不延长绝对到期边界。
+     *
+     * @param context 签发上下文
+     * @return JWT 字符串
+     * @throws BusinessException SESSION_EXPIRED 当绝对到期边界已不足 1 秒时
+     */
+    public String generateAccessToken(AccessTokenContext context) {
         Instant now = Instant.now();
+        Instant expiration = now.plusSeconds(context.getTtlSeconds());
+        if (context.getExpireBound() != null && context.getExpireBound().isBefore(expiration)) {
+            expiration = context.getExpireBound();
+        }
+        long effectiveTtl = expiration.getEpochSecond() - now.getEpochSecond();
+        if (effectiveTtl <= 0) {
+            throw new BusinessException(CiamErrorCode.SESSION_EXPIRED,
+                    "会话剩余有效期不足，无法签发 Access Token");
+        }
+
         RSAPrivateKey privateKey = jwkDomainService.getPrimaryPrivateKey();
         String keyId = jwkDomainService.getKeyId();
 
-        return Jwts.builder()
+        var builder = Jwts.builder()
                 .header().keyId(keyId).and()
-                .subject(userId)
+                .subject(context.getUserId())
                 .issuer(ISSUER)
                 .issuedAt(Date.from(now))
-                .expiration(Date.from(now.plusSeconds(ttlSeconds)))
-                .claim(SecurityConstants.DEVICE_ID, deviceId)
-                .claim(SecurityConstants.CLIENT_ID, clientId)
-                .claim(SecurityConstants.SCOPE, scope)
-                .claim(SecurityConstants.SESSION_ID, sessionId)
-                .signWith(privateKey, Jwts.SIG.RS256)
-                .compact();
+                .expiration(Date.from(expiration))
+                .claim(SecurityConstants.DEVICE_ID, context.getDeviceId())
+                .claim(SecurityConstants.CLIENT_ID, context.getClientId())
+                .claim(SecurityConstants.SCOPE, context.getScope())
+                .claim(SecurityConstants.SESSION_ID, context.getSessionId());
+
+        if (context.getClientType() != null && !context.getClientType().isBlank()) {
+            builder.claim(SecurityConstants.CLIENT_TYPE, context.getClientType());
+        }
+
+        return builder.signWith(privateKey, Jwts.SIG.RS256).compact();
     }
 
     /**
@@ -118,6 +155,7 @@ public class JwtTokenService {
                     .sub(claims.getSubject())
                     .deviceId(claims.get(SecurityConstants.DEVICE_ID, String.class))
                     .clientId(claims.get(SecurityConstants.CLIENT_ID, String.class))
+                    .clientType(claims.get(SecurityConstants.CLIENT_TYPE, String.class))
                     .scope(claims.get(SecurityConstants.SCOPE, String.class))
                     .sessionId(claims.get(SecurityConstants.SESSION_ID, String.class))
                     .iss(claims.getIssuer())

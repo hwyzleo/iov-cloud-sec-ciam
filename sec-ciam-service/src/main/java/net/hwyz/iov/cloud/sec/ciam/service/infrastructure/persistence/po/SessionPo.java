@@ -33,6 +33,10 @@ public class SessionPo {
     @TableField("client_type")
     private String clientType;
 
+    /** 登录时冻结的授权范围，空格分隔（V6） */
+    @TableField("scope")
+    private String scope;
+
     @TableField("login_ip")
     private String loginIp;
 

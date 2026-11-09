@@ -5,6 +5,8 @@ import net.hwyz.iov.cloud.sec.ciam.service.common.exception.CiamErrorCode;
 import net.hwyz.iov.cloud.sec.ciam.service.common.security.TokenDigest;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.TokenStatus;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.model.RefreshToken;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.model.Session;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.SessionStatus;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.RefreshTokenRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -92,77 +94,121 @@ class RefreshTokenDomainServiceTest {
         }
     }
 
-    // ---- rotateRefreshToken ----
+    // ---- loadForRotation + rotate（SEC-CIAM-DSN-CR-003 §5.2）----
 
     @Nested
     class RotateTests {
 
+        private Session activeSession() {
+            return Session.builder()
+                    .sessionId(SESSION_ID)
+                    .userId(USER_ID)
+                    .clientId(CLIENT_ID)
+                    .clientType("MOBILE")
+                    .deviceId("device-001")
+                    .scope("openid profile")
+                    .sessionStatus(SessionStatus.ACTIVE.getCode())
+                    .expireTime(Instant.now().plusSeconds(29L * 86400))
+                    .build();
+        }
+
+        private RefreshToken load(String rawToken) {
+            return service.loadForRotation(rawToken, CLIENT_ID);
+        }
+
         @Test
-        void rotate_returnsNewTokenAndUserInfo() {
+        void rotate_returnsContextRestoredFromSession() {
             String oldRawToken = "old-raw-token-value";
             RefreshToken existing = stubToken(oldRawToken, TokenStatus.ACTIVE,
                     Instant.now().plusSeconds(29L * 86400));
             when(refreshTokenRepository.findByTokenFingerprint(TokenDigest.fingerprint(oldRawToken)))
                     .thenReturn(Optional.of(existing));
+            when(refreshTokenRepository.compareAndSetActiveToRotated(anyString(), any())).thenReturn(1);
 
-            RefreshTokenRotationResult result = service.rotateRefreshToken(oldRawToken, CLIENT_ID);
+            RefreshTokenRotationResult result = service.rotate(load(oldRawToken), activeSession());
 
             assertNotNull(result.getNewRefreshToken());
             assertNotEquals(oldRawToken, result.getNewRefreshToken());
             assertEquals(USER_ID, result.getUserId());
             assertEquals(SESSION_ID, result.getSessionId());
+            assertEquals(CLIENT_ID, result.getClientId());
+            assertEquals("MOBILE", result.getClientType());
+            assertEquals("device-001", result.getDeviceId());
+            assertEquals("openid profile", result.getScope());
+            assertEquals(existing.getExpireTime(), result.getExpireTime());
         }
 
         @Test
-        void rotate_marksOldTokenAsRotated() {
+        void rotate_usesConditionalUpdateAsSingleWinner() {
             String oldRawToken = "old-raw-token-value";
             RefreshToken existing = stubToken(oldRawToken, TokenStatus.ACTIVE,
                     Instant.now().plusSeconds(29L * 86400));
             when(refreshTokenRepository.findByTokenFingerprint(TokenDigest.fingerprint(oldRawToken)))
                     .thenReturn(Optional.of(existing));
+            when(refreshTokenRepository.compareAndSetActiveToRotated(anyString(), any())).thenReturn(1);
 
-            service.rotateRefreshToken(oldRawToken, CLIENT_ID);
+            service.rotate(load(oldRawToken), activeSession());
 
-            assertEquals(TokenStatus.ROTATED.getCode(), existing.getTokenStatus());
-            assertNotNull(existing.getUsedTime());
-            verify(refreshTokenRepository).updateByRefreshTokenId(existing);
+            verify(refreshTokenRepository)
+                    .compareAndSetActiveToRotated(eq(existing.getRefreshTokenId()), any());
+            // 不再使用"先查状态再普通更新"的非原子写法
+            verify(refreshTokenRepository, never()).updateByRefreshTokenId(any());
         }
 
         @Test
-        void rotate_insertsNewTokenWithParentLink() {
+        void rotate_childInheritsAbsoluteExpiry() {
             String oldRawToken = "old-raw-token-value";
-            RefreshToken existing = stubToken(oldRawToken, TokenStatus.ACTIVE,
-                    Instant.now().plusSeconds(29L * 86400));
+            Instant absoluteExpiry = Instant.now().plusSeconds(3L * 86400);
+            RefreshToken existing = stubToken(oldRawToken, TokenStatus.ACTIVE, absoluteExpiry);
             String oldTokenId = existing.getRefreshTokenId();
             when(refreshTokenRepository.findByTokenFingerprint(TokenDigest.fingerprint(oldRawToken)))
                     .thenReturn(Optional.of(existing));
+            when(refreshTokenRepository.compareAndSetActiveToRotated(anyString(), any())).thenReturn(1);
 
-            service.rotateRefreshToken(oldRawToken, CLIENT_ID);
+            service.rotate(load(oldRawToken), activeSession());
 
-            // insert called twice would be wrong; first call is for the new token
             ArgumentCaptor<RefreshToken> captor = ArgumentCaptor.forClass(RefreshToken.class);
             verify(refreshTokenRepository).insert(captor.capture());
-            RefreshToken newToken = captor.getValue();
+            RefreshToken child = captor.getValue();
 
-            assertEquals(oldTokenId, newToken.getParentTokenId());
-            assertEquals(TokenStatus.ACTIVE.getCode(), newToken.getTokenStatus());
-            assertEquals(USER_ID, newToken.getUserId());
-            assertEquals(SESSION_ID, newToken.getSessionId());
-            assertEquals(CLIENT_ID, newToken.getClientId());
+            assertEquals(oldTokenId, child.getParentTokenId());
+            assertEquals(TokenStatus.ACTIVE.getCode(), child.getTokenStatus());
+            assertEquals(USER_ID, child.getUserId());
+            assertEquals(SESSION_ID, child.getSessionId());
+            assertEquals(CLIENT_ID, child.getClientId());
+            // 绝对到期边界不延长
+            assertEquals(absoluteExpiry, child.getExpireTime());
         }
 
         @Test
-        void rotate_throwsWhenTokenNotFound() {
+        void rotate_casFailureRevokesChainAndThrowsReplayException() {
+            String oldRawToken = "racing-token";
+            RefreshToken existing = stubToken(oldRawToken, TokenStatus.ACTIVE,
+                    Instant.now().plusSeconds(29L * 86400));
+            when(refreshTokenRepository.findByTokenFingerprint(TokenDigest.fingerprint(oldRawToken)))
+                    .thenReturn(Optional.of(existing));
+            when(refreshTokenRepository.compareAndSetActiveToRotated(anyString(), any())).thenReturn(0);
+
+            RefreshToken loaded = load(oldRawToken);
+            assertThrows(RefreshTokenReplayException.class,
+                    () -> service.rotate(loaded, activeSession()));
+
+            verify(refreshTokenRepository).revokeAllBySessionId(SESSION_ID);
+            verify(refreshTokenRepository, never()).insert(any());
+        }
+
+        @Test
+        void load_throwsWhenTokenNotFound() {
             when(refreshTokenRepository.findByTokenFingerprint(anyString()))
                     .thenReturn(Optional.empty());
 
             BusinessException ex = assertThrows(BusinessException.class,
-                    () -> service.rotateRefreshToken("unknown-token", CLIENT_ID));
+                    () -> load("unknown-token"));
             assertEquals(CiamErrorCode.TOKEN_INVALID, ex.getErrorCode());
         }
 
         @Test
-        void rotate_throwsWhenTokenExpired() {
+        void load_throwsWhenTokenExpired() {
             String oldRawToken = "expired-token";
             RefreshToken existing = stubToken(oldRawToken, TokenStatus.ACTIVE,
                     Instant.now().minusSeconds(1 * 3600));
@@ -170,13 +216,26 @@ class RefreshTokenDomainServiceTest {
                     .thenReturn(Optional.of(existing));
 
             BusinessException ex = assertThrows(BusinessException.class,
-                    () -> service.rotateRefreshToken(oldRawToken, CLIENT_ID));
+                    () -> load(oldRawToken));
             assertEquals(CiamErrorCode.TOKEN_INVALID, ex.getErrorCode());
             verify(refreshTokenRepository, never()).insert(any());
         }
 
         @Test
-        void rotate_throwsAndRevokesSessionOnReplay() {
+        void load_throwsWhenClientMismatch() {
+            String oldRawToken = "client-mismatch-token";
+            RefreshToken existing = stubToken(oldRawToken, TokenStatus.ACTIVE,
+                    Instant.now().plusSeconds(29L * 86400));
+            when(refreshTokenRepository.findByTokenFingerprint(TokenDigest.fingerprint(oldRawToken)))
+                    .thenReturn(Optional.of(existing));
+
+            BusinessException ex = assertThrows(BusinessException.class,
+                    () -> service.loadForRotation(oldRawToken, "other-client"));
+            assertEquals(CiamErrorCode.TOKEN_INVALID, ex.getErrorCode());
+        }
+
+        @Test
+        void load_throwsAndRevokesSessionOnReplay() {
             String oldRawToken = "already-rotated-token";
             RefreshToken existing = stubToken(oldRawToken, TokenStatus.ROTATED,
                     Instant.now().plusSeconds(29L * 86400));
@@ -185,16 +244,17 @@ class RefreshTokenDomainServiceTest {
             when(refreshTokenRepository.revokeAllBySessionId(SESSION_ID)).thenReturn(3);
 
             BusinessException ex = assertThrows(BusinessException.class,
-                    () -> service.rotateRefreshToken(oldRawToken, CLIENT_ID));
+                    () -> load(oldRawToken));
             assertEquals(CiamErrorCode.TOKEN_INVALID, ex.getErrorCode());
+            assertTrue(ex instanceof RefreshTokenReplayException,
+                    "重放必须使用专用异常以提交撤销结果");
 
-            // 重放攻击应撤销该会话所有令牌
             verify(refreshTokenRepository).revokeAllBySessionId(SESSION_ID);
             verify(refreshTokenRepository, never()).insert(any());
         }
 
         @Test
-        void rotate_throwsWhenTokenRevoked() {
+        void load_throwsWhenTokenRevoked() {
             String oldRawToken = "revoked-token";
             RefreshToken existing = stubToken(oldRawToken, TokenStatus.REVOKED,
                     Instant.now().plusSeconds(29L * 86400));
@@ -202,7 +262,7 @@ class RefreshTokenDomainServiceTest {
                     .thenReturn(Optional.of(existing));
 
             BusinessException ex = assertThrows(BusinessException.class,
-                    () -> service.rotateRefreshToken(oldRawToken, CLIENT_ID));
+                    () -> load(oldRawToken));
             assertEquals(CiamErrorCode.TOKEN_INVALID, ex.getErrorCode());
         }
     }

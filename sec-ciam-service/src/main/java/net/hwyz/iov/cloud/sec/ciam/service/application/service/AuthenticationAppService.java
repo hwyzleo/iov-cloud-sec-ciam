@@ -20,14 +20,24 @@ import net.hwyz.iov.cloud.sec.ciam.service.domain.gateway.ThirdPartyUserInfo;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.gateway.WechatLoginAdapter;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.IdentityStatus;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.IdentityType;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.ClientType;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.RegisterSource;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.UserStatus;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.model.OAuthClient;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.model.RefreshToken;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.model.Session;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.model.User;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.model.UserIdentity;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.UserRepository;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.service.*;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.config.CiamAuthenticationProperties;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
+import java.time.Instant;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -64,6 +74,9 @@ public class AuthenticationAppService {
     private final JwtTokenService jwtTokenService;
     private final RefreshTokenDomainService refreshTokenDomainService;
     private final DeviceDomainService deviceDomainService;
+    private final OAuthClientDomainService oauthClientDomainService;
+    private final CiamAuthenticationProperties authenticationProperties;
+    private final TransactionTemplate transactionTemplate;
 
     /**
      * 发送手机验证码。
@@ -79,45 +92,178 @@ public class AuthenticationAppService {
 
     /**
      * 手机号验证码登录（账号不存在自动注册）。
+     * <p>
+     * SEC-CIAM-DSN-CR-003 §5.1 流程：
+     * <ol>
+     *   <li>可信边界内输入校验（deviceInfo/clientId/clientType/deviceId）；</li>
+     *   <li>客户端准入：配置允许清单 + 数据库 enabled public 双重校验，解析冻结 scope 与 TTL；</li>
+     *   <li>验证码校验（Redis，不纳入 MySQL 事务；消费后数据库失败不恢复旧验证码）；</li>
+     *   <li>MySQL 本地事务：用户/资料/身份/设备/会话/Refresh Token 同一事务，唯一约束为并发最终防线；</li>
+     *   <li>事务内按完整上下文签发 Access Token，签名失败同样不得返回成功。</li>
+     * </ol>
      *
      * @param cmd 登录命令对象
      * @return 登录结果
      */
     public LoginResultDto loginByMobileCode(LoginByMobileCodeCmd cmd) {
+        // 1. 输入校验（缺失/非法一律在创建任何数据之前拒绝）
+        validateMobileLoginInput(cmd);
+
         String mobile = cmd.getMobile();
         String countryCode = cmd.getCountryCode();
-        String code = cmd.getCode();
         String deviceId = cmd.getDeviceId();
         DeviceInfoDto deviceInfo = cmd.getDeviceInfo();
+        String clientId = deviceInfo.getClientId();
+        String clientType = deviceInfo.getClientType();
 
+        // 2. 客户端准入与令牌策略（不信任任意 X-Client-Id，不使用硬编码 scope/TTL）
+        OAuthClient client = oauthClientDomainService.requireMobileClient(
+                clientId, authenticationProperties.getMobile().effectiveAllowedClientIds());
+        String scope = OAuthScopeNormalizer.normalize(client.getScopes());
+        int accessTokenTtl = requirePositiveTtl(client.getAccessTokenTtl(), "access_token_ttl");
+        int refreshTokenTtl = requirePositiveTtl(client.getRefreshTokenTtl(), "refresh_token_ttl");
+
+        // 3. 验证码校验（Redis，事务外；消费后数据库失败不恢复旧验证码）
         String userKey = FieldEncryptor.hash(mobile);
-
-        // 1. 校验验证码
         try {
-            verificationCodeService.verifyCode(userKey, deviceId, VerificationCodeType.SMS, code);
+            verificationCodeService.verifyCode(userKey, deviceId, VerificationCodeType.SMS, cmd.getCode());
         } catch (BusinessException e) {
             logAudit(null, deviceId, AuditEventType.LOGIN_FAIL, false);
             throw e;
         }
 
-        // 2. 查找手机号对应的登录标识
-        Optional<UserIdentity> identityOpt =
-                identityDomainService.findByTypeAndValue(IdentityType.MOBILE, mobile);
-
+        // 4. MySQL 本地事务（用户/资料/身份/设备/会话/Refresh Token/签名）
+        LoginResultDto result;
         try {
-            if (identityOpt.isPresent()
-                    && identityOpt.get().getIdentityStatus().equals(IdentityStatus.BOUND.getCode())) {
-                String userId = identityOpt.get().getUserId();
-                deviceDomainService.recordDevice(userId, deviceId, deviceInfo);
-                return handleExistingUserLogin(identityOpt.get(), deviceId, deviceInfo.getClientId());
-            } else {
-                return handleNewUserRegistration(mobile, countryCode, deviceId, deviceInfo);
-            }
+            result = transactionTemplate.execute(status -> persistMobileLogin(
+                    mobile, countryCode, deviceId, deviceInfo, client, scope,
+                    accessTokenTtl, refreshTokenTtl));
+        } catch (DuplicateKeyException e) {
+            // 并发首次登录：唯一约束竞争失败，事务已回滚，不返回部分成功
+            log.warn("手机登录唯一约束竞争失败，事务已回滚: mobileHash={}, deviceId={}", userKey, deviceId);
+            logAudit(null, deviceId, AuditEventType.LOGIN_FAIL, false);
+            throw new BusinessException(CiamErrorCode.IDENTITY_CONFLICT);
         } catch (BusinessException e) {
-            logAudit(identityOpt.map(UserIdentity::getUserId).orElse(null),
-                    deviceId, AuditEventType.LOGIN_FAIL, false);
+            logAudit(null, deviceId, AuditEventType.LOGIN_FAIL, false);
             throw e;
         }
+
+        // 5. 事务提交后记录审计（不记录 Token/验证码/完整 claims）
+        logAudit(result.getUserId(), deviceId,
+                result.isNewUser() ? AuditEventType.REGISTER_SUCCESS : AuditEventType.LOGIN_SUCCESS, true);
+        return result;
+    }
+
+    /**
+     * 手机登录持久化（必须在事务内执行）。
+     */
+    private LoginResultDto persistMobileLogin(String mobile,
+                                              String countryCode,
+                                              String deviceId,
+                                              DeviceInfoDto deviceInfo,
+                                              OAuthClient client,
+                                              String scope,
+                                              int accessTokenTtl,
+                                              int refreshTokenTtl) {
+        String userId;
+        boolean newUser;
+
+        Optional<UserIdentity> identityOpt =
+                identityDomainService.findByTypeAndValue(IdentityType.MOBILE, mobile);
+        if (identityOpt.isPresent()
+                && identityOpt.get().getIdentityStatus().equals(IdentityStatus.BOUND.getCode())) {
+            userId = identityOpt.get().getUserId();
+            requireLoginEligibleUser(userId);
+            newUser = false;
+        } else {
+            User user = userDomainService.createUser(RegisterSource.MOBILE, null, null, IdentityType.MOBILE);
+            userId = user.getUserId();
+            UserIdentity identity = identityDomainService.bindIdentity(
+                    userId, IdentityType.MOBILE, mobile, countryCode, "mobile_code_login");
+            identityDomainService.markVerified(userId, IdentityType.MOBILE, identity.getIdentityHash());
+            userDomainService.activate(userId);
+            newUser = true;
+        }
+
+        deviceDomainService.recordDevice(userId, deviceId, deviceInfo);
+
+        // 会话是手机登录上下文事实源：scope/expireTime 在登录时冻结
+        Instant sessionExpireTime = DateTimeUtil.getNowInstant().plusSeconds(refreshTokenTtl);
+        Session session = sessionDomainService.openSession(
+                userId, client.getClientId(), deviceInfo.getClientType(), deviceId, scope, sessionExpireTime);
+
+        // Refresh Token 与会话共享同一绝对到期边界
+        String refreshToken = refreshTokenDomainService.issueRefreshToken(
+                userId, session.getSessionId(), client.getClientId(), session.getExpireTime());
+
+        // Access Token 携带完整上下文，exp = min(now + accessTokenTtl, session.expireTime)
+        String accessToken = jwtTokenService.generateAccessToken(AccessTokenContext.builder()
+                .userId(userId)
+                .deviceId(deviceId)
+                .clientId(client.getClientId())
+                .clientType(session.getClientType())
+                .scope(scope)
+                .sessionId(session.getSessionId())
+                .ttlSeconds(accessTokenTtl)
+                .expireBound(session.getExpireTime())
+                .build());
+
+        return LoginResultDto.builder()
+                .userId(userId)
+                .newUser(newUser)
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .accessTokenTtl(accessTokenTtl)
+                .sessionId(session.getSessionId())
+                .build();
+    }
+
+    /**
+     * 手机登录输入校验（可信边界内必需字段）。
+     */
+    private void validateMobileLoginInput(LoginByMobileCodeCmd cmd) {
+        if (cmd == null || isBlank(cmd.getMobile()) || isBlank(cmd.getCode())) {
+            throw new BusinessException(CiamErrorCode.INVALID_PARAM, "手机号与验证码不能为空");
+        }
+        if (isBlank(cmd.getDeviceId())) {
+            throw new BusinessException(CiamErrorCode.INVALID_PARAM, "设备标识不能为空");
+        }
+        DeviceInfoDto deviceInfo = cmd.getDeviceInfo();
+        if (deviceInfo == null) {
+            throw new BusinessException(CiamErrorCode.INVALID_PARAM, "设备信息不能为空");
+        }
+        if (isBlank(deviceInfo.getClientId()) || isBlank(deviceInfo.getClientType())) {
+            throw new BusinessException(CiamErrorCode.INVALID_PARAM, "客户端标识与客户端类型不能为空");
+        }
+        if (!ClientType.MOBILE.name().equalsIgnoreCase(deviceInfo.getClientType().trim())) {
+            throw new BusinessException(CiamErrorCode.CLIENT_TYPE_NOT_SUPPORTED, "手机登录仅支持 MOBILE 客户端类型");
+        }
+        deviceInfo.setClientType(ClientType.MOBILE.name());
+    }
+
+    private User requireLoginEligibleUser(String userId) {
+        User user = userRepository.findByUserId(userId)
+                .orElseThrow(() -> new BusinessException(CiamErrorCode.USER_NOT_FOUND));
+
+        UserStatus status = UserStatus.fromCode(user.getUserStatus());
+        if (status == UserStatus.LOCKED) {
+            throw new BusinessException(CiamErrorCode.ACCOUNT_LOCKED);
+        }
+        if (status != UserStatus.ACTIVE) {
+            throw new BusinessException(CiamErrorCode.ACCOUNT_DISABLED);
+        }
+        return user;
+    }
+
+    private static int requirePositiveTtl(Integer ttl, String name) {
+        if (ttl == null || ttl <= 0) {
+            throw new BusinessException(CiamErrorCode.INTERNAL_ERROR, "客户端令牌有效期配置非法：" + name);
+        }
+        return ttl;
+    }
+
+    private static boolean isBlank(String value) {
+        return value == null || value.isBlank();
     }
 
     /**
@@ -355,7 +501,9 @@ public class AuthenticationAppService {
      * @param userId    用户业务唯一标识
      * @param clientId  客户端标识
      */
+    @Transactional(rollbackFor = Exception.class)
     public void logout(String sessionId, String userId, String clientId) {
+        // 会话更新与 Refresh Token 撤销位于同一事务（SEC-CIAM-DSN-CR-003 §5.3）
         sessionDomainService.logout(sessionId, userId);
         logAudit(userId, clientId, AuditEventType.LOGOUT, true);
     }
@@ -388,38 +536,6 @@ public class AuthenticationAppService {
         return LoginResultDto.builder()
                 .userId(userId)
                 .newUser(false)
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
-                .accessTokenTtl(accessTokenTtl)
-                .sessionId(sessionId)
-                .build();
-    }
-
-    private LoginResultDto handleNewUserRegistration(String mobile, String countryCode, String deviceId, DeviceInfoDto deviceInfo) {
-        User user = userDomainService.createUser(RegisterSource.MOBILE, null, null, IdentityType.MOBILE);
-        String userId = user.getUserId();
-
-        UserIdentity identity = identityDomainService.bindIdentity(
-                userId, IdentityType.MOBILE, mobile, countryCode, "mobile_code_login");
-
-        identityDomainService.markVerified(userId, IdentityType.MOBILE, identity.getIdentityHash());
-
-        userDomainService.activate(userId);
-
-        deviceDomainService.recordDevice(userId, deviceId, deviceInfo);
-
-        logAudit(userId, deviceId, AuditEventType.REGISTER_SUCCESS, true);
-
-        int accessTokenTtl = 1800;
-        String sessionId = UUID.randomUUID().toString();
-        String accessToken = jwtTokenService.generateAccessToken(
-                userId, deviceId, deviceInfo.getClientId(), "default", sessionId, accessTokenTtl);
-        String refreshToken = refreshTokenDomainService.issueRefreshToken(
-                userId, sessionId, deviceInfo.getClientId(), 7 * 24 * 60 * 60);
-
-        return LoginResultDto.builder()
-                .userId(userId)
-                .newUser(true)
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .accessTokenTtl(accessTokenTtl)
@@ -530,22 +646,72 @@ public class AuthenticationAppService {
     }
 
     /**
-     * 刷新 Token。
+     * 刷新 Token（SEC-CIAM-DSN-CR-003 §5.2，RD-003-6/7）。
+     * <p>
+     * 事务语义：
+     * <ul>
+     *   <li>普通校验、用户/客户端/会话校验均在 CAS 前完成；</li>
+     *   <li>CAS 成功与子令牌插入处于同一事务；</li>
+     *   <li>重放路径先撤销会话活跃令牌链再抛出 {@link RefreshTokenReplayException}，
+     *       该异常不触发回滚，确保撤销提交；其他异常必须回滚。</li>
+     * </ul>
+     * 新 Access Token 的 sub/client_id/client_type/device_id/session_id/scope
+     * 全部从持久会话恢复，不再从刷新请求接受。
      *
      * @param refreshToken 用户的 Refresh Token
      * @param clientId     客户端标识
      * @return 登录结果（包含新的 access_token 和 refresh_token）
      */
+    @Transactional(rollbackFor = Exception.class, noRollbackFor = RefreshTokenReplayException.class)
     public LoginResultDto refreshToken(String refreshToken, String clientId) {
-        RefreshTokenRotationResult rotationResult = refreshTokenDomainService.rotateRefreshToken(refreshToken, clientId);
+        // 1. 客户端准入（enabled mobile client）
+        OAuthClient client = oauthClientDomainService.requireMobileClient(
+                clientId, authenticationProperties.getMobile().effectiveAllowedClientIds());
+        int accessTokenTtl = requirePositiveTtl(client.getAccessTokenTtl(), "access_token_ttl");
 
-        int accessTokenTtl = 1800;
-        String accessToken = jwtTokenService.generateAccessToken(
-                rotationResult.getUserId(), null, clientId, rotationResult.getScope(),
-                rotationResult.getSessionId(), accessTokenTtl);
+        // 2. 令牌校验（状态/过期/客户端匹配；重放路径已撤销会话令牌链）
+        RefreshToken current = refreshTokenDomainService.loadForRotation(refreshToken, clientId);
+
+        // 3. 会话校验：存在、ACTIVE、未到期，且与令牌绑定一致
+        Session session = sessionDomainService.requireActiveSession(current.getSessionId());
+        if (!Objects.equals(current.getUserId(), session.getUserId())
+                || !Objects.equals(current.getClientId(), session.getClientId())) {
+            throw new BusinessException(CiamErrorCode.TOKEN_INVALID, "令牌与会话绑定不一致");
+        }
+        if (session.getScope() == null || session.getScope().isBlank()) {
+            // 历史会话（V6 之前）没有冻结 scope，不得通过新刷新链路签发令牌
+            throw new BusinessException(CiamErrorCode.TOKEN_INVALID, "会话缺少授权范围，请重新登录");
+        }
+
+        // 4. 会话剩余有效期不足一个有效 Access Token 时拒绝刷新（绝对到期不滑动）
+        long remainingSeconds = session.getExpireTime().getEpochSecond()
+                - DateTimeUtil.getNowInstant().getEpochSecond();
+        if (remainingSeconds < accessTokenTtl) {
+            throw new BusinessException(CiamErrorCode.SESSION_EXPIRED,
+                    "会话剩余有效期不足，拒绝刷新");
+        }
+
+        // 5. 用户仍具备认证资格
+        requireLoginEligibleUser(session.getUserId());
+
+        // 6. 单成功者轮换（CAS）+ 子令牌继承绝对到期边界
+        RefreshTokenRotationResult rotationResult = refreshTokenDomainService.rotate(current, session);
+
+        // 7. 从会话上下文恢复签发 Access Token
+        String accessToken = jwtTokenService.generateAccessToken(AccessTokenContext.builder()
+                .userId(rotationResult.getUserId())
+                .deviceId(rotationResult.getDeviceId())
+                .clientId(rotationResult.getClientId())
+                .clientType(rotationResult.getClientType())
+                .scope(rotationResult.getScope())
+                .sessionId(rotationResult.getSessionId())
+                .ttlSeconds(accessTokenTtl)
+                .expireBound(rotationResult.getExpireTime())
+                .build());
 
         return LoginResultDto.builder()
                 .userId(rotationResult.getUserId())
+                .newUser(false)
                 .accessToken(accessToken)
                 .refreshToken(rotationResult.getNewRefreshToken())
                 .accessTokenTtl(accessTokenTtl)

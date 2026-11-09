@@ -17,6 +17,8 @@ public class Session {
     private String deviceId;
     private String clientId;
     private String clientType;
+    /** 登录时冻结的授权范围（空格分隔，SEC-CIAM-DSN-CR-003） */
+    private String scope;
     private String loginIp;
     private String loginRegion;
     private Integer riskLevel;

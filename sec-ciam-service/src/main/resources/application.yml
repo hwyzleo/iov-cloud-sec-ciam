@@ -8,3 +8,16 @@ iov:
     jackson:
       date-format: epoch-millis
       zone-id: Asia/Shanghai
+
+# SEC-CIAM-DSN-CR-003 §7 手机认证配置契约（RD-003-4/10）
+# - 安全默认：手机客户端允许清单为空（手机登录整体拒绝），固定验证码关闭
+# - dev/test 通过环境变量显式开启：
+#     CIAM_MOBILE_CLIENT_IDS=ciam-mobile-app
+#     CIAM_FIXED_VERIFICATION_CODE_ENABLED=true
+# - 固定验证码模式启用期间生产发布保持阻断；生产误开会在启动检查中 fail-fast
+ciam:
+  authentication:
+    mobile:
+      allowed-client-ids: ${CIAM_MOBILE_CLIENT_IDS:}
+    verification-code:
+      fixed-enabled: ${CIAM_FIXED_VERIFICATION_CODE_ENABLED:false}

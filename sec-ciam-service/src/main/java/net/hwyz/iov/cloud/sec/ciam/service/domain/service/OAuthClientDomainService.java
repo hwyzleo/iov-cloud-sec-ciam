@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -215,6 +216,43 @@ public class OAuthClientDomainService {
     }
 
     // ---- 内部方法 ----
+
+    /**
+     * 手机认证客户端准入校验（SEC-CIAM-DSN-CR-003 §5.1，RD-003-4）。
+     * <p>
+     * 双重校验：配置允许清单 + 数据库客户端状态。
+     * 允许清单不信任任意 {@code X-Client-Id}；客户端表中 {@code client_type} 仍表示
+     * public/confidential，不用于终端类型判定。
+     *
+     * @param clientId         请求声明的客户端标识
+     * @param allowedClientIds 配置的允许清单
+     * @return 已启用且为 public 的客户端
+     * @throws BusinessException CLIENT_TYPE_NOT_SUPPORTED（不在允许清单或非 public）、
+     *                           CLIENT_NOT_FOUND（不存在）、CLIENT_DISABLED（已停用）
+     */
+    public OAuthClient requireMobileClient(String clientId, Collection<String> allowedClientIds) {
+        if (clientId == null || clientId.isBlank()
+                || allowedClientIds == null || allowedClientIds.isEmpty()
+                || !allowedClientIds.contains(clientId)) {
+            throw new BusinessException(CiamErrorCode.CLIENT_TYPE_NOT_SUPPORTED,
+                    "客户端未获准用于手机认证");
+        }
+
+        OAuthClient client = clientRepository.findByClientId(clientId)
+                .orElseThrow(() -> new BusinessException(CiamErrorCode.CLIENT_NOT_FOUND));
+
+        if (client.getClientStatus() == null
+                || client.getClientStatus() != ClientStatus.ENABLED.getCode()) {
+            throw new BusinessException(CiamErrorCode.CLIENT_DISABLED);
+        }
+
+        if (!OAuthClientType.PUBLIC.getCode().equals(client.getClientType())) {
+            throw new BusinessException(CiamErrorCode.CLIENT_TYPE_NOT_SUPPORTED,
+                    "手机认证仅支持 public 客户端");
+        }
+
+        return client;
+    }
 
     private String generateSecret() {
         byte[] bytes = new byte[SECRET_LENGTH];

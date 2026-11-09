@@ -2,7 +2,9 @@ package net.hwyz.iov.cloud.sec.ciam.service.application.service;
 
 import lombok.RequiredArgsConstructor;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.service.*;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.model.RefreshToken;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -61,14 +63,28 @@ public class OAuthAppService {
         return data;
     }
 
-    /** 处理刷新令牌授权 */
+    /**
+     * 处理刷新令牌授权。
+     * <p>
+     * SEC-CIAM-DSN-CR-003 §9.4：共享轮换方法的事务边界与异常映射保持一致，不扩展 OAuth 功能。
+     * 重放路径需提交撤销结果，因此重放异常不触发回滚。
+     */
+    @Transactional(rollbackFor = Exception.class, noRollbackFor = RefreshTokenReplayException.class)
     public Map<String, Object> handleRefreshTokenGrant(String refreshToken, String clientId) {
-        RefreshTokenRotationResult rotationResult = refreshTokenDomainService.rotateRefreshToken(refreshToken, clientId);
+        RefreshToken current = refreshTokenDomainService.loadForRotation(refreshToken, clientId);
+        RefreshTokenRotationResult rotationResult = refreshTokenDomainService.rotate(current, null);
 
         int accessTokenTtl = 1800;
-        String accessToken = jwtTokenService.generateAccessToken(
-                rotationResult.getUserId(), null, clientId,
-                rotationResult.getScope(), rotationResult.getSessionId(), accessTokenTtl);
+        String accessToken = jwtTokenService.generateAccessToken(AccessTokenContext.builder()
+                .userId(rotationResult.getUserId())
+                .deviceId(rotationResult.getDeviceId())
+                .clientId(rotationResult.getClientId())
+                .clientType(rotationResult.getClientType())
+                .scope(rotationResult.getScope())
+                .sessionId(rotationResult.getSessionId())
+                .ttlSeconds(accessTokenTtl)
+                .expireBound(rotationResult.getExpireTime())
+                .build());
 
         return buildTokenResponse(accessToken, rotationResult.getNewRefreshToken(), accessTokenTtl, rotationResult.getScope());
     }

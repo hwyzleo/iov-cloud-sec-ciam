@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.model.RefreshToken;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.model.TokenSearchCriteria;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.RefreshTokenRepository;
+import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.TokenStatus;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.converter.RefreshTokenPoConverter;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.mapper.CiamRefreshTokenMapper;
 import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.persistence.po.RefreshTokenPo;
@@ -47,7 +48,8 @@ public class RefreshTokenRepositoryImpl implements RefreshTokenRepository {
     @Override
     public int revokeAllBySessionId(String sessionId) {
         RefreshTokenPo update = new RefreshTokenPo();
-        update.setTokenStatus(0); 
+        // 撤销必须写入合法状态 REVOKED(3)；历史实现写入 0 会让后续状态解析抛 IllegalArgumentException
+        update.setTokenStatus(TokenStatus.REVOKED.getCode());
         update.setRevokeTime(Instant.now());
         return mapper.update(update,
                 new LambdaUpdateWrapper<RefreshTokenPo>()
@@ -58,7 +60,7 @@ public class RefreshTokenRepositoryImpl implements RefreshTokenRepository {
     @Override
     public int revokeAllByUserId(String userId) {
         RefreshTokenPo update = new RefreshTokenPo();
-        update.setTokenStatus(0);
+        update.setTokenStatus(TokenStatus.REVOKED.getCode());
         update.setRevokeTime(Instant.now());
         return mapper.update(update,
                 new LambdaUpdateWrapper<RefreshTokenPo>()
@@ -73,6 +75,19 @@ public class RefreshTokenRepositoryImpl implements RefreshTokenRepository {
                         .eq(RefreshTokenPo::getTokenFingerprint, tokenFingerprint)
                         .eq(RefreshTokenPo::getRowValid, 1)))
                 .map(RefreshTokenPoConverter.INSTANCE::toDomain);
+    }
+
+    @Override
+    public int compareAndSetActiveToRotated(String refreshTokenId, Instant usedTime) {
+        // SEC-CIAM-DSN-CR-003 RD-003-6：单条条件更新，跨实例并发只有一个成功者
+        RefreshTokenPo update = new RefreshTokenPo();
+        update.setTokenStatus(TokenStatus.ROTATED.getCode());
+        update.setUsedTime(usedTime);
+        return mapper.update(update,
+                new LambdaUpdateWrapper<RefreshTokenPo>()
+                        .eq(RefreshTokenPo::getRefreshTokenId, refreshTokenId)
+                        .eq(RefreshTokenPo::getTokenStatus, TokenStatus.ACTIVE.getCode())
+                        .eq(RefreshTokenPo::getRowValid, 1));
     }
 
     @Override

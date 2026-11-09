@@ -21,6 +21,7 @@ import net.hwyz.iov.cloud.sec.ciam.service.domain.service.PasswordPolicyService;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.service.PasswordVerifyResult;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.service.RiskAssessmentResult;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.service.VerificationCodeService;
+import net.hwyz.iov.cloud.sec.ciam.service.infrastructure.config.CiamAuthenticationProperties;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.service.VerificationCodeStore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -65,7 +66,9 @@ class SecurityAndPerformanceTest {
 
         @BeforeEach
         void setUp() {
-            verificationCodeService = new VerificationCodeService(codeStore, smsAdapter, emailAdapter);
+            CiamAuthenticationProperties props = new CiamAuthenticationProperties();
+            props.getVerificationCode().setFixedEnabled(true);
+            verificationCodeService = new VerificationCodeService(codeStore, smsAdapter, emailAdapter, props);
         }
 
         @Test
@@ -428,7 +431,7 @@ class SecurityAndPerformanceTest {
             VerificationCodeStore ms = mock(VerificationCodeStore.class);
             SmsAdapter mSms = mock(SmsAdapter.class);
             EmailAdapter mEmail = mock(EmailAdapter.class);
-            VerificationCodeService svc = new VerificationCodeService(ms, mSms, mEmail);
+            VerificationCodeService svc = new VerificationCodeService(ms, mSms, mEmail, new CiamAuthenticationProperties());
             long start = System.nanoTime();
             for (int i = 0; i < 10_000; i++)
                 assertEquals(VerificationCodeService.CODE_LENGTH, svc.generateCode().length());

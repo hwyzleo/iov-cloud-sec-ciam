@@ -20,6 +20,8 @@ public class TokenClaims {
     private String deviceId;
     /** OAuth 客户端标识（应用类型） */
     private String clientId;
+    /** 终端类型（手机为 MOBILE，SEC-CIAM-DSN-CR-003） */
+    private String clientType;
     /** 授权范围 */
     private String scope;
     /** 会话业务唯一标识 */

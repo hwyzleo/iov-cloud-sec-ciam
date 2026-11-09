@@ -7,6 +7,7 @@ import net.hwyz.iov.cloud.sec.ciam.service.application.dto.DeviceInfoDto;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.enums.DeviceStatus;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.model.Device;
 import net.hwyz.iov.cloud.sec.ciam.service.domain.repository.DeviceRepository;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -70,8 +71,17 @@ public class DeviceDomainService {
                     .lastLoginTime(DateTimeUtil.getNowInstant())
                     .description("Created by recordDevice")
                     .build();
-            deviceRepository.insert(device);
-            log.info("记录新设备：deviceId={}, userId={}", deviceId, userId);
+            try {
+                deviceRepository.insert(device);
+                log.info("记录新设备：deviceId={}, userId={}", deviceId, userId);
+            } catch (DuplicateKeyException e) {
+                // 并发首次登录（同一设备）：唯一约束冲突后回退为更新，避免登录事务整体失败
+                log.info("设备已由并发请求创建，回退为更新：deviceId={}, userId={}", deviceId, userId);
+                deviceRepository.findByDeviceId(deviceId).ifPresent(existing -> {
+                    existing.setLastLoginTime(DateTimeUtil.getNowInstant());
+                    deviceRepository.updateByDeviceId(existing);
+                });
+            }
         }
 
         return deviceId;

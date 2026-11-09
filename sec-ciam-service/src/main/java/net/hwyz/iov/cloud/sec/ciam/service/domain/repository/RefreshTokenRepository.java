@@ -29,6 +29,18 @@ public interface RefreshTokenRepository {
     /** 根据令牌指纹查询 */
     Optional<RefreshToken> findByTokenFingerprint(String tokenFingerprint);
 
+    /**
+     * 条件更新实现单成功者轮换（SEC-CIAM-DSN-CR-003 RD-003-6，§5.2）。
+     * <p>
+     * 条件：{@code refresh_token_id = ?} AND {@code token_status = ACTIVE} AND {@code row_valid = 1}。
+     * 跨实例并发下只有一次更新能成功（affected rows = 1）。
+     *
+     * @param refreshTokenId 令牌业务唯一标识
+     * @param usedTime       使用时间
+     * @return 受影响行数（1 表示 CAS 成功）
+     */
+    int compareAndSetActiveToRotated(String refreshTokenId, java.time.Instant usedTime);
+
     /** 检索令牌列表（支持条件过滤） */
     List<RefreshToken> search(TokenSearchCriteria criteria);
 

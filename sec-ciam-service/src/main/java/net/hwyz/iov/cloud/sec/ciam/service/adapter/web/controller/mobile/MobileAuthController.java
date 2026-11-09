@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import net.hwyz.iov.cloud.framework.common.bean.ApiResponse;
 import net.hwyz.iov.cloud.framework.common.constant.CustomHeaders;
 import net.hwyz.iov.cloud.framework.web.context.SecurityContextHolder;
+import net.hwyz.iov.cloud.sec.ciam.service.common.security.JwtAuthenticationFilter;
 import net.hwyz.iov.cloud.framework.web.controller.BaseController;
 import net.hwyz.iov.cloud.sec.ciam.service.adapter.web.controller.mobile.vo.*;
 import net.hwyz.iov.cloud.sec.ciam.service.adapter.web.vo.LoginResultResponse;
@@ -116,11 +117,17 @@ public class MobileAuthController extends BaseController {
         return ApiResponse.ok(loginResultAssembler.toVoWithCaptcha(result));
     }
 
+    /**
+     * 认证登出（SEC-CIAM-DSN-CR-003 §5.3/§6.4）。
+     * <p>
+     * 无请求体：用户、会话、客户端全部来自已验证 Access Token 与持久会话上下文，
+     * 不接受调用方声明的 userId/sessionId（RD-003-9）。
+     */
     @PostMapping("/logout")
     public ApiResponse<Void> logout(
-            @RequestHeader(CustomHeaders.CLIENT_ID) String clientId,
-            @RequestBody @Valid LogoutRequest req) {
-        authenticationAppService.logout(req.getSessionId(), req.getUserId(), clientId);
+            @RequestAttribute(JwtAuthenticationFilter.ATTR_SESSION_ID) String sessionId,
+            @RequestAttribute(JwtAuthenticationFilter.ATTR_CLIENT_ID) String clientId) {
+        authenticationAppService.logout(sessionId, SecurityContextHolder.getUserId(), clientId);
         return ApiResponse.ok();
     }
 
