@@ -13,7 +13,6 @@ import java.time.LocalDate;
 @Builder
 public class UpdateProfileRequest {
     private String nickname;
-    private String avatarUrl;
     private Integer gender;
     private LocalDate birthday;
     private String regionCode;

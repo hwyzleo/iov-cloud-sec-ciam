@@ -1,0 +1,28 @@
+# CIAM 本地默认配置（SEC-CIAM-DSN-CR-004 §7）
+# 其余配置由 Nacos 提供；此处仅声明头像上传与 EDD-OSS Feign 的显式默认值。
+ciam:
+  avatar:
+    upload:
+      # 功能开关：关闭时两个端点统一不可用，不半启用
+      enabled: ${CIAM_AVATAR_UPLOAD_ENABLED:true}
+      # 归属登记 TTL：预签名 900 秒 + 60 秒余量
+      registry-ttl-seconds: ${CIAM_AVATAR_UPLOAD_REGISTRY_TTL:960}
+
+spring:
+  cloud:
+    openfeign:
+      client:
+        config:
+          # 键必须使用 @FeignClient 的 contextId：edd-oss-api 的 ImageService 声明为
+          # @FeignClient(name = "oss-service", contextId = "imageService", ...)。
+          # spring-cloud-openfeign 4.0.0 的 FeignClientFactoryBean 按 contextId 查找
+          # FeignClientProperties，写成服务发现名 oss-service 不会生效。
+          imageService:
+            # 显式超时，避免默认无限等待拖垮线程池
+            connect-timeout: 2000
+            read-timeout: 5000
+            # 运维兜底：edd-oss-api 声明 name=oss-service，但 Nacos 注册名为 edd-oss，
+            # 服务发现名为空实例会导致调用失败。恢复顺序应为：
+            # 1) edd-oss-api 将 name 改为 edd-oss（推荐，属 EDD-OSS 侧变更）；
+            # 2) 或在此启用直连地址绕过服务发现（临时手段，失去负载均衡）。
+            # url: ${CIAM_OSS_IMAGE_URL:}

@@ -18,6 +18,7 @@
 
     <properties>
         <sec-ciam.version>0.0.1-SNAPSHOT</sec-ciam.version>
+        <edd-oss.version>0.0.1-SNAPSHOT</edd-oss.version>
     </properties>
 
     <dependencies>
@@ -26,6 +27,13 @@
             <groupId>net.hwyz.iov.cloud.sec</groupId>
             <artifactId>sec-ciam-api</artifactId>
             <version>${sec-ciam.version}</version>
+        </dependency>
+
+        <!-- EDD-OSS 图片服务 API（SEC-CIAM-DSN-CR-004 RD-004-3） -->
+        <dependency>
+            <groupId>net.hwyz.iov.cloud.edd</groupId>
+            <artifactId>edd-oss-api</artifactId>
+            <version>${edd-oss.version}</version>
         </dependency>
 
         <!-- 框架: 安全 -->

@@ -30,6 +30,9 @@ public enum CiamErrorCode implements ErrorCode {
     // ---- 用户资料 ----
     PROFILE_NOT_FOUND("701108", "用户资料不存在"),
     SENSITIVE_FIELD_VERIFICATION_REQUIRED("701109", "敏感字段变更需要安全校验"),
+    AVATAR_UPLOAD_NOT_FOUND("701110", "头像上传任务不存在或已过期"),
+    AVATAR_UPLOAD_FORBIDDEN("701111", "无权确认该头像上传任务"),
+    IMAGE_SERVICE_UNAVAILABLE("701112", "图片服务不可用，请稍后重试"),
 
     // ---- 标签 ----
     TAG_ALREADY_EXISTS("701106", "该用户已存在相同标签"),

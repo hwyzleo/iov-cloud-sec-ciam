@@ -48,6 +48,11 @@ public class UserProfileAppService {
     private static final Set<String> SENSITIVE_FIELDS = Set.of("realName");
 
     /**
+     * avatar_url 列定义长度上限
+     */
+    private static final int AVATAR_URL_MAX_LENGTH = 255;
+
+    /**
      * 查询用户资料。
      *
      * @param userId 用户业务唯一标识
@@ -65,18 +70,18 @@ public class UserProfileAppService {
     /**
      * 更新可编辑的资料字段。
      * <p>
-     * 支持更新：nickname, avatarUrl, gender, birthday, regionCode, regionName。
+     * 支持更新：nickname, gender, birthday, regionCode, regionName。
      * 不支持通过此方法更新敏感字段（如 realName）。
+     * 头像地址自 SEC-CIAM-DSN-CR-004 起不再经由本方法写入，见 {@link #updateAvatarUrl(String, String)}。
      *
      * @param userId     用户业务唯一标识
      * @param nickname   昵称（null 表示不更新）
-     * @param avatarUrl  头像地址（null 表示不更新）
      * @param gender     性别（null 表示不更新）
      * @param birthday   生日（null 表示不更新）
      * @param regionCode 地区编码（null 表示不更新）
      * @param regionName 地区名称（null 表示不更新）
      */
-    public void updateProfile(String userId, String nickname, String avatarUrl,
+    public void updateProfile(String userId, String nickname,
                               Integer gender, LocalDate birthday,
                               String regionCode, String regionName) {
         UserProfile profile = profileRepository.findByUserId(userId)
@@ -84,9 +89,6 @@ public class UserProfileAppService {
 
         if (nickname != null) {
             profile.setNickname(nickname);
-        }
-        if (avatarUrl != null) {
-            profile.setAvatarUrl(avatarUrl);
         }
         if (gender != null) {
             profile.setGender(gender);
@@ -105,6 +107,30 @@ public class UserProfileAppService {
 
         logAudit(userId, AuditEventType.PROFILE_UPDATE, true);
         log.info("用户资料更新: userId={}", userId);
+    }
+
+    /**
+     * 更新头像地址（内部专用）。
+     * <p>
+     * 仅允许 {@code AvatarUploadAppService} 在 EDD-OSS 完成确认后调用，是 avatar_url 的唯一写入入口。
+     * 取值必须是 OSS 返回的 accessUrl，长度受列定义 VARCHAR(255) 约束。
+     *
+     * @param userId    用户业务唯一标识
+     * @param accessUrl 已确认的图片访问地址
+     */
+    public void updateAvatarUrl(String userId, String accessUrl) {
+        if (StrUtil.isBlank(accessUrl)) {
+            throw new BusinessException(CiamErrorCode.INVALID_PARAM, "头像地址不能为空");
+        }
+        if (accessUrl.length() > AVATAR_URL_MAX_LENGTH) {
+            throw new BusinessException(CiamErrorCode.INVALID_PARAM,
+                    "头像地址长度不能超过 " + AVATAR_URL_MAX_LENGTH);
+        }
+        UserProfile profile = profileRepository.findByUserId(userId)
+                .orElseThrow(() -> new BusinessException(CiamErrorCode.PROFILE_NOT_FOUND));
+        profile.setAvatarUrl(accessUrl);
+        profileRepository.updateByProfileId(profile);
+        log.info("用户头像地址更新: userId={}", userId);
     }
 
     /**

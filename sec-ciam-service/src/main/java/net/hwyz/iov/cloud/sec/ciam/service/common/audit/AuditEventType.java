@@ -60,6 +60,10 @@ public enum AuditEventType {
     PROFILE_UPDATE("PROFILE", "资料更新"),
     PROFILE_SENSITIVE_UPDATE("PROFILE", "敏感字段更新"),
 
+    // ---- 头像上传（SEC-CIAM-DSN-CR-004）----
+    AVATAR_UPLOAD_REQUESTED("AVATAR", "头像上传申请"),
+    AVATAR_UPLOAD_COMPLETED("AVATAR", "头像上传完成"),
+
     // ---- 车主认证 ----
     OWNER_CERT_CALLBACK("OWNER_CERT", "车主认证回调"),
     OWNER_CERT_QUERY("OWNER_CERT", "车主认证查询"),

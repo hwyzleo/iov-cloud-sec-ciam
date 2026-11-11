@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 public class MobileAccountController extends BaseController {
 
     private final UserProfileAppService userProfileAppService;
+    private final AvatarUploadAppService avatarUploadAppService;
     private final AccountBindingAppService accountBindingAppService;
     private final SessionAppService sessionAppService;
     private final PasswordChangeAppService passwordChangeAppService;
@@ -46,8 +47,25 @@ public class MobileAccountController extends BaseController {
     @PutMapping("/profile")
     public ApiResponse<Void> updateProfile(@RequestBody @Valid UpdateProfileRequest request) {
         String userId = SecurityContextHolder.getUserId();
-        userProfileAppService.updateProfile(userId, request.getNickname(), request.getAvatarUrl(), request.getGender(), request.getBirthday(), request.getRegionCode(), request.getRegionName());
+        userProfileAppService.updateProfile(userId, request.getNickname(), request.getGender(), request.getBirthday(), request.getRegionCode(), request.getRegionName());
         return ApiResponse.ok();
+    }
+
+    // ---- 头像上传（SEC-CIAM-DSN-CR-004）----
+
+    /** 申请头像上传，返回 COS 预签名参数 */
+    @PostMapping("/profile/avatar/upload")
+    public ApiResponse<AvatarUploadVo> requestAvatarUpload(@RequestBody @Valid AvatarUploadRequest request) {
+        String userId = SecurityContextHolder.getUserId();
+        return ApiResponse.ok(AvatarAssembler.toVo(avatarUploadAppService.requestUpload(
+                userId, request.getOriginalFilename(), request.getContentType(), request.getSize())));
+    }
+
+    /** 确认头像上传，成功后写回头像地址 */
+    @PostMapping("/profile/avatar/{uploadId}/complete")
+    public ApiResponse<AvatarResultVo> completeAvatarUpload(@PathVariable("uploadId") String uploadId) {
+        String userId = SecurityContextHolder.getUserId();
+        return ApiResponse.ok(AvatarAssembler.toVo(avatarUploadAppService.completeUpload(userId, uploadId)));
     }
 
     /** 更新敏感字段 */

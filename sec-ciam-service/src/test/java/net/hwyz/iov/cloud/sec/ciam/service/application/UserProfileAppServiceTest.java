@@ -84,30 +84,77 @@ class UserProfileAppServiceTest {
     class UpdateProfileTests {
 
         @Test
-        void updatesNicknameAndAvatar() {
+        void updatesNicknameOnly() {
             when(profileRepository.findByUserId(USER_ID)).thenReturn(Optional.of(stubProfile()));
 
-            service.updateProfile(USER_ID, "新昵称", "https://example.com/new.png",
-                    null, null, null, null);
+            service.updateProfile(USER_ID, "新昵称", null, null, null, null);
 
             ArgumentCaptor<UserProfile> captor = ArgumentCaptor.forClass(UserProfile.class);
             verify(profileRepository).updateByProfileId(captor.capture());
             UserProfile updated = captor.getValue();
             assertEquals("新昵称", updated.getNickname());
-            assertEquals("https://example.com/new.png", updated.getAvatarUrl());
+            assertEquals("https://example.com/old.png", updated.getAvatarUrl(),
+                    "通用资料更新不得变更头像地址（SEC-CIAM-DSN-CR-004 US-004-4）");
         }
 
         @Test
         void logsAuditEventOnUpdate() {
             when(profileRepository.findByUserId(USER_ID)).thenReturn(Optional.of(stubProfile()));
 
-            service.updateProfile(USER_ID, "新昵称", null, null, null, null, null);
+            service.updateProfile(USER_ID, "新昵称", null, null, null, null);
 
             ArgumentCaptor<AuditEvent> auditCaptor = ArgumentCaptor.forClass(AuditEvent.class);
             verify(auditLogger).log(auditCaptor.capture());
             AuditEvent event = auditCaptor.getValue();
             assertEquals("PROFILE", event.getEventType());
             assertEquals("资料更新", event.getEventName());
+        }
+    }
+
+    // ---- updateAvatarUrl（SEC-CIAM-DSN-CR-004 唯一写入入口）----
+
+    @Nested
+    class UpdateAvatarUrlTests {
+
+        @Test
+        void writesAccessUrlWhenValid() {
+            when(profileRepository.findByUserId(USER_ID)).thenReturn(Optional.of(stubProfile()));
+
+            service.updateAvatarUrl(USER_ID, "https://bucket.cos.example.com/images/sec-ciam/a.png");
+
+            ArgumentCaptor<UserProfile> captor = ArgumentCaptor.forClass(UserProfile.class);
+            verify(profileRepository).updateByProfileId(captor.capture());
+            assertEquals("https://bucket.cos.example.com/images/sec-ciam/a.png",
+                    captor.getValue().getAvatarUrl());
+        }
+
+        @Test
+        void rejectsBlankUrl() {
+            BusinessException blank = assertThrows(BusinessException.class,
+                    () -> service.updateAvatarUrl(USER_ID, "  "));
+            assertEquals(CiamErrorCode.INVALID_PARAM, blank.getErrorCode());
+            verify(profileRepository, never()).updateByProfileId(any());
+        }
+
+        @Test
+        void rejectsUrlLongerThanColumn() {
+            String tooLong = "https://bucket.cos.example.com/" + "a".repeat(240);
+
+            BusinessException ex = assertThrows(BusinessException.class,
+                    () -> service.updateAvatarUrl(USER_ID, tooLong));
+
+            assertEquals(CiamErrorCode.INVALID_PARAM, ex.getErrorCode());
+            verify(profileRepository, never()).updateByProfileId(any());
+        }
+
+        @Test
+        void throwsWhenProfileMissing() {
+            when(profileRepository.findByUserId(USER_ID)).thenReturn(Optional.empty());
+
+            BusinessException ex = assertThrows(BusinessException.class,
+                    () -> service.updateAvatarUrl(USER_ID, "https://bucket.cos.example.com/a.png"));
+
+            assertEquals(CiamErrorCode.PROFILE_NOT_FOUND, ex.getErrorCode());
         }
     }
 
