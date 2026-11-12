@@ -20,7 +20,7 @@ import java.util.List;
  *       fixed-enabled: ${CIAM_FIXED_VERIFICATION_CODE_ENABLED:false}  # 默认 false：不使用固定验证码
  * </pre>
  * 基础默认值必须是"安全关闭"：允许清单为空、固定验证码关闭。
- * 仅 dev/test 环境显式通过环境变量开启（{@code CIAM_MOBILE_CLIENT_IDS=ciam-mobile-app}、
+ * 仅非生产环境显式通过环境变量开启（{@code CIAM_MOBILE_CLIENT_IDS=ciam-mobile-app}、
  * {@code CIAM_FIXED_VERIFICATION_CODE_ENABLED=true}）。
  */
 @Data
@@ -57,7 +57,7 @@ public class CiamAuthenticationProperties {
     @Data
     public static class VerificationCode {
 
-        /** 是否启用固定验证码 111111（仅 dev/test 允许为 true） */
+        /** 是否启用固定验证码 111111（仅非 prod 允许为 true） */
         private boolean fixedEnabled = false;
     }
 }

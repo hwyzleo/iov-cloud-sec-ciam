@@ -17,9 +17,9 @@ import java.util.List;
  * 在装配完成后执行 fail-fast 校验，阻止把开发/测试机制误认为生产能力：
  * <ol>
  *   <li>固定验证码 {@code ciam.authentication.verification-code.fixed-enabled=true}
- *       只允许出现在 dev/test 环境；其他环境启动失败。</li>
- *   <li>日志桩短信/邮件适配器仅注册于 dev/test（{@code @Profile}），
- *       因此非 dev/test 环境缺少真实适配器时依赖装配本身即失败，无需额外判断。</li>
+ *       只允许在非生产（非 {@code prod}）环境出现；{@code prod} 下启动失败。</li>
+ *   <li>日志桩短信/邮件适配器仅注册于非生产（{@code @Profile("!prod")}），
+ *       因此 {@code prod} 缺少真实适配器时依赖装配本身即失败，无需额外判断。</li>
  * </ol>
  * 注意：本 CR 不提供生产短信适配器，因此生产手机认证发布仍保持阻断（§7、§13）。
  */
@@ -28,7 +28,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CiamProductionSafetyCheck implements InitializingBean {
 
-    private static final List<String> DEV_TEST_PROFILES = List.of("dev", "test");
+    private static final String PRODUCTION_PROFILE = "prod";
 
     private final CiamAuthenticationProperties authenticationProperties;
     private final Environment environment;
@@ -42,11 +42,11 @@ public class CiamProductionSafetyCheck implements InitializingBean {
         }
 
         List<String> activeProfiles = Arrays.asList(environment.getActiveProfiles());
-        boolean devOrTest = activeProfiles.stream()
-                .anyMatch(profile -> DEV_TEST_PROFILES.stream().anyMatch(profile::equalsIgnoreCase));
-        if (!devOrTest) {
+        boolean production = activeProfiles.stream()
+                .anyMatch(profile -> PRODUCTION_PROFILE.equalsIgnoreCase(profile));
+        if (production) {
             throw new IllegalStateException(
-                    "固定验证码模式仅允许在 dev/test 环境启用（当前 profile=" + activeProfiles + "）。"
+                    "固定验证码模式禁止在生产环境启用（当前 profile=" + activeProfiles + "）。"
                             + "生产环境启用固定验证码会阻断认证安全验收，启动终止。");
         }
 
